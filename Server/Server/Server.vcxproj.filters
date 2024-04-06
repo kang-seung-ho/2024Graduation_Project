@@ -1,0 +1,379 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{9f36aae8-afa1-443f-bb39-ac7a93982c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{f84000ab-ee4f-48e9-b675-d14d90205dc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collection">
+      <UniqueIdentifier>{d2405407-61f0-4035-a09d-76846287d184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Coroutine">
+      <UniqueIdentifier>{5a553029-1427-47bf-ba1e-e45ca5d024fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collection\Implementation">
+      <UniqueIdentifier>{860f84bd-3ccd-4b15-8285-db31d8bc111e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Coroutine\Implementation">
+      <UniqueIdentifier>{b1e454c0-0829-4a7f-9769-0d93bfa6288b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Implementation">
+      <UniqueIdentifier>{9ac781f5-eaab-401e-8059-599725bc97d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Implementaition">
+      <UniqueIdentifier>{917e1399-4d4c-42d4-82ac-ebe25547b7cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{4b77abee-1092-4f31-ab21-ea862a7d69f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Implementain">
+      <UniqueIdentifier>{478c6415-88b6-4bc7-b55a-f0d46e2974b7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Annihilator.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="AtomicSwitcher.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowedPointer.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Constraints.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="File.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Handler.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="LooseMonad.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Monad.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Property.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SpinLock.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeList.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeTraits.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressFamily.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="EndPoint.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorCode.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="InternetProtocol.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IoCategory.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IoCompletionPort.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IoContext.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IoEvent.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IpAddress.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketOption.ixx">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Coroutine.ixx">
+      <Filter>Coroutine</Filter>
+    </ClCompile>
+    <ClCompile Include="Task.ixx">
+      <Filter>Coroutine</Filter>
+    </ClCompile>
+    <ClCompile Include="Array.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcurrentList.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcurrentQueue.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcurrentStack.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedString.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="FlatMap.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="SkipList.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\File.cpp">
+      <Filter>Utility\Implementaition</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Logger.cpp">
+      <Filter>Utility\Implementaition</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Coroutine.cpp">
+      <Filter>Coroutine\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Task.cpp">
+      <Filter>Coroutine\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\AddressFamily.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\ErrorCode.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\IoCompletionPort.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Network.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Socket.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketConnector.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketObserver.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketOptin.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketOptout.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketReceiver.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SocketSender.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="IProperty.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="IObject.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="User.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ISessionManager.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviourTree.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="UserManager.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="IContext.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Packet.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicPacket.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Serializer.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcurrentSet.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="ConcurrentMap.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="HashComparator.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowedSendContext.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Identity.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Forwarding.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Byte.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\User.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="StringConverter.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterReader.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="StringResources.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedObject.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="XYZWrapper.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Matrix.cpp">
+      <Filter>Utility\Implementaition</Filter>
+    </ClCompile>
+    <ClCompile Include="InternalObject.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix3x3.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Matrix3x3.cpp">
+      <Filter>Utility\Implementaition</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix2x2.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="BlobSendContext.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncOperation.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientToServerPackets.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerToClientPackets.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="MovableAtomic.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Atomic.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MovableAtomicStorage.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MovableAtomicTrivial.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MovableAtomicNonTrivial.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedMutex.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomContract.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Chronograph.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\Room.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="ISession.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock.ixx">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviourTreeHelper.hpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="GameContract.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="SendContextPool.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SendContextPool.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomMember.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ArrayIterator.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomStates.ixx">
+      <Filter>Collection</Filter>
+    </ClCompile>
+    <ClCompile Include="NativeTimer.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\NativeTimer.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomBase.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\Server.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="PacketHelper.inl">
+      <Filter>Application</Filter>
+    </None>
+  </ItemGroup>
+</Project>

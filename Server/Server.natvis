@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Intrinsic Category="Method" Name="__UnwrapTy" Expression="&quot;$T1&quot;"/>
+
+	<Type Name="iconer::app::packets::SignInPacket" Priority="Medium">
+		<DisplayString>로그인 패킷</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[프로토콜]">myProtocol</Item>
+			<Item Name="[바이트 크기]">mySize</Item>
+			<Item Name="[@유저 이름]">userName</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::BasicPacket" Priority="Low" Inheritable="false">
+		<DisplayString>기본 패킷</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[프로토콜]">myProtocol</Item>
+			<Item Name="[바이트 크기]">mySize</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::ISessionManager&lt;*&gt;">
+		<DisplayString>세션 관리자 인터페이스 &lt;{&quot;$T1&quot;}&gt;</DisplayString>
+	</Type>
+
+	<Type Name="iconer::app::User" Priority="High">
+		<Intrinsic Category="Property" Name="__GetName" Expression="myName"/>
+
+		<DisplayString>사용자 세션 객체 ({myHandle})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myHandle</Item>
+			<Synthetic Name="[이름]">
+				<DisplayString>{__GetName()}</DisplayString>
+			</Synthetic>
+			<Item Name="[상태]">myState</Item>
+			<Item Name="[현재 방]">myRoomId</Item>
+			<Item Name="[명령]">lastOperation</Item>
+			<Item Name="[소켓]">mySocket</Item>
+			<Item Name="[수신 바이트 수]">recvOffset</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::Room" Priority="High">
+		<Intrinsic Category="Property" Name="__GetName" Expression="myName"/>
+
+		<DisplayString>방 객체 ({myHandle})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myHandle</Item>
+			<Synthetic Name="[이름]">
+				<DisplayString>{__GetName()}</DisplayString>
+			</Synthetic>
+			<Item Name="[상태]">myState</Item>
+			<Item Name="[명령]">lastOperation</Item>
+			<Item Name="[멤버]">myMembers</Item>
+			<Item Name="[멤버 수]">membersCount</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::ISession&lt;*&gt;" Priority="MediumHigh">
+		<Intrinsic Category="Property" Name="__GetName" Expression="myName"/>
+
+		<DisplayString>세션 객체 ({myHandle}) &lt;{&quot;$T1&quot;}&gt;</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myHandle</Item>
+			<Synthetic Name="[상태]">
+				<DisplayString>{myState.myValue}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[이름]">
+				<DisplayString>{__GetName()}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::IContext&lt;*&gt;" Priority="MediumLow">
+		<DisplayString>응용 문맥 객체 &lt;{&quot;$T1&quot;}&gt;</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[상태]">myState</Item>
+			<Item Name="[명령]">lastOperation</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::Socket">
+		<DisplayString Condition="myHandle != (SOCKET)(-1)">소켓 ({myHandle})</DisplayString>
+		<DisplayString Condition="myHandle == (SOCKET)(-1)">빈 소켓</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myHandle</Item>
+			<Item Name="[프로토콜]">myProtocol</Item>
+			<Item Name="[주소 패밀리]">myFamily</Item>
+			<Item Name="[주소 재사용 여부]">IsAddressReusable</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::EndPoint">
+		<DisplayString Condition="myAddress.addressFamily == iconer::net::IpAddressFamily::IPv4">
+			IPv4 연결 종단점 {myAddress.addressString}:{myPort}
+		</DisplayString>
+
+		<DisplayString Condition="myAddress.addressFamily == iconer::net::IpAddressFamily::IPv6">
+			IPv6 연결 종단점 {myAddress.addressString}:{myPort}
+		</DisplayString>
+
+		<DisplayString Condition="myAddress.addressFamily == iconer::net::IpAddressFamily::Unknown">
+			알 수 없는 연결 종단점
+		</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[IP 주소]">myAddress</Item>
+			<Item Name="[포트]">myPort</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::IoContext" Priority="MediumLow" Inheritable="false">
+		<Intrinsic Category="Property" Name="__IsInProgress" Expression="Internal == 0"/>
+
+		<DisplayString Condition="!__IsInProgress()">IO 문맥 객체 ({InternalHigh}~{Internal} 진행)</DisplayString>
+		<DisplayString Condition="__IsInProgress()">IO 문맥 객체 (초기 상태)</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[시작점]">Internal</Item>
+			<Item Name="[종단점]">InternalHigh</Item>
+			<Synthetic Name="[IO 오프셋]">
+				<Expand>
+					<Item Name="[위치 시작점]">__Offset()</Item>
+					<Item Name="[위치 종단점]">__OffsetHigh()</Item>
+					<Item Name="[핸들]">__Pointer()</Item>
+				</Expand>
+			</Synthetic>
+			<Item Name="[Windows 이벤트 객체]">hEvent</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::IoEvent" Priority="MediumLow">
+		<DisplayString Condition="isSucceed == true">성공한 네트워크 이벤트 객체 ({eventId})</DisplayString>
+		<DisplayString Condition="isSucceed != true">실패한 네트워크 이벤트 객체 ({eventId})</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[고유 ID]">eventId</Item>
+			<Item Name="[IO 바이트 크기]">ioBytes</Item>
+			<Item Name="[IO 문맥 객체]" Condition="ioContext != nullptr">*ioContext</Item>
+			<Synthetic Name="[IO 문맥 객체]" Condition="ioContext == nullptr">
+				<DisplayString>없음</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="_OVERLAPPED" Priority="Low" Inheritable="false">
+		<Intrinsic Category="Property" Name="__Offset" Expression="Offset" Optional="true"/>
+		<Intrinsic Category="Property" Name="__OffsetHigh" Expression="OffsetHigh" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Pointer" Expression="Pointer" Optional="true"/>
+
+		<DisplayString>Windows IO 문맥 객체</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[시작점]">Internal</Item>
+			<Item Name="[종단점]">InternalHigh</Item>
+			<Synthetic Name="[IO 오프셋]">
+				<Expand>
+					<Item Name="[위치 시작점]">__Offset()</Item>
+					<Item Name="[위치 종단점]">__OffsetHigh()</Item>
+					<Item Name="[핸들]">__Pointer()</Item>
+				</Expand>
+			</Synthetic>
+			<Item Name="[Windows 이벤트 객체]">hEvent</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::IpAddress">
+		<DisplayString Condition="addressFamily == iconer::net::IpAddressFamily::IPv4">IPv4 주소 {addressString}</DisplayString>
+		<DisplayString Condition="addressFamily == iconer::net::IpAddressFamily::IPv6">IPv6 주소 {addressString}</DisplayString>
+		<DisplayString Condition="addressFamily == iconer::net::IpAddressFamily::Unknown">알 수 없는 IP 주소</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[주소 패밀리]">addressFamily</Item>
+			<Synthetic Name="[주소 문자열]">
+				<DisplayString>{addressString}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::IoCompletionPort">
+		<DisplayString Condition="myHandle == nullptr">빈 IO 완료 포트</DisplayString>
+		<DisplayString Condition="myHandle != nullptr">IO 완료 포트 ({myHandle})</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]">myHandle</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::coroutine::Coroutine" Priority="MediumLow">
+		<Intrinsic Category="Method" Name="__IsAvailable" Expression="myHandle._Ptr != nullptr"/>
+		<Intrinsic Category="Method" Name="__IsWorking" Expression="isTriggered._Storage._Value"/>
+
+		<DisplayString Condition="__IsAvailable()">코루틴</DisplayString>
+		<DisplayString Condition="!__IsAvailable()">빈 코루틴</DisplayString>
+		<DisplayString Condition="__IsAvailable() &amp;&amp; __IsWorking()">작동 중인 코루틴</DisplayString>
+		<DisplayString Condition="__IsAvailable() &amp;&amp; !__IsWorking()">작동 중이지 않은 코루틴</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myHandle</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::Logger">
+		<DisplayString Condition="myHandle.myHandle == nullptr">비어있는 기록 도구</DisplayString>
+		<DisplayString Condition="myHandle.myHandle != nullptr">기록 도구</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[파일 핸들]" Condition="myHandle.myHandle != nullptr">*myHandle.myHandle</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::File">
+		<DisplayString Condition="myHandle == nullptr">빈 파일</DisplayString>
+		<DisplayString Condition="myHandle != nullptr">파일 ({myHandle})</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]" Condition="myHandle != nullptr">*myHandle</Item>
+			<Item Name="[마지막 IO 결과]">lastResult</Item>
+			<Item Name="[오류 부호]">lastError</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::AtomicSwitcher&lt;*&gt;">
+		<DisplayString>원자적 권한 전환기 {&quot;$T1&quot;}</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[원본 원자]">myTarget</Item>
+			<Item Name="[현재 값]">myValue</Item>
+			<Item Name="[소거 권한]">finalOrder</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::Singleton&lt;*&gt;">
+		<DisplayString>{&quot;$T1&quot;} 싱글톤 객체</DisplayString>
+	</Type>
+
+	<Type Name="iconer::util::MovableAtomic&lt;*&gt;">
+		<DisplayString>{myValue}</DisplayString>
+
+		<Expand>
+			<Item Name="[값]">myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::NamedObject">
+		<DisplayString>{myName}</DisplayString>
+	</Type>
+
+	<Type Name="iconer::util::IProperty&lt;*&gt;">
+		<DisplayString>{myValue}</DisplayString>
+
+		<Expand HideRawView="false">
+			<Synthetic Name="[설명]">
+				<DisplayString>{&quot;$T1&quot;} 속성 대리자 인터페이스</DisplayString>
+			</Synthetic>
+			<Item Name="[값]">myValue</Item>
+			<Item Name="[대리 함수]">myDelegate</Item>
+			<Item Name="[예외 던지는지 여부]">IsActualNothrow</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::collection::Array&lt;*&gt;">
+		<Intrinsic Category="Property" Name="__Buffer" Expression="myData"/>
+		<Intrinsic Category="Property" Name="__Alloc" Expression="myAllocator"/>
+		
+		<DisplayString>{&quot;$T1&quot;} 배열[{$T2}]</DisplayString>
+
+		<Expand HideRawView="false">
+			<Synthetic Name="[유저]">
+				<DisplayString>크기: {$T2}</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>$T2</Size>
+						<ValuePointer>myData</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="[유저 버퍼]">__Buffer()</Item>
+			<Item Name="[할당자]">__Alloc()</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="std::optional&lt;*&gt;">
+		<Intrinsic Category="Method" Name="__HasValue" Expression="_Has_value"/>
+
+		<DisplayString Condition="!__HasValue()">빈 선택 객체 &lt;{&quot;$T1&quot;}&gt;</DisplayString>
+		<DisplayString Condition="__HasValue()">{_Value}</DisplayString>
+
+		<Expand HideRawView="0">
+			<Item Name="[값]" Optional="true" Condition="_Has_value">_Value</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="std::stop_source">
+		<Intrinsic Category="Method" Name="__HasState" Expression="_State != nullptr"/>
+
+		<DisplayString Condition="!__HasState()">빈 스레드 정지원</DisplayString>
+		<DisplayString Condition="__HasState()">스레드 정지원</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[정지 토큰의 수]" Condition="__HasState()">_State->_Stop_tokens</Item>
+			<Item Name="[정지원의 수]" Condition="__HasState()">_State->_Stop_sources</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="std::coroutine_handle&lt;*&gt;">
+		<Intrinsic Category="Method" Name="__IsAvailable" Expression="_Ptr != nullptr"/>
+
+		<DisplayString Condition="__IsAvailable()">코루틴 핸들</DisplayString>
+		<DisplayString Condition="!__IsAvailable()">빈 코루틴 핸들</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들 주소]" Condition="__IsAvailable()">_Ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="std::monostate">
+		<DisplayString>단일원</DisplayString>
+	</Type>
+
+	<Type Name="std::byte">
+		<DisplayString>바이트</DisplayString>
+	</Type>
+
+	<Type Name="_iobuf">
+		<DisplayString Condition="_Placeholder == nullptr">빈 표준 C 파일 구조체</DisplayString>
+		<DisplayString Condition="_Placeholder != nullptr">표준 C 파일 구조체</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[내부 오프셋]">_Placeholder</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="util::Identity&lt;*&gt;">
+		<Intrinsic Category="Data" Name="__AcqValue" Expression="myValue"/>
+
+		<DisplayString>항등원 {__UnwrapTy()}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[값]">myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="util::LooseMonad&lt;util::Identity&lt;*&gt;, *&gt;">
+		<AlternativeType Name="util::LooseMonad&lt;util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, *&gt;"/>
+		<AlternativeType Name="util::LooseMonad&lt;util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, *&gt;"/>
+		<AlternativeType Name="util::LooseMonad&lt;util::Identity&lt;*&gt;, util::Identity&lt;*&gt;, *&gt;"/>
+
+		<DisplayString Condition="myStorage.mySize == 1">느슨한 모나드 {{ {"$T1"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 2">느슨한 모나드 {{ {"$T1"}, {"$T3"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 3">느슨한 모나드 {{ {"$T1"}, {"$T3"}, {"$T5"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 4">느슨한 모나드 {{ {"$T1"}, {"$T3"}, {"$T5"}, {"$T7"} }}</DisplayString>
+		<DisplayString Condition="4 &lt; myStorage.mySize">느슨한 모나드 {{ {"$T1"}, {"$T3"}, {"$T5"}, {"$T7"}, ... }}</DisplayString>
+
+		<Expand HideRawView="true">
+			<ExpandedItem>myStorage</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="util::LooseMonad&lt;*&gt;">
+		<DisplayString Condition="myStorage.mySize == 1">느슨한 모나드 {{ {"$T1"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 2">느슨한 모나드 {{ {"$T1"}, {"$T2"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 3">느슨한 모나드 {{ {"$T1"}, {"$T2"}, {"$T3"} }}</DisplayString>
+		<DisplayString Condition="myStorage.mySize == 4">느슨한 모나드 {{ {"$T1"}, {"$T2"}, {"$T3"}, {"$T4"} }}</DisplayString>
+		<DisplayString Condition="4 &lt; myStorage.mySize">느슨한 모나드 {{ {"$T1"}, {"$T2"}, {"$T3"}, {"$T4"}, ... }}</DisplayString>
+	</Type>
+
+	<Type Name="util::Option&lt;*&gt;">
+		<DisplayString>선택지 &lt;{"$T1"}&gt;</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="값">myOption</Item>
+			<Item Name="이벤트 처리기">myHandlers</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>

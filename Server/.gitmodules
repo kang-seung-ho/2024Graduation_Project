@@ -1,0 +1,3 @@
+[submodule "Demo/Server/Colourful-Console"]
+	path = Colourful-Console
+	url = https://github.com/iconstudio/Colourful-Console.git

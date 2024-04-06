@@ -1,0 +1,6 @@
+[submodule "Utility"]
+	path = Utility
+	url = https://github.com/iconstudio/Utility.git
+[submodule "Demo/Server/Modern Network"]
+	path = Demo/Server/Modern Network
+	url = https://github.com/iconstudio/Modern-Network-TryOut.git
