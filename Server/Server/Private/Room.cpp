@@ -104,6 +104,7 @@ volatile noexcept
 				Dirty(true);
 
 				result = true;
+				break;
 			}
 		}
 	}
