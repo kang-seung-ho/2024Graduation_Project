@@ -86,7 +86,7 @@ export namespace iconer::app
 		{
 			for (auto& [user, _] : myMembers)
 			{
-				if (nullptr != user)
+				if (nullptr != user.Load(std::memory_order_acquire))
 				{
 					std::invoke(std::move(predicate), *user);
 				}
