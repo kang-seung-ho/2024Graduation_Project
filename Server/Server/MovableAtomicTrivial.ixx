@@ -171,6 +171,91 @@ namespace iconer::util
 			return myValue.load(order);
 		}
 
+		integral_type FetchAdd(const integral_type& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_add(operand, order);
+		}
+
+		integral_type FetchSubtract(const integral_type& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_sub(operand, order);
+		}
+
+		integral_type FetchAnd(const integral_type& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_and(operand, order);
+		}
+
+		integral_type FetchOr(const integral_type& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_or(operand, order);
+		}
+
+		integral_type FetchXor(const integral_type& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_xor(operand, order);
+		}
+		
+		integral_type FetchAdd(integral_type&& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_add(std::move(operand), order);
+		}
+
+		integral_type FetchSubtract(integral_type&& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_sub(std::move(operand), order);
+		}
+
+		integral_type FetchAnd(integral_type&& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_and(std::move(operand), order);
+		}
+
+		integral_type FetchOr(integral_type&& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_or(std::move(operand), order);
+		}
+
+		integral_type FetchXor(integral_type&& operand, const std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myValue.fetch_xor(std::move(operand), order);
+		}
+
+		template<typename U> requires assignable_from<integral_type, U>
+		integral_type FetchAdd(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
+			noexcept(nothrow_addable_with<integral_type, U>)
+		{
+			return myValue.fetch_add(operand, std::forward<U>(order));
+		}
+		
+		template<typename U> requires assignable_from<integral_type, U>
+		integral_type FetchSubtract(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
+			noexcept(nothrow_subtractable_with<integral_type, U>)
+		{
+			return myValue.fetch_sub(operand, std::forward<U>(order));
+		}
+		
+		template<typename U> requires assignable_from<integral_type, U>
+		integral_type FetchAnd(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
+			noexcept
+		{
+			return myValue.fetch_and(operand, std::forward<U>(order));
+		}
+		
+		template<typename U> requires assignable_from<integral_type, U>
+		integral_type FetchOr(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
+			noexcept
+		{
+			return myValue.fetch_or(operand, std::forward<U>(order));
+		}
+		
+		template<typename U> requires assignable_from<integral_type, U>
+		integral_type FetchXor(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
+			noexcept
+		{
+			return myValue.fetch_xor(operand, std::forward<U>(order));
+		}
+
 		template<typename U>
 			requires requires{ std::declval<value_type>().store(std::declval<U>()); }
 		bool CompareAndSet(integral_type expected, U&& value)
