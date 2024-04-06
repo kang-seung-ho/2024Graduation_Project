@@ -235,8 +235,8 @@ export namespace demo
 		void OnFailedToLoadGame(iconer::app::User& user) noexcept;
 
 		[[nodiscard]]
-		bool OnStartGame(iconer::app::User& user, iconer::app::Room& room);
-		void OnFailedToStartGame(iconer::app::User& user) noexcept;
+		bool OnStartGame(iconer::app::Room& room);
+		void OnFailedToStartGame(iconer::app::Room& room) noexcept;
 		void OnCloseGame(iconer::app::Room& room);
 
 		void SetRoomModifiedFlag() noexcept;

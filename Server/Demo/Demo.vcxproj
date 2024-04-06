@@ -182,6 +182,8 @@
     <ClCompile Include="FrameworkEvents2.cpp" />
     <ClCompile Include="FrameworkEvents3.cpp" />
     <ClCompile Include="FrameworkEvents4.cpp" />
+    <ClCompile Include="FrameworkEvents5.cpp" />
+    <ClCompile Include="FrameworkEvents6.cpp" />
     <ClCompile Include="FrameworkInitializer.cpp">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>

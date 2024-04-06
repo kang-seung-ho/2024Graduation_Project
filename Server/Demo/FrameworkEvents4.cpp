@@ -3,17 +3,29 @@ module;
 #include <vector>
 #include <atomic>
 
-#define SEND(user_var, method, ...)\
-auto [io, ctx] = ((user_var).method)(__VA_ARGS__);\
-if (not io)\
-{\
+#define SEND(user_var, method, ...) \
+auto [io, ctx] = ((user_var).method)(__VA_ARGS__); \
+if (not io) \
+{ \
 	ctx.Complete(); \
 }
+#define SEND_RESULT(captures, user_var, method, ...) \
+[captures](){ \
+	auto [io, ctx] = ((user_var).method)(__VA_ARGS__); \
+	if (not io) \
+	{ \
+		ctx.Complete(); \
+		return false; \
+	} \
+	return true; \
+}()
 module Demo.Framework;
 
 bool
 demo::Framework::OnCreateGame(iconer::app::User& user)
 {
+	using enum iconer::app::AsyncOperations;
+
 	const auto room_id = user.myRoomId.Load();
 	if (-1 == room_id)
 	{
@@ -31,7 +43,7 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 		// for room master first
 		if (not room->CanCreateGame())
 		{
-			// cannot prepare the game: The room is lack of members
+			// cannot prepare the game: The room is lack of member
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::LackOfMember);
 
 			return false;
@@ -55,21 +67,21 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 		else if (not room->HasMember(user.GetID()))
 		{
 			// rollback
-			room->TryCancelReady();
 			user.myRoomId.CompareAndSet(room_id, -1);
 			user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::Idle);
+			room->TryCancelReady();
 
 			// cannot prepare the game: The client has no room
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
 
 			return false;
 		}
-		else if (room->SetOperation(iconer::app::AsyncOperations::OpSpreadGameTicket);
+		else if (room->SetOperation(OpSpreadGameTicket);
 			not Schedule(room, 0))
 		{
 			// rollback
-			room->TryCancelReady();
 			user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
+			room->TryCancelReady();
 
 			// cannot prepare the game: Server error occured
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ServerError);
@@ -84,8 +96,10 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 	else
 	{
 		// rollback
-		user.myRoomId = -1;
-		user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+		if (user.myRoomId.CompareAndSet(room_id, -1))
+		{
+			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+		}
 
 		// cannot start a game: The client has a invalid room
 		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
@@ -107,24 +121,19 @@ noexcept
 	}
 }
 
-// TODO
 bool
 demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 {
 	if (room.CanPrepareGame())
 	{
-		std::vector<iconer::app::User*> members{ iconer::app::Room::maxUsersNumberInRoom };
+		std::vector<iconer::app::User*> members{};
+		members.reserve(iconer::app::Room::maxUsersNumberInRoom);
 
 		room.ForEach
 		(
 			[&members](iconer::app::User& member)
 			{
-				using enum iconer::app::UserStates;
-
-				if (member.TryChangeState(InRoom, ReadyForGame))
-				{
-					members.push_back(std::addressof(member));
-				}
+				members.push_back(std::addressof(member));
 			}
 		);
 
@@ -139,16 +148,27 @@ demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 		}
 		else
 		{
+			// rollback
+			room.TryCancelReady();
+
+			// cannot prepare the game: The room is lack of member
+			for (auto& member : members)
+			{
+				SEND(*member, SendCannotStartGamePacket, iconer::app::GameContract::LackOfMember);
+			}
+
 			return false;
 		}
 	}
 	else
 	{
+		// rollback
+		room.TryCancelReady();
+
 		return false;
 	}
 }
 
-// TODO
 void
 demo::Framework::OnFailedToBroadcastGameTickets(iconer::app::Room& room)
 noexcept
@@ -159,38 +179,74 @@ noexcept
 bool
 demo::Framework::OnSentGameTicket(iconer::app::User& user)
 {
+	using enum iconer::app::AsyncOperations;
+
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
 		if (auto room = FindRoom(room_id); nullptr != room)
 		{
-			auto cnt = room->proceedMemberCount.Load(std::memory_order_acquire);
-			auto failed = room->isGameReadyFailed.Load(std::memory_order_acquire);
+			auto& cnt_ref = room->proceedMemberCount;
+			auto& failed_ref = room->isGameReadyFailed;
 
-			if (not room->HasMember(user.GetID()) or room->GetState() != iconer::app::RoomStates::Ready)
+			auto cnt = cnt_ref.Load(std::memory_order_acquire);
+			auto failed = failed_ref.Load(std::memory_order_acquire);
+
+			if (failed)
 			{
-				room->isGameReadyFailed.Store(true, std::memory_order_relaxed);
+				// cannot start a game: Other clients has been failed
+				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::OtherClientFailed);
 			}
 
-			while (not room->proceedMemberCount.CompareAndSet(cnt, cnt + 1, std::memory_order_relaxed));
+			if (not room->HasMember(user.GetID()) or not room->CanPrepareGame())
+			{
+				// mark failed at anytime
+				failed_ref.Store(true, std::memory_order_relaxed);
+				failed = true;
 
+				// cannot start a game: The room is unstable
+				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::UnstableRoom);
+			}
+
+			// check condition using plain fields
 			if (room->GetMembersCount() <= cnt + 1)
 			{
-				if (failed or room->isGameReadyFailed.Load(std::memory_order_relaxed))
+				if (failed)
 				{
 					if (room->TryCancelReady(iconer::app::RoomStates::Closing))
 					{
-						room->SetOperation(iconer::app::AsyncOperations::OpCloseGame);
+						room->SetOperation(OpCloseGame);
 						(void)Schedule(room, 0);
 					}
 				}
 
 				// rollback atomics
-				room->proceedMemberCount.Store(0, std::memory_order_release);
-				room->isGameReadyFailed.Store(false, std::memory_order_release);
+				cnt_ref.Store(0, std::memory_order_release);
+				failed_ref.Store(false, std::memory_order_release);
+			}
+			else
+			{
+				// increase and release
+				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
 			}
 
-			return true;
+			return not failed;
 		}
+		else
+		{
+			// rollback
+			if (user.myRoomId.CompareAndSet(room_id, -1))
+			{
+				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			}
+
+			// cannot start a game: The client has a invalid room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+		}
+	}
+	else
+	{
+		// cannot start a game: The client is not in a room
+		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
 	}
 
 	return false;
@@ -200,80 +256,229 @@ void
 demo::Framework::OnFailedToSendGameTicket(iconer::app::User& user)
 noexcept
 {
+	using enum iconer::app::AsyncOperations;
+
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
 		if (auto room = FindRoom(room_id); nullptr != room)
 		{
-			auto cnt = room->proceedMemberCount.Load(std::memory_order_acquire);
-			room->isGameReadyFailed.Store(true, std::memory_order_release);
+			auto& cnt_ref = room->proceedMemberCount;
+			auto& failed_ref = room->isGameReadyFailed;
 
-			while (not room->proceedMemberCount.CompareAndSet(cnt, cnt + 1, std::memory_order_relaxed));
+			auto cnt = cnt_ref.Load(std::memory_order_acquire);
+			auto failed = failed_ref.Load(std::memory_order_acquire);
 
-			if (room->GetMembersCount() <= cnt + 1)
+			// just mark it as failed
+			failed_ref.Store(true, std::memory_order_relaxed);
+			failed = true;
+
+			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
 			{
 				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
 				{
-					room->SetOperation(iconer::app::AsyncOperations::OpCloseGame);
+					room->SetOperation(OpCloseGame);
 					(void)Schedule(room, 0);
 				}
 
 				// rollback atomics
-				room->proceedMemberCount.Store(0, std::memory_order_release);
-				room->isGameReadyFailed.Store(false, std::memory_order_release);
+				cnt_ref.Store(0, std::memory_order_release);
+				failed_ref.Store(false, std::memory_order_release);
 			}
-		}
-	}
-}
-
-// TODO
-bool
-demo::Framework::OnGameIsLoaded(iconer::app::User& user)
-{
-	const auto room_id = user.myRoomId.Load();
-	if (room_id == -1)
-	{
-		// rollback
-		user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::Idle);
-		user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
-
-		return false;
-	}
-	else if (auto room = FindRoom(room_id); room != nullptr)
-	{
-		if (room->GetState() != iconer::app::RoomStates::Ready)
-		{
-			// cannot prepare the game: the room is unstable
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::UnstableRoom);
-
-			return false;
-		}
-		else if (not room->isGameReadyFailed and room->ReadyMember(user))
-		{
-			return true;
-		}
-		else if (room->proceedMemberCount < room->GetMembersCount())
-		{
-			// mark room as failed
-			room->isGameReadyFailed = true;
-
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::OtherClientFailed);
-		}
-		else if (room->TryCancelReady(iconer::app::RoomStates::Closing))
-		{
-			room->SetOperation(iconer::app::AsyncOperations::OpCloseGame);
-			(void)Schedule(room, 0);
+			else
+			{
+				// increase and release
+				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
+				// mark failed and release
+				failed_ref.Store(true, std::memory_order_release);
+			}
 		}
 		else
 		{
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::UnstableRoom);
+			// rollback
+			if (user.myRoomId.CompareAndSet(room_id, -1))
+			{
+				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			}
+
+			// cannot start a game: The client has a invalid room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
 		}
 	}
 	else
 	{
-		// rollback (failsafe)
-		if (user.myRoomId.CompareAndSet(room_id, -1))
+		// cannot start a game: The client is not in a room
+		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+	}
+}
+
+bool
+demo::Framework::OnGameIsLoaded(iconer::app::User& user)
+{
+	using enum iconer::app::AsyncOperations;
+
+	if (not user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::ReadyForGame))
+	{
+		// rollback everything
+		const auto room_id = user.myRoomId.Load();
+
+		if (room_id == -1)
 		{
 			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+
+			// cannot start a game: The client is not in a room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		}
+		else if (auto room = FindRoom(room_id); room != nullptr)
+		{
+			auto& cnt_ref = room->proceedMemberCount;
+			auto& failed_ref = room->isGameReadyFailed;
+
+			auto cnt = cnt_ref.Load(std::memory_order_acquire);
+			auto failed = failed_ref.Load(std::memory_order_acquire);
+
+			// just mark it as failed
+			failed_ref.Store(true, std::memory_order_relaxed);
+			failed = true;
+
+			// check condition using a plain field
+			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
+			{
+				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+				{
+					room->SetOperation(OpCloseGame);
+					(void)Schedule(room, 0);
+				}
+				else
+				{
+					// cannot prepare the game: The operation is invalid
+					SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
+				}
+
+				// rollback atomics
+				cnt_ref.Store(0, std::memory_order_release);
+				failed_ref.Store(false, std::memory_order_release);
+			}
+			else
+			{
+				// increase and release
+				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
+				// mark failed and release
+				failed_ref.Store(true, std::memory_order_release);
+			}
+		}
+		else
+		{
+			// rollback
+			if (user.myRoomId.CompareAndSet(room_id, -1))
+			{
+				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			}
+
+			// cannot start a game: The client has a invalid room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+		}
+	}
+	else
+	{
+		const auto room_id = user.myRoomId.Load();
+
+		if (room_id == -1)
+		{
+			// rollback
+			user.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::Idle);
+			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+
+			// cannot start a game: The client is not in a room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		}
+		else if (auto room = FindRoom(room_id); room != nullptr)
+		{
+			auto& cnt_ref = room->proceedMemberCount;
+			auto& failed_ref = room->isGameReadyFailed;
+
+			auto cnt = cnt_ref.Load(std::memory_order_acquire);
+			auto failed = failed_ref.Load(std::memory_order_acquire);
+
+			if (failed)
+			{
+				// cannot start a game: Other clients has been failed
+				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::OtherClientFailed);
+			}
+
+			if (not room->CanPrepareGame() or not room->ReadyMember(user))
+			{
+				// mark failed at anytime
+				failed_ref.Store(true, std::memory_order_relaxed);
+				failed = true;
+
+				// cannot start a game: The operation is invalid
+				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
+			}
+
+			// check condition using plain fields
+			if (room->GetMembersCount() <= cnt + 1)
+			{
+				using enum iconer::app::RoomStates;
+
+				if (failed)
+				{
+					if (room->TryCancelReady(Closing))
+					{
+						room->SetOperation(OpCloseGame);
+						(void)Schedule(room, 0);
+					}
+				}
+				else if (room->TryBeginGame())
+				{
+					// now let's start a game
+					room->SetOperation(OpStartGame);
+					if (not Schedule(room, 0))
+					{
+						if (room->TryChangeState(InGame, Closing))
+						{
+							room->SetOperation(OpCloseGame);
+							(void)Schedule(room, 0);
+						}
+						else
+						{
+							room->TryCancelBeginGameInGame();
+						}
+					}
+				}
+				else
+				{
+					if (room->TryCancelReady(Closing))
+					{
+						failed = true;
+
+						room->SetOperation(OpCloseGame);
+						(void)Schedule(room, 0);
+					}
+				}
+
+				// rollback atomics
+				cnt_ref.Store(0, std::memory_order_release);
+				failed_ref.Store(false, std::memory_order_release);
+			}
+			else
+			{
+				// increase and release
+				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
+			}
+
+			return not failed;
+		}
+		else
+		{
+			// rollback
+			if (user.myRoomId.CompareAndSet(room_id, -1))
+			{
+				user.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::Idle);
+				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			}
+
+			// cannot start a game: The client has a invalid room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
 		}
 	}
 
@@ -287,42 +492,51 @@ demo::Framework::OnFailedToLoadGame(iconer::app::User& user) noexcept
 	{
 		if (auto room = FindRoom(room_id); nullptr != room)
 		{
-			if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+			auto& cnt_ref = room->proceedMemberCount;
+			auto& failed_ref = room->isGameReadyFailed;
+
+			auto cnt = cnt_ref.Load(std::memory_order_acquire);
+			auto failed = failed_ref.Load(std::memory_order_acquire);
+
+			// just mark it as failed
+			failed_ref.Store(true, std::memory_order_relaxed);
+			failed = true;
+
+			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
 			{
-				room->SetOperation(iconer::app::AsyncOperations::OpCloseGame);
-				(void)Schedule(room, 0);
+				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+				{
+					room->SetOperation(OpCloseGame);
+					(void)Schedule(room, 0);
+				}
+
+				// rollback atomics
+				cnt_ref.Store(0, std::memory_order_release);
+				failed_ref.Store(false, std::memory_order_release);
+			}
+			else
+			{
+				// increase and release
+				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
+				// mark failed and release
+				failed_ref.Store(true, std::memory_order_release);
 			}
 		}
-	}
-}
-
-bool
-demo::Framework::OnStartGame(iconer::app::User& user, iconer::app::Room& room)
-{
-	return true;
-}
-
-void
-demo::Framework::OnFailedToStartGame(iconer::app::User& user)
-noexcept
-{}
-
-void
-demo::Framework::OnCloseGame(iconer::app::Room& room)
-{
-	if (room.TryEndClose(0 < room.GetMembersCount()
-		? iconer::app::RoomStates::Idle : iconer::app::RoomStates::None))
-	{
-		room.SetOperation(iconer::app::AsyncOperations::None);
-		room.isGameReadyFailed = false;
-
-		room.ForEach
-		(
-			[](iconer::app::User& member)
+		else
+		{
+			// rollback
+			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				member.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
-				member.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::InRoom);
+				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
 			}
-		);
+
+			// cannot start a game: The client has a invalid room
+			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+		}
+	}
+	else
+	{
+		// cannot start a game: The client is not in a room
+		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
 	}
 }

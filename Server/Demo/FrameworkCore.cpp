@@ -362,12 +362,12 @@ demo::Framework::RouteEvent(bool is_succeed
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {}'s operation that notifies members in the room has been failed\n", user_id);
+
 			OnFailedNotifyRoomMember(*user);
 		}
 		else if (auto error = OnNotifyMemberOfRoom(*user); not error.has_value())
 		{
 			myLogger.LogError(L"\tUser {} has failed to notify members in the room, due to {}\n", user_id, error.error());
-			OnFailedNotifyRoomMember(*user);
 		}
 		else
 		{
@@ -439,8 +439,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		else if (not OnCreateGame(*user))
 		{
 			myLogger.LogError(L"\tUser {}'s operation that makes a game is failed\n", user_id);
-
-			OnFailedToCreateGame(*user);
 		}
 		else
 		{
@@ -465,8 +463,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		else if (not OnBroadcastGameTickets(*room))
 		{
 			myLogger.Log(L"\tRoom {} could not send some game tickets\n", room->GetID());
-
-			OnFailedToBroadcastGameTickets(*room);
 		}
 		else
 		{
@@ -512,18 +508,15 @@ demo::Framework::RouteEvent(bool is_succeed
 		ctx->Clear();
 		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
 
-		// TODO
 		if (not is_succeed)
 		{
-			myLogger.LogError(L"\tUser {}'s operation of preparing the game has failed!\n", user_id);
+			myLogger.LogError(L"\tUser {}'s operation of preparing the game has failed\n", user_id);
 
 			OnFailedToLoadGame(*user);
 		}
 		else if (not OnGameIsLoaded(*user))
 		{
 			myLogger.Log(L"\tThe game is not loaded on user {}\n", user_id);
-
-			OnFailedToLoadGame(*user);
 		}
 		else
 		{
@@ -539,16 +532,12 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 7
 	case iconer::app::AsyncOperations::OpStartGame:
 	{
-		const IdType user_id = static_cast<IdType>(io_id);
-		auto user = FindUser(user_id);
+		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
 		ctx->Clear();
-		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
 
 		// TODO
 
-
-		RETURN_BACK_SENDER(ctx);
 	}
 	break;
 
