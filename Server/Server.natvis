@@ -27,6 +27,7 @@
 
 	<Type Name="iconer::app::User" Priority="High">
 		<Intrinsic Category="Property" Name="__GetName" Expression="myName"/>
+		<Intrinsic Category="Property" Name="__IsRidingGuardian" Expression="isRidingGuardian"/>
 
 		<DisplayString>사용자 세션 객체 ({myHandle})</DisplayString>
 
@@ -37,6 +38,10 @@
 			</Synthetic>
 			<Item Name="[상태]">myState</Item>
 			<Item Name="[현재 방]">myRoomId</Item>
+			<Item Name="[현재 팀]">myTeamId</Item>
+			<Item Name="[현재 무기]">myWeaponId</Item>
+			<Item Name="[수호자 탑승 여부]">__IsRidingGuardian()</Item>
+			<Item Name="[현재 방]">myRoomId</Item>
 			<Item Name="[명령]">lastOperation</Item>
 			<Item Name="[소켓]">mySocket</Item>
 			<Item Name="[수신 바이트 수]">recvOffset</Item>
@@ -45,6 +50,8 @@
 
 	<Type Name="iconer::app::Room" Priority="High">
 		<Intrinsic Category="Property" Name="__GetName" Expression="myName"/>
+		<Intrinsic Category="Property" Name="__IsMemberUpdated" Expression="isMemberUpdated"/>
+		<Intrinsic Category="Property" Name="__GetMemberEnumIndex" Expression="proceedMemberCount"/>
 
 		<DisplayString>방 객체 ({myHandle})</DisplayString>
 
@@ -57,6 +64,9 @@
 			<Item Name="[명령]">lastOperation</Item>
 			<Item Name="[멤버]">myMembers</Item>
 			<Item Name="[멤버 수]">membersCount</Item>
+			<Item Name="[멤버 수정 여부]">__IsMemberUpdated()</Item>
+			<Item Name="[멤버 처리 번호]">__GetMemberEnumIndex()</Item>
+			<Item Name="[타이머]">myTimer</Item>
 		</Expand>
 	</Type>
 
