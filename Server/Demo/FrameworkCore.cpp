@@ -466,7 +466,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tRoom {} broadcast game tickets\n", room->GetID());
+			myLogger.Log(L"\tRoom {} broadcasted game tickets\n", room->GetID());
 		}
 	}
 	break;
@@ -521,8 +521,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		else
 		{
 			myLogger.Log(L"\tUser {} prepared the game\n", user_id);
-
-			myLogger.Log(L"\tLet's start the game\n", user_id);
 		}
 
 		RETURN_BACK_SENDER(ctx);
@@ -537,6 +535,20 @@ demo::Framework::RouteEvent(bool is_succeed
 		ctx->Clear();
 
 		// TODO
+		if (not is_succeed)
+		{
+			myLogger.LogError(L"\tCannot start a game at room {}\n", room->GetID());
+
+			OnFailedToStartGame(*room);
+		}
+		else if (not OnStartGame(*room))
+		{
+			myLogger.Log(L"\tThe game is started at room {}\n", room->GetID());
+		}
+		else
+		{
+			myLogger.Log(L"\tLet's start the game\n");
+		}
 
 	}
 	break;

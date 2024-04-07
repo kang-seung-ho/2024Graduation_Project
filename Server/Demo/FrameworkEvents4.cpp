@@ -34,8 +34,6 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 
 		// cannot prepare the game: The client is not in a room
 		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
-
-		return false;
 	}
 	else if (auto room = FindRoom(room_id); nullptr != room)
 	{
@@ -45,8 +43,6 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 		{
 			// cannot prepare the game: The room is lack of member
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::LackOfMember);
-
-			return false;
 		}
 		else if (not user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::MakingGame))
 		{
@@ -61,8 +57,6 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 
 			// cannot prepare the game: Not proper operation
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
-
-			return false;
 		}
 		else if (not room->HasMember(user.GetID()))
 		{
@@ -73,8 +67,6 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 
 			// cannot prepare the game: The client has no room
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
-
-			return false;
 		}
 		else if (room->SetOperation(OpSpreadGameTicket);
 			not Schedule(room, 0))
@@ -85,8 +77,6 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 
 			// cannot prepare the game: Server error occured
 			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ServerError);
-
-			return false;
 		}
 		else
 		{
@@ -103,9 +93,9 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 
 		// cannot start a game: The client has a invalid room
 		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
-
-		return false;
 	}
+
+	return false;
 }
 
 void
@@ -208,7 +198,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			}
 
 			// check condition using plain fields
-			if (room->GetMembersCount() <= cnt + 1)
+			if (room->GetMembersCount() <= cnt)
 			{
 				if (failed)
 				{
@@ -226,7 +216,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			else
 			{
 				// increase and release
-				cnt_ref.CompareAndSet(cnt, cnt + 1, std::memory_order_release);
+				cnt_ref.CompareAndSet(cnt, cnt, std::memory_order_release);
 			}
 
 			return not failed;
@@ -341,7 +331,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			failed = true;
 
 			// check condition using a plain field
-			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
+			if (room->GetMembersCount() <= cnt or not room->CanPrepareGame())
 			{
 				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
 				{
@@ -416,7 +406,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			}
 
 			// check condition using plain fields
-			if (room->GetMembersCount() <= cnt + 1)
+			if (room->GetMembersCount() <= cnt)
 			{
 				using enum iconer::app::RoomStates;
 
@@ -441,7 +431,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 						}
 						else
 						{
-							room->TryCancelBeginGameInGame();
+							room->TryCancelBeginGame();
 						}
 					}
 				}

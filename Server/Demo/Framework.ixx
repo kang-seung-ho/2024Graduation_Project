@@ -237,6 +237,7 @@ export namespace demo
 		[[nodiscard]]
 		bool OnStartGame(iconer::app::Room& room);
 		void OnFailedToStartGame(iconer::app::Room& room) noexcept;
+
 		void OnCloseGame(iconer::app::Room& room);
 
 		void SetRoomModifiedFlag() noexcept;

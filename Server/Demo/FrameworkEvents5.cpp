@@ -28,7 +28,19 @@ demo::Framework::OnStartGame(iconer::app::Room& room)
 void
 demo::Framework::OnFailedToStartGame(iconer::app::Room& room)
 noexcept
-{}
+{
+	using enum iconer::app::RoomStates;
+
+	if (room.TryChangeState(InGame, Closing))
+	{
+		room.SetOperation(iconer::app::AsyncOperations::OpCloseGame);
+		(void)Schedule(room, 0);
+	}
+	else
+	{
+		room.TryCancelBeginGame();
+	}
+}
 
 void
 demo::Framework::OnCloseGame(iconer::app::Room& room)

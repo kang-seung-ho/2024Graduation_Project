@@ -224,8 +224,6 @@ demo::Framework::OnSucceedToJoinRoom(iconer::app::Room& room, iconer::app::User&
 			}
 		}
 	);
-
-	(void)Schedule(user.requestMemberContext, user.GetID());
 }
 
 bool

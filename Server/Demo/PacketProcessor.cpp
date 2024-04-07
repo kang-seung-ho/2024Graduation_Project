@@ -218,9 +218,20 @@ demo::OnGameLoadedSignal(demo::Framework& framework, iconer::app::User& user)
 void
 demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is_red_team)
 {
-	if (user.myRoomId != -1)
+	const auto room_id = user.myRoomId.Load();
+	if (room_id != -1)
 	{
-		user.myTeamId = is_red_team ? iconer::app::Team::Red : iconer::app::Team::Blue;
+		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		{
+			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
+			const auto target = is_red_team ? iconer::app::Team::Red : iconer::app::Team::Blue;
+
+			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target))
+			{
+				room->Dirty(true);
+			}
+		}
+
 		(void)framework.Schedule(user.teamChangerContext, user.GetID());
 	}
 }
