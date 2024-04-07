@@ -2,6 +2,7 @@
 #pragma comment(lib, "Server.lib")
 #include <cstdlib>
 #include <print>
+#include <thread>
 
 module TestClient;
 import Iconer.Application.BasicPacket;
@@ -195,6 +196,10 @@ test::Receiver()
 							std::println("Now start loading game...");
 
 							PullReceiveBuffer(offset);
+
+							std::this_thread::sleep_for(std::chrono::seconds(3));
+
+							SendGameIsLoadedPacket();
 						}
 						break;
 

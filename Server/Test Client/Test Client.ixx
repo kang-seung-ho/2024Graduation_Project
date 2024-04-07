@@ -52,10 +52,10 @@ namespace test
 
 	void Receiver();
 
-	Levels currentLevel = Levels::Init;
 	inline constexpr std::wstring_view my_name = L"iconer";
-	IdType my_id = -1;
-	IdType roomId = -1;
+	constinit IdType my_id = -1;
+	constinit IdType roomId = -1;
+	constinit Levels currentLevel = Levels::Init;
 
 	struct FSagaPlayer
 	{
@@ -68,9 +68,9 @@ namespace test
 		float look, up, right;
 	};
 
-	constexpr std::uint16_t server_port = 40000;
 	iconer::net::Socket app_socket{};
 	iconer::net::IpAddress server_address{};
+	constexpr std::uint16_t server_port = 40000;
 	iconer::net::EndPoint server_ep{};
 
 	inline constexpr size_t recvMaxSize = 512;

@@ -5,11 +5,14 @@ import Iconer.Application.Packet;
 iconer::net::Socket::IoResult
 test::SendSignInPacket()
 {
-	const iconer::app::packets::CS_SignInPacket sign_packet{ my_name.data(), my_name.size() };
+	const iconer::app::packets::CS_SignInPacket pk{ my_name.data(), my_name.size() };
 
-	auto ptr = sign_packet.Serialize();
+	auto ptr = pk.Serialize();
 
-	return app_socket.Send(ptr.get(), sign_packet.WannabeSize());
+	auto r = app_socket.Send(ptr.get(), pk.WannabeSize());
+	delete[] ptr.release();
+
+	return std::move(r);
 }
 
 iconer::net::Socket::IoResult
@@ -77,7 +80,7 @@ test::SendGameStartPacket()
 	static constexpr iconer::app::packets::CS_GameStartPacket pk{};
 	static auto ptr = pk.Serialize();
 
-	return iconer::net::Socket::IoResult();
+	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
 iconer::net::Socket::IoResult
@@ -86,7 +89,7 @@ test::SendGameIsLoadedPacket()
 	static constexpr iconer::app::packets::CS_GameLoadedPacket pk{};
 	static auto ptr = pk.Serialize();
 
-	return iconer::net::Socket::IoResult();
+	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
 bool
