@@ -202,7 +202,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 				ClearUserList();
 				for (auto& user : tr_users)
 				{
-					const auto team_id = static_cast<EUserTeam>(user.team_id);
+					const auto team_id = user.team_id == 1 ? EUserTeam::Red : EUserTeam::Blue;
 
 					AddUser(FSagaVirtualUser
 						{
