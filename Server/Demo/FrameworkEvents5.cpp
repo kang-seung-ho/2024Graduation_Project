@@ -22,7 +22,23 @@ module Demo.Framework;
 bool
 demo::Framework::OnStartGame(iconer::app::Room& room)
 {
-	return true;
+	if (room.CanStartGame() and room.TryBeginGame())
+	{
+		room.ForEach
+		(
+			[](iconer::app::User& member)
+			{
+				member.SetState(iconer::app::UserStates::InGame);
+				SEND(member, SendGameJustStartedPacket);
+			}
+		);
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void

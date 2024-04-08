@@ -346,7 +346,7 @@ iconer::app::Room::CanStartGame()
 const volatile noexcept
 {
 #if MUST_START
-	return GetState() == iconer::app::RoomStates::Ready and 0 < membersCount;
+	return GetState() == iconer::app::RoomStates::Prepared and 0 < membersCount;
 #else
 	return GetState() == iconer::app::RoomStates::Ready and minUsersNumberForGame <= membersCount and IsEveryMemberIsLoaded();
 #endif

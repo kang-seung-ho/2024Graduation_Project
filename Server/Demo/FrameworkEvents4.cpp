@@ -127,7 +127,13 @@ demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 			}
 		);
 
+#define MUST_START true
+
+#if MUST_START
+		if (0 < members.size())
+#else
 		if (iconer::app::Room::minUsersNumberForGame <= members.size())
+#endif
 		{
 			for (auto& member : members)
 			{
@@ -198,7 +204,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			}
 
 			// check condition using plain fields
-			if (room->GetMembersCount() <= cnt)
+			if (room->GetMembersCount() <= cnt + 1)
 			{
 				if (failed)
 				{
@@ -406,7 +412,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			}
 
 			// check condition using plain fields
-			if (room->GetMembersCount() <= cnt)
+			if (room->GetMembersCount() <= cnt + 1)
 			{
 				using enum iconer::app::RoomStates;
 
@@ -418,20 +424,20 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 						(void)Schedule(room, 0);
 					}
 				}
-				else if (room->TryBeginGame())
+				else if (room->TryMarkPreparedForGame())
 				{
 					// now let's start a game
 					room->SetOperation(OpStartGame);
 					if (not Schedule(room, 0))
 					{
-						if (room->TryChangeState(InGame, Closing))
+						if (room->TryUnmarkPreparedForGame(Closing))
 						{
 							room->SetOperation(OpCloseGame);
 							(void)Schedule(room, 0);
 						}
 						else
 						{
-							room->TryCancelBeginGame();
+							room->TryUnmarkPreparedForGame(Idle);
 						}
 					}
 				}

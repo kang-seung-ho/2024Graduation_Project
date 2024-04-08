@@ -9,6 +9,7 @@ export namespace iconer::app
 		, Idle // lobby scene
 		, Closing // room scene
 		, Ready // room scene, loading scene
+		, Prepared // loading scene
 		, InGame // game scene
 		, GameDone // game scene
 		, Cleanup // game scene, score scene
