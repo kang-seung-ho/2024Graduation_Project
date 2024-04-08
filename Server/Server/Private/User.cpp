@@ -201,7 +201,7 @@ iconer::app::User::BorrowedIoResult
 iconer::app::User::SendGameJustStartedPacket()
 const
 {
-	static constinit packets::SC_ReadyForGamePacket pk{};
+	static constinit packets::SC_GameStartPacket pk{};
 	static const auto buffer = pk.Serialize();
 	static constexpr auto size = packets::SC_ReadyForGamePacket::WannabeSize();
 
