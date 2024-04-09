@@ -462,6 +462,12 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
+		case iconer::app::PacketProtocol::CS_RPC:
+		{
+
+		}
+		break;
+
 		default:
 		{
 			throw unknown_packet_errmsg.data();
