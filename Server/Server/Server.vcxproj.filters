@@ -366,6 +366,9 @@
     <ClCompile Include="RoomBase.ixx">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Rpc.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Server.natvis" />
