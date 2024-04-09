@@ -268,3 +268,19 @@ const
 		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnUpdatePosition` was not bound"));
 	}
 }
+
+void
+USagaNetworkSubSystem::BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p)
+const
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdateRotation`"));
+
+	if (OnUpdateRotation.IsBound())
+	{
+		OnUpdateRotation.Broadcast(user_id, r, y, p);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnUpdateRotation` was not bound"));
+	}
+}

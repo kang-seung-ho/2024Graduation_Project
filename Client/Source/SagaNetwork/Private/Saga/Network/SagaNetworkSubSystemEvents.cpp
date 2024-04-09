@@ -218,6 +218,11 @@ USagaNetworkSubSystem::OnStartGame_Implementation()
 void
 USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float y, float z)
 {
+
+void
+USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float y, float p)
+{
+	// TODO
 }
 
 TSharedRef<FInternetAddr>
