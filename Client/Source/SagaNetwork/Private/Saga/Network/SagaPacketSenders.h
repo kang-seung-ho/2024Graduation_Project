@@ -18,6 +18,8 @@ namespace saga
 	std::optional<int32> SendGameStartPacket(FSocket* socket);
 	std::optional<int32> SendGameIsLoadedPacket(FSocket* socket);
 	std::optional<int32> SendPositionPacket(FSocket* socket, float x, float y, float z);
+	std::optional<int32> SendRotationPacket(FSocket* socket, float r, float y, float p);
+	std::optional<int32> SendRpcPacket(FSocket* socket, FStringView rpc, int64 arg = 0);
 }
 
 #endif // !SAGAFRAMEWORK_NET_PACKET_SENDERS_H

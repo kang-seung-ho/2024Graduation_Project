@@ -340,6 +340,18 @@ saga::SendPositionPacket(FSocket* socket, float x, float y, float z)
 	return std::nullopt;
 }
 
+std::optional<int32>
+saga::SendRotationPacket(FSocket* socket, float r, float y, float p)
+{
+	return std::optional<int32>();
+}
+
+std::optional<int32>
+saga::SendRpcPacket(FSocket* socket, FStringView rpc, int64 arg)
+{
+	return std::optional<int32>();
+}
+
 bool
 IsConnected(FSocket* socket)
 noexcept

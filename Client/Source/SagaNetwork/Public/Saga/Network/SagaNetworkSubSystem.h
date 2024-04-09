@@ -193,6 +193,10 @@ public:
 	int32 SendGameIsLoadedPacket();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendPositionPacket(float x, float y, float z);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRotationPacket(float r, float y, float p);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRpcPacket(const FString& string, int64 argument = 0);
 #pragma endregion
 
 	/* Internal Event Broadcasting Methods */

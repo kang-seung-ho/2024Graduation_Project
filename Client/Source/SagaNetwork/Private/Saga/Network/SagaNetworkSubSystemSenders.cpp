@@ -66,3 +66,15 @@ USagaNetworkSubSystem::SendPositionPacket(float x, float y, float z)
 {
 	return saga::SendPositionPacket(clientSocket, x, y, z).value_or(0);
 }
+
+int32
+USagaNetworkSubSystem::SendRotationPacket(float r, float y, float p)
+{
+	return saga::SendRotationPacket(clientSocket, r, y, p).value_or(0);
+}
+
+int32
+USagaNetworkSubSystem::SendRpcPacket(const FString& string, int64 argument)
+{
+	return saga::SendRpcPacket(clientSocket, string, MoveTemp(argument)).value_or(0);
+}
