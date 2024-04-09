@@ -22,12 +22,12 @@ export namespace iconer::app::packets::inline cs
 	{
 		using Super = BasicPacket;
 
-		static inline constexpr size_t msgLength = 10;
+		static inline constexpr size_t msgLength = 12;
 
 		[[nodiscard]]
 		static consteval size_t WannabeSize() noexcept
 		{
-			return Super::MinSize() + sizeof(rpcScript);
+			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
 		}
 
 		[[nodiscard]]
@@ -36,59 +36,24 @@ export namespace iconer::app::packets::inline cs
 			return static_cast<ptrdiff_t>(WannabeSize());
 		}
 
-		constexpr CS_RpcPacket() noexcept
-			: Super(PacketProtocol::CS_ROOM_CREATE, SignedWannabeSize())
-			, rpcScript()
-		{
-		}
-
-		explicit constexpr CS_RpcPacket(const wchar_t* begin, const wchar_t* end)
-			: Super(PacketProtocol::CS_ROOM_CREATE, SignedWannabeSize())
-			, rpcScript()
-		{
-			std::copy(begin, end, rpcScript);
-		}
-
-		explicit constexpr CS_RpcPacket(const wchar_t* nts, const size_t length)
-			: Super(PacketProtocol::CS_ROOM_CREATE, SignedWannabeSize())
-			, rpcScript()
-		{
-			std::copy_n(nts, std::min(length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(const wchar_t(&str)[Length])
-			: Super(PacketProtocol::CS_ROOM_CREATE, SignedWannabeSize())
-			, rpcScript()
-		{
-			std::copy_n(str, std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(wchar_t(&& str)[Length])
-			: Super(PacketProtocol::CS_ROOM_CREATE, SignedWannabeSize())
-			, rpcScript()
-		{
-			std::move(str, str + std::min(Length, msgLength), rpcScript);
-		}
-
 		[[nodiscard]]
 		constexpr std::unique_ptr<std::byte[]> Serialize() const
 		{
-			return iconer::util::Serializes(myProtocol, mySize, std::wstring_view{ rpcScript, msgLength });
+			return iconer::util::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
 		}
 
 		constexpr std::byte* Write(std::byte* buffer) const
 		{
-			return iconer::util::Serialize(Super::Write(buffer), std::wstring_view{ rpcScript, msgLength });
+			return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
 		}
 
 		constexpr const std::byte* Read(const std::byte* buffer)
 		{
-			return iconer::util::Deserialize(Super::Read(buffer), msgLength, rpcScript);
+			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), msgLength, rpcScript), rpcArgument);
 		}
 
-		wchar_t rpcScript[msgLength];
+		char rpcScript[msgLength];
+		long long rpcArgument;
 	};
 	/// <summary>
 	/// Team setter packet for client

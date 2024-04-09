@@ -24,7 +24,7 @@ namespace saga::inline cs
 	{
 		using Super = FSagaBasicPacket;
 
-		static inline constexpr size_t msgLength = 10;
+		static inline constexpr size_t msgLength = 12;
 
 		[[nodiscard]]
 		static consteval size_t WannabeSize() noexcept
@@ -38,14 +38,14 @@ namespace saga::inline cs
 			return static_cast<ptrdiff_t>(WannabeSize());
 		}
 
-		explicit constexpr CS_RpcPacket(long long arg, const wchar_t* begin, const wchar_t* end) noexcept
+		explicit constexpr CS_RpcPacket(long long arg, const char* begin, const char* end) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument(arg)
 		{
 			std::copy(begin, end, rpcScript);
 		}
 
-		explicit constexpr CS_RpcPacket(long long arg, const wchar_t* nts, const size_t length) noexcept
+		explicit constexpr CS_RpcPacket(long long arg, const char* nts, const size_t length) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument(arg)
 		{
@@ -53,7 +53,7 @@ namespace saga::inline cs
 		}
 
 		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, const wchar_t(&str)[Length]) noexcept
+		explicit constexpr CS_RpcPacket(long long arg, const char(&str)[Length]) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument(arg)
 		{
@@ -61,23 +61,23 @@ namespace saga::inline cs
 		}
 
 		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, wchar_t(&& str)[Length]) noexcept
+		explicit constexpr CS_RpcPacket(long long arg, char(&& str)[Length]) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument(arg)
 		{
 			std::move(str, str + std::min(Length, msgLength), rpcScript);
 		}
 		
-		explicit constexpr CS_RpcPacket(const wchar_t* begin, const wchar_t* end) noexcept
+		explicit constexpr CS_RpcPacket(const char* begin, const char* end) noexcept
 			: CS_RpcPacket(0, begin, end)
 		{}
 
-		explicit constexpr CS_RpcPacket(const wchar_t* nts, const size_t length) noexcept
+		explicit constexpr CS_RpcPacket(const char* nts, const size_t length) noexcept
 			: CS_RpcPacket(0, nts, length)
 		{}
 
 		template<size_t Length>
-		explicit constexpr CS_RpcPacket(const wchar_t(&str)[Length]) noexcept
+		explicit constexpr CS_RpcPacket(const char(&str)[Length]) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument()
 		{
@@ -85,7 +85,7 @@ namespace saga::inline cs
 		}
 
 		template<size_t Length>
-		explicit constexpr CS_RpcPacket(wchar_t(&& str)[Length]) noexcept
+		explicit constexpr CS_RpcPacket(char(&& str)[Length]) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument()
 		{
@@ -95,7 +95,7 @@ namespace saga::inline cs
 		MAKE_SERIALIZE_METHOD();
 		MAKE_RW_METHODS();
 
-		wchar_t rpcScript[msgLength];
+		char rpcScript[msgLength];
 		long long rpcArgument;
 	};
 	/// <summary>

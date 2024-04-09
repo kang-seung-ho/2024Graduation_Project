@@ -48,7 +48,7 @@ export namespace iconer::app::packets::inline sc
 	{
 		using Super = BasicPacket;
 
-		static inline constexpr size_t msgLength = 10;
+		static inline constexpr size_t msgLength = 12;
 
 		[[nodiscard]]
 		static consteval size_t WannabeSize() noexcept
@@ -62,7 +62,7 @@ export namespace iconer::app::packets::inline sc
 			return static_cast<ptrdiff_t>(WannabeSize());
 		}
 
-		explicit constexpr SC_RpcPacket(std::int32_t id, const wchar_t* begin, const wchar_t* end)
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* begin, const char* end)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
@@ -71,7 +71,7 @@ export namespace iconer::app::packets::inline sc
 			std::copy(begin, end, rpcScript);
 		}
 
-		explicit constexpr SC_RpcPacket(std::int32_t id, const wchar_t* nts, const size_t length)
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* nts, const size_t length)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
@@ -81,7 +81,7 @@ export namespace iconer::app::packets::inline sc
 		}
 
 		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, const wchar_t(&str)[Length])
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char(&str)[Length])
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
@@ -91,7 +91,7 @@ export namespace iconer::app::packets::inline sc
 		}
 
 		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, wchar_t(&& str)[Length])
+		explicit constexpr SC_RpcPacket(std::int32_t id, char(&& str)[Length])
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
@@ -103,12 +103,12 @@ export namespace iconer::app::packets::inline sc
 		[[nodiscard]]
 		constexpr std::unique_ptr<std::byte[]> Serialize() const
 		{
-			return iconer::util::Serializes(myProtocol, mySize, clientId, std::wstring_view{ rpcScript, msgLength }, rpcArgument);
+			return iconer::util::Serializes(myProtocol, mySize, clientId, std::string_view{ rpcScript, msgLength }, rpcArgument);
 		}
 
 		constexpr std::byte* Write(std::byte* buffer) const
 		{
-			return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), clientId), std::wstring_view{ rpcScript, msgLength }), rpcArgument);
+			return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), clientId), std::string_view{ rpcScript, msgLength }), rpcArgument);
 		}
 
 		constexpr const std::byte* Read(const std::byte* buffer)
@@ -117,7 +117,7 @@ export namespace iconer::app::packets::inline sc
 		}
 
 		std::int32_t clientId;
-		wchar_t rpcScript[msgLength];
+		char rpcScript[msgLength];
 		long long rpcArgument;
 	};
 	/// <summary>
