@@ -38,6 +38,26 @@ enum class [[nodiscard]] EPacketProtocol : uint8
 	CS_READY,
 	CS_SET_TEAM,
 
+	CS_RPC_WALK,
+	CS_RPC_RUN,
+	CS_RPC_JUMP,
+	CS_RPC_RIDE,
+	CS_RPC_ATTACK_0, // Normal attack #1
+	CS_RPC_ATTACK_1, // Normal attack #2
+	CS_RPC_ATTACK_2, // Special Attack #3
+	CS_RPC_ATTACK_3, // Special Attack #4
+	CS_RPC_SKILL_0, // Ability #1
+	CS_RPC_SKILL_1, // Ability #2
+	CS_RPC_SKILL_2, // Ability #3
+	CS_RPC_SKILL_3, // Ability #4
+	CS_RPC_USE_ITEM_0,
+	CS_RPC_USE_ITEM_1,
+	CS_RPC_USE_ITEM_2,
+	CS_RPC_USE_ITEM_3,
+	CS_RPC_USE_ITEM_4,
+	CS_RPC_CHANGE_HAND_ITEM,
+	CS_RPC_DEAD,
+
 	SC_SIGNIN_SUCCESS = 120,
 	SC_SIGNIN_FAILURE,
 	SC_SIGNUP_SUCCESS,
