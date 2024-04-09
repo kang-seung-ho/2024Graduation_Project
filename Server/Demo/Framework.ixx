@@ -27,12 +27,6 @@ export import <expected>;
 
 export namespace demo
 {
-	enum class LoadingContract : std::uint8_t
-	{
-		Unknown = 0,
-
-	};
-
 	class Framework
 	{
 	public:
