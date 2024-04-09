@@ -69,17 +69,18 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	bool Close();
 #pragma endregion
 
 	/* Complicated Network Methods */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Phase")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Phase", meta = (UnsafeDuringActorConstruction))
 	bool ConnectToServer(const FString& nickname);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network")
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (Latent, UnsafeDuringActorConstruction))
 	void UpdatePlayerList();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (Latent, UnsafeDuringActorConstruction))
 	void UpdateRoomList();
 #pragma endregion
 
@@ -154,9 +155,9 @@ public:
 
 	/* Getters */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
 	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
 	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
 #pragma endregion
 
@@ -170,66 +171,66 @@ public:
 
 	/* Packet Senders */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendSignInPacket(const FString& nickname);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendCreateRoomPacket(const FString& title);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendJoinRoomPacket(int32 room_id);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendLeaveRoomPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendRequestVersionPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendRequestRoomsPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendRequestMembersPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendChangeTeamPacket(bool is_red_team);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendGameStartPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendGameIsLoadedPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendPositionPacket(float x, float y, float z);
 #pragma endregion
 
 	/* Internal Event Broadcasting Methods */
 
 #pragma region =========================
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnNetworkInitialized() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnFailedToInitializeNetwork() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnConnected() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnFailedToConnect(ESagaConnectionContract reason) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnDisconnected() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRoomCreated(int32 room_id) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnJoinedRoom(int32 user_id) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnLeftRoomBySelf() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnLeftRoom(int32 id) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRespondVersion(const FString& version_string) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRoomList(UPARAM(ref) const TArray<FSagaVirtualRoom>& list) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateMembers(UPARAM(ref) const TArray<FSagaVirtualUser>& list) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnTeamChanged(int32 id, bool is_red_team) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnGetPreparedGame() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnFailedToStartGame(ESagaGameContract reason) const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnStartGame() const;
-	UFUNCTION(Category = "CandyLandSaga|Network|Internal")
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdatePosition(int32 user_id, float x, float y, float z) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p) const;
@@ -317,44 +318,44 @@ public:
 protected:
 	/* Internal Functions */
 #pragma region =========================
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	bool InitializeNetwork_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	ESagaConnectionContract ConnectToServer_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	bool CloseNetwork_Implementation();
 
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnConnected_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnFailedToConnect_Implementation(ESagaConnectionContract reason);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnDisconnected_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnRoomCreated_Implementation(int32 id);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnJoinedRoom_Implementation(int32 id);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnLeftRoomBySelf_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnLeftRoom_Implementation(int32 id);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnRespondVersion_Implementation(const FString& version_string);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdateRoomList_Implementation(UPARAM(ref) const TArray<FSagaVirtualRoom>& list);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdateMembers_Implementation(UPARAM(ref) const TArray<FSagaVirtualUser>& list);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnTeamChanged_Implementation(int32 user_id, bool is_red_team);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnGetPreparedGame_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnStartGame_Implementation();
-	UFUNCTION()
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdatePosition_Implementation(int32 id, float x, float y, float z);
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdateRotation_Implementation(int32 id, float r, float y, float p);
