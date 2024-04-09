@@ -7,14 +7,14 @@ std::unique_ptr<std::byte[]>
 saga::cs::CS_RpcPacket::Serialize()
 const
 {
-	return saga::Serializes(myProtocol, mySize, std::wstring_view{ rpcScript, msgLength }, rpcArgument);
+	return saga::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
 }
 
 std::byte*
 saga::cs::CS_RpcPacket::Write(std::byte* buffer)
 const
 {
-	return saga::Serialize(saga::Serialize(Super::Write(buffer), std::wstring_view{ rpcScript, msgLength }), rpcArgument);
+	return saga::Serialize(saga::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
 }
 
 const std::byte*
