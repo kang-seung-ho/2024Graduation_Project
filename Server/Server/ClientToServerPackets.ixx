@@ -181,51 +181,15 @@ export namespace iconer::app::packets::inline cs
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Client would send it to the server</remarks>
-	struct [[nodiscard]] CS_UpdatePositionPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(float) * 3);
-		}
-
-		constexpr CS_UpdatePositionPacket() noexcept
-			: CS_UpdatePositionPacket(0, 0, 0)
-		{
-		}
-
-		constexpr CS_UpdatePositionPacket(float px, float py, float pz) noexcept
-			: Super(PacketProtocol::CS_MY_POSITION, SignedWannabeSize())
-			, x(px), y(py), z(pz)
-		{
-		}
-
-		[[nodiscard]]
-		constexpr auto Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, x, y, z);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serializes(Super::Write(buffer), x, y, z);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), x), y), z);
-		}
-
-		float x, y, z;
-	};
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, PacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
+	/// <summary>
+	/// Rotation packet for client
+	/// </summary>
+	/// <param name="r">roll</param>
+	/// <param name="y">yaw</param>
+	/// <param name="p">pitch</param>
+	/// <remarks>Client would send it to the server</remarks>
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, PacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>

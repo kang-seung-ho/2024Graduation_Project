@@ -211,38 +211,15 @@ namespace saga::inline cs
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Client would send it to the server</remarks>
-	struct SAGANETWORK_API CS_UpdatePositionPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(float) * 3);
-		}
-
-		constexpr CS_UpdatePositionPacket() noexcept
-			: CS_UpdatePositionPacket(0, 0, 0)
-		{
-		}
-
-		constexpr CS_UpdatePositionPacket(float px, float py, float pz) noexcept
-			: Super(EPacketProtocol::CS_MY_POSITION, SignedWannabeSize())
-			, x(px), y(py), z(pz)
-		{
-		}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
-
-		float x, y, z;
-	};
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, EPacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
+	/// <summary>
+	/// Rotation packet for client
+	/// </summary>
+	/// <param name="r">roll</param>
+	/// <param name="y">yaw</param>
+	/// <param name="p">pitch</param>
+	/// <remarks>Client would send it to the server</remarks>
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, EPacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>

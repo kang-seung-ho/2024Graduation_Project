@@ -374,7 +374,7 @@ struct name : public FSagaBasicPacket \
 #define MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value) \
 MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, (var1_default_value), var2_type, var2_name, param2_name, (var2_default_value), var3_type, var3_name, param3_name, (var3_default_value), MAKE_SERIALIZE_METHOD())
 
-#define MAKE_EMPTY_PACKET_3VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, serializer_method, create_default_ctor) \
+#define MAKE_EMPTY_PACKET_3VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, serializer_method) \
 struct name : public FSagaBasicPacket \
 { \
 	using Super = FSagaBasicPacket; \
@@ -384,15 +384,14 @@ struct name : public FSagaBasicPacket \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
-	ICONER_CONDITIONAL(create_default_ctor, \
-	template<std::enable_if_t<DEFER_BOOLEAN(create_default_ctor) and std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>, int> = 0>\
 	constexpr name() \
 		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>) \
 		: Super((protocol), static_cast<int16>(SignedWannabeSize())) \
 		, var1_name() \
 		, var2_name() \
 		, var3_name() \
-	{}) \
+	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name) \
@@ -475,6 +474,6 @@ struct name : public FSagaBasicPacket \
 	var3_type var3_name; \
 }
 
-#define MAKE_EMPTY_PACKET_2VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, serializer_method, create_default_ctor) \
-MAKE_EMPTY_PACKET_2VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, MAKE_SERIALIZE_METHOD(), create_default_ctor)
+#define MAKE_EMPTY_PACKET_3VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name) \
+MAKE_EMPTY_PACKET_3VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, MAKE_SERIALIZE_METHOD())
 #pragma endregion

@@ -75,6 +75,84 @@ namespace saga::inline sc
 		long long rpcArgument;
 	};
 	/// <summary>
+	/// Position packet for server
+	/// </summary>
+	/// <param name="clientId">- Target player's id</param>
+	/// <param name="x"/>
+	/// <param name="y"/>
+	/// <param name="z"/>
+	/// <remarks>Server would broadcast it to clients</remarks>
+	struct SC_UpdatePositionPacket : public FSagaBasicPacket
+	{
+		using Super = FSagaBasicPacket;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(int32) + sizeof(float) * 3;
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		constexpr SC_UpdatePositionPacket()
+			: SC_UpdatePositionPacket(-1, 0, 0, 0)
+		{}
+
+		constexpr SC_UpdatePositionPacket(int32 id, float px, float py, float pz) noexcept
+			: Super(EPacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
+			, clientId(id), x(px), y(py), z(pz)
+		{}
+
+		MAKE_SERIALIZE_METHOD();
+		MAKE_RW_METHODS();
+
+		int32 clientId;
+		float x, y, z;
+	};
+	/// <summary>
+	/// Rotation packet for server
+	/// </summary>
+	/// <param name="clientId">- Target player's id</param>
+	/// <param name="r"/>
+	/// <param name="y"/>
+	/// <param name="p"/>
+	/// <remarks>Server would broadcast it to clients</remarks>
+	struct SC_UpdateRotationPacket : public FSagaBasicPacket
+	{
+		using Super = FSagaBasicPacket;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int32) + sizeof(float) * 3);
+		}
+
+		constexpr SC_UpdateRotationPacket()
+			: SC_UpdateRotationPacket(-1, 0, 0, 0)
+		{}
+
+		constexpr SC_UpdateRotationPacket(int32 id, float pr, float py, float pp) noexcept
+			: Super(EPacketProtocol::SC_LOOK_CHARACTER, SignedWannabeSize())
+			, clientId(id), r(pr), y(py), p(pp)
+		{}
+
+		MAKE_SERIALIZE_METHOD();
+		MAKE_RW_METHODS();
+
+		int32 clientId;
+		float r, y, p;
+	};
+	/// <summary>
 	/// Team setter packet for server
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
@@ -397,45 +475,6 @@ namespace saga::inline sc
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
 	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, EPacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause, true);
-	/// <summary>
-	/// Position packet for server
-	/// </summary>
-	/// <param name="clientId">- Target player's id</param>
-	/// <param name="x"/>
-	/// <param name="y"/>
-	/// <param name="z"/>
-	/// <remarks>Server would broadcast it to clients</remarks>
-	struct SC_UpdatePositionPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(int32) + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int) + sizeof(float) * 3);
-		}
-
-		constexpr SC_UpdatePositionPacket()
-			: SC_UpdatePositionPacket(-1, 0, 0, 0)
-		{}
-
-		constexpr SC_UpdatePositionPacket(int32 id, float px, float py, float pz) noexcept
-			: Super(EPacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
-			, clientId(id), x(px), y(py), z(pz)
-		{}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
-
-		int32 clientId;
-		float x, y, z;
-	};
 }
 
 #endif // !SAGAFRAMEWORK_NET_SC_PACKET_PREFABS_H

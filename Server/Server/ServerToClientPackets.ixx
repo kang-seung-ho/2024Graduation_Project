@@ -121,6 +121,110 @@ export namespace iconer::app::packets::inline sc
 		long long rpcArgument;
 	};
 	/// <summary>
+	/// Position packet for server
+	/// </summary>
+	/// <param name="clientId">- Target player's id</param>
+	/// <param name="x"/>
+	/// <param name="y"/>
+	/// <param name="z"/>
+	/// <remarks>Server would broadcast it to clients</remarks>
+	struct [[nodiscard]] SC_UpdatePositionPacket : public BasicPacket
+	{
+		using Super = BasicPacket;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(int) + sizeof(float) * 3;
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int) + sizeof(float) * 3);
+		}
+
+		constexpr SC_UpdatePositionPacket()
+			: SC_UpdatePositionPacket(-1, 0, 0, 0)
+		{}
+
+		constexpr SC_UpdatePositionPacket(std::int32_t id, float px, float py, float pz) noexcept
+			: Super(PacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
+			, clientId(id), x(px), y(py), z(pz)
+		{}
+
+		[[nodiscard]]
+		constexpr auto Serialize() const
+		{
+			return iconer::util::Serializes(myProtocol, mySize, clientId, x, y, z);
+		}
+
+		constexpr std::byte* Write(std::byte* buffer) const
+		{
+			return iconer::util::Serializes(Super::Write(buffer), clientId, x, y, z);
+		}
+
+		constexpr const std::byte* Read(const std::byte* buffer)
+		{
+			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), x), y), z);
+		}
+
+		std::int32_t clientId;
+		float x, y, z;
+	};
+	/// <summary>
+	/// Rotation packet for server
+	/// </summary>
+	/// <param name="clientId">- Target player's id</param>
+	/// <param name="r"/>
+	/// <param name="y"/>
+	/// <param name="p"/>
+	/// <remarks>Server would broadcast it to clients</remarks>
+	struct [[nodiscard]] SC_UpdateRotationPacket : public BasicPacket
+	{
+		using Super = BasicPacket;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(clientId) + sizeof(float) * 3;
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(clientId) + sizeof(float) * 3);
+		}
+
+		constexpr SC_UpdateRotationPacket()
+			: SC_UpdateRotationPacket(-1, 0, 0, 0)
+		{}
+
+		constexpr SC_UpdateRotationPacket(std::int32_t user_id, float pr, float py, float pp) noexcept
+			: Super(PacketProtocol::SC_LOOK_CHARACTER, SignedWannabeSize())
+			, clientId(user_id), r(pr), y(py), p(pp)
+		{}
+
+		[[nodiscard]]
+		constexpr auto Serialize() const
+		{
+			return iconer::util::Serializes(myProtocol, mySize, clientId, r, y, p);
+		}
+
+		constexpr std::byte* Write(std::byte* buffer) const
+		{
+			return iconer::util::Serializes(Super::Write(buffer), clientId, r, y, p);
+		}
+
+		constexpr const std::byte* Read(const std::byte* buffer)
+		{
+			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), r), y), p);
+		}
+
+		std::int32_t clientId;
+		float r, y, p;
+	};
+	/// <summary>
 	/// Team setter packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of the target client</param>
@@ -609,57 +713,5 @@ export namespace iconer::app::packets::inline sc
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
 	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, PacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause, true);
-	/// <summary>
-	/// Position packet for server
-	/// </summary>
-	/// <param name="clientId">- Target player's id</param>
-	/// <param name="x"/>
-	/// <param name="y"/>
-	/// <param name="z"/>
-	/// <remarks>Server would broadcast it to clients</remarks>
-	struct [[nodiscard]] SC_UpdatePositionPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(int) + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int) + sizeof(float) * 3);
-		}
-
-		constexpr SC_UpdatePositionPacket()
-			: SC_UpdatePositionPacket(-1, 0, 0, 0)
-		{}
-
-		constexpr SC_UpdatePositionPacket(std::int32_t id, float px, float py, float pz) noexcept
-			: Super(PacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
-			, clientId(id), x(px), y(py), z(pz)
-		{}
-
-		[[nodiscard]]
-		constexpr auto Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, clientId, x, y, z);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serializes(Super::Write(buffer), clientId, x, y, z);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), x), y), z);
-		}
-
-		std::int32_t clientId;
-		float x, y, z;
-	};
 #pragma pack(pop)
 }
