@@ -231,9 +231,9 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 				room->Dirty(true);
 			}
 
-		(void)framework.Schedule(user.teamChangerContext, user.GetID());
+			(void)framework.Schedule(user.teamChangerContext, user.GetID());
+		}
 	}
-}
 }
 
 void
@@ -246,12 +246,14 @@ demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, flo
 	auto room_id = user.myRoomId.Load();
 	auto room = framework.FindRoom(room_id);
 
-	room->ForEach([&user, x, y, z](iconer::app::User& member) {
-		auto [io, ctx] = member.SendPositionPacket(user.GetID(), x, y, z);
-		if (not io)
+	room->ForEach(
+		[&user, x, y, z](iconer::app::User& member)
 		{
-			ctx.Complete();
-		}
+			auto [io, ctx] = member.SendPositionPacket(user.GetID(), x, y, z);
+			if (not io)
+			{
+				ctx.Complete();
+			}
 		}
 	);
 }
@@ -266,18 +268,23 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 	auto room_id = user.myRoomId.Load();
 	auto room = framework.FindRoom(room_id);
 
-	room->ForEach([&user, roll, yaw, pitch](iconer::app::User& member) {
-		auto [io, ctx] = member.SendPositionPacket(user.GetID(), roll, yaw, pitch);
-		if (not io)
+	room->ForEach(
+		[&user, roll, yaw, pitch](iconer::app::User& member)
 		{
-			ctx.Complete();
+			auto [io, ctx] = member.SendPositionPacket(user.GetID(), roll, yaw, pitch);
+			if (not io)
+			{
+				ctx.Complete();
+			}
 		}
-		});
+	);
 }
 
 void
 demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg)
-{}
+{
+
+}
 
 #define ICONER_UNLIKELY [[unlikely]]
 #define ICONER_LIKELY [[likely]]
