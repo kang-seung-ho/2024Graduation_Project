@@ -275,6 +275,10 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 		});
 }
 
+void
+demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg)
+{}
+
 #define ICONER_UNLIKELY [[unlikely]]
 #define ICONER_LIKELY [[likely]]
 #define DESERIALIZE(buf, ...) iconer::util::Deserialize(buf, __VA_ARGS__)
@@ -471,7 +475,13 @@ demo::PacketProcessor(demo::Framework& framework
 
 		case iconer::app::PacketProtocol::CS_RPC:
 		{
+			char rpc_script[12]{};
+			long long rpc_argument{};
 
+			DESERIALIZE(last_buf, 12, rpc_script);
+			DESERIALIZE(last_buf, rpc_argument);
+
+			OnRpc(framework, user, std::string{ rpc_script, 12 }, std::move(rpc_argument));
 		}
 		break;
 

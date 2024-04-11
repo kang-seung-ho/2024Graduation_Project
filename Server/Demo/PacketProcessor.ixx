@@ -1,5 +1,6 @@
 module;
 #include <span>
+#include <string>
 
 export module Demo.PacketProcessor;
 import Iconer.Utility.Serializer;
@@ -32,4 +33,5 @@ export namespace demo
 	void OnTeamChanged(Framework& framework, iconer::app::User& user, bool is_red_team);
 	void OnReceivePosition(Framework& framework, iconer::app::User& user, float x, float y, float z);
 	void OnReceiveRotation(Framework& framework, iconer::app::User& user, float roll, float yaw, float pitch);
+	void OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg);
 }
