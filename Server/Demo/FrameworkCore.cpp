@@ -18,6 +18,8 @@ demo::Framework::RouteEvent(bool is_succeed
 	, const ptrdiff_t& io_bytes
 	, iconer::app::IContext* ctx)
 {
+	ctx->Clear();
+
 	switch (ctx->GetOperation())
 	{
 	// Phase 0
@@ -25,8 +27,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user.GetID();
-
-		user.Clear();
 
 		if (not is_succeed)
 		{
@@ -52,8 +52,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user.GetID();
 
-		user.Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\ttConnection has failed on user {}\n", id);
@@ -77,8 +75,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
-
-		user->Clear();
 
 		if (not is_succeed)
 		{
@@ -109,8 +105,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
 
-		user->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tNotifying the id to user {} has failed\n", id);
@@ -134,8 +128,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
-
-		user->Clear();
 
 		if (not is_succeed)
 		{
@@ -183,8 +175,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 4~
 	case iconer::app::AsyncOperations::OpSendBorrowed:
 	{
-		ctx->Clear();
-
 		RETURN_BACK_SENDER(ctx);
 	}
 	break;
@@ -194,8 +184,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
-
-		user->Clear();
 
 		if (not is_succeed)
 		{
@@ -219,8 +207,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType& room_id = room->GetID();
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
-
-		room->Clear();
 
 		if (not is_succeed)
 		{
@@ -247,8 +233,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		room->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {} could not create a room\n", user_id);
@@ -273,8 +257,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType room_id = static_cast<IdType>(io_bytes);
 		auto user = FindUser(user_id);
 		auto room = FindRoom(room_id);
-
-		ctx->Clear();
 
 		if (not is_succeed)
 		{
@@ -303,7 +285,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
 		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
 
 		if (not is_succeed)
@@ -327,8 +308,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	case iconer::app::AsyncOperations::OpCloseRoom:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
-
-		ctx->Clear();
 
 		if (nullptr != room)
 		{
@@ -357,8 +336,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {}'s operation that notifies members in the room has been failed\n", user_id);
@@ -382,8 +359,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {}'s operation that notifies rooms has been failed\n", user_id);
@@ -404,8 +379,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
-
-		ctx->Clear();
 
 		if (not is_succeed)
 		{
@@ -428,8 +401,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {}'s operation that makes a game has been failed\n", user_id);
@@ -451,8 +422,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	case iconer::app::AsyncOperations::OpSpreadGameTicket:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
-
-		ctx->Clear();
 
 		if (not is_succeed)
 		{
@@ -477,7 +446,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
 		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
 
 		if (not is_succeed)
@@ -505,7 +473,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->Clear();
 		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
 
 		if (not is_succeed)
@@ -532,22 +499,19 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
-		ctx->Clear();
-
-		// TODO
 		if (not is_succeed)
 		{
-			myLogger.LogError(L"\tCannot start a game at room {}\n", room->GetID());
+			myLogger.LogError(L"\tRoom {}'s operation of starting the game has failed\n", room->GetID());
 
 			OnFailedToStartGame(*room);
 		}
 		else if (not OnStartGame(*room))
 		{
-			myLogger.Log(L"\tThe game is started at room {}\n", room->GetID());
+			myLogger.Log(L"\tCannot start a game at room {}\n", room->GetID());
 		}
 		else
 		{
-			myLogger.Log(L"\tLet's start the game\n");
+			myLogger.Log(L"\tThe game is started at room {}\n", room->GetID());
 		}
 
 	}
@@ -559,8 +523,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
 
-		user->Clear();
-
 		// TODO
 	}
 	break;
@@ -570,8 +532,6 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
-		ctx->Clear();
-
 		OnCloseGame(*room);
 	}
 	break;
@@ -579,15 +539,11 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 9~
 	case iconer::app::AsyncOperations::OpEndWorkers:
 	{
-		ctx->Clear();
-
 		return false;
 	}
 
 	default:
 	{
-		ctx->Clear();
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUnknown operation '{}' has failed on {}\n", static_cast<int>(ctx->GetOperation()), reinterpret_cast<std::uintptr_t>(ctx));
