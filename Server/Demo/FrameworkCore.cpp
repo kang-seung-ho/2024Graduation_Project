@@ -508,6 +508,8 @@ demo::Framework::RouteEvent(bool is_succeed
 		else if (not OnStartGame(*room))
 		{
 			myLogger.Log(L"\tCannot start a game at room {}\n", room->GetID());
+
+			OnFailedToStartGame(*room);
 		}
 		else
 		{
