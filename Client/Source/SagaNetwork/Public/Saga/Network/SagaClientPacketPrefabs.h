@@ -38,36 +38,28 @@ namespace saga::inline cs
 			return static_cast<ptrdiff_t>(WannabeSize());
 		}
 
-		explicit constexpr CS_RpcPacket(long long arg, const char* begin, const char* end) noexcept
+		explicit constexpr CS_RpcPacket() noexcept
+			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
+			, rpcScript(), rpcArgument()
+		{}
+		
+		explicit constexpr CS_RpcPacket(long long arg) noexcept
 			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
 			, rpcScript(), rpcArgument(arg)
+		{}
+
+		explicit constexpr CS_RpcPacket(long long arg, const char* begin, const char* end) noexcept
+			: CS_RpcPacket(arg)
 		{
 			std::copy(begin, end, rpcScript);
 		}
 
 		explicit constexpr CS_RpcPacket(long long arg, const char* nts, const size_t length) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument(arg)
+			: CS_RpcPacket(arg)
 		{
 			std::copy_n(nts, std::min(length, msgLength), rpcScript);
 		}
 
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, const char(&str)[Length]) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument(arg)
-		{
-			std::copy_n(str, std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, char(&& str)[Length]) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument(arg)
-		{
-			std::move(str, str + std::min(Length, msgLength), rpcScript);
-		}
-		
 		explicit constexpr CS_RpcPacket(const char* begin, const char* end) noexcept
 			: CS_RpcPacket(0, begin, end)
 		{}
@@ -78,16 +70,28 @@ namespace saga::inline cs
 
 		template<size_t Length>
 		explicit constexpr CS_RpcPacket(const char(&str)[Length]) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument()
+			: CS_RpcPacket()
 		{
 			std::copy_n(str, std::min(Length, msgLength), rpcScript);
 		}
 
 		template<size_t Length>
 		explicit constexpr CS_RpcPacket(char(&& str)[Length]) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument()
+			: CS_RpcPacket()
+		{
+			std::move(str, str + std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(long long arg, const char(&str)[Length]) noexcept
+			: CS_RpcPacket(arg)
+		{
+			std::copy_n(str, std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(long long arg, char(&& str)[Length]) noexcept
+			: CS_RpcPacket(arg)
 		{
 			std::move(str, str + std::min(Length, msgLength), rpcScript);
 		}

@@ -58,6 +58,20 @@ name::Read(const std::byte* buffer) \
 	return saga::Deserialize(saga::Deserialize(saga::Deserialize(Super::Read(buffer), var1_name), var2_name), var3_name); \
 }
 
+#define IMPL_WRITE_METHODS_V4(name, var1_name, var2_name, var3_name, var4_name) \
+const std::byte* \
+name::Read(const std::byte* buffer) \
+{ \
+	return saga::Deserialize(saga::Deserialize(saga::Deserialize(saga::Deserialize(Super::Read(buffer), var1_name), var2_name), var3_name), var4_name); \
+}
+
+#define IMPL_WRITE_METHODS_V5(name, var1_name, var2_name, var3_name, var4_name, var5_name) \
+const std::byte* \
+name::Read(const std::byte* buffer) \
+{ \
+	return saga::Deserialize(saga::Deserialize(saga::Deserialize(saga::Deserialize(saga::Deserialize(Super::Read(buffer), var1_name), var2_name), var3_name), var4_name), var5_name); \
+}
+
 #define ICONER_CONDITIONAL_false(...) 
 #define ICONER_CONDITIONAL_true(...) __VA_ARGS__
 #define ICONER_CONDITIONAL(flag, ...) ICONER_CONDITIONAL_##flag(__VA_ARGS__)
