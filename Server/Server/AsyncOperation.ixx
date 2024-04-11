@@ -24,14 +24,17 @@ export namespace iconer::app
 		/// <summary>Phase 4 ~ </summary>
 		OpRecv, OpSend, OpSendBorrowed, OpSendUniqueContext,
 
-		/// <summary>Phase 5 ~ </summary>
+		/// <summary>Phase 5 </summary>
 		OpReserveRoom, OpCreateRoom, OpEnterRoom, OpLeaveRoom, OpCloseRoom,
 
-		/// <summary>Phase 6 ~ </summary>
+		/// <summary>Phase 6 </summary>
 		OpNotifyMember, OpNotifyRoom, OpNotifyTeam,
 
-		/// <summary>Phase 7 ~ </summary>
+		/// <summary>Phase 7 </summary>
 		OpCreateGame, OpSpreadGameTicket, OpReadyGame, OpGameTicketing, OpStartGame, OpLeaveGame, OpCloseGame,
+
+		/// <summary>Phase 8 ~ </summary>
+		OpCreateCharacters, OpUpdateRoom, OpCheckGuardian, OpCheckDead,
 
 		/// <summary>Phase 10 - Sign out (Quit)</summary>
 		OpDisconnect,
