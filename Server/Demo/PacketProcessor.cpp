@@ -226,14 +226,14 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
 			const auto target = is_red_team ? iconer::app::Team::Red : iconer::app::Team::Blue;
 
-			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target))
+			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target, std::memory_order_release))
 			{
 				room->Dirty(true);
 			}
-		}
 
 		(void)framework.Schedule(user.teamChangerContext, user.GetID());
 	}
+}
 }
 
 void
