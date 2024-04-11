@@ -277,6 +277,11 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 
 #define ICONER_UNLIKELY [[unlikely]]
 #define ICONER_LIKELY [[likely]]
+#define DESERIALIZE(buf, ...) iconer::util::Deserialize(buf, __VA_ARGS__)
+#define DESERIALIZES_V1(buf, ...) DESERIALIZE(buf, __VA_ARGS__)
+#define DESERIALIZES_V2(buf, param0, ...) DESERIALIZE(DESERIALIZE(buf, param0), __VA_ARGS__)
+#define DESERIALIZES_V3(buf, param0, param1, ...) DESERIALIZE(DESERIALIZE(DESERIALIZE(buf, param0), param1), __VA_ARGS__)
+#define DESERIALIZES_V4(buf, param0, param1, param2, ...) DESERIALIZE(DESERIALIZE(DESERIALIZE(DESERIALIZE(buf, param0), param1), param2), __VA_ARGS__)
 
 ptrdiff_t
 demo::PacketProcessor(demo::Framework& framework
@@ -354,7 +359,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_ROOM_CREATE:
 		{
 			wchar_t room_title[16]{};
-			iconer::util::Deserialize(last_buf, 16, room_title);
+			DESERIALIZE(last_buf, 16, room_title);
 
 			OnCreateRoom(framework, user, room_title);
 		}
@@ -370,7 +375,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_ROOM_JOIN:
 		{
 			std::int32_t room_id{};
-			iconer::util::Deserialize(last_buf, room_id);
+			DESERIALIZE(last_buf, room_id);
 
 			OnJoinRoom(framework, user, room_id);
 		}
@@ -411,7 +416,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_MY_POSITION:
 		{
 			float px{}, py{}, pz{};
-			iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(last_buf, px), py), pz);
+			DESERIALIZES_V3(last_buf, px, py, pz);
 
 			OnReceivePosition(framework, user, px, py, pz);
 		}
@@ -419,10 +424,12 @@ demo::PacketProcessor(demo::Framework& framework
 
 		case iconer::app::PacketProtocol::CS_MY_TRANSFORM:
 		{
-			float pl{}, pr{}, pu{};
-			iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(last_buf, pl), pr), pu);
+			float pr{}; // roll (x)
+			float py{}; // yaw (y)
+			float pp{}; // pitch (z)
+			DESERIALIZES_V3(last_buf, pr, py, pp);
 
-			OnReceiveRotation(framework, user, pl, pr, pu);
+			OnReceiveRotation(framework, user, pr, pr, pp);
 		}
 		break;
 
@@ -454,7 +461,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_SET_TEAM:
 		{
 			std::int8_t team_id{};
-			iconer::util::Deserialize(last_buf, team_id);
+			DESERIALIZE(last_buf, team_id);
 
 			// 0 :  red team
 			// 1 : blue team
