@@ -168,25 +168,6 @@ saga::sc::SC_CreatePlayerPacket::Read(const std::byte* buffer)
 	return saga::Deserialize(saga::Deserialize(Super::Read(buffer), clientId), nickNameLength, userName);
 }
 
-std::unique_ptr<std::byte[]>
-saga::sc::SC_UpdatePositionPacket::Serialize()
-const
-{
-	return saga::Serializes(myProtocol, mySize, clientId, x, y, z);
-}
-
-std::byte*
-saga::sc::SC_UpdatePositionPacket::Write(std::byte* buffer)
-const
-{
-	return saga::Serializes(Super::Write(buffer), clientId, x, y, z);
-}
-
-const std::byte*
-saga::sc::SC_UpdatePositionPacket::Read(const std::byte* buffer)
-{
-	return saga::Deserialize(saga::Deserialize(saga::Deserialize(saga::Deserialize(Super::Read(buffer), clientId), x), y), z);
-}
 
 std::byte*
 saga::sc::SC_RoomOtherJoinedPacket::Write(std::byte * buffer)
@@ -226,6 +207,14 @@ const
 	return std::move(buffer);
 };
 
+IMPL_SERIALIZE_METHOD(saga::sc::SC_SucceedSignInPacket, clientId);
+IMPL_READ_METHODS(saga::sc::SC_SucceedSignInPacket, clientId);
+IMPL_WRITE_METHODS_V1(saga::sc::SC_SucceedSignInPacket, clientId);
+
+IMPL_SERIALIZE_METHOD(saga::sc::SC_FailedSignInPacket, errCause);
+IMPL_READ_METHODS(saga::sc::SC_FailedSignInPacket, errCause);
+IMPL_WRITE_METHODS_V1(saga::sc::SC_FailedSignInPacket, errCause);
+
 IMPL_SERIALIZE_METHOD(saga::sc::SC_FailedGameStartingPacket, errCause);
 IMPL_READ_METHODS(saga::sc::SC_FailedGameStartingPacket, errCause);
 IMPL_WRITE_METHODS_V1(saga::sc::SC_FailedGameStartingPacket, errCause);
@@ -250,18 +239,14 @@ IMPL_SERIALIZE_METHOD(saga::sc::SC_RoomLeftPacket, clientId);
 IMPL_READ_METHODS(saga::sc::SC_RoomLeftPacket, clientId);
 IMPL_WRITE_METHODS_V1(saga::sc::SC_RoomLeftPacket, clientId);
 
-IMPL_SERIALIZE_METHOD(saga::sc::SC_DestroyPlayerPacket, clientId);
-IMPL_READ_METHODS(saga::sc::SC_DestroyPlayerPacket, clientId);
-IMPL_WRITE_METHODS_V1(saga::sc::SC_DestroyPlayerPacket, clientId);
-
-IMPL_SERIALIZE_METHOD(saga::sc::SC_SucceedSignInPacket, clientId);
-IMPL_READ_METHODS(saga::sc::SC_SucceedSignInPacket, clientId);
-IMPL_WRITE_METHODS_V1(saga::sc::SC_SucceedSignInPacket, clientId);
-
-IMPL_SERIALIZE_METHOD(saga::sc::SC_FailedSignInPacket, errCause);
-IMPL_READ_METHODS(saga::sc::SC_FailedSignInPacket, errCause);
-IMPL_WRITE_METHODS_V1(saga::sc::SC_FailedSignInPacket, errCause);
-
 IMPL_SERIALIZE_METHOD(saga::sc::SC_SetTeamPacket, clientId, teamId);
 IMPL_READ_METHODS(saga::sc::SC_SetTeamPacket, clientId, teamId);
 IMPL_WRITE_METHODS_V2(saga::sc::SC_SetTeamPacket, clientId, teamId);
+
+IMPL_SERIALIZE_METHOD(saga::sc::SC_UpdatePositionPacket, clientId, x, y, z);
+IMPL_READ_METHODS(saga::sc::SC_UpdatePositionPacket, clientId, x, y, z);
+IMPL_WRITE_METHODS_V4(saga::sc::SC_UpdatePositionPacket, clientId, x, y, z);
+
+IMPL_SERIALIZE_METHOD(saga::sc::SC_DestroyPlayerPacket, clientId);
+IMPL_READ_METHODS(saga::sc::SC_DestroyPlayerPacket, clientId);
+IMPL_WRITE_METHODS_V1(saga::sc::SC_DestroyPlayerPacket, clientId);
