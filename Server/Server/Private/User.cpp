@@ -89,14 +89,6 @@ iconer::app::User::SendRespondMembersPacket(std::span<const std::byte> buffer) c
 	return SendGeneralData(buffer.data(), buffer.size_bytes());
 }
 
-iconer::app::User::BorrowedIoResult
-iconer::app::User::SendPositionPacket(iconer::app::User::IdType id, float x, float y, float z) const
-{
-	const iconer::app::packets::SC_UpdatePositionPacket pk{ id, x, y, z };
-
-	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
-}
-
 iconer::app::User::IoResult
 iconer::app::User::SendRoomCreatedPacket(iconer::app::IContext* room, iconer::app::User::IdType room_id)
 const
@@ -211,6 +203,13 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
+iconer::app::User::SendPositionPacket(iconer::app::User::IdType id, float x, float y, float z) const
+{
+	const iconer::app::packets::SC_UpdatePositionPacket pk{ id, x, y, z };
+
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
+}
+
 iconer::app::User::BorrowedIoResult
 iconer::app::User::SendRotationPacket(iconer::app::User::IdType id, float r, float y, float p)
 const

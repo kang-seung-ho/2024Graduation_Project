@@ -242,19 +242,19 @@ demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, flo
 {
 	user.Positions(x, y, z);
 
-	auto room_id = user.myRoomId.Load();
-	auto room = framework.FindRoom(room_id);
-
+	const auto room_id = user.myRoomId.Load();
+	if (room_id != -1)
+	{
+		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		{
 	room->ForEach(
 		[&user, x, y, z](iconer::app::User& member)
 		{
-			auto [io, ctx] = member.SendPositionPacket(user.GetID(), x, y, z);
-			if (not io)
-			{
-				ctx.Complete();
+					SEND(member, SendPositionPacket, user.GetID(), x, y, z);
 			}
-		}
 	);
+}
+	}
 }
 
 void
@@ -264,19 +264,19 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 	user.RotationUp(yaw);
 	user.RotationLook(pitch);
 
-	auto room_id = user.myRoomId.Load();
-	auto room = framework.FindRoom(room_id);
-
+	const auto room_id = user.myRoomId.Load();
+	if (room_id != -1)
+	{
+		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		{
 	room->ForEach(
 		[&user, roll, yaw, pitch](iconer::app::User& member)
 		{
-			auto [io, ctx] = member.SendPositionPacket(user.GetID(), roll, yaw, pitch);
-			if (not io)
-			{
-				ctx.Complete();
+					SEND(member, SendRotationPacket, user.GetID(), roll, yaw, pitch);
+				}
+			);
 			}
 		}
-	);
 }
 
 void

@@ -141,7 +141,6 @@ export namespace iconer::app
 		BorrowedIoResult SendRespondVersionPacket() const;
 		BorrowedIoResult SendRespondRoomsPacket(std::span<const std::byte> buffer) const;
 		BorrowedIoResult SendRespondMembersPacket(std::span<const std::byte> buffer) const;
-		BorrowedIoResult SendPositionPacket(IdType id, float x, float y, float z) const;
 		IoResult SendRoomCreatedPacket(IContext* room, IdType room_id) const;
 		BorrowedIoResult SendRoomCreationFailedPacket(RoomContract reason) const;
 		/// <param name="who">- Not only local client</param>
@@ -153,6 +152,7 @@ export namespace iconer::app
 		BorrowedIoResult SendChangeTeamPacket(IdType user_id, bool is_red_team) const;
 		BorrowedIoResult SendMakeGameReadyPacket() const;
 		BorrowedIoResult SendGameJustStartedPacket() const;
+		BorrowedIoResult SendPositionPacket(IdType id, float x, float y, float z) const;
 		BorrowedIoResult SendRotationPacket(IdType id, float r, float y, float p) const;
 		BorrowedIoResult SendRpcPacket(std::string&& script, long long arg) const;
 		BorrowedIoResult SendRpcPacket(std::string_view script, long long arg) const;
