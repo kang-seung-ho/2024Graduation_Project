@@ -2,8 +2,7 @@ module;
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
-#include "glm/glm.hpp"
-#include "glm/vec3.hpp"
+#include <tuple>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
@@ -59,7 +58,7 @@ export namespace iconer::app
 			, requestMemberContext(AsyncOperations::OpNotifyMember)
 			, teamChangerContext(AsyncOperations::OpNotifyTeam)
 			, gameContext(AsyncOperations::OpCreateGame), loadingContext(AsyncOperations::OpReadyGame)
-			, myTransform()
+			, myX(), myY(), myZ(), myRoll(), myYaw(), myPitch()
 			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
 			, isRidingGuardian(false)
 			, preSignInPacket(), preRoomCreationPacket()
@@ -155,287 +154,100 @@ export namespace iconer::app
 		BorrowedIoResult SendChangeTeamPacket(IdType user_id, bool is_red_team) const;
 		BorrowedIoResult SendMakeGameReadyPacket() const;
 		BorrowedIoResult SendGameJustStartedPacket() const;
+		BorrowedIoResult SendRpcPacket(std::string&& script, long long arg) const;
+		BorrowedIoResult SendRpcPacket(std::string_view script, long long arg) const;
+
+		[[nodiscard]]
+		constexpr User& Positions(const float& x, const float& y, const float& z) noexcept
+		{
+			myX = x;
+			myY = y;
+			myZ = z;
+			return *this;
+		}
 
 		constexpr User& PositionX(const float& v) noexcept
 		{
-			myTransform[3][0] = v;
+			myX = v;
 			return *this;
-		}
-
-		constexpr User& PositionX(float&& v) noexcept
-		{
-			myTransform[3][0] = std::move(v);
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr float& PositionX() noexcept
-		{
-			return myTransform[3][0];
 		}
 
 		[[nodiscard]]
 		constexpr const float& PositionX() const noexcept
 		{
-			return myTransform[3][0];
+			return myX;
 		}
 
 		constexpr User& PositionY(const float& v) noexcept
 		{
-			myTransform[3][1] = v;
+			myY = v;
 			return *this;
-		}
-
-		constexpr User& PositionY(float&& v) noexcept
-		{
-			myTransform[3][1] = std::move(v);
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr float& PositionY() noexcept
-		{
-			return myTransform[3][1];
 		}
 
 		[[nodiscard]]
 		constexpr const float& PositionY() const noexcept
 		{
-			return myTransform[3][1];
+			return myY;
 		}
 
 		constexpr User& PositionZ(const float& v) noexcept
 		{
-			myTransform[3][2] = v;
+			myZ = v;
 			return *this;
-		}
-
-		constexpr User& PositionZ(float&& v) noexcept
-		{
-			myTransform[3][2] = std::move(v);
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr float& PositionZ() noexcept
-		{
-			return myTransform[3][2];
 		}
 
 		[[nodiscard]]
 		constexpr const float& PositionZ() const noexcept
 		{
-			return myTransform[3][2];
+			return myZ;
 		}
 
 		[[nodiscard]]
-		constexpr User& Positions(const float& x, const float& y, const float& z) noexcept
+		constexpr auto Positions() noexcept
 		{
-			myTransform[3][0] = x;
-			myTransform[3][1] = y;
-			myTransform[3][2] = z;
-			return *this;
+			return std::tie(myX, myY, myZ);
 		}
 
 		[[nodiscard]]
-		constexpr glm::vec4& Positions() noexcept
+		constexpr auto Positions() const noexcept
 		{
-			return myTransform[3];
+			return std::tie(myX, myY, myZ);
 		}
 
-		[[nodiscard]]
-		constexpr const glm::vec4& Positions() const noexcept
+		constexpr User& RotationLook(const float& v) noexcept
 		{
-			return myTransform[3];
-		}
-
-		constexpr User& RotationLook(const std::initializer_list<float> list)
-		{
-			assert(list.size() == 3);
-			auto it = list.begin();
-			myTransform[2][0] = *(it++);
-			myTransform[2][1] = *(it++);
-			myTransform[2][2] = *(it++);
-			return *this;
-		}
-
-		constexpr User& RotationLook(const float(&v)[3]) noexcept
-		{
-			myTransform[2][0] = v[0];
-			myTransform[2][1] = v[1];
-			myTransform[2][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationLook(float(&& v)[3]) noexcept
-		{
-			myTransform[2][0] = std::move(v[0]);
-			myTransform[2][1] = std::move(v[1]);
-			myTransform[2][2] = std::move(v[2]);
-			return *this;
-		}
-
-		constexpr User& RotationLook(const std::span<float, 3> v) noexcept
-		{
-			myTransform[2][0] = v[0];
-			myTransform[2][1] = v[1];
-			myTransform[2][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationLook(const glm::vec4& v) noexcept
-		{
-			myTransform[2][0] = v[0];
-			myTransform[2][1] = v[1];
-			myTransform[2][2] = v[2];
-			myTransform[2][3] = v[3];
-			return *this;
-		}
-
-		constexpr User& RotationLook(const glm::vec3& v) noexcept
-		{
-			myTransform[2][0] = v[0];
-			myTransform[2][1] = v[1];
-			myTransform[2][2] = v[2];
+			myPitch = v;
 			return *this;
 		}
 
 		[[nodiscard]]
-		constexpr glm::vec4& RotationLook() noexcept
+		constexpr const float& RotationLook() const noexcept
 		{
-			return myTransform[2];
+			return myPitch;
 		}
 
-		[[nodiscard]]
-		constexpr const glm::vec4& RotationLook() const noexcept
+		constexpr User& RotationUp(const float& v) noexcept
 		{
-			return myTransform[2];
-		}
-
-		constexpr User& RotationUp(const std::initializer_list<float> list)
-		{
-			assert(list.size() == 3);
-			auto it = list.begin();
-			myTransform[1][0] = *(it++);
-			myTransform[1][1] = *(it++);
-			myTransform[1][2] = *(it++);
-			return *this;
-		}
-
-		constexpr User& RotationUp(const float(&v)[3]) noexcept
-		{
-			myTransform[1][0] = v[0];
-			myTransform[1][1] = v[1];
-			myTransform[1][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationUp(float(&& v)[3]) noexcept
-		{
-			myTransform[1][0] = std::move(v[0]);
-			myTransform[1][1] = std::move(v[1]);
-			myTransform[1][2] = std::move(v[2]);
-			return *this;
-		}
-
-		constexpr User& RotationUp(const std::span<float, 3> v) noexcept
-		{
-			myTransform[1][0] = v[0];
-			myTransform[1][1] = v[1];
-			myTransform[1][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationUp(const glm::vec4& v) noexcept
-		{
-			myTransform[1][0] = v[0];
-			myTransform[1][1] = v[1];
-			myTransform[1][2] = v[2];
-			myTransform[1][3] = v[3];
-			return *this;
-		}
-
-		constexpr User& RotationUp(const glm::vec3& v) noexcept
-		{
-			myTransform[1][0] = v[0];
-			myTransform[1][1] = v[1];
-			myTransform[1][2] = v[2];
+			myYaw = v;
 			return *this;
 		}
 
 		[[nodiscard]]
-		constexpr glm::vec4& RotationUp() noexcept
+		constexpr const float& RotationUp() const noexcept
 		{
-			return myTransform[1];
+			return myYaw;
 		}
 
-		[[nodiscard]]
-		constexpr const glm::vec4& RotationUp() const noexcept
+		constexpr User& RotationRight(const float& v) noexcept
 		{
-			return myTransform[1];
-		}
-
-		constexpr User& RotationRight(const std::initializer_list<float> list)
-		{
-			assert(list.size() == 3);
-			auto it = list.begin();
-			myTransform[0][0] = *(it++);
-			myTransform[0][1] = *(it++);
-			myTransform[0][2] = *(it++);
-			return *this;
-		}
-
-		constexpr User& RotationRight(const float(&v)[3]) noexcept
-		{
-			myTransform[0][0] = v[0];
-			myTransform[0][1] = v[1];
-			myTransform[0][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationRight(float(&& v)[3]) noexcept
-		{
-			myTransform[0][0] = std::move(v[0]);
-			myTransform[0][1] = std::move(v[1]);
-			myTransform[0][2] = std::move(v[2]);
-			return *this;
-		}
-
-		constexpr User& RotationRight(const std::span<float, 3> v) noexcept
-		{
-			myTransform[0][0] = v[0];
-			myTransform[0][1] = v[1];
-			myTransform[0][2] = v[2];
-			return *this;
-		}
-
-		constexpr User& RotationRight(const glm::vec4& v) noexcept
-		{
-			myTransform[0][0] = v[0];
-			myTransform[0][1] = v[1];
-			myTransform[0][2] = v[2];
-			myTransform[0][3] = v[3];
-			return *this;
-		}
-
-		constexpr User& RotationRight(const glm::vec3& v) noexcept
-		{
-			myTransform[0][0] = v[0];
-			myTransform[0][1] = v[1];
-			myTransform[0][2] = v[2];
+			myRoll = v;
 			return *this;
 		}
 
 		[[nodiscard]]
-		constexpr glm::vec4& RotationRight() noexcept
+		constexpr const float& RotationRight() const noexcept
 		{
-			return myTransform[0];
-		}
-
-		[[nodiscard]]
-		constexpr const glm::vec4& RotationRight() const noexcept
-		{
-			return myTransform[0];
+			return myRoll;
 		}
 
 		User(User&&) noexcept = default;
@@ -449,7 +261,7 @@ export namespace iconer::app
 		IContext teamChangerContext;
 		IContext gameContext, loadingContext;
 
-		glm::mat4 myTransform;
+		float myX, myY, myZ, myRoll, myYaw, myPitch;
 		iconer::util::MovableAtomic<IdType> myRoomId;
 		iconer::util::MovableAtomic<Team> myTeamId;
 		iconer::util::MovableAtomic<std::uint8_t> myWeaponId;

@@ -209,3 +209,17 @@ const
 
 	return { mySocket.Send(*ctx, buffer.get(), size), std::move(ctx) };
 }
+
+iconer::app::User::BorrowedIoResult
+iconer::app::User::SendRpcPacket(std::string&& script, long long arg)
+const
+{
+	return BorrowedIoResult();
+}
+
+iconer::app::User::BorrowedIoResult
+iconer::app::User::SendRpcPacket(std::string_view script, long long arg)
+const
+{
+	return BorrowedIoResult();
+}

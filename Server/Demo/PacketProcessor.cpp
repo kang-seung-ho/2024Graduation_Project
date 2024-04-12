@@ -239,9 +239,7 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 void
 demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, float x, float y, float z)
 {
-	user.PositionX(x);
-	user.PositionY(y);
-	user.PositionZ(z);
+	user.Positions(x, y, z);
 
 	auto room_id = user.myRoomId.Load();
 	auto room = framework.FindRoom(room_id);
