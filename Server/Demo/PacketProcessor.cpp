@@ -368,7 +368,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_ROOM_CREATE:
 		{
 			wchar_t room_title[16]{};
-			DESERIALIZE(last_buf, 16, room_title);
+			DESERIALIZE(last_buf, room_title);
 
 			OnCreateRoom(framework, user, room_title);
 		}
@@ -483,7 +483,7 @@ demo::PacketProcessor(demo::Framework& framework
 			char rpc_script[12]{};
 			long long rpc_argument{};
 
-			DESERIALIZE(last_buf, 12, rpc_script);
+			DESERIALIZE(last_buf, rpc_script);
 			DESERIALIZE(last_buf, rpc_argument);
 
 			OnRpc(framework, user, std::string{ rpc_script, 12 }, std::move(rpc_argument));
