@@ -72,8 +72,6 @@ export namespace iconer::app
 			{
 				std::exchange(mySocket, iconer::net::Socket{}).Close();
 			}
-
-			Super::~ISession();
 		}
 
 		void Awake();
