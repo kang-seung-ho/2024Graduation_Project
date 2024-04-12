@@ -260,9 +260,9 @@ demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, flo
 void
 demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float roll, float yaw, float pitch)
 {
-	user.RotationLook({ roll, 0, 0 });
-	user.RotationRight({ 0, yaw, 0 });
-	user.RotationUp({ 0, 0, pitch });
+	user.RotationRight(roll);
+	user.RotationUp(yaw);
+	user.RotationLook(pitch);
 
 	auto room_id = user.myRoomId.Load();
 	auto room = framework.FindRoom(room_id);

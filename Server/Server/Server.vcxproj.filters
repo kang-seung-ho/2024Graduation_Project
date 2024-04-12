@@ -369,6 +369,9 @@
     <ClCompile Include="Rpc.ixx">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="TransformUnit.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Server.natvis" />

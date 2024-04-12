@@ -14,6 +14,7 @@ import Iconer.Application.RoomContract;
 import Iconer.Application.GameContract;
 import Iconer.Application.BlobSendContext;
 import Iconer.Application.BorrowedSendContext;
+import Iconer.Application.TransformUnit;
 import <span>;
 
 export namespace iconer::app
@@ -33,7 +34,7 @@ export namespace iconer::app
 		, Dead
 	};
 
-	class [[nodiscard]] User : public ISession<UserStates>
+	class [[nodiscard]] User : public ISession<UserStates>, public TransformUnit
 	{
 	public:
 		using Super = ISession<UserStates>;
@@ -157,99 +158,6 @@ export namespace iconer::app
 		BorrowedIoResult SendRpcPacket(std::string&& script, long long arg) const;
 		BorrowedIoResult SendRpcPacket(std::string_view script, long long arg) const;
 
-		[[nodiscard]]
-		constexpr User& Positions(const float& x, const float& y, const float& z) noexcept
-		{
-			myX = x;
-			myY = y;
-			myZ = z;
-			return *this;
-		}
-
-		constexpr User& PositionX(const float& v) noexcept
-		{
-			myX = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& PositionX() const noexcept
-		{
-			return myX;
-		}
-
-		constexpr User& PositionY(const float& v) noexcept
-		{
-			myY = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& PositionY() const noexcept
-		{
-			return myY;
-		}
-
-		constexpr User& PositionZ(const float& v) noexcept
-		{
-			myZ = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& PositionZ() const noexcept
-		{
-			return myZ;
-		}
-
-		[[nodiscard]]
-		constexpr auto Positions() noexcept
-		{
-			return std::tie(myX, myY, myZ);
-		}
-
-		[[nodiscard]]
-		constexpr auto Positions() const noexcept
-		{
-			return std::tie(myX, myY, myZ);
-		}
-
-		constexpr User& RotationLook(const float& v) noexcept
-		{
-			myPitch = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& RotationLook() const noexcept
-		{
-			return myPitch;
-		}
-
-		constexpr User& RotationUp(const float& v) noexcept
-		{
-			myYaw = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& RotationUp() const noexcept
-		{
-			return myYaw;
-		}
-
-		constexpr User& RotationRight(const float& v) noexcept
-		{
-			myRoll = v;
-			return *this;
-		}
-
-		[[nodiscard]]
-		constexpr const float& RotationRight() const noexcept
-		{
-			return myRoll;
-		}
-
 		User(User&&) noexcept = default;
 		User& operator=(User&&) noexcept = default;
 
@@ -261,7 +169,6 @@ export namespace iconer::app
 		IContext teamChangerContext;
 		IContext gameContext, loadingContext;
 
-		float myX, myY, myZ, myRoll, myYaw, myPitch;
 		iconer::util::MovableAtomic<IdType> myRoomId;
 		iconer::util::MovableAtomic<Team> myTeamId;
 		iconer::util::MovableAtomic<std::uint8_t> myWeaponId;
