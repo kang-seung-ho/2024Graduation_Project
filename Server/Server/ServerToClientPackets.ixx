@@ -113,7 +113,7 @@ export namespace iconer::app::packets::inline sc
 
 		constexpr const std::byte* Read(const std::byte* buffer)
 		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), msgLength, rpcScript), rpcArgument);
+			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), rpcScript), rpcArgument);
 		}
 
 		std::int32_t clientId;
@@ -319,7 +319,7 @@ export namespace iconer::app::packets::inline sc
 
 		constexpr const std::byte* Read(const std::byte* buffer)
 		{
-			return iconer::util::Deserialize(Super::Read(buffer), versionLength, gameVersion);
+			return iconer::util::Deserialize(Super::Read(buffer), gameVersion);
 		}
 
 		wchar_t gameVersion[versionLength];
@@ -414,7 +414,7 @@ export namespace iconer::app::packets::inline sc
 				for (auto& room : serializedRooms)
 				{
 					seek = iconer::util::Deserialize(seek, room.id);
-					seek = iconer::util::Deserialize(seek, room.nameLength, room.title);
+					seek = iconer::util::Deserialize(seek, room.title);
 					seek = iconer::util::Deserialize(seek, room.members);
 				}
 			}
@@ -514,7 +514,7 @@ export namespace iconer::app::packets::inline sc
 				{
 					seek = iconer::util::Deserialize(seek, member.id);
 					seek = iconer::util::Deserialize(seek, member.team_id);
-					seek = iconer::util::Deserialize(seek, member.nameLength, member.nickname);
+					seek = iconer::util::Deserialize(seek, member.nickname);
 				}
 			}
 
@@ -612,7 +612,7 @@ export namespace iconer::app::packets::inline sc
 
 			seek = iconer::util::Deserialize(seek, memberInfo.id);
 			seek = iconer::util::Deserialize(seek, memberInfo.team_id);
-			seek = iconer::util::Deserialize(seek, memberInfo.nameLength, memberInfo.nickname);
+			seek = iconer::util::Deserialize(seek, memberInfo.nickname);
 			seek = iconer::util::Deserialize(seek, roomId);
 
 			return seek;
@@ -689,7 +689,7 @@ export namespace iconer::app::packets::inline sc
 
 		constexpr const std::byte* Read(const std::byte* buffer)
 		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), nickNameLength, userName);
+			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), userName);
 		}
 
 		std::int32_t clientId;

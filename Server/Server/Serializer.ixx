@@ -939,12 +939,12 @@ export namespace iconer::util
 	/// <returns>last buffer pointer after read dest</returns>
 	/// <exception cref="std::out_of_range"/>
 	template<size_t Length>
-	constexpr const std::byte* Deserialize(const std::byte* buffer, size_t length, char(&output)[Length])
+	constexpr const std::byte* Deserialize(const std::byte* buffer, char(&output)[Length])
 	{
 		const std::byte* it = buffer;
 		char* out = output;
 
-		while (it < buffer + length * sizeof(char))
+		while (it < buffer + Length * sizeof(char))
 		{
 			*out = std::bit_cast<char>(*it);
 
@@ -958,16 +958,21 @@ export namespace iconer::util
 	/// <returns>last buffer pointer after read dest</returns>
 	/// <exception cref="std::out_of_range"/>
 	template<size_t Length>
-	constexpr const std::byte* Deserialize(const std::byte* buffer, size_t length, char8_t(&output)[Length])
+	constexpr const std::byte* Deserialize(const std::byte* buffer, char8_t(&output)[Length])
 	{
 		const std::byte* it = buffer;
 		char8_t* out = output;
 
-		while (it < buffer + length * sizeof(char8_t))
+		while (it < buffer + Length * sizeof(char8_t))
 		{
 			*out = std::bit_cast<char8_t>(*it);
 
-			++it; ++out;
+			++it;
+
+			if (++out == std::cend(output))
+			{
+				break;
+			}
 		}
 
 		return it;
@@ -977,16 +982,19 @@ export namespace iconer::util
 	/// <returns>last buffer pointer after read dest</returns>
 	/// <exception cref="std::out_of_range"/>
 	template<size_t Length>
-	constexpr const std::byte* Deserialize(const std::byte* buffer, size_t length, wchar_t(&output)[Length])
+	constexpr const std::byte* Deserialize(const std::byte* buffer, wchar_t(&output)[Length])
 	{
 		const std::byte* it = buffer;
 		wchar_t* out = output;
 
-		while (it < buffer + length * sizeof(wchar_t))
+		while (it < buffer + Length * sizeof(wchar_t))
 		{
 			it = Deserialize(it, *out);
 
-			++out;
+			if (++out == std::cend(output))
+			{
+				break;
+			}
 		}
 
 		return it;
@@ -996,16 +1004,19 @@ export namespace iconer::util
 	/// <returns>last buffer pointer after read dest</returns>
 	/// <exception cref="std::out_of_range"/>
 	template<size_t Length>
-	constexpr const std::byte* Deserialize(const std::byte* buffer, size_t length, char16_t(&output)[Length])
+	constexpr const std::byte* Deserialize(const std::byte* buffer, char16_t(&output)[Length])
 	{
 		const std::byte* it = buffer;
 		char16_t* out = output;
 
-		while (it < buffer + length * sizeof(char16_t))
+		while (it < buffer + Length * sizeof(char16_t))
 		{
 			it = Deserialize(it, *out);
 
-			++out;
+			if (++out == std::cend(output))
+			{
+				break;
+			}
 		}
 
 		return it;
@@ -1015,16 +1026,19 @@ export namespace iconer::util
 	/// <returns>last buffer pointer after read dest</returns>
 	/// <exception cref="std::out_of_range"/>
 	template<size_t Length>
-	constexpr const std::byte* Deserialize(const std::byte* buffer, size_t length, char32_t(&output)[Length])
+	constexpr const std::byte* Deserialize(const std::byte* buffer, char32_t(&output)[Length])
 	{
 		const std::byte* it = buffer;
 		char32_t* out = output;
 
-		while (it < buffer + length * sizeof(char32_t))
+		while (it < buffer + Length * sizeof(char32_t))
 		{
 			it = Deserialize(it, *out);
 
-			++out;
+			if (++out == std::cend(output))
+			{
+				break;
+			}
 		}
 
 		return it;

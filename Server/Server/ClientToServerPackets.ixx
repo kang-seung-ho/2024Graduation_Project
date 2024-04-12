@@ -49,7 +49,7 @@ export namespace iconer::app::packets::inline cs
 
 		constexpr const std::byte* Read(const std::byte* buffer)
 		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), msgLength, rpcScript), rpcArgument);
+			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), rpcScript), rpcArgument);
 		}
 
 		char rpcScript[msgLength];
@@ -158,7 +158,7 @@ export namespace iconer::app::packets::inline cs
 
 		constexpr const std::byte* Read(const std::byte* buffer, const size_t&)
 		{
-			return iconer::util::Deserialize(Super::Read(buffer), roomTitleLength, roomTitle);
+			return iconer::util::Deserialize(Super::Read(buffer), roomTitle);
 		}
 
 		wchar_t roomTitle[roomTitleLength];
@@ -262,7 +262,7 @@ export namespace iconer::app::packets::inline cs
 
 		constexpr const std::byte* Read(const std::byte* buffer, const size_t& buffer_length)
 		{
-			return iconer::util::Deserialize(Super::Read(buffer), nickNameLength, userName);
+			return iconer::util::Deserialize(Super::Read(buffer), userName);
 		}
 
 		wchar_t userName[nickNameLength];
