@@ -2,6 +2,7 @@ module;
 #include <unordered_map>
 
 module Iconer.Application.User;
+import Iconer.Application.BasicPacket;
 import Iconer.Application.Packet;
 import Iconer.Application.SendContextPool;
 
@@ -179,27 +180,26 @@ iconer::app::User::BorrowedIoResult
 iconer::app::User::SendMakeGameReadyPacket()
 const
 {
-	static constinit packets::SC_ReadyForGamePacket pk{};
-	static const auto buffer = pk.Serialize();
+	static const auto pk = iconer::app::packets::Serialize(iconer::app::PacketProtocol::SC_GAME_GETTING_READY);
 
 	auto ctx = SendContextPool::Pop();
 
 	ctx->SetOperation(AsyncOperations::OpGameTicketing);
 
-	return { mySocket.Send(*ctx, buffer.get(), pk.WannabeSize()), std::move(ctx) };
+	// Preserve the serialized packet
+	return { mySocket.Send(*ctx, pk.get(), BasicPacket::MinSize()), std::move(ctx) };
 }
 
 iconer::app::User::BorrowedIoResult
 iconer::app::User::SendGameJustStartedPacket()
 const
 {
-	static constinit packets::SC_GameStartPacket pk{};
-	static const auto buffer = pk.Serialize();
-	static constexpr auto size = packets::SC_ReadyForGamePacket::WannabeSize();
+	static const auto pk = iconer::app::packets::Serialize(iconer::app::PacketProtocol::SC_GAME_START);
 
 	auto ctx = SendContextPool::Pop();
 
-	return { mySocket.Send(*ctx, buffer.get(), size), std::move(ctx) };
+	// Preserve the serialized packet
+	return { mySocket.Send(*ctx, pk.get(), BasicPacket::MinSize()), std::move(ctx) };
 }
 
 iconer::app::User::BorrowedIoResult

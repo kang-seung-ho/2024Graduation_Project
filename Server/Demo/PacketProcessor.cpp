@@ -368,7 +368,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_ROOM_CREATE:
 		{
 			wchar_t room_title[16]{};
-			DESERIALIZE(last_buf, room_title);
+			iconer::app::packets::Deserialize(last_buf, room_title);
 
 			OnCreateRoom(framework, user, room_title);
 		}
@@ -384,7 +384,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_ROOM_JOIN:
 		{
 			std::int32_t room_id{};
-			DESERIALIZE(last_buf, room_id);
+			iconer::app::packets::Deserialize(last_buf, room_id);
 
 			OnJoinRoom(framework, user, room_id);
 		}
@@ -425,7 +425,7 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_MY_POSITION:
 		{
 			float px{}, py{}, pz{};
-			DESERIALIZES_V3(last_buf, px, py, pz);
+			iconer::app::packets::Deserialize(last_buf, px, py, pz);
 
 			OnReceivePosition(framework, user, px, py, pz);
 		}
@@ -436,7 +436,7 @@ demo::PacketProcessor(demo::Framework& framework
 			float pr{}; // roll (x)
 			float py{}; // yaw (y)
 			float pp{}; // pitch (z)
-			DESERIALIZES_V3(last_buf, pr, py, pp);
+			iconer::app::packets::Deserialize(last_buf, pr, py, pp);
 
 			OnReceiveRotation(framework, user, pr, pr, pp);
 		}
@@ -470,7 +470,8 @@ demo::PacketProcessor(demo::Framework& framework
 		case iconer::app::PacketProtocol::CS_SET_TEAM:
 		{
 			std::int8_t team_id{};
-			DESERIALIZE(last_buf, team_id);
+
+			iconer::app::packets::Deserialize(last_buf, team_id);
 
 			// 0 :  red team
 			// 1 : blue team
@@ -483,8 +484,7 @@ demo::PacketProcessor(demo::Framework& framework
 			char rpc_script[12]{};
 			long long rpc_argument{};
 
-			DESERIALIZE(last_buf, rpc_script);
-			DESERIALIZE(last_buf, rpc_argument);
+			iconer::app::packets::Deserialize(last_buf, rpc_script, rpc_argument);
 
 			OnRpc(framework, user, std::string{ rpc_script, 12 }, std::move(rpc_argument));
 		}
