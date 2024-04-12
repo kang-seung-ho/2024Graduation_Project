@@ -1,6 +1,9 @@
 export module Iconer.Utility.Byte;
 import <type_traits>;
 import <concepts>;
+import <tuple>;
+import <string>;
+import <string_view>;
 export import <bit>;
 
 static inline constexpr unsigned char LastByte = 0XFFU;
@@ -38,6 +41,43 @@ export namespace iconer::util
 	constexpr unsigned char RShift(const T& value, const size_t& times) noexcept
 	{
 		return static_cast<unsigned char>(value >> (times * 8ULL)) & LastByte;
+	}
+
+	template<typename Arg>
+	[[nodiscard]]
+	constexpr size_t GetItemByteSize(const Arg& arg) noexcept
+	{
+		if constexpr (std::is_same_v<std::remove_cvref_t<Arg>, std::string>)
+		{
+			return arg.length();
+		}
+		else if constexpr (std::is_same_v<std::remove_cvref_t<Arg>, std::wstring>)
+		{
+			return arg.length() * sizeof(wchar_t);
+		}
+		if constexpr (std::is_same_v<std::remove_cvref_t<Arg>, std::string_view>)
+		{
+			return arg.length();
+		}
+		else if constexpr (std::is_same_v<std::remove_cvref_t<Arg>, std::wstring_view>)
+		{
+			return arg.length() * sizeof(wchar_t);
+		}
+		else
+		{
+			return sizeof(Arg);
+		}
+	}
+
+	template<typename Tuple, size_t... Indices>
+	[[nodiscard]]
+	constexpr size_t GetByteSize(const Tuple& tuple, std::index_sequence<Indices...>) noexcept
+	{
+		size_t result{};
+
+		((result += GetItemByteSize(std::get<Indices>(tuple))), ...);
+
+		return result;
 	}
 }
 
