@@ -2,8 +2,7 @@ module;
 #include <atomic>
 
 #define SEND(user_var, method, ...)\
-auto [io, ctx] = ((user_var).method)(__VA_ARGS__);\
-if (not io)\
+if (auto [io, ctx] = ((user_var).method)(__VA_ARGS__); not io)\
 {\
 	ctx.Complete(); \
 }
