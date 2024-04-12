@@ -62,7 +62,7 @@ void
 demo::OnCreateRoom(demo::Framework& framework, iconer::app::User& user, const wchar_t(&room_title)[16])
 {
 	bool success = false;
-	for (auto& room : framework.everyRoom)
+	for (iconer::app::Room*& room : framework.everyRoom)
 	{
 		if (room->TryReserveContract())
 		{
@@ -94,7 +94,7 @@ demo::OnCreateRoom(demo::Framework& framework, iconer::app::User& user, const wc
 void
 demo::OnJoinRoom(demo::Framework& framework, iconer::app::User& user, const std::int32_t& room_id)
 {
-	if (auto room = framework.FindRoom(room_id); nullptr != room)
+	if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
 	{
 		IGNORE_DISCARDED_BEGIN;
 		if (user.TryChangeState(iconer::app::UserStates::Idle, iconer::app::UserStates::EnteringRoom))
@@ -220,7 +220,7 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
 			const auto target = is_red_team ? iconer::app::Team::Red : iconer::app::Team::Blue;
@@ -244,15 +244,15 @@ demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, flo
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
-	room->ForEach(
-		[&user, x, y, z](iconer::app::User& member)
-		{
+			room->ForEach(
+				[&user, x, y, z](iconer::app::User& member)
+				{
 					SEND(member, SendPositionPacket, user.GetID(), x, y, z);
-			}
-	);
-}
+				}
+			);
+		}
 	}
 }
 
@@ -266,16 +266,16 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (auto room = framework.FindRoom(room_id); nullptr != room)
+		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
-	room->ForEach(
-		[&user, roll, yaw, pitch](iconer::app::User& member)
-		{
+			room->ForEach(
+				[&user, roll, yaw, pitch](iconer::app::User& member)
+				{
 					SEND(member, SendRotationPacket, user.GetID(), roll, yaw, pitch);
 				}
 			);
-			}
 		}
+	}
 }
 
 void
@@ -299,11 +299,6 @@ demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, lo
 
 #define ICONER_UNLIKELY [[unlikely]]
 #define ICONER_LIKELY [[likely]]
-#define DESERIALIZE(buf, ...) iconer::util::Deserialize(buf, __VA_ARGS__)
-#define DESERIALIZES_V1(buf, ...) DESERIALIZE(buf, __VA_ARGS__)
-#define DESERIALIZES_V2(buf, param0, ...) DESERIALIZE(DESERIALIZE(buf, param0), __VA_ARGS__)
-#define DESERIALIZES_V3(buf, param0, param1, ...) DESERIALIZE(DESERIALIZE(DESERIALIZE(buf, param0), param1), __VA_ARGS__)
-#define DESERIALIZES_V4(buf, param0, param1, param2, ...) DESERIALIZE(DESERIALIZE(DESERIALIZE(DESERIALIZE(buf, param0), param1), param2), __VA_ARGS__)
 
 ptrdiff_t
 demo::PacketProcessor(demo::Framework& framework
