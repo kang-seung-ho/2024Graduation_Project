@@ -281,7 +281,20 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 void
 demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg)
 {
-
+	const auto room_id = user.myRoomId.Load();
+	if (room_id != -1)
+	{
+		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+		{
+			room->ForEach(
+				[&user, &rpc, arg](iconer::app::User& member)
+				{
+					__argc;
+					SEND(member, SendRpcPacket, user.GetID(), std::move(rpc), arg);
+				}
+			);
+		}
+	}
 }
 
 #define ICONER_UNLIKELY [[unlikely]]
