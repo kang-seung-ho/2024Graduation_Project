@@ -211,6 +211,16 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
+iconer::app::User::BorrowedIoResult
+iconer::app::User::SendRotationPacket(iconer::app::User::IdType id, float r, float y, float p)
+const
+{
+	const iconer::app::packets::SC_UpdateRotationPacket pk{ id, r, y, p };
+
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
+}
+
+iconer::app::User::BorrowedIoResult
 iconer::app::User::SendRpcPacket(std::string&& script, long long arg)
 const
 {
