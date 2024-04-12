@@ -229,6 +229,7 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target, std::memory_order_release))
 			{
 				room->Dirty(true);
+				framework.SetRoomModifiedFlag();
 			}
 
 			(void)framework.Schedule(user.teamChangerContext, user.GetID());
