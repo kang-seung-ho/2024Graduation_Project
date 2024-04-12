@@ -88,7 +88,7 @@ export namespace iconer::app
 			{
 				if (nullptr != user.Load(std::memory_order_acquire))
 				{
-					std::invoke(std::move(predicate), *user);
+					std::invoke(std::forward<Predicate>(predicate), *user);
 				}
 			}
 		}
