@@ -289,8 +289,7 @@ demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, lo
 			room->ForEach(
 				[&user, &rpc, arg](iconer::app::User& member)
 				{
-					__argc;
-					SEND(member, SendRpcPacket, user.GetID(), std::move(rpc), arg);
+					SEND(member, SendRpcPacket, user.GetID(), rpc, arg);
 				}
 			);
 		}
