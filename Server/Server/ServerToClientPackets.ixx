@@ -62,42 +62,60 @@ export namespace iconer::app::packets::inline sc
 			return static_cast<ptrdiff_t>(WannabeSize());
 		}
 
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char* begin, const char* end)
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* begin, const char* end, long long arg = 0)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
-			, rpcArgument()
+			, rpcArgument(arg)
 		{
 			std::copy(begin, end, rpcScript);
 		}
 
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char* nts, const size_t length)
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* nts, const size_t length, long long arg = 0)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
-			, rpcArgument()
+			, rpcArgument(arg)
 		{
 			std::copy_n(nts, std::min(length, msgLength), rpcScript);
 		}
 
 		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char(&str)[Length])
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char(&str)[Length], long long arg = 0)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
-			, rpcArgument()
+			, rpcArgument(arg)
 		{
 			std::copy_n(str, std::min(Length, msgLength), rpcScript);
 		}
 
 		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, char(&& str)[Length])
+		explicit constexpr SC_RpcPacket(std::int32_t id, char(&& str)[Length], long long arg = 0)
 			noexcept
 			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
 			, clientId(id), rpcScript()
-			, rpcArgument()
+			, rpcArgument(arg)
 		{
 			std::move(str, str + std::min(Length, msgLength), rpcScript);
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, const std::string& str, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::copy_n(str.cbegin(), std::min(str.length(), msgLength), std::begin(rpcScript));
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, std::string&& str, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::move(str.begin(), str.begin() + std::min(str.length(), msgLength), std::begin(rpcScript));
 		}
 
 		[[nodiscard]]
