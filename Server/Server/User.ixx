@@ -3,6 +3,8 @@ module;
 #include <initializer_list>
 #include <memory>
 #include <tuple>
+#include <string>
+#include <string_view>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
@@ -154,8 +156,8 @@ export namespace iconer::app
 		BorrowedIoResult SendGameJustStartedPacket() const;
 		BorrowedIoResult SendPositionPacket(IdType id, float x, float y, float z) const;
 		BorrowedIoResult SendRotationPacket(IdType id, float r, float y, float p) const;
-		BorrowedIoResult SendRpcPacket(std::string&& script, long long arg) const;
-		BorrowedIoResult SendRpcPacket(std::string_view script, long long arg) const;
+		BorrowedIoResult SendRpcPacket(IdType id, std::string&& script, long long arg) const;
+		BorrowedIoResult SendRpcPacket(IdType id, std::string_view script, long long arg) const;
 
 		User(User&&) noexcept = default;
 		User& operator=(User&&) noexcept = default;

@@ -220,15 +220,19 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRpcPacket(std::string&& script, long long arg)
+iconer::app::User::SendRpcPacket(iconer::app::User::IdType id, std::string&& script, long long arg)
 const
 {
-	return BorrowedIoResult();
+	const iconer::app::packets::SC_RpcPacket pk{ id, std::move(script), arg };
+
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRpcPacket(std::string_view script, long long arg)
+iconer::app::User::SendRpcPacket(iconer::app::User::IdType id, std::string_view script, long long arg)
 const
 {
-	return BorrowedIoResult();
+	const iconer::app::packets::SC_RpcPacket pk{ id, script.data(), script.length(), arg };
+
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
 }
