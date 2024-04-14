@@ -95,7 +95,7 @@ namespace iconer::app
 		[[nodiscard]]
 		constexpr
 			std::unique_ptr<std::byte[]>
-			Serialize(const PacketProtocol& procotol, const std::int16_t& size, Args&&... args)
+			Serialize(const PacketProtocol& procotol, Args&&... args)
 		{
 			auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
 			return iconer::util::Serializes(procotol, iconer::util::GetByteSize(tuple, std::index_sequence_for<Args...>{}), std::move(tuple));
