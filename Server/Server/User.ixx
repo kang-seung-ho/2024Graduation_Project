@@ -2,9 +2,6 @@ module;
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
-#include <tuple>
-#include <string>
-#include <string_view>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
@@ -17,6 +14,9 @@ import Iconer.Application.GameContract;
 import Iconer.Application.BlobSendContext;
 import Iconer.Application.BorrowedSendContext;
 import Iconer.Application.TransformUnit;
+import <tuple>;
+import <string>;
+import <string_view>;
 import <span>;
 
 export namespace iconer::app
