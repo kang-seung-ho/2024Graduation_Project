@@ -20,10 +20,12 @@ demo::Framework::RouteEvent(bool is_succeed
 {
 	ctx->Clear();
 
+	using enum iconer::app::AsyncOperations;
+
 	switch (ctx->GetOperation())
 	{
 	// Phase 0
-	case iconer::app::AsyncOperations::OpReserveSession:
+	case OpReserveSession:
 	{
 		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user.GetID();
@@ -47,7 +49,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	// Phase 1
 	// an user is connected
-	case iconer::app::AsyncOperations::OpAccept:
+	case OpAccept:
 	{
 		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user.GetID();
@@ -71,7 +73,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	// Phase 2
 	// received a nickname, and send an id of user
-	case iconer::app::AsyncOperations::OpSignIn:
+	case OpSignIn:
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
@@ -100,7 +102,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	// Phase 3
 	// sent an id of user
-	case iconer::app::AsyncOperations::OpAssignID:
+	case OpAssignID:
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
@@ -124,7 +126,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 4~
-	case iconer::app::AsyncOperations::OpRecv:
+	case OpRecv:
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
@@ -152,7 +154,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 4~
-	case iconer::app::AsyncOperations::OpSend:
+	case OpSend:
 	{
 		if (not is_succeed)
 		{
@@ -173,14 +175,14 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 4~
-	case iconer::app::AsyncOperations::OpSendBorrowed:
+	case OpSendBorrowed:
 	{
 		RETURN_BACK_SENDER(ctx);
 	}
 	break;
 
 	// Phase 4~
-	case iconer::app::AsyncOperations::OpDisconnect:
+	case OpDisconnect:
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
@@ -201,7 +203,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 5
-	case iconer::app::AsyncOperations::OpReserveRoom:
+	case OpReserveRoom:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 		const IdType& room_id = room->GetID();
@@ -226,7 +228,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 5
-	case iconer::app::AsyncOperations::OpCreateRoom:
+	case OpCreateRoom:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 		const IdType& room_id = room->GetID();
@@ -251,7 +253,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 5
-	case iconer::app::AsyncOperations::OpEnterRoom:
+	case OpEnterRoom:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		const IdType room_id = static_cast<IdType>(io_bytes);
@@ -280,12 +282,12 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 5
-	case iconer::app::AsyncOperations::OpLeaveRoom:
+	case OpLeaveRoom:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
+		ctx->SetOperation(OpSendBorrowed);
 
 		if (not is_succeed)
 		{
@@ -305,7 +307,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 5
-	case iconer::app::AsyncOperations::OpCloseRoom:
+	case OpCloseRoom:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
@@ -331,7 +333,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 6
-	case iconer::app::AsyncOperations::OpNotifyMember:
+	case OpNotifyMember:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -354,7 +356,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 6
-	case iconer::app::AsyncOperations::OpNotifyRoom:
+	case OpNotifyRoom:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -375,7 +377,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpNotifyTeam:
+	case OpNotifyTeam:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -396,7 +398,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpCreateGame:
+	case OpCreateGame:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -419,7 +421,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpSpreadGameTicket:
+	case OpSpreadGameTicket:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
@@ -441,12 +443,12 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpGameTicketing:
+	case OpGameTicketing:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
+		ctx->SetOperation(OpSendBorrowed);
 
 		if (not is_succeed)
 		{
@@ -468,12 +470,12 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpReadyGame:
+	case OpReadyGame:
 	{
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->SetOperation(iconer::app::AsyncOperations::OpSendBorrowed);
+		ctx->SetOperation(OpSendBorrowed);
 
 		if (not is_succeed)
 		{
@@ -495,7 +497,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7
-	case iconer::app::AsyncOperations::OpStartGame:
+	case OpStartGame:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
@@ -520,7 +522,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7~
-	case iconer::app::AsyncOperations::OpLeaveGame:
+	case OpLeaveGame:
 	{
 		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
 		const IdType& id = user->GetID();
@@ -530,7 +532,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	break;
 
 	// Phase 7~
-	case iconer::app::AsyncOperations::OpCloseGame:
+	case OpCloseGame:
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
@@ -538,8 +540,15 @@ demo::Framework::RouteEvent(bool is_succeed
 	}
 	break;
 
+	// Phase 8
+	case OpCreateCharacters:
+	{
+
+	}
+	break;
+
 	// Phase 9~
-	case iconer::app::AsyncOperations::OpEndWorkers:
+	case OpEndWorkers:
 	{
 		return false;
 	}
