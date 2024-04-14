@@ -543,11 +543,36 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 8
 	case OpCreateCharacters:
 	{
+		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
 	}
 	break;
+	
+	// Phase 8
+	case OpUpdateRoom:
+	{
+		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
-	// Phase 9~
+	}
+	break;
+	
+	// Phase 8
+	case OpCheckGuardian:
+	{
+		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+
+	}
+	break;
+	
+	// Phase 8
+	case OpCheckDead:
+	{
+		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+
+	}
+	break;
+	
+	// Extras Phase
 	case OpEndWorkers:
 	{
 		return false;
