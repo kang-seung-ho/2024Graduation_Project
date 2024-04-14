@@ -33,7 +33,8 @@ demo::Framework::OnStartGame(iconer::app::Room& room)
 			}
 		);
 
-		return true;
+		room.SetOperation(iconer::app::AsyncOperations::OpCreateCharacters);
+		return Schedule(room, 0);
 	}
 	else
 	{
