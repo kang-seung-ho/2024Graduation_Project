@@ -18,7 +18,8 @@ test::SendSignInPacket()
 iconer::net::Socket::IoResult
 test::SendCreateRoomPacket(std::wstring_view title)
 {
-	const iconer::app::packets::CS_CreateRoomPacket pk{ title.data(), title.length() };
+	iconer::app::packets::CS_CreateRoomPacket pk{ title.data(), title.length() };
+	std::copy_n(title.cbegin(), std::min(title.length(), pk.roomTitleLength), pk.roomTitle);
 
 	auto ptr = pk.Serialize();
 
