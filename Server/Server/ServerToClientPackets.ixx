@@ -3,6 +3,7 @@ module;
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include <ranges>
 #include <vector>
 
 export module Iconer.Application.Packet:ServerToClientPackets;
@@ -106,7 +107,15 @@ export namespace iconer::app::packets::inline sc
 			, clientId(id), rpcScript()
 			, rpcArgument(arg)
 		{
-			std::copy_n(str.cbegin(), std::min(str.length(), msgLength), std::begin(rpcScript));
+			auto it = std::begin(rpcScript);
+			const auto max_cnt = std::min(str.length(), msgLength);
+
+			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
+			{
+				if (max_cnt <= static_cast<size_t>(diff)) break;
+
+				*it = ch;
+			}
 		}
 
 		explicit constexpr SC_RpcPacket(std::int32_t id, std::string&& str, long long arg = 0)
@@ -115,7 +124,15 @@ export namespace iconer::app::packets::inline sc
 			, clientId(id), rpcScript()
 			, rpcArgument(arg)
 		{
-			std::move(str.begin(), str.begin() + std::min(str.length(), msgLength), std::begin(rpcScript));
+			auto it = std::begin(rpcScript);
+			const auto max_cnt = std::min(str.length(), msgLength);
+
+			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
+			{
+				if (max_cnt <= static_cast<size_t>(diff)) break;
+
+				*it = std::move(ch);
+			}
 		}
 
 		[[nodiscard]]
