@@ -98,7 +98,7 @@ namespace iconer::app
 			Serialize(const PacketProtocol& procotol, Args&&... args)
 		{
 			auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
-			return iconer::util::Serializes(procotol, iconer::util::GetByteSize(tuple, std::index_sequence_for<Args...>{}), std::move(tuple));
+			return iconer::util::Serializes(procotol, static_cast<std::int16_t>(iconer::util::GetByteSize(tuple, std::index_sequence_for<Args...>{})), std::move(tuple));
 		}
 
 		template<typename... Ts>
