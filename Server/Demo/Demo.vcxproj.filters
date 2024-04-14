@@ -69,6 +69,9 @@
     <ClCompile Include="FrameworkEvents6.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="PacketEventRouter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

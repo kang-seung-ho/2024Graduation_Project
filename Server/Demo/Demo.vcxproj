@@ -223,6 +223,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModule</CompileAs>
     </ClCompile>
     <ClCompile Include="FrameworkUpdater.cpp" />
+    <ClCompile Include="PacketEventRouter.cpp" />
     <ClCompile Include="PacketProcessor.cpp" />
     <ClCompile Include="PacketProcessor.ixx">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCppModule</CompileAs>
