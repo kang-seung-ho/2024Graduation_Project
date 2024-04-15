@@ -32,7 +32,8 @@ test::SendCreateRoomPacket(std::wstring_view title)
 iconer::net::Socket::IoResult
 test::SendJoinRoomPacket(IdType room_id)
 {
-	const iconer::app::packets::CS_EnterRoomPacket pk{ room_id };
+	iconer::app::packets::CS_EnterRoomPacket pk{};
+	pk.roomId = room_id;
 
 	auto ptr = pk.Serialize();
 
@@ -96,7 +97,10 @@ test::SendGameIsLoadedPacket()
 bool
 test::SendPositionPacket()
 {
-	iconer::app::packets::CS_UpdatePositionPacket position_pk{ localPlayer->x, localPlayer->y, localPlayer->z };
+	iconer::app::packets::CS_UpdatePositionPacket position_pk{};
+	position_pk.x = localPlayer->x;
+	position_pk.y = localPlayer->y;
+	position_pk.z = localPlayer->z;
 
 	auto serialized = position_pk.Serialize();
 

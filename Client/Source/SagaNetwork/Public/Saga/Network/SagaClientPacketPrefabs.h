@@ -9,6 +9,7 @@
 
 #include "Saga/Network/SagaBasicPacket.h"
 #include "Saga/Network/SagaPacketProtocol.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaPacketHelper.inl"
 
 namespace saga::inline cs
@@ -20,6 +21,8 @@ namespace saga::inline cs
 	/// <param name="rpcScript">- A descriptor for rpc msg</param>
 	/// <param name="rpcArgument">- Single rpc argument</param>
 	/// <remarks>Client would send it to the server</remarks>
+	MAKE_EMPTY_PACKET_3VAR(CS_DeterRpcPacket, EPacketProtocol::CS_RPC, ESagaRpcProtocol, rpcProtocol, int64, arg0, int32, arg1);
+
 	struct SAGANETWORK_API CS_RpcPacket : public FSagaBasicPacket
 	{
 		using Super = FSagaBasicPacket;
@@ -96,8 +99,8 @@ namespace saga::inline cs
 			std::move(str, str + std::min(Length, msgLength), rpcScript);
 		}
 
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		MAKE_WRITE_METHODS();
+		MAKE_READ_METHOD();
 
 		char rpcScript[msgLength];
 		long long rpcArgument;
@@ -107,7 +110,7 @@ namespace saga::inline cs
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, EPacketProtocol::CS_SET_TEAM, int8, teamId, team_id, 0);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, EPacketProtocol::CS_SET_TEAM, int8, teamId, team_id, 0);
 	/// <summary>
 	/// Requesting game version packet for client
 	/// </summary>
@@ -192,8 +195,8 @@ namespace saga::inline cs
 			std::move(str, str + std::min(Length, roomTitleLength), roomTitle);
 		}
 
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		MAKE_WRITE_METHODS();
+		MAKE_READ_METHOD();
 
 		wchar_t roomTitle[roomTitleLength];
 	};
@@ -202,7 +205,7 @@ namespace saga::inline cs
 	/// </summary>
 	/// <param name="roomId"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, EPacketProtocol::CS_ROOM_JOIN, int32, roomId, room_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, EPacketProtocol::CS_ROOM_JOIN, int32, roomId, room_id, -1);
 	/// <summary>
 	/// Room leaving packet for client
 	/// </summary>
@@ -215,7 +218,7 @@ namespace saga::inline cs
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, EPacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
+	MAKE_PACKET_3VAR(CS_UpdatePositionPacket, EPacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
 	/// <summary>
 	/// Rotation packet for client
 	/// </summary>
@@ -223,7 +226,7 @@ namespace saga::inline cs
 	/// <param name="y">yaw</param>
 	/// <param name="p">pitch</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, EPacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
+	MAKE_PACKET_3VAR(CS_UpdateRotationPacket, EPacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>
@@ -283,8 +286,8 @@ namespace saga::inline cs
 			std::move(str, str + std::min(Length, nickNameLength), userName);
 		}
 
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		MAKE_WRITE_METHODS();
+		MAKE_READ_METHOD();
 
 		wchar_t userName[nickNameLength];
 	};

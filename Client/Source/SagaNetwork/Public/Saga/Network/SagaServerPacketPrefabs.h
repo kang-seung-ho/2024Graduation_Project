@@ -67,8 +67,7 @@ namespace saga::inline sc
 			, rpcArgument()
 		{}
 
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		const std::byte* Read(const std::byte* buffer) override;
 
 		int32 clientId;
 		char rpcScript[msgLength];
@@ -82,37 +81,7 @@ namespace saga::inline sc
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Server would broadcast it to clients</remarks>
-	struct SC_UpdatePositionPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(int32) + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		constexpr SC_UpdatePositionPacket()
-			: SC_UpdatePositionPacket(-1, 0, 0, 0)
-		{}
-
-		constexpr SC_UpdatePositionPacket(int32 id, float px, float py, float pz) noexcept
-			: Super(EPacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
-			, clientId(id), x(px), y(py), z(pz)
-		{}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
-
-		int32 clientId;
-		float x, y, z;
-	};
+	MAKE_EMPTY_PACKET_4VAR(SC_UpdatePositionPacket, EPacketProtocol::SC_MOVE_CHARACTER, int32, clientId, float, x, float, y, float, z);
 	/// <summary>
 	/// Rotation packet for server
 	/// </summary>
@@ -121,43 +90,53 @@ namespace saga::inline sc
 	/// <param name="y"/>
 	/// <param name="p"/>
 	/// <remarks>Server would broadcast it to clients</remarks>
-	struct SC_UpdateRotationPacket : public FSagaBasicPacket
+	MAKE_EMPTY_PACKET_4VAR(SC_UpdateRotationPacket, EPacketProtocol::SC_LOOK_CHARACTER, int32, clientId, float, r, float, y, float, p);
+	/// <summary>
+	/// Creating a character packet for server
+	/// </summary>
+	/// <param name="clientId">- An id of client</param>
+	/// <param name="roomId"/>
+	/// <remarks>Server would send it to the client</remarks>
+	struct SC_CreatePlayerPacket : public FSagaBasicPacket
 	{
 		using Super = FSagaBasicPacket;
+
+		static inline constexpr size_t nickNameLength = 16;
 
 		[[nodiscard]]
 		static consteval size_t WannabeSize() noexcept
 		{
-			return static_cast<ptrdiff_t>(WannabeSize());
+			return Super::MinSize() + sizeof(clientId) + sizeof(userName);
 		}
 
 		[[nodiscard]]
 		static consteval ptrdiff_t SignedWannabeSize() noexcept
 		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int32) + sizeof(float) * 3);
+			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(clientId) + sizeof(userName));
 		}
 
-		constexpr SC_UpdateRotationPacket()
-			: SC_UpdateRotationPacket(-1, 0, 0, 0)
+		constexpr SC_CreatePlayerPacket() noexcept
+			: Super(EPacketProtocol::SC_CREATE_PLAYER)
+			, clientId(), userName()
 		{}
 
-		constexpr SC_UpdateRotationPacket(int32 id, float pr, float py, float pp) noexcept
-			: Super(EPacketProtocol::SC_LOOK_CHARACTER, SignedWannabeSize())
-			, clientId(id), r(pr), y(py), p(pp)
-		{}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		const std::byte* Read(const std::byte* buffer) override;
 
 		int32 clientId;
-		float r, y, p;
+		wchar_t userName[nickNameLength];
 	};
+	/// <summary>
+	/// Remove a certain client's character packet for server
+	/// </summary>
+	/// <param name="clientId">- An id of client</param>
+	/// <remarks>Server would send it to the client</remarks>
+	MAKE_EMPTY_PACKET_1VAR(SC_DestroyPlayerPacket, EPacketProtocol::SC_REMOVE_PLAYER, int32, clientId);
 	/// <summary>
 	/// Team setter packet for server
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Aerver would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_SetTeamPacket, EPacketProtocol::SC_SET_TEAM, int32, clientId, user_id, 0, std::int8_t, teamId, team_id, 0);
+	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_SetTeamPacket, EPacketProtocol::SC_SET_TEAM, int32, clientId, 0, std::int8_t, teamId, 0);
 	/// <summary>
 	/// Getting game ready notification packet for server
 	/// </summary>
@@ -173,7 +152,7 @@ namespace saga::inline sc
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_FailedGameStartingPacket, EPacketProtocol::SC_FAILED_GAME_START, int32, errCause, error, true);
+	MAKE_EMPTY_PACKET_1VAR(SC_FailedGameStartingPacket, EPacketProtocol::SC_FAILED_GAME_START, int32, errCause);
 	/// <summary>
 	/// Creating a client packet for server
 	/// </summary>
@@ -199,42 +178,11 @@ namespace saga::inline sc
 		}
 
 		constexpr SC_RespondVersionPacket() noexcept
-			: Super(EPacketProtocol::CS_SIGNIN, SignedWannabeSize())
+			: Super(EPacketProtocol::SC_RESPOND_VERSION)
 			, gameVersion()
 		{}
 
-		explicit constexpr SC_RespondVersionPacket(const wchar_t* begin, const wchar_t* end)
-			: Super(EPacketProtocol::CS_SIGNIN, SignedWannabeSize())
-			, gameVersion()
-		{
-			std::copy(begin, end, gameVersion);
-		}
-
-		explicit constexpr SC_RespondVersionPacket(const wchar_t* nts, const size_t length)
-			: Super(EPacketProtocol::CS_SIGNIN, SignedWannabeSize())
-			, gameVersion()
-		{
-			std::copy_n(nts, std::min(length, versionLength), gameVersion);
-		}
-
-		template<size_t Length>
-		explicit constexpr SC_RespondVersionPacket(const wchar_t(&str)[Length])
-			: Super(EPacketProtocol::CS_SIGNIN, SignedWannabeSize())
-			, gameVersion()
-		{
-			std::copy_n(str, std::min(Length, versionLength), gameVersion);
-		}
-
-		template<size_t Length>
-		explicit constexpr SC_RespondVersionPacket(wchar_t(&& str)[Length])
-			: Super(EPacketProtocol::CS_SIGNIN, SignedWannabeSize())
-			, gameVersion()
-		{
-			std::move(str, str + std::min(Length, versionLength), gameVersion);
-		}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		const std::byte* Read(const std::byte* buffer) override;
 
 		wchar_t gameVersion[versionLength];
 	};
@@ -266,29 +214,11 @@ namespace saga::inline sc
 		}
 
 		constexpr SC_RespondRoomsPacket() noexcept
-			: Super(EPacketProtocol::SC_RESPOND_ROOMS, static_cast<int16>(SignedWannabeSize()))
+			: Super(EPacketProtocol::SC_RESPOND_ROOMS)
 			, serializedRooms()
 		{}
 
-		constexpr void AddMember(int32 room_id, std::wstring_view title, size_t members_count)
-		{
-			datagrams::SerializedRoom room{ room_id };
-
-			auto it = room.title;
-			for (auto ch : title)
-			{
-				*it = ch;
-
-				if (++it == room.title + sizeof(room.title)) break;
-			}
-			room.members = members_count;
-
-			serializedRooms.emplace_back(std::move(room));
-			mySize = static_cast<int16>(WannabeSize());
-		}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		const std::byte* Read(const std::byte* buffer) override;
 
 		std::vector<datagrams::SerializedRoom> serializedRooms;
 	};
@@ -320,12 +250,11 @@ namespace saga::inline sc
 		}
 
 		constexpr SC_RespondMembersPacket() noexcept
-			: Super(EPacketProtocol::SC_RESPOND_USERS, static_cast<int16>(SignedWannabeSize()))
+			: Super(EPacketProtocol::SC_RESPOND_USERS)
 			, serializedMembers()
 		{}
 
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
+		const std::byte* Read(const std::byte* buffer) override;
 
 		std::vector<datagrams::SerializedMember> serializedMembers;
 	};
@@ -334,147 +263,51 @@ namespace saga::inline sc
 	/// </summary>
 	/// <param name="roomId">- An id of the created room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreatedPacket, EPacketProtocol::SC_ROOM_CREATED, int32, roomId, room_id, true);
+	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreatedPacket, EPacketProtocol::SC_ROOM_CREATED, int32, roomId);
 	/// <summary>
 	/// Failed to join to a room packet for server
 	/// </summary>
 	/// <param name="errCause">Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreationFailedPacket, EPacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause, cause, true);
+	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreationFailedPacket, EPacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause);
 	/// <summary>
 	/// Joined to a room packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <param name="roomId">- An id of the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_RoomJoinedPacket, EPacketProtocol::SC_ROOM_JOINED, int32, clientId, user_id, -1, int32, roomId, room_id, -1);
+	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_RoomJoinedPacket, EPacketProtocol::SC_ROOM_JOINED, int32, clientId, -1, int32, roomId, -1);
 	/// <summary>
 	/// Notifying other joined to the current room packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of the newie client</param>
 	/// <param name="memberInfo">- Information of the newie</param>
 	/// <remarks>Server would send it to the client</remarks>
-	struct [[nodiscard]] SC_RoomOtherJoinedPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(int32) + sizeof(datagrams::SerializedMember);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		constexpr SC_RoomOtherJoinedPacket()
-			noexcept(std::conjunction_v<std::is_nothrow_default_constructible<int32>, std::is_nothrow_default_constructible<datagrams::SerializedMember>>)
-			: Super((EPacketProtocol::SC_ROOM_JOINED), static_cast<int16>(SignedWannabeSize()))
-			, memberInfo(), roomId()
-		{}
-
-		constexpr SC_RoomOtherJoinedPacket(const int32& room_id, const datagrams::SerializedMember& info)
-			noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<int32>, std::is_nothrow_copy_constructible<datagrams::SerializedMember>>)
-			: Super((EPacketProtocol::SC_ROOM_JOINED), static_cast<int16>(SignedWannabeSize()))
-			, memberInfo(info), roomId(room_id)
-		{}
-
-		constexpr SC_RoomOtherJoinedPacket(int32&& room_id, const datagrams::SerializedMember& info)
-			noexcept(std::conjunction_v<std::is_nothrow_move_constructible<int32>, std::is_nothrow_copy_constructible<datagrams::SerializedMember>>)
-			: Super((EPacketProtocol::SC_ROOM_JOINED), static_cast<int16>(SignedWannabeSize()))
-			, memberInfo(info), roomId(std::move(room_id))
-		{}
-
-		constexpr SC_RoomOtherJoinedPacket(const int32& room_id, datagrams::SerializedMember&& info)
-			noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<int32>, std::is_nothrow_move_constructible<datagrams::SerializedMember>>)
-			: Super((EPacketProtocol::SC_ROOM_JOINED), static_cast<int16>(SignedWannabeSize()))
-			, memberInfo(std::move(info)), roomId(room_id)
-		{}
-
-		constexpr SC_RoomOtherJoinedPacket(int32&& room_id, datagrams::SerializedMember&& info)
-			noexcept(std::conjunction_v<std::is_nothrow_move_constructible<int32>, std::is_nothrow_move_constructible<datagrams::SerializedMember>>)
-			: Super((EPacketProtocol::SC_ROOM_JOINED), static_cast<int16>(SignedWannabeSize()))
-			, memberInfo(std::move(info)), roomId(std::move(room_id))
-		{}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
-
-		datagrams::SerializedMember memberInfo;
-		int32 roomId;
-	};
+	MAKE_EMPTY_PACKET_2VAR(SC_RoomOtherJoinedPacket, EPacketProtocol::SC_ROOM_JOINED, datagrams::SerializedMember, memberInfo, int32, roomId);
 	/// <summary>
 	/// Failed to join to a room packet for server
 	/// </summary>
 	/// <param name="errCause">- Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomJoinFailedPacket, EPacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause, cause, true);
+	MAKE_EMPTY_PACKET_1VAR(SC_RoomJoinFailedPacket, EPacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause);
 	/// <summary>
 	/// Room left packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, EPacketProtocol::SC_ROOM_LEFT, int32, clientId, user_id, -1);
-	/// <summary>
-	/// Creating a client packet for server
-	/// </summary>
-	/// <param name="clientId">- An id of client</param>
-	/// <param name="roomId"/>
-	/// <remarks>Server would send it to the client</remarks>
-	struct SC_CreatePlayerPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		static inline constexpr size_t nickNameLength = 16;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(clientId) + sizeof(userName);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(clientId) + sizeof(userName));
-		}
-
-		constexpr SC_CreatePlayerPacket() noexcept
-			: SC_CreatePlayerPacket(-1)
-		{}
-
-		constexpr SC_CreatePlayerPacket(int32 id) noexcept
-			: Super(EPacketProtocol::SC_CREATE_PLAYER, SignedWannabeSize())
-			, clientId(id), userName()
-		{}
-
-		MAKE_SERIALIZE_METHOD();
-		MAKE_RW_METHODS();
-
-		int32 clientId;
-		wchar_t userName[nickNameLength];
-	};
-	/// <summary>
-	/// Remove a certain client packet for server
-	/// </summary>
-	/// <param name="clientId">- An id of client</param>
-	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_DestroyPlayerPacket, EPacketProtocol::SC_REMOVE_PLAYER, int32, clientId, user_id, true);
+	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, EPacketProtocol::SC_ROOM_LEFT, int32, clientId, -1);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, EPacketProtocol::SC_SIGNIN_SUCCESS, int32, clientId, user_id, -1);
+	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, EPacketProtocol::SC_SIGNIN_SUCCESS, int32, clientId, -1);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, EPacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause, true);
+	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, EPacketProtocol::SC_SIGNIN_FAILURE, int, errCause);
 }
 
 #endif // !SAGAFRAMEWORK_NET_SC_PACKET_PREFABS_H

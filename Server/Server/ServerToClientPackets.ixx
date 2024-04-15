@@ -10,6 +10,7 @@ export module Iconer.Application.Packet:ServerToClientPackets;
 import Iconer.Utility.Serializer;
 export import Iconer.Application.BasicPacket;
 export import Iconer.Application.RoomContract;
+export import Iconer.Application.Rpc;
 
 #include "PacketHelper.inl"
 
@@ -265,7 +266,7 @@ export namespace iconer::app::packets::inline sc
 	/// <param name="clientId">- An id of the target client</param>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Aerver would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_SetTeamPacket, PacketProtocol::SC_SET_TEAM, std::int32_t, clientId, user_id, 0, std::int8_t, teamId, team_id, 0);
+	MAKE_PACKET_2VAR_WITH_DEFAULT(SC_SetTeamPacket, PacketProtocol::SC_SET_TEAM, std::int32_t, clientId, user_id, 0, std::int8_t, teamId, team_id, 0);
 	/// <summary>
 	/// Getting game ready notification packet for server
 	/// </summary>
@@ -281,7 +282,7 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_FailedGameStartingPacket, PacketProtocol::SC_FAILED_GAME_START, int, errCause, error, true);
+	MAKE_PACKET_1VAR(SC_FailedGameStartingPacket, PacketProtocol::SC_FAILED_GAME_START, int, errCause, error);
 	/// <summary>
 	/// Creating a client packet for server
 	/// </summary>
@@ -563,20 +564,20 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="roomId">- An id of the created room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreatedPacket, PacketProtocol::SC_ROOM_CREATED, std::int32_t, roomId, room_id, true);
+	MAKE_PACKET_1VAR(SC_RoomCreatedPacket, PacketProtocol::SC_ROOM_CREATED, std::int32_t, roomId, room_id);
 	/// <summary>
 	/// Failed to join to a room packet for server
 	/// </summary>
 	/// <param name="errCause">Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomCreationFailedPacket, PacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause, cause, true);
+	MAKE_PACKET_1VAR(SC_RoomCreationFailedPacket, PacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause, cause);
 	/// <summary>
 	/// Joined to a room packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <param name="roomId">- An id of the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(SC_RoomJoinedPacket, PacketProtocol::SC_ROOM_JOINED, std::int32_t, clientId, user_id, -1, std::int32_t, roomId, room_id, -1);
+	MAKE_PACKET_2VAR_WITH_DEFAULT(SC_RoomJoinedPacket, PacketProtocol::SC_ROOM_JOINED, std::int32_t, clientId, user_id, -1, std::int32_t, roomId, room_id, -1);
 	/// <summary>
 	/// Notifying other joined to the current room packet for server
 	/// </summary>
@@ -671,13 +672,13 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="errCause">- Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_RoomJoinFailedPacket, PacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause, cause, true);
+	MAKE_PACKET_1VAR(SC_RoomJoinFailedPacket, PacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause, cause);
 	/// <summary>
 	/// Room left packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, PacketProtocol::SC_ROOM_LEFT, std::int32_t, clientId, user_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, PacketProtocol::SC_ROOM_LEFT, std::int32_t, clientId, user_id, -1);
 	/// <summary>
 	/// Creating a client packet for server
 	/// </summary>
@@ -735,18 +736,18 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_DestroyPlayerPacket, PacketProtocol::SC_REMOVE_PLAYER, std::int32_t, clientId, user_id, true);
+	MAKE_PACKET_1VAR(SC_DestroyPlayerPacket, PacketProtocol::SC_REMOVE_PLAYER, std::int32_t, clientId, user_id);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, PacketProtocol::SC_SIGNIN_SUCCESS, std::int32_t, clientId, user_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, PacketProtocol::SC_SIGNIN_SUCCESS, std::int32_t, clientId, user_id, -1);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, PacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause, true);
+	MAKE_PACKET_1VAR(SC_FailedSignInPacket, PacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause);
 #pragma pack(pop)
 }

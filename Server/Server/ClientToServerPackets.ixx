@@ -7,6 +7,7 @@ export module Iconer.Application.Packet:ClientToServerPackets;
 import Iconer.Utility.Serializer;
 export import Iconer.Application.BasicPacket;
 export import Iconer.Application.RoomContract;
+export import Iconer.Application.Rpc;
 
 #include "PacketHelper.inl"
 
@@ -60,7 +61,7 @@ export namespace iconer::app::packets::inline cs
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, PacketProtocol::CS_SET_TEAM, std::int8_t, teamId, team_id, 0);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, PacketProtocol::CS_SET_TEAM, std::int8_t, teamId, team_id, 0);
 	/// <summary>
 	/// Requesting game version packet for client
 	/// </summary>
@@ -168,7 +169,7 @@ export namespace iconer::app::packets::inline cs
 	/// </summary>
 	/// <param name="roomId"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, PacketProtocol::CS_ROOM_JOIN, std::int32_t, roomId, room_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, PacketProtocol::CS_ROOM_JOIN, std::int32_t, roomId, room_id, -1);
 	/// <summary>
 	/// Room leaving packet for client
 	/// </summary>
@@ -181,7 +182,7 @@ export namespace iconer::app::packets::inline cs
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, PacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, PacketProtocol::CS_MY_POSITION, float, x, float, y, float, z);
 	/// <summary>
 	/// Rotation packet for client
 	/// </summary>
@@ -189,7 +190,7 @@ export namespace iconer::app::packets::inline cs
 	/// <param name="y">yaw</param>
 	/// <param name="p">pitch</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, PacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, PacketProtocol::CS_MY_TRANSFORM, float, r, float, y, float, p);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>

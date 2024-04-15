@@ -14,21 +14,51 @@ struct [[nodiscard]] name : public BasicPacket \
 	[[nodiscard]] constexpr auto Serialize() const { return iconer::util::Serializes(myProtocol, mySize); } \
 }
 
-#define MAKE_SERIALIZE_METHOD(...) \
+#define MAKE_WRITE_METHODS(...) \
 [[nodiscard]] constexpr auto Serialize() const \
 { \
 	return iconer::util::Serializes(myProtocol, mySize, __VA_ARGS__); \
+} \
+constexpr std::byte* Write(std::byte* buffer) const \
+{ \
+	return iconer::util::Serializes(Super::Write(buffer), __VA_ARGS__); \
 }
 
-#define ICONER_CONDITIONAL_false(...) 
-#define ICONER_CONDITIONAL_true(...) __VA_ARGS__
-#define ICONER_CONDITIONAL(flag, ...) ICONER_CONDITIONAL_##flag(__VA_ARGS__)
+#define MAKE_READ_METHOD_V1(v1) \
+constexpr const std::byte* Read(const std::byte* buffer) \
+{ \
+	return iconer::util::Deserialize(Super::Read(buffer), v1); \
+} \
+
+#define MAKE_READ_METHOD_V2(v1, v2) \
+constexpr const std::byte* Read(const std::byte* buffer) \
+{ \
+	return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), v1), v2); \
+} \
+
+#define MAKE_READ_METHOD_V3(v1, v2, v3) \
+constexpr const std::byte* Read(const std::byte* buffer) \
+{ \
+	return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), v1), v2), v3); \
+} \
+
+#define MAKE_READ_METHOD_V4(v1, v2, v3, v4) \
+constexpr const std::byte* Read(const std::byte* buffer) \
+{ \
+	return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), v1), v2), v3), v4); \
+} \
+
+#define MAKE_READ_METHOD_V5(v1, v2, v3, v4, v5) \
+constexpr const std::byte* Read(const std::byte* buffer) \
+{ \
+	return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), v1), v2), v3), v4), v5); \
+} \
 
 #pragma region 1 Field
-#define MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, var1_default_value, serializer_method) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_PACKET_1VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type); } \
@@ -56,41 +86,51 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var1_name(std::move(param1_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(Super::Write(buffer), var1_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(Super::Read(buffer), var1_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V1(var1_name); \
+	MAKE_WRITE_METHODS(var1_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 }
 
-#define MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value) \
-MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, (var1_default_value), MAKE_SERIALIZE_METHOD(var1_name))
-
-#define MAKE_EMPTY_PACKET_1VAR_EX(name, protocol, var1_type, var1_name, param1_name, serializer_method, create_default_ctor) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_EMPTY_PACKET_1VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, var1_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type); } \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
-	ICONER_CONDITIONAL(create_default_ctor, \
+	constexpr name() \
+		noexcept(std::is_nothrow_constructible_v<var1_type, decltype(var1_default_value)>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name(var1_default_value) \
+	{} \
+ \
+	MAKE_READ_METHOD_V1(var1_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+}
+
+#define MAKE_PACKET_1VAR(name, protocol, var1_type, var1_name, param1_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
 	template<std::enable_if_t<std::is_default_constructible_v<var1_type>, int> = 0> \
 	constexpr name() \
 		noexcept(std::is_nothrow_default_constructible_v<var1_type>) \
 		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name() \
-	{}) \
+	{} \
  \
 	template<std::enable_if_t<std::is_copy_constructible_v<var1_type>, int> = 0>\
 	constexpr name(const var1_type& param1_name) \
@@ -106,30 +146,43 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var1_name(std::move(param1_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(Super::Write(buffer), var1_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(Super::Read(buffer), var1_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V1(var1_name); \
+	MAKE_WRITE_METHODS(var1_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 }
 
-#define MAKE_EMPTY_PACKET_1VAR(name, protocol, var1_type, var1_name, param1_name, create_default_ctor) \
-MAKE_EMPTY_PACKET_1VAR_EX(name, protocol, var1_type, var1_name, param1_name, MAKE_SERIALIZE_METHOD(var1_name), create_default_ctor)
+#define MAKE_EMPTY_PACKET_1VAR(name, protocol, var1_type, var1_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::is_default_constructible_v<var1_type>, int> = 0> \
+	constexpr name() \
+		noexcept(std::is_nothrow_default_constructible_v<var1_type>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name() \
+	{} \
+ \
+	MAKE_READ_METHOD_V1(var1_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+}
+
 #pragma endregion
 
 #pragma region 2 Fields
-#define MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value, serializer_method) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_PACKET_2VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type); } \
@@ -176,35 +229,50 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var2_name(std::move(param2_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), var1_name), var2_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), var1_name), var2_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V2(var1_name, var2_name); \
+	MAKE_WRITE_METHODS(var1_name, var2_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 	var2_type var2_name; \
 }
-#define MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value) \
-MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, (var1_default_value), var2_type, var2_name, param2_name, (var2_default_value), MAKE_SERIALIZE_METHOD(var1_name, var2_name))
 
-#define MAKE_EMPTY_PACKET_2VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, serializer_method) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_EMPTY_PACKET_2VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, var1_default_value, var2_type, var2_name, var2_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type); } \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>>, int> = 0>\
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name((var1_default_value)) \
+		, var2_name((var2_default_value)) \
+	{} \
+ \
+	MAKE_READ_METHOD_V2(var1_name, var2_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+}
+
+#define MAKE_PACKET_2VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>>, int> = 0>\
 	constexpr name() \
 		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>>) \
 		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
@@ -244,31 +312,46 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var2_name(std::move(param2_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), var1_name), var2_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), var1_name), var2_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V2(var1_name, var2_name); \
+	MAKE_WRITE_METHODS(var1_name, var2_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 	var2_type var2_name; \
 }
 
-#define MAKE_EMPTY_PACKET_2VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name) \
-MAKE_EMPTY_PACKET_2VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, MAKE_SERIALIZE_METHOD(var1_name, var2_name))
+#define MAKE_EMPTY_PACKET_2VAR(name, protocol, var1_type, var1_name, var2_type, var2_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>>, int> = 0>\
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name() \
+		, var2_name() \
+	{} \
+ \
+	MAKE_READ_METHOD_V2(var1_name, var2_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+}
+
 #pragma endregion
 
 #pragma region 3 Fields
-#define MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value, var3_type, var3_name, param3_name, var3_default_value, serializer_method) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_PACKET_3VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value, var3_type, var3_name, param3_name, var3_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type); } \
@@ -277,7 +360,7 @@ struct [[nodiscard]] name : public BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
 		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name((var1_default_value)) \
 		, var2_name((var2_default_value)) \
@@ -356,36 +439,53 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), var1_name), var2_name), var3_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), var1_name), var2_name), var3_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V3(var1_name, var2_name, var3_name); \
+	MAKE_WRITE_METHODS(var1_name, var2_name, var3_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 	var2_type var2_name; \
 	var3_type var3_name; \
 }
-#define MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value) \
-MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT_EX(name, protocol, var1_type, var1_name, param1_name, (var1_default_value), var2_type, var2_name, param2_name, (var2_default_value), var3_type, var3_name, param3_name, (var3_default_value), MAKE_SERIALIZE_METHOD(var1_name, var2_name, var3_name))
 
-#define MAKE_EMPTY_PACKET_3VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, serializer_method) \
-struct [[nodiscard]] name : public BasicPacket \
+#define MAKE_EMPTY_PACKET_3VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, var1_default_value, var2_type, var2_name, var2_default_value, var3_type, var3_name, var3_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
 { \
-	using Super = BasicPacket; \
+	using Super = iconer::app::BasicPacket; \
  \
 	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
 	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type); } \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>>, int> = 0>\
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name((var1_default_value)) \
+		, var2_name((var2_default_value)) \
+		, var3_name((var3_default_value)) \
+	{} \
+ \
+	MAKE_READ_METHOD_V2(var1_name, var2_name, var3_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+	var3_type var3_name; \
+}
+
+#define MAKE_PACKET_3VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>>, int> = 0>\
 	constexpr name() \
 		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>) \
 		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
@@ -466,23 +566,97 @@ struct [[nodiscard]] name : public BasicPacket \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
-	constexpr std::byte* Write(std::byte* buffer) const \
-	{ \
-		return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), var1_name), var2_name), var3_name); \
-	} \
- \
-	constexpr const std::byte* Read(const std::byte* buffer) \
-	{ \
-		return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), var1_name), var2_name), var3_name); \
-	} \
- \
-	serializer_method; \
+	MAKE_READ_METHOD_V3(var1_name, var2_name, var3_name); \
+	MAKE_WRITE_METHODS(var1_name, var2_name, var3_name); \
+	__VA_ARGS__; \
  \
 	var1_type var1_name; \
 	var2_type var2_name; \
 	var3_type var3_name; \
 }
 
-#define MAKE_EMPTY_PACKET_3VAR(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name) \
-MAKE_EMPTY_PACKET_3VAR_EX(name, protocol, var1_type, var1_name, param1_name, var2_type, var2_name, param2_name, var3_type, var3_name, param3_name, MAKE_SERIALIZE_METHOD(var1_name, var2_name, var3_name))
+#define MAKE_EMPTY_PACKET_3VAR(name, protocol, var1_type, var1_name, var2_type, var2_name, var3_type, var3_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name() \
+		, var2_name() \
+		, var3_name() \
+	{} \
+ \
+	MAKE_READ_METHOD_V3(var1_name, var2_name, var3_name); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+	var3_type var3_name; \
+}
+#pragma endregion
+
+#pragma region 4 Fields
+#define MAKE_EMPTY_PACKET_4VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, var1_default_value, var2_type, var2_name, var2_default_value, var3_type, var3_name, var3_default_value, var4_type, var4_name, var4_default_value, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type) + sizeof(var4_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>, std::is_constructible<var4_type, decltype(var4_default_value)>>, int> = 0>\
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name((var1_default_value)) \
+		, var2_name((var2_default_value)) \
+		, var3_name((var3_default_value)) \
+		, var4_name((var4_default_value)) \
+	{} \
+ \
+	MAKE_READ_METHOD_V4(var1_name, var2_name, var3_name, var4_type); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+	var3_type var3_name; \
+	var4_type var4_name; \
+}
+
+#define MAKE_EMPTY_PACKET_4VAR(name, protocol, var1_type, var1_name, var2_type, var2_name, var3_type, var3_name, var4_type, var4_name, ...) \
+struct name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type) + sizeof(var4_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>, std::is_nothrow_default_constructible<var4_type>>) \
+		: Super((protocol), static_cast<std::int16_t>(SignedWannabeSize())) \
+		, var1_name() \
+		, var2_name() \
+		, var3_name() \
+		, var4_name() \
+	{} \
+ \
+	MAKE_READ_METHOD_V4(var1_name, var2_name, var3_name, var4_type); \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+	var3_type var3_name; \
+	var4_type var4_name; \
+}
 #pragma endregion
