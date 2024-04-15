@@ -341,12 +341,22 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 	case EPacketProtocol::SC_RPC:
 	{
-		saga::SC_RpcPacket pk{};
+		ESagaRpcProtocol category{};
+		int32 user_id{};
+		int64 argument0{};
+		int32 argument1{};
 
-		wchar_t buffer[sizeof(pk.rpcScript) / sizeof(wchar_t)]{};
-		std::copy(std::cbegin(pk.rpcScript), std::cend(pk.rpcScript), std::begin(buffer));
+		saga::ReceiveRpcPacket(packet_buffer, category, user_id, argument0, argument1);
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("RPC from client %d: %s(%lld))"), pk.clientId, pk.rpcScript, pk.rpcArgument);
+		auto name = UEnum::GetValueAsString(category);
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("RPC from client %d: %s(%lld, %d))"), user_id, *name, argument0, argument1);
+
+		CallFunctionOnGameThread([&]()
+			{
+				BroadcastOnRpc(category, user_id, argument0, argument1);
+			}
+		);
 	}
 	break;
 	}
