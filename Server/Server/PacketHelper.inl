@@ -109,6 +109,7 @@ struct name : public iconer::app::BasicPacket \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
+	template<std::enable_if_t<std::is_default_constructible<var1_type>>, int> = 0>\
 	constexpr name() \
 		noexcept(std::is_nothrow_constructible_v<var1_type, decltype(var1_default_value)>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
@@ -200,31 +201,35 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)> \
+		, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((var1_default_value)) \
-		, var2_name((var2_default_value)) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
+		, var2_name(param2_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name((param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -232,7 +237,8 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>\
+		, std::is_nothrow_move_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -260,8 +266,8 @@ struct name : public iconer::app::BasicPacket \
 	constexpr name() \
 		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((var1_default_value)) \
-		, var2_name((var2_default_value)) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
 	{} \
  \
 	MAKE_READ_METHOD_V2(var1_name, var2_name); \
@@ -285,7 +291,8 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type> \
+		, std::is_nothrow_default_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name() \
 		, var2_name() \
@@ -293,31 +300,35 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
+		, var2_name(param2_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
+		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -372,79 +383,97 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)> \
+		, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)> \
+		, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((var1_default_value)) \
-		, var2_name((var2_default_value)) \
-		, var3_name((var3_default_value)) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
+		, var3_name(var3_default_value) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
-		, var3_name((param3_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
-		, var3_name((param3_name)) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
+		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
-		, var3_name((param3_name)) \
+		, var3_name(param3_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
-		, var3_name((param3_name)) \
+		, var3_name(param3_name) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
+		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
+		, var2_name(param2_name) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -472,14 +501,16 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)> \
+		, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)> \
+		, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((var1_default_value)) \
-		, var2_name((var2_default_value)) \
-		, var3_name((var3_default_value)) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
+		, var3_name(var3_default_value) \
 	{} \
  \
-	MAKE_READ_METHOD_V2(var1_name, var2_name, var3_name); \
+	MAKE_READ_METHOD_V3(var1_name, var2_name, var3_name); \
 	__VA_ARGS__; \
  \
 	var1_type var1_name; \
@@ -499,7 +530,7 @@ struct name : public iconer::app::BasicPacket \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>>, int> = 0> \
 	constexpr name() \
 		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
@@ -508,72 +539,88 @@ struct name : public iconer::app::BasicPacket \
 		, var3_name() \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0> \
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
-		, var3_name((param3_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0> \
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
-		, var3_name((param3_name)) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0> \
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
+		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
-		, var3_name((param3_name)) \
+		, var3_name(param3_name) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0> \
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
-		, var2_name((param2_name)) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>>, int> = 0> \
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
 		, var3_name((param3_name)) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0> \
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((param1_name)) \
+		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0> \
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
-		, var2_name((param2_name)) \
+		, var2_name(param2_name) \
 		, var3_name(std::move(param3_name)) \
 	{} \
  \
-	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0>\
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>>, int> = 0> \
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -599,8 +646,11 @@ struct name : public iconer::app::BasicPacket \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>>, int> = 0> \
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type> \
+		, std::is_nothrow_default_constructible<var2_type> \
+		, std::is_nothrow_default_constructible<var3_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name() \
 		, var2_name() \
@@ -631,7 +681,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>, std::is_constructible<var4_type, decltype(var4_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>, std::is_nothrow_constructible<var4_type, decltype(var4_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>\
+		, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)> \
+		, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)> \
+		, std::is_nothrow_constructible<var4_type, decltype(var4_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(var1_default_value) \
 		, var2_name(var2_default_value) \
@@ -641,7 +694,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -651,7 +707,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -661,7 +720,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -671,7 +733,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -681,7 +746,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -691,7 +759,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -701,7 +772,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -711,7 +785,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -721,7 +798,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -731,7 +811,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -741,7 +824,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -751,7 +837,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -761,7 +850,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -771,7 +863,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -781,7 +876,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -811,12 +909,15 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>, std::is_constructible<var4_type, decltype(var4_default_value)>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)> \
+		, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)> \
+		, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)> \
+		, std::is_nothrow_constructible<var4_type, decltype(var4_default_value)>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
-		, var1_name((var1_default_value)) \
-		, var2_name((var2_default_value)) \
-		, var3_name((var3_default_value)) \
-		, var4_name((var4_default_value)) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
+		, var3_name(var3_default_value) \
+		, var4_name(var4_default_value) \
 	{} \
  \
 	MAKE_READ_METHOD_V4(var1_name, var2_name, var3_name, var4_type); \
@@ -842,7 +943,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>, std::is_default_constructible<var4_type>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>, std::is_nothrow_default_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type> \
+		, std::is_nothrow_default_constructible<var2_type> \
+		, std::is_nothrow_default_constructible<var3_type> \
+		, std::is_nothrow_default_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name() \
 		, var2_name() \
@@ -852,7 +956,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -862,7 +969,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -872,7 +982,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -882,7 +995,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -892,7 +1008,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -902,7 +1021,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -912,7 +1034,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -922,7 +1047,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(param2_name) \
@@ -932,7 +1060,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -942,7 +1073,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -952,7 +1086,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(param1_name) \
 		, var2_name(std::move(param2_name)) \
@@ -962,7 +1099,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_copy_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(param2_name) \
@@ -972,7 +1112,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_copy_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -982,7 +1125,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_copy_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -992,7 +1138,10 @@ struct name : public iconer::app::BasicPacket \
  \
 	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
 	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
-		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type> \
+		, std::is_nothrow_move_constructible<var2_type> \
+		, std::is_nothrow_move_constructible<var3_type> \
+		, std::is_nothrow_move_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name(std::move(param1_name)) \
 		, var2_name(std::move(param2_name)) \
@@ -1020,8 +1169,12 @@ struct name : public iconer::app::BasicPacket \
 	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
 	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
  \
+	template<std::enable_if_t<std::conjunction_v<std::is_default_constructible<var1_type>, std::is_default_constructible<var2_type>, std::is_default_constructible<var3_type>, std::is_default_constructible<var4_type>>, int> = 0>\
 	constexpr name() \
-		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type>, std::is_nothrow_default_constructible<var2_type>, std::is_nothrow_default_constructible<var3_type>, std::is_nothrow_default_constructible<var4_type>>) \
+		noexcept(std::conjunction_v<std::is_nothrow_default_constructible<var1_type> \
+		, std::is_nothrow_default_constructible<var2_type> \
+		, std::is_nothrow_default_constructible<var3_type> \
+		, std::is_nothrow_default_constructible<var4_type>>) \
 		: Super(protocol, static_cast<std::int16_t>(SignedWannabeSize())) \
 		, var1_name() \
 		, var2_name() \
