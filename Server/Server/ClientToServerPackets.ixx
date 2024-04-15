@@ -16,6 +16,14 @@ export namespace iconer::app::packets::inline cs
 {
 #pragma pack(push, 1)
 	/// <summary>
+	/// RPC packet for client
+	/// </summary>
+	/// <param name="rpc">- The category of rpc msg</param>
+	/// <param name="arg0">- 64bit rpc argument</param>
+	/// <param name="arg1">- 32bit rpc argument</param>
+	/// <remarks>Client would send it to the server</remarks>
+	MAKE_PACKET_3VAR(CS_DeterRpcPacket, PacketProtocol::CS_RPC, RpcProtocol, rpcProtocol, rpc, std::int64_t, rpcArgument0, arg0, std::int32_t, rpcArgument1, arg1);
+	/// <summary>
 	/// Team setter packet for client
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
