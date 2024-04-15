@@ -18,93 +18,11 @@ namespace saga::inline cs
 	/// <summary>
 	/// RPC packet for client
 	/// </summary>
-	/// <param name="rpcScript">- A descriptor for rpc msg</param>
-	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <param name="rpcScript">- The category of rpc msg</param>
+	/// <param name="arg0">- 64bit rpc argument</param>
+	/// <param name="arg1">- 32bit rpc argument</param>
 	/// <remarks>Client would send it to the server</remarks>
 	MAKE_EMPTY_PACKET_3VAR(CS_DeterRpcPacket, EPacketProtocol::CS_RPC, ESagaRpcProtocol, rpcProtocol, int64, arg0, int32, arg1);
-
-	struct SAGANETWORK_API CS_RpcPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		static inline constexpr size_t msgLength = 12;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		explicit constexpr CS_RpcPacket() noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument()
-		{}
-		
-		explicit constexpr CS_RpcPacket(long long arg) noexcept
-			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
-			, rpcScript(), rpcArgument(arg)
-		{}
-
-		explicit constexpr CS_RpcPacket(long long arg, const char* begin, const char* end) noexcept
-			: CS_RpcPacket(arg)
-		{
-			std::copy(begin, end, rpcScript);
-		}
-
-		explicit constexpr CS_RpcPacket(long long arg, const char* nts, const size_t length) noexcept
-			: CS_RpcPacket(arg)
-		{
-			std::copy_n(nts, std::min(length, msgLength), rpcScript);
-		}
-
-		explicit constexpr CS_RpcPacket(const char* begin, const char* end) noexcept
-			: CS_RpcPacket(0, begin, end)
-		{}
-
-		explicit constexpr CS_RpcPacket(const char* nts, const size_t length) noexcept
-			: CS_RpcPacket(0, nts, length)
-		{}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(const char(&str)[Length]) noexcept
-			: CS_RpcPacket()
-		{
-			std::copy_n(str, std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(char(&& str)[Length]) noexcept
-			: CS_RpcPacket()
-		{
-			std::move(str, str + std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, const char(&str)[Length]) noexcept
-			: CS_RpcPacket(arg)
-		{
-			std::copy_n(str, std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr CS_RpcPacket(long long arg, char(&& str)[Length]) noexcept
-			: CS_RpcPacket(arg)
-		{
-			std::move(str, str + std::min(Length, msgLength), rpcScript);
-		}
-
-		MAKE_WRITE_METHODS();
-		MAKE_READ_METHOD();
-
-		char rpcScript[msgLength];
-		long long rpcArgument;
-	};
 	/// <summary>
 	/// Team setter packet for client
 	/// </summary>
@@ -290,6 +208,94 @@ namespace saga::inline cs
 		MAKE_READ_METHOD();
 
 		wchar_t userName[nickNameLength];
+	};
+	/// <summary>
+	/// RPC packet for client
+	/// </summary>
+	/// <param name="rpcScript">- A descriptor for rpc msg</param>
+	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <remarks>Client would send it to the server</remarks>
+	struct SAGANETWORK_API CS_RpcPacket : public FSagaBasicPacket
+	{
+		using Super = FSagaBasicPacket;
+
+		static inline constexpr size_t msgLength = 12;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		explicit constexpr CS_RpcPacket() noexcept
+			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
+			, rpcScript(), rpcArgument()
+		{}
+
+		explicit constexpr CS_RpcPacket(long long arg) noexcept
+			: Super(EPacketProtocol::CS_RPC, SignedWannabeSize())
+			, rpcScript(), rpcArgument(arg)
+		{}
+
+		explicit constexpr CS_RpcPacket(long long arg, const char* begin, const char* end) noexcept
+			: CS_RpcPacket(arg)
+		{
+			std::copy(begin, end, rpcScript);
+		}
+
+		explicit constexpr CS_RpcPacket(long long arg, const char* nts, const size_t length) noexcept
+			: CS_RpcPacket(arg)
+		{
+			std::copy_n(nts, std::min(length, msgLength), rpcScript);
+		}
+
+		explicit constexpr CS_RpcPacket(const char* begin, const char* end) noexcept
+			: CS_RpcPacket(0, begin, end)
+		{}
+
+		explicit constexpr CS_RpcPacket(const char* nts, const size_t length) noexcept
+			: CS_RpcPacket(0, nts, length)
+		{}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(const char(&str)[Length]) noexcept
+			: CS_RpcPacket()
+		{
+			std::copy_n(str, std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(char(&& str)[Length]) noexcept
+			: CS_RpcPacket()
+		{
+			std::move(str, str + std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(long long arg, const char(&str)[Length]) noexcept
+			: CS_RpcPacket(arg)
+		{
+			std::copy_n(str, std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr CS_RpcPacket(long long arg, char(&& str)[Length]) noexcept
+			: CS_RpcPacket(arg)
+		{
+			std::move(str, str + std::min(Length, msgLength), rpcScript);
+		}
+
+		MAKE_WRITE_METHODS();
+		MAKE_READ_METHOD();
+
+		char rpcScript[msgLength];
+		long long rpcArgument;
 	};
 #pragma pack(pop)
 }

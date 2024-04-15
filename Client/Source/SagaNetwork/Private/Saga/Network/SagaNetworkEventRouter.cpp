@@ -257,9 +257,6 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 	case EPacketProtocol::SC_GAME_START:
 	{
-		//SC_GameStartPacket pk{};
-		//auto offset = pk.Read(packet_buffer);
-
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start game..."));
 
 		CallPureFunctionOnGameThread([this]()
@@ -272,12 +269,9 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 	case EPacketProtocol::SC_CREATE_PLAYER:
 	{
-		saga::SC_CreatePlayerPacket pk{};
-		auto offset = pk.Read(packet_buffer);
+		UE_LOG(LogSagaNetwork, Log, TEXT("Characters would be created"));
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("A client %d is created"), pk.clientId);
-
-		CallFunctionOnGameThread([this, pk]()
+		CallFunctionOnGameThread([this]()
 			{
 			}
 		);

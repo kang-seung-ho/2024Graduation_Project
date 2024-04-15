@@ -64,12 +64,6 @@ saga::sc::SC_RespondMembersPacket::Read(const std::byte* buffer)
 }
 
 const std::byte*
-saga::sc::SC_CreatePlayerPacket::Read(const std::byte* buffer)
-{
-	return saga::Deserialize(saga::Deserialize(Super::Read(buffer), clientId), nickNameLength, userName);
-}
-
-const std::byte*
 saga::sc::SC_RoomOtherJoinedPacket::Read(const std::byte* buffer)
 {
 	auto seek = Super::Read(buffer);
@@ -104,3 +98,5 @@ IMPL_READ_METHOD_V4(saga::sc::SC_UpdatePositionPacket, clientId, x, y, z);
 IMPL_READ_METHOD_V4(saga::sc::SC_UpdateRotationPacket, clientId, r, y, p);
 
 IMPL_READ_METHOD_V1(saga::sc::SC_DestroyPlayerPacket, clientId);
+
+IMPL_READ_METHOD_V4(saga::sc::SC_DeterRpcPacket, clientId, rpcScript, rpcArgument0, rpcArgument1);

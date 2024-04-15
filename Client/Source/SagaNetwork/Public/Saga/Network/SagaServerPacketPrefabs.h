@@ -11,6 +11,7 @@
 #include "Saga/Network/SagaBasicPacket.h"
 #include "Saga/Network/SagaPacketProtocol.h"
 #include "Saga/Network/SagaRoomContract.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaPacketHelper.inl"
 
 namespace saga::datagrams
@@ -39,40 +40,11 @@ namespace saga::inline sc
 	/// Broadcasted RPC packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of the sender client</param>
-	/// <param name="rpcScript">- A descriptor for rpc msg</param>
-	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <param name="rpcScript">- The category of rpc msg</param>
+	/// <param name="rpcArgument0">- 64bit rpc argument</param>
+	/// <param name="rpcArgument1">- 32bit rpc argument</param>
 	/// <remarks>Server would send it to the client</remarks>
-	struct SC_RpcPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		static inline constexpr size_t msgLength = 12;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(clientId) + sizeof(rpcScript) + sizeof(rpcArgument);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		constexpr SC_RpcPacket()
-			noexcept
-			: Super(EPacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(-1), rpcScript()
-			, rpcArgument()
-		{}
-
-		const std::byte* Read(const std::byte* buffer) override;
-
-		int32 clientId;
-		char rpcScript[msgLength];
-		long long rpcArgument;
-	};
+	MAKE_EMPTY_PACKET_4VAR(SC_DeterRpcPacket, EPacketProtocol::SC_RPC, std::int32_t, clientId, ESagaRpcProtocol, rpcScript, std::int64_t, rpcArgument0, std::int32_t, rpcArgument1);
 	/// <summary>
 	/// Position packet for server
 	/// </summary>
@@ -92,41 +64,12 @@ namespace saga::inline sc
 	/// <remarks>Server would broadcast it to clients</remarks>
 	MAKE_EMPTY_PACKET_4VAR(SC_UpdateRotationPacket, EPacketProtocol::SC_LOOK_CHARACTER, int32, clientId, float, r, float, y, float, p);
 	/// <summary>
-	/// Creating a character packet for server
+	/// Creating characters packet for server
 	/// </summary>
-	/// <param name="clientId">- An id of client</param>
-	/// <param name="roomId"/>
 	/// <remarks>Server would send it to the client</remarks>
-	struct SC_CreatePlayerPacket : public FSagaBasicPacket
-	{
-		using Super = FSagaBasicPacket;
-
-		static inline constexpr size_t nickNameLength = 16;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(clientId) + sizeof(userName);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(clientId) + sizeof(userName));
-		}
-
-		constexpr SC_CreatePlayerPacket() noexcept
-			: Super(EPacketProtocol::SC_CREATE_PLAYER)
-			, clientId(), userName()
-		{}
-
-		const std::byte* Read(const std::byte* buffer) override;
-
-		int32 clientId;
-		wchar_t userName[nickNameLength];
-	};
+	MAKE_EMPTY_PACKET(SC_CreatePlayerPacket, EPacketProtocol::SC_CREATE_PLAYER);
 	/// <summary>
-	/// Remove a certain client's character packet for server
+	/// Remove a certain client packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
@@ -308,6 +251,44 @@ namespace saga::inline sc
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
 	MAKE_EMPTY_PACKET_1VAR(SC_FailedSignInPacket, EPacketProtocol::SC_SIGNIN_FAILURE, int, errCause);
+	/// <summary>
+	/// Broadcasted RPC packet for server
+	/// </summary>
+	/// <param name="clientId">- An id of the sender client</param>
+	/// <param name="rpcScript">- A descriptor for rpc msg</param>
+	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <remarks>Server would send it to the client</remarks>
+	struct SC_RpcPacket : public FSagaBasicPacket
+	{
+		using Super = FSagaBasicPacket;
+
+		static inline constexpr size_t msgLength = 12;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(clientId) + sizeof(rpcScript) + sizeof(rpcArgument);
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		constexpr SC_RpcPacket()
+			noexcept
+			: Super(EPacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(-1), rpcScript()
+			, rpcArgument()
+		{}
+
+		const std::byte* Read(const std::byte* buffer) override;
+
+		int32 clientId;
+		char rpcScript[msgLength];
+		long long rpcArgument;
+	};
 }
 
 #endif // !SAGAFRAMEWORK_NET_SC_PACKET_PREFABS_H

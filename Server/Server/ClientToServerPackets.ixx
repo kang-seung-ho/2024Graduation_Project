@@ -4,6 +4,7 @@ module;
 #include <algorithm>
 
 export module Iconer.Application.Packet:ClientToServerPackets;
+import Iconer.Utility.Constraints;
 import Iconer.Utility.Serializer;
 export import Iconer.Application.BasicPacket;
 export import Iconer.Application.RoomContract;
@@ -15,53 +16,11 @@ export namespace iconer::app::packets::inline cs
 {
 #pragma pack(push, 1)
 	/// <summary>
-	/// RPC packet for client
-	/// </summary>
-	/// <param name="rpcScript">- A descriptor for rpc msg</param>
-	/// <remarks>Client would send it to the server</remarks>
-	struct [[nodiscard]] CS_RpcPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		static inline constexpr size_t msgLength = 12;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		[[nodiscard]]
-		constexpr std::unique_ptr<std::byte[]> Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), rpcScript), rpcArgument);
-		}
-
-		char rpcScript[msgLength];
-		long long rpcArgument;
-	};
-	/// <summary>
 	/// Team setter packet for client
 	/// </summary>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, PacketProtocol::CS_SET_TEAM, std::int8_t, teamId, team_id, 0);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_SetTeamPacket, PacketProtocol::CS_SET_TEAM, std::int8_t, teamId, teamId, team_id, 0);
 	/// <summary>
 	/// Requesting game version packet for client
 	/// </summary>
@@ -169,7 +128,7 @@ export namespace iconer::app::packets::inline cs
 	/// </summary>
 	/// <param name="roomId"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, PacketProtocol::CS_ROOM_JOIN, std::int32_t, roomId, room_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(CS_EnterRoomPacket, PacketProtocol::CS_ROOM_JOIN, std::int32_t, roomId, roomId, room_id, -1);
 	/// <summary>
 	/// Room leaving packet for client
 	/// </summary>
@@ -182,7 +141,7 @@ export namespace iconer::app::packets::inline cs
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdatePositionPacket, PacketProtocol::CS_MY_POSITION, float, x, float, y, float, z);
+	MAKE_PACKET_3VAR(CS_UpdatePositionPacket, PacketProtocol::CS_MY_POSITION, float, x, px, float, y, py, float, z, pz);
 	/// <summary>
 	/// Rotation packet for client
 	/// </summary>
@@ -267,6 +226,48 @@ export namespace iconer::app::packets::inline cs
 		}
 
 		wchar_t userName[nickNameLength];
+	};
+	/// <summary>
+	/// RPC packet for client
+	/// </summary>
+	/// <param name="rpcScript">- A descriptor for rpc msg</param>
+	/// <remarks>Client would send it to the server</remarks>
+	struct [[nodiscard]] CS_RpcPacket : public BasicPacket
+	{
+		using Super = BasicPacket;
+
+		static inline constexpr size_t msgLength = 12;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		[[nodiscard]]
+		constexpr std::unique_ptr<std::byte[]> Serialize() const
+		{
+			return iconer::util::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
+		}
+
+		constexpr std::byte* Write(std::byte* buffer) const
+		{
+			return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
+		}
+
+		constexpr const std::byte* Read(const std::byte* buffer)
+		{
+			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), rpcScript), rpcArgument);
+		}
+
+		char rpcScript[msgLength];
+		long long rpcArgument;
 	};
 #pragma pack(pop)
 }

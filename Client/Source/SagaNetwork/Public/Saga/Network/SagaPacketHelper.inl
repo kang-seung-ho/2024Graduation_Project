@@ -622,6 +622,187 @@ struct SAGANETWORK_API name : public FSagaBasicPacket \
 #pragma endregion
 
 #pragma region 4 Fields
+#pragma region 4 Field with initializers
+#define MAKE_PACKET_4VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, param1_name, var1_default_value, var2_type, var2_name, param2_name, var2_default_value, var3_type, var3_name, param3_name, var3_default_value, var4_type, var4_name, param4_name, var4_default_value, ...) \
+struct SAGANETWORK_API name : public iconer::app::BasicPacket \
+{ \
+	using Super = iconer::app::BasicPacket; \
+ \
+	[[nodiscard]] static consteval size_t WannabeSize() noexcept \
+	{ return Super::MinSize() + sizeof(var1_type) + sizeof(var2_type) + sizeof(var3_type) + sizeof(var4_type); } \
+	[[nodiscard]] static consteval ptrdiff_t SignedWannabeSize() noexcept \
+	{ return static_cast<ptrdiff_t>(WannabeSize()); } \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_constructible<var1_type, decltype(var1_default_value)>, std::is_constructible<var2_type, decltype(var2_default_value)>, std::is_constructible<var3_type, decltype(var3_default_value)>, std::is_constructible<var4_type, decltype(var4_default_value)>>, int> = 0>\
+	constexpr name() \
+		noexcept(std::conjunction_v<std::is_nothrow_constructible<var1_type, decltype(var1_default_value)>, std::is_nothrow_constructible<var2_type, decltype(var2_default_value)>, std::is_nothrow_constructible<var3_type, decltype(var3_default_value)>, std::is_nothrow_constructible<var4_type, decltype(var4_default_value)>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(var1_default_value) \
+		, var2_name(var2_default_value) \
+		, var3_name(var3_default_value) \
+		, var4_name(var4_default_value) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, const var2_type& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(param3_name) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, const var2_type& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(param3_name) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(param3_name) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(param2_name) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(param2_name) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(param3_name) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_copy_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, const var4_type& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_copy_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(param4_name) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_copy_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(const var1_type& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(param1_name) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_copy_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, const var2_type& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_copy_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(param2_name) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_copy_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, var2_type&& param2_name, const var3_type& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_copy_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(param3_name) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	template<std::enable_if_t<std::conjunction_v<std::is_move_constructible<var1_type>, std::is_move_constructible<var2_type>, std::is_move_constructible<var3_type>, std::is_move_constructible<var4_type>>, int> = 0>\
+	constexpr name(var1_type&& param1_name, var2_type&& param2_name, var3_type&& param3_name, var4_type&& param4_name) \
+		noexcept(std::conjunction_v<std::is_nothrow_move_constructible<var1_type>, std::is_nothrow_move_constructible<var2_type>, std::is_nothrow_move_constructible<var3_type>, std::is_nothrow_move_constructible<var4_type>>) \
+		: Super(protocol, static_cast<int16>(SignedWannabeSize())) \
+		, var1_name(std::move(param1_name)) \
+		, var2_name(std::move(param2_name)) \
+		, var3_name(std::move(param3_name)) \
+		, var4_name(std::move(param4_name)) \
+	{} \
+ \
+	MAKE_READ_METHOD(); \
+	MAKE_WRITE_METHODS()  \
+	__VA_ARGS__; \
+ \
+	var1_type var1_name; \
+	var2_type var2_name; \
+	var3_type var3_name; \
+	var4_type var4_name; \
+}
+
 #define MAKE_EMPTY_PACKET_4VAR_WITH_DEFAULT(name, protocol, var1_type, var1_name, var1_default_value, var2_type, var2_name, var2_default_value, var3_type, var3_name, var3_default_value, var4_type, var4_name, var4_default_value, ...) \
 struct SAGANETWORK_API name : public FSagaBasicPacket \
 { \
@@ -650,7 +831,9 @@ struct SAGANETWORK_API name : public FSagaBasicPacket \
 	var3_type var3_name; \
 	var4_type var4_name; \
 }
+#pragma endregion
 
+#pragma region 4 Field with default initializations
 #define MAKE_EMPTY_PACKET_4VAR(name, protocol, var1_type, var1_name, var2_type, var2_name, var3_type, var3_name, var4_type, var4_name, ...) \
 struct SAGANETWORK_API name : public FSagaBasicPacket \
 { \
@@ -678,4 +861,5 @@ struct SAGANETWORK_API name : public FSagaBasicPacket \
 	var3_type var3_name; \
 	var4_type var4_name; \
 }
+#pragma endregion
 #pragma endregion

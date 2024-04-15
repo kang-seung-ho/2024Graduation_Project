@@ -5,14 +5,13 @@ module;
 #include <algorithm>
 #include <ranges>
 #include <vector>
+#include "PacketHelper.inl"
 
 export module Iconer.Application.Packet:ServerToClientPackets;
 import Iconer.Utility.Serializer;
 export import Iconer.Application.BasicPacket;
 export import Iconer.Application.RoomContract;
 export import Iconer.Application.Rpc;
-
-#include "PacketHelper.inl"
 
 export namespace iconer::app::packets::datagrams
 {
@@ -43,119 +42,11 @@ export namespace iconer::app::packets::inline sc
 	/// Broadcasted RPC packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of the sender client</param>
-	/// <param name="rpcScript">- A descriptor for rpc msg</param>
-	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <param name="rpcScript">- The category of rpc msg</param>
+	/// <param name="rpcArgument0">- 64bit rpc argument</param>
+	/// <param name="rpcArgument1">- 32bit rpc argument</param>
 	/// <remarks>Server would send it to the client</remarks>
-	struct [[nodiscard]] SC_RpcPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		static inline constexpr size_t msgLength = 12;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(clientId) + sizeof(rpcScript) + sizeof(rpcArgument);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char* begin, const char* end, long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			std::copy(begin, end, rpcScript);
-		}
-
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char* nts, const size_t length, long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			std::copy_n(nts, std::min(length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, const char(&str)[Length], long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			std::copy_n(str, std::min(Length, msgLength), rpcScript);
-		}
-
-		template<size_t Length>
-		explicit constexpr SC_RpcPacket(std::int32_t id, char(&& str)[Length], long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			std::move(str, str + std::min(Length, msgLength), rpcScript);
-		}
-
-		explicit constexpr SC_RpcPacket(std::int32_t id, const std::string& str, long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			auto it = std::begin(rpcScript);
-			const auto max_cnt = std::min(str.length(), msgLength);
-
-			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
-			{
-				if (max_cnt <= static_cast<size_t>(diff)) break;
-
-				*it = ch;
-			}
-		}
-
-		explicit constexpr SC_RpcPacket(std::int32_t id, std::string&& str, long long arg = 0)
-			noexcept
-			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
-			, clientId(id), rpcScript()
-			, rpcArgument(arg)
-		{
-			auto it = std::begin(rpcScript);
-			const auto max_cnt = std::min(str.length(), msgLength);
-
-			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
-			{
-				if (max_cnt <= static_cast<size_t>(diff)) break;
-
-				*it = std::move(ch);
-			}
-		}
-
-		[[nodiscard]]
-		constexpr std::unique_ptr<std::byte[]> Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, clientId, std::string_view{ rpcScript, msgLength }, rpcArgument);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), clientId), std::string_view{ rpcScript, msgLength }), rpcArgument);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), rpcScript), rpcArgument);
-		}
-
-		std::int32_t clientId;
-		char rpcScript[msgLength];
-		long long rpcArgument;
-	};
+	MAKE_PACKET_4VAR(SC_DeterRpcPacket, PacketProtocol::SC_RPC, std::int32_t, clientId, user_id, RpcProtocol, rpcScript, rpc, std::int64_t, rpcArgument0, arg0, std::int32_t, rpcArgument1, arg1);
 	/// <summary>
 	/// Position packet for server
 	/// </summary>
@@ -164,50 +55,7 @@ export namespace iconer::app::packets::inline sc
 	/// <param name="y"/>
 	/// <param name="z"/>
 	/// <remarks>Server would broadcast it to clients</remarks>
-	struct [[nodiscard]] SC_UpdatePositionPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(int) + sizeof(float) * 3;
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(int) + sizeof(float) * 3);
-		}
-
-		constexpr SC_UpdatePositionPacket()
-			: SC_UpdatePositionPacket(-1, 0, 0, 0)
-		{}
-
-		constexpr SC_UpdatePositionPacket(std::int32_t id, float px, float py, float pz) noexcept
-			: Super(PacketProtocol::SC_MOVE_CHARACTER, SignedWannabeSize())
-			, clientId(id), x(px), y(py), z(pz)
-		{}
-
-		[[nodiscard]]
-		constexpr auto Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, clientId, x, y, z);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serializes(Super::Write(buffer), clientId, x, y, z);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), x), y), z);
-		}
-
-		std::int32_t clientId;
-		float x, y, z;
-	};
+	MAKE_PACKET_4VAR(SC_UpdatePositionPacket, PacketProtocol::SC_MOVE_CHARACTER, std::int32_t, clientId, user_id, float, x, px, float, y, py, float, z, pz);
 	/// <summary>
 	/// Rotation packet for server
 	/// </summary>
@@ -261,6 +109,17 @@ export namespace iconer::app::packets::inline sc
 		float r, y, p;
 	};
 	/// <summary>
+	/// Creating characters packet for server
+	/// </summary>
+	/// <remarks>Server would send it to the client</remarks>
+	MAKE_EMPTY_PACKET(SC_CreatePlayerPacket, PacketProtocol::SC_CREATE_PLAYER);
+	/// <summary>
+	/// Remove a certain client packet for server
+	/// </summary>
+	/// <param name="clientId">- An id of client</param>
+	/// <remarks>Server would send it to the client</remarks>
+	MAKE_PACKET_1VAR(SC_DestroyPlayerPacket, PacketProtocol::SC_REMOVE_PLAYER, std::int32_t, clientId, clientId, user_id);
+	/// <summary>
 	/// Team setter packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of the target client</param>
@@ -282,7 +141,7 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_FailedGameStartingPacket, PacketProtocol::SC_FAILED_GAME_START, int, errCause, error);
+	MAKE_PACKET_1VAR(SC_FailedGameStartingPacket, PacketProtocol::SC_FAILED_GAME_START, int, errCause, errCause, error);
 	/// <summary>
 	/// Creating a client packet for server
 	/// </summary>
@@ -564,13 +423,13 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="roomId">- An id of the created room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_RoomCreatedPacket, PacketProtocol::SC_ROOM_CREATED, std::int32_t, roomId, room_id);
+	MAKE_PACKET_1VAR(SC_RoomCreatedPacket, PacketProtocol::SC_ROOM_CREATED, std::int32_t, roomId, roomId, room_id);
 	/// <summary>
 	/// Failed to join to a room packet for server
 	/// </summary>
 	/// <param name="errCause">Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_RoomCreationFailedPacket, PacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause, cause);
+	MAKE_PACKET_1VAR(SC_RoomCreationFailedPacket, PacketProtocol::SC_ROOM_CREATE_FAILED, RoomContract, errCause, errCause, cause);
 	/// <summary>
 	/// Joined to a room packet for server
 	/// </summary>
@@ -672,82 +531,141 @@ export namespace iconer::app::packets::inline sc
 	/// </summary>
 	/// <param name="errCause">- Reason of couldn't join to the room</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_RoomJoinFailedPacket, PacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause, cause);
+	MAKE_PACKET_1VAR(SC_RoomJoinFailedPacket, PacketProtocol::SC_ROOM_JOIN_FAILED, RoomContract, errCause, errCause, cause);
 	/// <summary>
 	/// Room left packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, PacketProtocol::SC_ROOM_LEFT, std::int32_t, clientId, user_id, -1);
-	/// <summary>
-	/// Creating a client packet for server
-	/// </summary>
-	/// <param name="clientId">- An id of client</param>
-	/// <param name="roomId"/>
-	/// <remarks>Server would send it to the client</remarks>
-	struct [[nodiscard]] SC_CreatePlayerPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		static inline constexpr size_t nickNameLength = 16;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(clientId) + sizeof(userName);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(Super::MinSize() + sizeof(clientId) + sizeof(userName));
-		}
-
-		constexpr SC_CreatePlayerPacket() noexcept
-			: SC_CreatePlayerPacket(-1)
-		{}
-
-		constexpr SC_CreatePlayerPacket(std::int32_t id) noexcept
-			: Super(PacketProtocol::SC_CREATE_PLAYER, SignedWannabeSize())
-			, clientId(id), userName()
-		{}
-
-		[[nodiscard]]
-		constexpr auto Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, clientId, userName);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serializes(Super::Write(buffer), clientId, userName);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), userName);
-		}
-
-		std::int32_t clientId;
-		wchar_t userName[nickNameLength];
-	};
-	/// <summary>
-	/// Remove a certain client packet for server
-	/// </summary>
-	/// <param name="clientId">- An id of client</param>
-	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_DestroyPlayerPacket, PacketProtocol::SC_REMOVE_PLAYER, std::int32_t, clientId, user_id);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_RoomLeftPacket, PacketProtocol::SC_ROOM_LEFT, std::int32_t, clientId, clientId, user_id, -1);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="clientId">- An id of client</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, PacketProtocol::SC_SIGNIN_SUCCESS, std::int32_t, clientId, user_id, -1);
+	MAKE_PACKET_1VAR_WITH_DEFAULT(SC_SucceedSignInPacket, PacketProtocol::SC_SIGNIN_SUCCESS, std::int32_t, clientId, clientId, user_id, -1);
 	/// <summary>
 	/// Assigning ID to client packet for server
 	/// </summary>
 	/// <param name="errCause">- Cause of the failure</param>
 	/// <remarks>Server would send it to the client</remarks>
-	MAKE_PACKET_1VAR(SC_FailedSignInPacket, PacketProtocol::SC_SIGNIN_FAILURE, int, errCause, cause);
+	MAKE_PACKET_1VAR(SC_FailedSignInPacket, PacketProtocol::SC_SIGNIN_FAILURE, int, errCause, errCause, cause);
+	/// <summary>
+	/// Broadcasted RPC packet for server
+	/// </summary>
+	/// <param name="clientId">- An id of the sender client</param>
+	/// <param name="rpcScript">- A descriptor for rpc msg</param>
+	/// <param name="rpcArgument">- Single rpc argument</param>
+	/// <remarks>Server would send it to the client</remarks>
+	struct [[nodiscard]] SC_RpcPacket : public BasicPacket
+	{
+		using Super = BasicPacket;
+
+		static inline constexpr size_t msgLength = 12;
+
+		[[nodiscard]]
+		static consteval size_t WannabeSize() noexcept
+		{
+			return Super::MinSize() + sizeof(clientId) + sizeof(rpcScript) + sizeof(rpcArgument);
+		}
+
+		[[nodiscard]]
+		static consteval ptrdiff_t SignedWannabeSize() noexcept
+		{
+			return static_cast<ptrdiff_t>(WannabeSize());
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* begin, const char* end, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::copy(begin, end, rpcScript);
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char* nts, const size_t length, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::copy_n(nts, std::min(length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr SC_RpcPacket(std::int32_t id, const char(&str)[Length], long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::copy_n(str, std::min(Length, msgLength), rpcScript);
+		}
+
+		template<size_t Length>
+		explicit constexpr SC_RpcPacket(std::int32_t id, char(&& str)[Length], long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			std::move(str, str + std::min(Length, msgLength), rpcScript);
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, const std::string& str, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			auto it = std::begin(rpcScript);
+			const auto max_cnt = std::min(str.length(), msgLength);
+
+			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
+			{
+				if (max_cnt <= static_cast<size_t>(diff)) break;
+
+				*it = ch;
+			}
+		}
+
+		explicit constexpr SC_RpcPacket(std::int32_t id, std::string&& str, long long arg = 0)
+			noexcept
+			: Super(PacketProtocol::SC_RPC, SignedWannabeSize())
+			, clientId(id), rpcScript()
+			, rpcArgument(arg)
+		{
+			auto it = std::begin(rpcScript);
+			const auto max_cnt = std::min(str.length(), msgLength);
+
+			for (auto&& [diff, ch] : std::ranges::views::enumerate(str))
+			{
+				if (max_cnt <= static_cast<size_t>(diff)) break;
+
+				*it = std::move(ch);
+			}
+		}
+
+		[[nodiscard]]
+		constexpr std::unique_ptr<std::byte[]> Serialize() const
+		{
+			return iconer::util::Serializes(myProtocol, mySize, clientId, std::string_view{ rpcScript, msgLength }, rpcArgument);
+		}
+
+		constexpr std::byte* Write(std::byte* buffer) const
+		{
+			return iconer::util::Serialize(iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), clientId), std::string_view{ rpcScript, msgLength }), rpcArgument);
+		}
+
+		constexpr const std::byte* Read(const std::byte* buffer)
+		{
+			return iconer::util::Deserialize(iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), clientId), rpcScript), rpcArgument);
+		}
+
+		std::int32_t clientId;
+		char rpcScript[msgLength];
+		long long rpcArgument;
+	};
 #pragma pack(pop)
 }
