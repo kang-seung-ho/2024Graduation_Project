@@ -32,6 +32,13 @@ protected:
 	TObjectPtr<UArrowComponent> mArrowComponent;
 #endif
 
+
+public:
+	UCapsuleComponent* GetCapsuleComponent() const
+	{
+		return mCapsule;
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
