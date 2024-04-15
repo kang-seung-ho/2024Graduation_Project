@@ -517,7 +517,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		{
 			myLogger.Log(L"\tThe game is started at room {}\n", room->GetID());
 		}
-
 	}
 	break;
 
@@ -545,6 +544,22 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
 
+		if (not is_succeed)
+		{
+			myLogger.LogError(L"\tRoom {}'s operation of creating characters has failed\n", room->GetID());
+
+			OnFailedToCreateCharacters(*room);
+		}
+		else if (not OnCreatingCharacters(*room))
+		{
+			myLogger.Log(L"\tRoom {} cannot create characters\n", room->GetID());
+
+			OnFailedToCreateCharacters(*room);
+		}
+		else
+		{
+			myLogger.Log(L"\tCharacters are created in room {}\n", room->GetID());
+		}
 	}
 	break;
 	

@@ -234,6 +234,10 @@ export namespace demo
 
 		void OnCloseGame(iconer::app::Room& room);
 
+		[[nodiscard]]
+		bool OnCreatingCharacters(iconer::app::Room& room);
+		void OnFailedToCreateCharacters(iconer::app::Room& room) noexcept;
+
 		void SetRoomModifiedFlag() noexcept;
 		[[nodiscard]]
 		bool GetRoomModifiedFlag() const noexcept;
