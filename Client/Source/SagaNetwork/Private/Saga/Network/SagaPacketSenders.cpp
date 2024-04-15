@@ -372,8 +372,30 @@ saga::SendRotationPacket(FSocket* socket, float r, float y, float p)
 std::optional<int32>
 saga::SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
 {
-	// TODO
-	return std::optional<int32>();
+	if (socket)
+	{
+		if (::IsConnected(socket))
+		{
+			const saga::CS_DeterRpcPacket pk{ cat, arg0, arg1 };
+			auto ptr = pk.Serialize();
+
+			const int32 sent_bytes = saga::RawSend(socket, ptr.get(), pk.WannabeSize());
+			if (0 < sent_bytes)
+			{
+				return sent_bytes;
+			}
+		}
+		else
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("The socket is not connected. (SendRpcPacket)"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("The socket is null. (SendRpcPacket)"));
+	}
+
+	return std::nullopt;
 }
 
 std::optional<int32>

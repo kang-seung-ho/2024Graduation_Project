@@ -18,11 +18,11 @@ namespace saga::inline cs
 	/// <summary>
 	/// RPC packet for client
 	/// </summary>
-	/// <param name="rpcScript">- The category of rpc msg</param>
+	/// <param name="rpc">- The category of rpc msg</param>
 	/// <param name="arg0">- 64bit rpc argument</param>
 	/// <param name="arg1">- 32bit rpc argument</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_DeterRpcPacket, EPacketProtocol::CS_RPC, ESagaRpcProtocol, rpcProtocol, int64, arg0, int32, arg1);
+	MAKE_PACKET_3VAR(CS_DeterRpcPacket, EPacketProtocol::CS_RPC, ESagaRpcProtocol, rpcProtocol, rpc, int64, rpcArgument0, arg0, int32, rpcArgument1, arg1);
 	/// <summary>
 	/// Team setter packet for client
 	/// </summary>
