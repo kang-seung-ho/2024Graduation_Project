@@ -156,6 +156,7 @@ export namespace iconer::app
 		BorrowedIoResult SendGameJustStartedPacket() const;
 		BorrowedIoResult SendPositionPacket(IdType id, float x, float y, float z) const;
 		BorrowedIoResult SendRotationPacket(IdType id, float r, float y, float p) const;
+		BorrowedIoResult SendCreateCharactersPacket() const;
 		BorrowedIoResult SendRpcPacket(IdType id, std::string&& script, long long arg) const;
 		BorrowedIoResult SendRpcPacket(IdType id, std::string_view script, long long arg) const;
 

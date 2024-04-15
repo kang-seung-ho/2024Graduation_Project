@@ -220,6 +220,17 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
+iconer::app::User::SendCreateCharactersPacket()
+const
+{
+	static const auto pk = iconer::app::packets::Serialize(iconer::app::PacketProtocol::SC_CREATE_PLAYER);
+
+	auto ctx = SendContextPool::Pop();
+
+	return { mySocket.Send(*ctx, pk.get(), BasicPacket::MinSize()), std::move(ctx) };
+}
+
+iconer::app::User::BorrowedIoResult
 iconer::app::User::SendRpcPacket(iconer::app::User::IdType id, std::string&& script, long long arg)
 const
 {
