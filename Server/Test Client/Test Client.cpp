@@ -240,7 +240,7 @@ test::Receiver()
 
 						case iconer::app::PacketProtocol::SC_MOVE_CHARACTER:
 						{
-							iconer::app::packets::SC_UpdatePositionPacket pk{ 0, 0, 0, 0 };
+							iconer::app::packets::SC_UpdatePositionPacket pk{};
 							auto offset = pk.Read(recv_space);
 
 							//std::println("Player id {}: pos({},{},{})", pk.clientId, pk.x, pk.y, pk.z);
