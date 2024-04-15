@@ -284,3 +284,18 @@ const
 		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnUpdateRotation` was not bound"));
 	}
 }
+
+void
+USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
+
+	if (OnRpc.IsBound())
+	{
+		OnRpc.Broadcast(cat, user_id, arg0, arg1);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnRpc` was not bound"));
+	}
+}

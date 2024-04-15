@@ -370,7 +370,14 @@ saga::SendRotationPacket(FSocket* socket, float r, float y, float p)
 }
 
 std::optional<int32>
-saga::SendRpcPacket(FSocket* socket, FStringView rpc, int64 arg)
+saga::SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
+{
+	// TODO
+	return std::optional<int32>();
+}
+
+std::optional<int32>
+saga::SendOldRpcPacket(FSocket* socket, FStringView rpc, int64 arg)
 {
 	if (socket)
 	{

@@ -74,7 +74,13 @@ USagaNetworkSubSystem::SendRotationPacket(float r, float y, float p)
 }
 
 int32
-USagaNetworkSubSystem::SendRpcPacket(const FString& string, int64 argument)
+USagaNetworkSubSystem::SendRpcPacket(ESagaRpcProtocol category, int64 argument0, int32 argument1)
 {
-	return saga::SendRpcPacket(clientSocket, string, MoveTemp(argument)).value_or(0);
+	return saga::SendRpcPacket(clientSocket, MoveTemp(category), GetLocalUserId(), MoveTemp(argument0), MoveTemp(argument1)).value_or(0);
+}
+
+int32
+USagaNetworkSubSystem::SendOldRpcPacket(const FString& string, int64 argument)
+{
+	return saga::SendOldRpcPacket(clientSocket, string, MoveTemp(argument)).value_or(0);
 }

@@ -11,7 +11,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
 	, OnTeamChanged()
 	, OnGetPreparedGame(), OnStartGame()
-	, OnUpdatePosition(), OnUpdateRotation()
+	, OnUpdatePosition(), OnUpdateRotation(), OnRpc()
 	, TaskCompletionEvents()
 	, rpcDatabase()
 	, clientSocket(nullptr), netWorker(nullptr)
@@ -41,6 +41,7 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	OnStartGame.AddDynamic(this, &USagaNetworkSubSystem::OnStartGame_Implementation);
 	OnUpdatePosition.AddDynamic(this, &USagaNetworkSubSystem::OnUpdatePosition_Implementation);
 	OnUpdateRotation.AddDynamic(this, &USagaNetworkSubSystem::OnUpdateRotation_Implementation);
+	OnRpc.AddDynamic(this, &USagaNetworkSubSystem::OnRpc_Implementation);
 
 	everyUsers.Reserve(100);
 	everyRooms.Reserve(100);

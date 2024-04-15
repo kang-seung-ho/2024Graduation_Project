@@ -3,6 +3,7 @@
 #define SAGAFRAMEWORK_NET_PACKET_SENDERS_H
 
 #include "SagaNetwork.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include <optional>
 
 namespace saga
@@ -19,7 +20,8 @@ namespace saga
 	std::optional<int32> SendGameIsLoadedPacket(FSocket* socket);
 	std::optional<int32> SendPositionPacket(FSocket* socket, float x, float y, float z);
 	std::optional<int32> SendRotationPacket(FSocket* socket, float r, float y, float p);
-	std::optional<int32> SendRpcPacket(FSocket* socket, FStringView rpc, int64 arg = 0);
+	std::optional<int32> SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 arg0 = 0, int32 arg1 = 0);
+	std::optional<int32> SendOldRpcPacket(FSocket* socket, FStringView rpc, int64 arg = 0);
 }
 
 #endif // !SAGAFRAMEWORK_NET_PACKET_SENDERS_H

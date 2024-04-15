@@ -213,19 +213,24 @@ USagaNetworkSubSystem::OnFailedToStartGame_Implementation(ESagaGameContract reas
 void
 USagaNetworkSubSystem::OnStartGame_Implementation()
 {
-	// TODO
+	// TODO: OnStartGame_Implementation
 }
 
 void
 USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float y, float z)
 {
-	// TODO
+	// TODO: OnUpdatePosition_Implementation
 }
 
 void
 USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float y, float p)
 {
-	// TODO
+	// TODO: OnUpdateRotation_Implementation
+}
+
+void USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
+{
+	// TODO: OnRpc_Implementation
 }
 
 TSharedRef<FInternetAddr>

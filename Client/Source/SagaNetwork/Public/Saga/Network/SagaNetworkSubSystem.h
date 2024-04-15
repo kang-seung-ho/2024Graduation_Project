@@ -12,6 +12,7 @@
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualRoom.h"
 #include "Saga/Network/SagaVirtualUser.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaNetworkSubSystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool, was_succeed);
@@ -32,11 +33,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSagaEventOnTeamChanged, int32, use
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnFailedToStartGame, ESagaGameContract, reason);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnGetPreparedGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnStartGame);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnRpc, int64, argument);
-DECLARE_EVENT_OneParam(FSagaNetworkWorker, FSagaEventOnRpc, int64);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdatePosition, int32, id, float, x, float, y, float, z);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdateRotation, int32, id, float, r, float, y, float, p);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
 class SAGANETWORK_API FSagaNetworkWorker final : public FRunnable, public FNoncopyable
 {
@@ -196,7 +196,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendRotationPacket(float r, float y, float p);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRpcPacket(const FString& string, int64 argument = 0);
+	int32 SendRpcPacket(ESagaRpcProtocol category, int64 argument0 = 0, int32 argument1 = 0);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendOldRpcPacket(const FString& string, int64 argument = 0);
 #pragma endregion
 
 	/* Internal Event Broadcasting Methods */
@@ -238,6 +240,8 @@ public:
 	void BroadcastOnUpdatePosition(int32 user_id, float x, float y, float z) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p) const;
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
+	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion
 
 	friend class FSagaNetworkWorker;
@@ -301,6 +305,8 @@ public:
 	FSagaEventOnUpdatePosition OnUpdatePosition;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnUpdateRotation OnUpdateRotation;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnRpc OnRpc;
 #pragma endregion
 
 	/* Tasks */
@@ -363,6 +369,8 @@ protected:
 	void OnUpdatePosition_Implementation(int32 id, float x, float y, float z);
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdateRotation_Implementation(int32 id, float r, float y, float p);
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
 	void RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size);
 #pragma endregion

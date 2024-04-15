@@ -6,6 +6,7 @@
 #include "SagaNetwork.h"
 
 #include "Saga/Network/SagaRoomContract.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaServerPacketPrefabs.h"
 
 namespace saga
@@ -27,8 +28,10 @@ namespace saga
 
 	const std::byte* ReceivePositionPacket(const std::byte* buffer, int32& client_id, float& x, float& y, float& z);
 
-	const std::byte* ReceiveRpcPacket(const std::byte* buffer, int32& client_id, FString& contents, long long& argument);
-	const std::byte* ReceiveRpcPacket(const std::byte* buffer, int32& client_id, FString& contents);
+	const std::byte* ReceiveRpcPacket(const std::byte* buffer, ESagaRpcProtocol& cat, int32& client_id,  int64& arg0, int32& arg1);
+
+	const std::byte* ReceiveOldRpcPacket(const std::byte* buffer, int32& client_id, FString& contents, long long& argument);
+	const std::byte* ReceiveOldRpcPacket(const std::byte* buffer, int32& client_id, FString& contents);
 }
 
 #endif // !SAGAFRAMEWORK_NET_PACKET_PROCESSOR_H
