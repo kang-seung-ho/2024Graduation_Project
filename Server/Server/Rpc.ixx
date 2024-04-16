@@ -40,15 +40,15 @@ export namespace iconer::app::inline rpc
 	public:
 		using Super = IContext;
 
-		constexpr RpcContext() noexcept
+		constexpr RpcContext(RpcProtocol category, std::int32_t room_id = -1, std::int64_t arg0 = 0, std::int32_t arg1 = 0) noexcept
 			: Super(AsyncOperations::OpRpc)
-			, roomId(-1)
-			, rpcCategory()
-			, firstArgument(), secondArgument()
+			, rpcCategory(std::move(category))
+			, roomId(std::move(room_id))
+			, firstArgument(std::move(arg0)), secondArgument(std::move(arg1))
 		{}
 
-		std::int32_t roomId;
 		RpcProtocol rpcCategory;
+		std::int32_t roomId;
 		std::int64_t firstArgument;
 		std::int32_t secondArgument;
 	};
