@@ -226,7 +226,99 @@ USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float 
 void
 USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 {
-	// TODO: OnRpc_Implementation
+	FSagaVirtualUser user{};
+
+	if (not FindUser(id, user))
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[RPC] Cannot find user %d"), id);
+		return;
+	}
+
+	switch (cat)
+	{
+	case ESagaRpcProtocol::RPC_UNKNOWN:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_WALK:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_RUN:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_JUMP:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_RIDE:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_ATTACK_0:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_ATTACK_1:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_ATTACK_2:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_ATTACK_3:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_SKILL_0:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_SKILL_1:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_SKILL_2:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_SKILL_3:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_USE_ITEM_0:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_USE_ITEM_1:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_USE_ITEM_2:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_USE_ITEM_3:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_USE_ITEM_4:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
+	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_DEAD:
+	{}
+	break;
+
+	default:
+		break;
+	}
 }
 
 TSharedRef<FInternetAddr>
