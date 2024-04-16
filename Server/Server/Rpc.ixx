@@ -2,6 +2,7 @@ export module Iconer.Application.Rpc;
 import <cstddef>;
 import <cstdint>;
 import <memory>;
+import Iconer.Application.IContext;
 
 export namespace iconer::app
 {
@@ -32,5 +33,23 @@ export namespace iconer::app
 	struct [[nodiscard]] SerializedRpcPacket
 	{
 		std::unique_ptr<std::byte[]> buffer;
+	};
+
+	class RpcContext : public IContext
+	{
+	public:
+		using Super = IContext;
+
+		constexpr RpcContext() noexcept
+			: Super(AsyncOperations::OpRpc)
+			, roomId(-1)
+			, rpcCategory()
+			, firstArgument(), secondArgument()
+		{}
+
+		std::int32_t roomId;
+		RpcProtocol rpcCategory;
+		std::int64_t firstArgument;
+		std::int32_t secondArgument;
 	};
 }
