@@ -25,8 +25,13 @@ import Iconer.Application.BorrowedSendContext;
 export import <memory>;
 export import <expected>;
 
+#define ICONER_NODISCARD [[nodiscard]]
+#define ICONER_ALIGN alignas(std::hardware_constructive_interference_size)
+
 export namespace demo
 {
+	using Buffer = std::unique_ptr<std::byte[]>;
+
 	class Framework
 	{
 	public:
@@ -57,49 +62,53 @@ export namespace demo
 		void CancelWorkers() noexcept;
 		void Cleanup();
 
-		[[nodiscard]]
-		iconer::app::Borrower AcquireSendContext();
-		[[nodiscard]]
-		iconer::app::Borrower AcquireSendContext(std::unique_ptr<std::byte[]>&& buffer, size_t size);
+		ICONER_NODISCARD iconer::app::Borrower AcquireSendContext();
+		ICONER_NODISCARD iconer::app::Borrower AcquireSendContext(Buffer&& buffer, size_t size);
 
-		[[nodiscard]]
-		bool Schedule(iconer::net::IoContext& context, const IdType id, unsigned long info_bytes = 0) noexcept
+		ICONER_NODISCARD
+			bool
+			Schedule(iconer::net::IoContext& context, const IdType id, unsigned long info_bytes = 0)
+			noexcept
 		{
 			return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
 		}
 
-		[[nodiscard]]
-		bool Schedule(iconer::net::IoContext* const context, const IdType id, unsigned long info_bytes = 0) noexcept
+		ICONER_NODISCARD
+			bool
+			Schedule(iconer::net::IoContext* const context, const IdType id, unsigned long info_bytes = 0)
+			noexcept
 		{
 			return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
 		}
 
-		[[nodiscard]]
-		bool Schedule(volatile iconer::net::IoContext& context, const IdType id, unsigned long info_bytes = 0) noexcept
+		ICONER_NODISCARD
+			bool
+			Schedule(volatile iconer::net::IoContext& context, const IdType id, unsigned long info_bytes = 0)
+			noexcept
 		{
 			return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
 		}
 
-		[[nodiscard]]
-		bool Schedule(volatile iconer::net::IoContext* const context, const IdType id, unsigned long info_bytes = 0) noexcept
+		ICONER_NODISCARD
+			bool Schedule(volatile iconer::net::IoContext* const context, const IdType id, unsigned long info_bytes = 0) noexcept
 		{
 			return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
 		}
 
-		[[nodiscard]]
-		auto WaitForIoResult() noexcept
+		ICONER_NODISCARD
+			auto WaitForIoResult() noexcept
 		{
 			return ioCompletionPort.WaitForIoResult();
 		}
 
-		[[nodiscard]]
-		iconer::app::User* FindUser(const IdType& id) const noexcept
+		ICONER_NODISCARD
+			iconer::app::User* FindUser(const IdType& id) const noexcept
 		{
 			return userManager->operator[](id);
 		}
 
-		[[nodiscard]]
-		constexpr iconer::app::Room* FindRoom(const IdType& id) const noexcept
+		ICONER_NODISCARD
+			constexpr iconer::app::Room* FindRoom(const IdType& id) const noexcept
 		{
 			for (auto&& room : everyRoom)
 			{
@@ -112,8 +121,8 @@ export namespace demo
 			return nullptr;
 		}
 
-		[[nodiscard]]
-		constexpr std::span<std::byte, userRecvSize>
+		ICONER_NODISCARD
+			constexpr std::span<std::byte, userRecvSize>
 			GetBuffer(const IdType& id)
 			noexcept
 		{
@@ -123,8 +132,8 @@ export namespace demo
 			return std::span<std::byte, userRecvSize>{ data, userRecvSize };
 		}
 
-		[[nodiscard]]
-		constexpr std::span<const std::byte, userRecvSize>
+		ICONER_NODISCARD
+			constexpr std::span<const std::byte, userRecvSize>
 			GetBuffer(const IdType& id)
 			const noexcept
 		{
@@ -134,121 +143,102 @@ export namespace demo
 			return std::span<const std::byte, userRecvSize>{ data, userRecvSize };
 		}
 
-		[[nodiscard]]
-		bool IsWorkerCancelled() const noexcept
+		ICONER_NODISCARD
+			bool IsWorkerCancelled() const noexcept
 		{
 			return workerCanceller.stop_requested();
 		}
 
-		[[nodiscard]]
-		static constexpr IdType MakeUidToIndex(const IdType& id) noexcept
+		ICONER_NODISCARD
+			static constexpr IdType MakeUidToIndex(const IdType& id) noexcept
 		{
 			return id - beginUserID;
 		}
 
-		[[nodiscard]]
-		static constexpr IdType MakeUidToIndex(IdType&& id) noexcept
+		ICONER_NODISCARD
+			static constexpr IdType MakeUidToIndex(IdType&& id) noexcept
 		{
 			return std::move(id) - beginUserID;
 		}
 
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool CreateListenerSockets() noexcept;
+		ICONER_NODISCARD bool CreateListenerSockets() noexcept;
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool InitializeLobbyListener() noexcept;
+		ICONER_NODISCARD bool InitializeLobbyListener() noexcept;
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool InitializeGameListener() noexcept;
+		ICONER_NODISCARD bool InitializeGameListener() noexcept;
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool InitializeCompletionPort(iconer::net::ErrorCode& error_code) noexcept;
+		ICONER_NODISCARD bool InitializeCompletionPort(iconer::net::ErrorCode& error_code) noexcept;
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool InitializeUsers();
+		ICONER_NODISCARD bool InitializeUsers();
 		/// <summary>On Awake()</summary>
-		[[nodiscard]] bool InitializeRooms();
+		ICONER_NODISCARD bool InitializeRooms();
 		/// <summary>On Awake()</summary>
 		void InitializeSendContextPool();
 		/// <summary>On Worker()</summary>
 		void CacheSendContexts();
 		/// <summary>On Start()</summary>
-		[[nodiscard]] bool StartAccepts();
+		ICONER_NODISCARD bool StartAccepts();
 
-		[[nodiscard]] bool RouteEvent(bool is_succeed, const std::uint64_t& io_id, const ptrdiff_t& io_bytes, iconer::app::IContext* ctx);
-		[[nodiscard]]
-		AcceptResult OnReserveAccept(iconer::app::User& user);
+		ICONER_NODISCARD bool RouteEvent(bool is_succeed, const std::uint64_t& io_id, const ptrdiff_t& io_bytes, iconer::app::IContext* ctx);
+		ICONER_NODISCARD AcceptResult OnReserveAccept(iconer::app::User& user);
 		[[noreturn]] void OnFailedReservingAccept();
-		[[nodiscard]]
-		AcceptResult OnUserDisconnected(iconer::app::User& user);
+		ICONER_NODISCARD AcceptResult OnUserDisconnected(iconer::app::User& user);
 
-		[[nodiscard]]
-		IoResult OnUserConnected(iconer::app::User& user);
+		ICONER_NODISCARD IoResult OnUserConnected(iconer::app::User& user);
 		void OnFailedUserConnect(iconer::app::User& user);
-		[[nodiscard]]
-		IoResult OnUserSignedIn(iconer::app::User& user, const ptrdiff_t& bytes);
+		ICONER_NODISCARD IoResult OnUserSignedIn(iconer::app::User& user, const ptrdiff_t& bytes);
 		void OnFailedUserSignIn(iconer::app::User& user);
-		[[nodiscard]]
-		IoResult OnNotifyUserId(iconer::app::User& user);
+		ICONER_NODISCARD IoResult OnNotifyUserId(iconer::app::User& user);
 		void OnFailedNotifyId(iconer::app::User& user);
 
-		[[nodiscard]]
-		IoResult OnReceived(iconer::app::User& user, const ptrdiff_t& bytes);
+		ICONER_NODISCARD IoResult OnReceived(iconer::app::User& user, const ptrdiff_t& bytes);
 		void OnFailedReceive(iconer::app::User& user);
 
-		[[nodiscard]]
-		iconer::app::RoomContract OnReservingRoom(iconer::app::Room& room, iconer::app::User& user);
+		ICONER_NODISCARD iconer::app::RoomContract OnReservingRoom(iconer::app::Room& room, iconer::app::User& user);
 		void OnFailedToReserveRoom(iconer::app::Room& room, iconer::app::User& user, iconer::app::RoomContract reason);
-		[[nodiscard]]
-		iconer::app::RoomContract OnCreatingRoom(iconer::app::Room& room, iconer::app::User& user);
+		ICONER_NODISCARD iconer::app::RoomContract OnCreatingRoom(iconer::app::Room& room, iconer::app::User& user);
 		void OnFailedToCreateRoom(iconer::app::Room& room, iconer::app::User& user, iconer::app::RoomContract reason);
-		[[nodiscard]]
-		iconer::app::RoomContract OnJoiningRoom(iconer::app::Room& room, iconer::app::User& user);
+		ICONER_NODISCARD iconer::app::RoomContract OnJoiningRoom(iconer::app::Room& room, iconer::app::User& user);
 		void OnFailedToJoinRoom(iconer::app::Room& room, iconer::app::User& user, iconer::app::RoomContract reason);
 		void OnSucceedToJoinRoom(iconer::app::Room& room, iconer::app::User& user);
 		bool OnLeavingRoom(iconer::app::User& user);
 		void OnClosingRoom(iconer::app::Room& room);
-		[[nodiscard]]
-		IoResult OnNotifyRoomsList(iconer::app::User& user);
-		[[nodiscard]]
-		IoResult OnNotifyMemberOfRoom(iconer::app::User& user) noexcept;
-		[[nodiscard]]
-		bool OnNotifyTeam(iconer::app::User& user);
+		ICONER_NODISCARD IoResult OnNotifyRoomsList(iconer::app::User& user);
+		ICONER_NODISCARD IoResult OnNotifyMemberOfRoom(iconer::app::User& user) noexcept;
+		ICONER_NODISCARD bool OnNotifyTeam(iconer::app::User& user);
 		void OnFailedNotifyRoomMember(iconer::app::User& user) noexcept;
 
-		[[nodiscard]]
-		bool OnCreateGame(iconer::app::User& user);
+		ICONER_NODISCARD bool OnCreateGame(iconer::app::User& user);
 		void OnFailedToCreateGame(iconer::app::User& user) noexcept;
 
-		[[nodiscard]]
-		bool OnBroadcastGameTickets(iconer::app::Room& room);
+		ICONER_NODISCARD bool OnBroadcastGameTickets(iconer::app::Room& room);
 		void OnFailedToBroadcastGameTickets(iconer::app::Room& room) noexcept;
 
-		[[nodiscard]]
-		bool OnSentGameTicket(iconer::app::User& user);
+		ICONER_NODISCARD bool OnSentGameTicket(iconer::app::User& user);
 		void OnFailedToSendGameTicket(iconer::app::User& user) noexcept;
 
-		[[nodiscard]]
-		bool OnGameIsLoaded(iconer::app::User& user);
+		ICONER_NODISCARD bool OnGameIsLoaded(iconer::app::User& user);
 		void OnFailedToLoadGame(iconer::app::User& user) noexcept;
 
-		[[nodiscard]]
-		bool OnStartGame(iconer::app::Room& room);
+		ICONER_NODISCARD bool OnStartGame(iconer::app::Room& room);
 		void OnFailedToStartGame(iconer::app::Room& room) noexcept;
 
 		void OnCloseGame(iconer::app::Room& room);
 
-		[[nodiscard]]
-		bool OnCreatingCharacters(iconer::app::Room& room);
+		ICONER_NODISCARD bool OnCreatingCharacters(iconer::app::Room& room);
 		void OnFailedToCreateCharacters(iconer::app::Room& room) noexcept;
 
 		void SetRoomModifiedFlag() noexcept;
-		[[nodiscard]]
-		bool GetRoomModifiedFlag() const noexcept;
+		ICONER_NODISCARD bool GetRoomModifiedFlag() const noexcept;
 
-		alignas(std::hardware_constructive_interference_size) iconer::app::ISessionManager<iconer::app::User>* userManager;
-		std::array<iconer::app::Room*, Framework::maxRoomsNumber> everyRoom;
-		alignas(std::hardware_constructive_interference_size) std::unique_ptr<std::byte[]> serializedRoomsBuffer;
-		size_t serializedRoomsBufferSize;
+		ICONER_ALIGN iconer::app::ISessionManager<iconer::app::User>* userManager;
+		ICONER_ALIGN std::array<iconer::app::Room*, Framework::maxRoomsNumber> everyRoom;
 
-		alignas(std::hardware_constructive_interference_size) std::unique_ptr<iconer::app::User[]> userSpace;
-		alignas(std::hardware_constructive_interference_size) std::unique_ptr<std::byte[]> recvSpace;
+		ICONER_ALIGN std::unique_ptr<iconer::app::User[]> userSpace;
+		ICONER_ALIGN Buffer recvSpace;
+		ICONER_ALIGN Buffer serializedRoomsBuffer;
+		ICONER_ALIGN size_t serializedRoomsBufferSize;
 
 	private:
 		friend void Worker(Framework& framework, size_t nth);

@@ -4,7 +4,7 @@ module;
 
 #define RETURN_BACK_SENDER(ctx) \
 { \
-	auto sender = std::launder(static_cast<iconer::app::BorrowedSendContext*>(ctx)); \
+	auto sender = std::launder(static_cast<BorrowedSendContext*>(ctx)); \
 	sender->ReturnToBase(); \
 }
 
@@ -12,22 +12,24 @@ module Demo.Framework;
 import Iconer.Application.IContext;
 import Iconer.Application.BlobSendContext;
 
+using namespace iconer::app;
+
 bool
 demo::Framework::RouteEvent(bool is_succeed
 	, const std::uint64_t& io_id
 	, const ptrdiff_t& io_bytes
-	, iconer::app::IContext* ctx)
+	, IContext* ctx)
 {
 	ctx->Clear();
 
-	using enum iconer::app::AsyncOperations;
+	using enum AsyncOperations;
 
 	switch (ctx->GetOperation())
 	{
 	// Phase 0
 	case OpReserveSession:
 	{
-		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
+		auto&& user = *std::launder(static_cast<User*>(ctx));
 		const IdType& id = user.GetID();
 
 		if (not is_succeed)
@@ -51,7 +53,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// an user is connected
 	case OpAccept:
 	{
-		auto&& user = *std::launder(static_cast<iconer::app::User*>(ctx));
+		auto&& user = *std::launder(static_cast<User*>(ctx));
 		const IdType& id = user.GetID();
 
 		if (not is_succeed)
@@ -75,7 +77,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// received a nickname, and send an id of user
 	case OpSignIn:
 	{
-		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
+		auto user = std::launder(static_cast<User*>(ctx));
 		const IdType& id = user->GetID();
 
 		if (not is_succeed)
@@ -104,7 +106,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// sent an id of user
 	case OpAssignID:
 	{
-		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
+		auto user = std::launder(static_cast<User*>(ctx));
 		const IdType& id = user->GetID();
 
 		if (not is_succeed)
@@ -128,7 +130,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 4~
 	case OpRecv:
 	{
-		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
+		auto user = std::launder(static_cast<User*>(ctx));
 		const IdType& id = user->GetID();
 
 		if (not is_succeed)
@@ -169,7 +171,7 @@ demo::Framework::RouteEvent(bool is_succeed
 			myLogger.Log(L"\tUser {} has sent {} bytes\n", io_id, io_bytes);
 		}
 
-		auto sender = std::launder(static_cast<iconer::app::BlobSendContext*>(ctx));
+		auto sender = std::launder(static_cast<BlobSendContext*>(ctx));
 		delete sender;
 	}
 	break;
@@ -184,7 +186,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 4~
 	case OpDisconnect:
 	{
-		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
+		auto user = std::launder(static_cast<User*>(ctx));
 		const IdType& id = user->GetID();
 
 		if (not is_succeed)
@@ -205,7 +207,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 5
 	case OpReserveRoom:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 		const IdType& room_id = room->GetID();
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -213,9 +215,9 @@ demo::Framework::RouteEvent(bool is_succeed
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {} could not reserve room {}\n", user_id, room_id);
-			OnFailedToReserveRoom(*room, *user, iconer::app::RoomContract::ServerError);
+			OnFailedToReserveRoom(*room, *user, RoomContract::ServerError);
 		}
-		else if (auto result = OnReservingRoom(*room, *user); iconer::app::RoomContract::Success != result)
+		else if (auto result = OnReservingRoom(*room, *user); RoomContract::Success != result)
 		{
 			myLogger.LogError(L"\tUser {} could not reserve room {} due to {}\n", user_id, room_id, result);
 			OnFailedToReserveRoom(*room, *user, result);
@@ -230,7 +232,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 5
 	case OpCreateRoom:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 		const IdType& room_id = room->GetID();
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
@@ -238,9 +240,9 @@ demo::Framework::RouteEvent(bool is_succeed
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {} could not create a room\n", user_id);
-			OnFailedToCreateRoom(*room, *user, iconer::app::RoomContract::ServerError);
+			OnFailedToCreateRoom(*room, *user, RoomContract::ServerError);
 		}
-		else if (auto result = OnCreatingRoom(*room, *user); iconer::app::RoomContract::Success != result)
+		else if (auto result = OnCreatingRoom(*room, *user); RoomContract::Success != result)
 		{
 			myLogger.LogWarning(L"\tUser {} could not create room at {} due to {}\n", user_id, room_id, result);
 			OnFailedToCreateRoom(*room, *user, result);
@@ -264,9 +266,9 @@ demo::Framework::RouteEvent(bool is_succeed
 		{
 			myLogger.LogError(L"\tUser {} could not enter to room {}\n", user_id, room_id);
 
-			OnFailedToJoinRoom(*room, *user, iconer::app::RoomContract::ServerError);
+			OnFailedToJoinRoom(*room, *user, RoomContract::ServerError);
 		}
-		else if (auto result = OnJoiningRoom(*room, *user); iconer::app::RoomContract::Success != result)
+		else if (auto result = OnJoiningRoom(*room, *user); RoomContract::Success != result)
 		{
 			myLogger.LogWarning(L"\tUser {} could not enter to room {} due to {}\n", user_id, room_id, result);
 
@@ -309,7 +311,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 5
 	case OpCloseRoom:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 		if (nullptr != room)
 		{
@@ -423,7 +425,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 7
 	case OpSpreadGameTicket:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 		if (not is_succeed)
 		{
@@ -499,7 +501,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 7
 	case OpStartGame:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 		if (not is_succeed)
 		{
@@ -523,7 +525,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 7~
 	case OpLeaveGame:
 	{
-		auto user = std::launder(static_cast<iconer::app::User*>(ctx));
+		auto user = std::launder(static_cast<User*>(ctx));
 		const IdType& id = user->GetID();
 
 		// TODO
@@ -533,7 +535,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 7~
 	case OpCloseGame:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 		OnCloseGame(*room);
 	}
@@ -542,7 +544,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 8
 	case OpCreateCharacters:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 		if (not is_succeed)
 		{
@@ -566,7 +568,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 8
 	case OpUpdateRoom:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 	}
 	break;
@@ -574,7 +576,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 8
 	case OpCheckGuardian:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 	}
 	break;
@@ -582,7 +584,7 @@ demo::Framework::RouteEvent(bool is_succeed
 	// Phase 8
 	case OpCheckDead:
 	{
-		auto room = std::launder(static_cast<iconer::app::Room*>(ctx));
+		auto room = std::launder(static_cast<Room*>(ctx));
 
 	}
 	break;
