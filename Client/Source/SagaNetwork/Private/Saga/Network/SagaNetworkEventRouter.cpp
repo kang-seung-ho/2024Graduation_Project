@@ -350,7 +350,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		auto name = UEnum::GetValueAsString(category);
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("RPC from client %d: %s(%lld, %d))"), user_id, *name, argument0, argument1);
+		UE_LOG(LogSagaNetwork, Log, TEXT("[RPC] %s(%lld, %d) from client %d"), user_id, *name, argument0, argument1);
 
 		CallFunctionOnGameThread([&]()
 			{
