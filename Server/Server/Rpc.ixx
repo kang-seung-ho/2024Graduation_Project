@@ -4,7 +4,7 @@ import <cstdint>;
 import <memory>;
 import Iconer.Application.IContext;
 
-export namespace iconer::app
+export namespace iconer::app::inline rpc
 {
 	enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	{
