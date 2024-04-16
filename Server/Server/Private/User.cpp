@@ -231,7 +231,16 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRpcPacket(iconer::app::User::IdType id, std::string&& script, long long arg)
+iconer::app::User::SendRpcPacket(IdType id, iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
+const
+{
+	const iconer::app::packets::SC_DeterRpcPacket pk{ id, std::move(cat), std::move(arg0), std::move(arg1) };
+
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
+}
+
+iconer::app::User::BorrowedIoResult
+iconer::app::User::SendOldRpcPacket(iconer::app::User::IdType id, std::string&& script, long long arg)
 const
 {
 	const iconer::app::packets::SC_RpcPacket pk{ id, std::move(script), arg };
@@ -240,7 +249,7 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRpcPacket(iconer::app::User::IdType id, std::string_view script, long long arg)
+iconer::app::User::SendOldRpcPacket(iconer::app::User::IdType id, std::string_view script, long long arg)
 const
 {
 	const iconer::app::packets::SC_RpcPacket pk{ id, script.data(), script.length(), arg };
