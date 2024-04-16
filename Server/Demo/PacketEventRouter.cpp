@@ -200,12 +200,13 @@ demo::PacketProcessor(demo::Framework& framework
 
 		case PacketProtocol::CS_RPC:
 		{
-			char rpc_script[12]{};
-			long long rpc_argument{};
+			RpcProtocol category{};
+			std::int64_t arg0{};
+			std::int32_t arg1{};
 
-			iconer::app::packets::Deserialize(last_buf, rpc_script, rpc_argument);
+			packets::Deserialize(last_buf, category, arg0, arg1);
 
-			OnRpc(framework, user, std::string{ rpc_script, 12 }, std::move(rpc_argument));
+			OnRpc(framework, user, category, arg0, arg1);
 		}
 		break;
 

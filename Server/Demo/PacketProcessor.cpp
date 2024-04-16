@@ -281,7 +281,20 @@ demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw,
 }
 
 void
-demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg)
+demo::OnRpc(Framework& framework, User& user, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
+{
+	const auto room_id = user.myRoomId.Load();
+	if (room_id != -1)
+	{
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
+		{
+			(void)framework.Schedule(room, 0);
+		}
+	}
+}
+
+void
+demo::OnOldRpc(Framework& framework, User& user, std::string&& rpc, long long arg)
 {
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
@@ -291,7 +304,7 @@ demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, lo
 			room->ForEach(
 				[&user, &rpc, arg](User& member)
 				{
-					SEND(member, SendRpcPacket, user.GetID(), rpc, arg);
+					SEND(member, SendOldRpcPacket, user.GetID(), rpc, arg);
 				}
 			);
 		}
