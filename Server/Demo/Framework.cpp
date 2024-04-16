@@ -10,6 +10,8 @@ import Iconer.Net.Socket;
 import Iconer.Application.IObject;
 import Iconer.Application.SendContextPool;
 
+using namespace iconer::app;
+
 bool
 demo::Framework::CreateListenerSockets()
 noexcept
@@ -72,7 +74,7 @@ noexcept
 bool
 demo::Framework::InitializeUsers()
 {
-	auto user_factory = iconer::app::SessionFactory<iconer::app::User>{};
+	auto user_factory = SessionFactory<User>{};
 
 	IdType id = beginUserID;
 	for (size_t i = 0; i < maxUsersNumber; ++i)
@@ -101,7 +103,7 @@ demo::Framework::InitializeUsers()
 bool
 demo::Framework::InitializeRooms()
 {
-	auto room_factory = iconer::app::SessionFactory<iconer::app::Room>{};
+	auto room_factory = SessionFactory<Room>{};
 
 	auto rooms = room_factory.Allocate(maxRoomsNumber);
 	if (nullptr == rooms)
@@ -131,7 +133,7 @@ demo::Framework::InitializeRooms()
 	return true;
 }
 
-using SendContextPool = iconer::app::SendContextPool;
+using SendContextPool = SendContextPool;
 
 void
 demo::Framework::InitializeSendContextPool()
@@ -149,7 +151,7 @@ demo::Framework::StartAccepts()
 {
 	for (auto& [id, user] : *userManager)
 	{
-		user.SetOperation(iconer::app::AsyncOperations::OpReserveSession);
+		user.SetOperation(AsyncOperations::OpReserveSession);
 
 		if (not Schedule(user, id))
 		{
@@ -160,14 +162,14 @@ demo::Framework::StartAccepts()
 	return true;
 }
 
-iconer::app::Borrower
+Borrower
 demo::Framework::AcquireSendContext()
 {
 	return SendContextPool::Pop();
 }
 
-iconer::app::Borrower
-demo::Framework::AcquireSendContext(std::unique_ptr<std::byte[]>&& buffer, size_t size)
+Borrower
+demo::Framework::AcquireSendContext(demo::Buffer&& buffer, size_t size)
 {
 	auto borrower = SendContextPool::Pop();
 	borrower->SetBlob(std::move(buffer));

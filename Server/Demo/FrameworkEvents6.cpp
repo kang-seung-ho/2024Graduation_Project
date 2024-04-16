@@ -19,8 +19,10 @@ if (not io) \
 }()
 module Demo.Framework;
 
+using namespace iconer::app;
+
 bool
-demo::Framework::OnCreatingCharacters(iconer::app::Room& room)
+demo::Framework::OnCreatingCharacters(Room& room)
 {
 	auto number = room.GetMembersCount();
 	if (number == 0)
@@ -29,16 +31,10 @@ demo::Framework::OnCreatingCharacters(iconer::app::Room& room)
 	}
 
 	auto& cnt_ref = room.proceedMemberCount;
-	if (not cnt_ref.CompareAndSet(number - 1, 0, std::memory_order_acq_rel))
-	{
-		return false;
-	}
-
-	auto cnt = cnt_ref.Load(std::memory_order_acquire);
 
 	room.ForEach
 	(
-		[&](iconer::app::User& member)
+		[&](User& member)
 		{
 			auto [io, ctx] = member.SendCreateCharactersPacket(); 
 			if (not io)
@@ -46,7 +42,7 @@ demo::Framework::OnCreatingCharacters(iconer::app::Room& room)
 				ctx.Complete();
 			}
 
-			cnt = cnt_ref.FetchAdd(1, std::memory_order_release) + 1;
+			cnt_ref.FetchAdd(1);
 		}
 	);
 
@@ -56,7 +52,7 @@ demo::Framework::OnCreatingCharacters(iconer::app::Room& room)
 		return false;
 	}
 #else
-	if (0 < cnt)
+	if (0 < cnt_ref)
 	{
 		return true;
 	}
@@ -66,7 +62,7 @@ demo::Framework::OnCreatingCharacters(iconer::app::Room& room)
 }
 
 void
-demo::Framework::OnFailedToCreateCharacters(iconer::app::Room& room)
+demo::Framework::OnFailedToCreateCharacters(Room& room)
 noexcept
 {
 

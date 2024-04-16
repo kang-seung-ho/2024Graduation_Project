@@ -21,19 +21,21 @@ if (not io) \
 }()
 module Demo.Framework;
 
+using namespace iconer::app;
+
 bool
-demo::Framework::OnCreateGame(iconer::app::User& user)
+demo::Framework::OnCreateGame(User& user)
 {
-	using enum iconer::app::AsyncOperations;
+	using enum AsyncOperations;
 
 	const auto room_id = user.myRoomId.Load();
 	if (-1 == room_id)
 	{
 		// rollback
-		user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+		user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 
 		// cannot prepare the game: The client is not in a room
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 	}
 	else if (auto room = FindRoom(room_id); nullptr != room)
 	{
@@ -42,45 +44,45 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 		if (not room->CanCreateGame())
 		{
 			// cannot prepare the game: The room is lack of member
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::LackOfMember);
+			SEND(user, SendCannotStartGamePacket, GameContract::LackOfMember);
 		}
-		else if (not user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::MakingGame))
+		else if (not user.TryChangeState(UserStates::InRoom, UserStates::MakingGame))
 		{
 			// cannot prepare the game: The client is busy
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ClientIsBusy);
+			SEND(user, SendCannotStartGamePacket, GameContract::ClientIsBusy);
 
 		}
 		else if (not room->TryGettingReady())
 		{
 			// rollback
-			user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
+			user.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
 
 			// cannot prepare the game: Not proper operation
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidOperation);
 		}
 		else if (not room->HasMember(user.GetID()))
 		{
 			// rollback
 			user.myRoomId.CompareAndSet(room_id, -1);
-			user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::Idle);
+			user.TryChangeState(UserStates::MakingGame, UserStates::Idle);
 			room->TryCancelReady();
 
 			// cannot prepare the game: The client has no room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 		}
 		else if (room->SetOperation(OpSpreadGameTicket);
 			not Schedule(room, 0))
 		{
 			// rollback
-			user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
+			user.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
 			room->TryCancelReady();
 
 			// cannot prepare the game: Server error occured
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ServerError);
+			SEND(user, SendCannotStartGamePacket, GameContract::ServerError);
 		}
 		else
 		{
-			return user.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
+			return user.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
 		}
 	}
 	else
@@ -88,18 +90,18 @@ demo::Framework::OnCreateGame(iconer::app::User& user)
 		// rollback
 		if (user.myRoomId.CompareAndSet(room_id, -1))
 		{
-			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 		}
 
 		// cannot start a game: The client has a invalid room
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+		SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 	}
 
 	return false;
 }
 
 void
-demo::Framework::OnFailedToCreateGame(iconer::app::User& user)
+demo::Framework::OnFailedToCreateGame(User& user)
 noexcept
 {
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
@@ -112,16 +114,16 @@ noexcept
 }
 
 bool
-demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
+demo::Framework::OnBroadcastGameTickets(Room& room)
 {
 	if (room.CanPrepareGame())
 	{
-		std::vector<iconer::app::User*> members{};
-		members.reserve(iconer::app::Room::maxUsersNumberInRoom);
+		std::vector<User*> members{};
+		members.reserve(Room::maxUsersNumberInRoom);
 
 		room.ForEach
 		(
-			[&members](iconer::app::User& member)
+			[&members](User& member)
 			{
 				members.push_back(std::addressof(member));
 			}
@@ -132,7 +134,7 @@ demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 #if MUST_START
 		if (0 < members.size())
 #else
-		if (iconer::app::Room::minUsersNumberForGame <= members.size())
+		if (Room::minUsersNumberForGame <= members.size())
 #endif
 		{
 			for (auto& member : members)
@@ -150,7 +152,7 @@ demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 			// cannot prepare the game: The room is lack of member
 			for (auto& member : members)
 			{
-				SEND(*member, SendCannotStartGamePacket, iconer::app::GameContract::LackOfMember);
+				SEND(*member, SendCannotStartGamePacket, GameContract::LackOfMember);
 			}
 
 			return false;
@@ -166,16 +168,16 @@ demo::Framework::OnBroadcastGameTickets(iconer::app::Room& room)
 }
 
 void
-demo::Framework::OnFailedToBroadcastGameTickets(iconer::app::Room& room)
+demo::Framework::OnFailedToBroadcastGameTickets(Room& room)
 noexcept
 {
 	room.TryCancelReady();
 }
 
 bool
-demo::Framework::OnSentGameTicket(iconer::app::User& user)
+demo::Framework::OnSentGameTicket(User& user)
 {
-	using enum iconer::app::AsyncOperations;
+	using enum AsyncOperations;
 
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
@@ -190,7 +192,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			if (failed)
 			{
 				// cannot start a game: Other clients has been failed
-				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::OtherClientFailed);
+				SEND(user, SendCannotStartGamePacket, GameContract::OtherClientFailed);
 			}
 
 			if (not room->HasMember(user.GetID()) or not room->CanPrepareGame())
@@ -200,7 +202,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 				failed = true;
 
 				// cannot start a game: The room is unstable
-				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::UnstableRoom);
+				SEND(user, SendCannotStartGamePacket, GameContract::UnstableRoom);
 			}
 
 			// check condition using plain fields
@@ -208,7 +210,7 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			{
 				if (failed)
 				{
-					if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+					if (room->TryCancelReady(RoomStates::Closing))
 					{
 						room->SetOperation(OpCloseGame);
 						(void)Schedule(room, 0);
@@ -232,27 +234,27 @@ demo::Framework::OnSentGameTicket(iconer::app::User& user)
 			// rollback
 			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+				user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 			}
 
 			// cannot start a game: The client has a invalid room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 		}
 	}
 	else
 	{
 		// cannot start a game: The client is not in a room
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 	}
 
 	return false;
 }
 
 void
-demo::Framework::OnFailedToSendGameTicket(iconer::app::User& user)
+demo::Framework::OnFailedToSendGameTicket(User& user)
 noexcept
 {
-	using enum iconer::app::AsyncOperations;
+	using enum AsyncOperations;
 
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
@@ -270,7 +272,7 @@ noexcept
 
 			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
 			{
-				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+				if (room->TryCancelReady(RoomStates::Closing))
 				{
 					room->SetOperation(OpCloseGame);
 					(void)Schedule(room, 0);
@@ -293,36 +295,36 @@ noexcept
 			// rollback
 			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+				user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 			}
 
 			// cannot start a game: The client has a invalid room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 		}
 	}
 	else
 	{
 		// cannot start a game: The client is not in a room
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 	}
 }
 
 bool
-demo::Framework::OnGameIsLoaded(iconer::app::User& user)
+demo::Framework::OnGameIsLoaded(User& user)
 {
-	using enum iconer::app::AsyncOperations;
+	using enum AsyncOperations;
 
-	if (not user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::ReadyForGame))
+	if (not user.TryChangeState(UserStates::InRoom, UserStates::ReadyForGame))
 	{
 		// rollback everything
 		const auto room_id = user.myRoomId.Load();
 
 		if (room_id == -1)
 		{
-			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 
 			// cannot start a game: The client is not in a room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 		}
 		else if (auto room = FindRoom(room_id); room != nullptr)
 		{
@@ -339,7 +341,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			// check condition using a plain field
 			if (room->GetMembersCount() <= cnt or not room->CanPrepareGame())
 			{
-				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+				if (room->TryCancelReady(RoomStates::Closing))
 				{
 					room->SetOperation(OpCloseGame);
 					(void)Schedule(room, 0);
@@ -347,7 +349,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 				else
 				{
 					// cannot prepare the game: The operation is invalid
-					SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
+					SEND(user, SendCannotStartGamePacket, GameContract::InvalidOperation);
 				}
 
 				// rollback atomics
@@ -367,11 +369,11 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			// rollback
 			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+				user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 			}
 
 			// cannot start a game: The client has a invalid room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 		}
 	}
 	else
@@ -381,11 +383,11 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 		if (room_id == -1)
 		{
 			// rollback
-			user.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::Idle);
-			user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+			user.TryChangeState(UserStates::ReadyForGame, UserStates::Idle);
+			user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 
 			// cannot start a game: The client is not in a room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 		}
 		else if (auto room = FindRoom(room_id); room != nullptr)
 		{
@@ -398,7 +400,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			if (failed)
 			{
 				// cannot start a game: Other clients has been failed
-				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::OtherClientFailed);
+				SEND(user, SendCannotStartGamePacket, GameContract::OtherClientFailed);
 			}
 
 			if (not room->CanPrepareGame() or not room->ReadyMember(user))
@@ -408,13 +410,13 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 				failed = true;
 
 				// cannot start a game: The operation is invalid
-				SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidOperation);
+				SEND(user, SendCannotStartGamePacket, GameContract::InvalidOperation);
 			}
 
 			// check condition using plain fields
 			if (room->GetMembersCount() <= cnt + 1)
 			{
-				using enum iconer::app::RoomStates;
+				using enum RoomStates;
 
 				if (failed)
 				{
@@ -469,12 +471,12 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 			// rollback
 			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				user.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::Idle);
-				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+				user.TryChangeState(UserStates::ReadyForGame, UserStates::Idle);
+				user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 			}
 
 			// cannot start a game: The client has a invalid room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 		}
 	}
 
@@ -482,7 +484,7 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 }
 
 void
-demo::Framework::OnFailedToLoadGame(iconer::app::User& user) noexcept
+demo::Framework::OnFailedToLoadGame(User& user) noexcept
 {
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
@@ -500,7 +502,7 @@ demo::Framework::OnFailedToLoadGame(iconer::app::User& user) noexcept
 
 			if (room->GetMembersCount() <= cnt + 1 or not room->CanPrepareGame())
 			{
-				if (room->TryCancelReady(iconer::app::RoomStates::Closing))
+				if (room->TryCancelReady(RoomStates::Closing))
 				{
 					room->SetOperation(OpCloseGame);
 					(void)Schedule(room, 0);
@@ -523,16 +525,16 @@ demo::Framework::OnFailedToLoadGame(iconer::app::User& user) noexcept
 			// rollback
 			if (user.myRoomId.CompareAndSet(room_id, -1))
 			{
-				user.TryChangeState(iconer::app::UserStates::InRoom, iconer::app::UserStates::Idle);
+				user.TryChangeState(UserStates::InRoom, UserStates::Idle);
 			}
 
 			// cannot start a game: The client has a invalid room
-			SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::InvalidRoom);
+			SEND(user, SendCannotStartGamePacket, GameContract::InvalidRoom);
 		}
 	}
 	else
 	{
 		// cannot start a game: The client is not in a room
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::NotInRoom);
+		SEND(user, SendCannotStartGamePacket, GameContract::NotInRoom);
 	}
 }

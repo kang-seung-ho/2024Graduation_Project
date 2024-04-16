@@ -9,186 +9,188 @@ import Iconer.Utility.Serializer;
 import Iconer.Application.BasicPacket;
 import Iconer.Application.Resources.String;
 
+using namespace iconer::app;
+
 ptrdiff_t
 demo::PacketProcessor(demo::Framework& framework
-	, iconer::app::User& user
+	, User& user
 	, std::span<std::byte> packet_data
 	, ptrdiff_t last_offset)
 {
 	if (nullptr == packet_data.data()) ICONER_UNLIKELY
 	{
-		constexpr auto & msg = iconer::app::GetResourceString<3>();
+		constexpr auto & msg = GetResourceString<3>();
 		throw msg.data();
 	};
 
-	iconer::app::PacketProtocol protocol;
+	PacketProtocol protocol;
 	std::int16_t pk_size = 0;
 	const std::byte* last_buf = iconer::util::Deserialize(iconer::util::Deserialize(packet_data.data(), protocol), pk_size);
 
 	if (pk_size <= 0) ICONER_UNLIKELY
 	{
-		constexpr auto & msg = iconer::app::GetResourceString<4>();
+		constexpr auto & msg = GetResourceString<4>();
 		throw msg.data();
 	};
 
-	constexpr auto& unknown_packet_errmsg = iconer::app::GetResourceString<5>();
-	constexpr auto& notsupported_packet_errmsg = iconer::app::GetResourceString<11>();
+	constexpr auto& unknown_packet_errmsg = GetResourceString<5>();
+	constexpr auto& notsupported_packet_errmsg = GetResourceString<11>();
 
 	if (pk_size <= last_offset)
 	{
 		switch (protocol)
 		{
-		case iconer::app::PacketProtocol::UNKNOWN:
+		case PacketProtocol::UNKNOWN:
 		{
 			throw unknown_packet_errmsg.data();
 		}
 
-		case iconer::app::PacketProtocol::CS_SIGNIN:
+		case PacketProtocol::CS_SIGNIN:
 		{
 			throw notsupported_packet_errmsg.data();
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_SIGNOUT:
+		case PacketProtocol::CS_SIGNOUT:
 		{
 			OnSignOut(user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_SIGNUP:
+		case PacketProtocol::CS_SIGNUP:
 		{
 
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_REQUEST_VERSION:
+		case PacketProtocol::CS_REQUEST_VERSION:
 		{
 			// Empty packet
 			OnRequestVersion(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_REQUEST_ROOMS:
+		case PacketProtocol::CS_REQUEST_ROOMS:
 		{
 			// Empty packet
 			OnRequestRoomList(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_REQUEST_USERS:
+		case PacketProtocol::CS_REQUEST_USERS:
 		{
 			// Empty packet
 			OnRequestMemberList(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_ROOM_CREATE:
+		case PacketProtocol::CS_ROOM_CREATE:
 		{
 			wchar_t room_title[16]{};
-			iconer::app::packets::Deserialize(last_buf, room_title);
+			packets::Deserialize(last_buf, room_title);
 
 			OnCreateRoom(framework, user, room_title);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_ROOM_DESTROY:
+		case PacketProtocol::CS_ROOM_DESTROY:
 		{
 			// Empty packet
 
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_ROOM_JOIN:
+		case PacketProtocol::CS_ROOM_JOIN:
 		{
 			std::int32_t room_id{};
-			iconer::app::packets::Deserialize(last_buf, room_id);
+			packets::Deserialize(last_buf, room_id);
 
 			OnJoinRoom(framework, user, room_id);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_ROOM_MATCH:
+		case PacketProtocol::CS_ROOM_MATCH:
 		{
 			// Empty packet
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_ROOM_LEAVE:
+		case PacketProtocol::CS_ROOM_LEAVE:
 		{
 			// Empty packet
 			OnLeaveRoom(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_GAME_START:
+		case PacketProtocol::CS_GAME_START:
 		{
 			// Empty packet
 			OnGameStartSignal(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_GAME_LOADED:
+		case PacketProtocol::CS_GAME_LOADED:
 		{
 			// Empty packet
 			OnGameLoadedSignal(framework, user);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_GAME_EXIT:
+		case PacketProtocol::CS_GAME_EXIT:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_POSITION:
+		case PacketProtocol::CS_MY_POSITION:
 		{
 			float px{}, py{}, pz{};
-			iconer::app::packets::Deserialize(last_buf, px, py, pz);
+			packets::Deserialize(last_buf, px, py, pz);
 
 			OnReceivePosition(framework, user, px, py, pz);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_TRANSFORM:
+		case PacketProtocol::CS_MY_TRANSFORM:
 		{
 			float pr{}; // roll (x)
 			float py{}; // yaw (y)
 			float pp{}; // pitch (z)
-			iconer::app::packets::Deserialize(last_buf, pr, py, pp);
+			packets::Deserialize(last_buf, pr, py, pp);
 
 			OnReceiveRotation(framework, user, pr, pr, pp);
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_INPUT_PRESS:
+		case PacketProtocol::CS_MY_INPUT_PRESS:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_INPUT_RELEASE:
+		case PacketProtocol::CS_MY_INPUT_RELEASE:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_ANIMATION_START:
+		case PacketProtocol::CS_MY_ANIMATION_START:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_MY_ANIMATION_END:
+		case PacketProtocol::CS_MY_ANIMATION_END:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_CHAT:
+		case PacketProtocol::CS_CHAT:
 		{
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_SET_TEAM:
+		case PacketProtocol::CS_SET_TEAM:
 		{
 			std::int8_t team_id{};
 
-			iconer::app::packets::Deserialize(last_buf, team_id);
+			packets::Deserialize(last_buf, team_id);
 
 			// 0 :  red team
 			// 1 : blue team
@@ -196,7 +198,7 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
-		case iconer::app::PacketProtocol::CS_RPC:
+		case PacketProtocol::CS_RPC:
 		{
 			char rpc_script[12]{};
 			long long rpc_argument{};

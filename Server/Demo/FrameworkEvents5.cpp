@@ -19,21 +19,25 @@ if (not io) \
 }()
 module Demo.Framework;
 
+using namespace iconer::app;
+
 bool
-demo::Framework::OnStartGame(iconer::app::Room& room)
+demo::Framework::OnStartGame(Room& room)
 {
 	if (room.CanStartGame() and room.TryBeginGame())
 	{
 		room.ForEach
 		(
-			[](iconer::app::User& member)
+			[](User& member)
 			{
-				member.SetState(iconer::app::UserStates::InGame);
+				member.SetState(UserStates::InGame);
 				SEND(member, SendGameJustStartedPacket);
 			}
 		);
 
-		room.SetOperation(iconer::app::AsyncOperations::OpCreateCharacters);
+		room.SetOperation(AsyncOperations::OpCreateCharacters);
+		room.proceedMemberCount = 0;
+
 		return Schedule(room, 0);
 	}
 	else
@@ -43,14 +47,14 @@ demo::Framework::OnStartGame(iconer::app::Room& room)
 }
 
 void
-demo::Framework::OnFailedToStartGame(iconer::app::Room& room)
+demo::Framework::OnFailedToStartGame(Room& room)
 noexcept
 {
-	using enum iconer::app::RoomStates;
+	using enum RoomStates;
 
 	if (room.TryChangeState(InGame, Closing))
 	{
-		room.SetOperation(iconer::app::AsyncOperations::OpCloseGame);
+		room.SetOperation(AsyncOperations::OpCloseGame);
 		(void)Schedule(room, 0);
 	}
 	else
@@ -60,21 +64,21 @@ noexcept
 }
 
 void
-demo::Framework::OnCloseGame(iconer::app::Room& room)
+demo::Framework::OnCloseGame(Room& room)
 {
 	if (room.TryEndClose(0 < room.GetMembersCount()
-		? iconer::app::RoomStates::Idle : iconer::app::RoomStates::None))
+		? RoomStates::Idle : RoomStates::None))
 	{
-		room.SetOperation(iconer::app::AsyncOperations::None);
+		room.SetOperation(AsyncOperations::None);
 		room.proceedMemberCount = 0;
 		room.isGameReadyFailed = false;
 
 		room.ForEach
 		(
-			[](iconer::app::User& member)
+			[](User& member)
 			{
-				member.TryChangeState(iconer::app::UserStates::MakingGame, iconer::app::UserStates::InRoom);
-				member.TryChangeState(iconer::app::UserStates::ReadyForGame, iconer::app::UserStates::InRoom);
+				member.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
+				member.TryChangeState(UserStates::ReadyForGame, UserStates::InRoom);
 			}
 		);
 	}

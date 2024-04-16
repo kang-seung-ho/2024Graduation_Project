@@ -22,8 +22,10 @@ import Iconer.Application.User;
 import Iconer.Application.Room;
 import Demo.Framework;
 
+using namespace iconer::app;
+
 void
-demo::OnSignOut(iconer::app::User& user)
+demo::OnSignOut(User& user)
 {
 	if (not user.BeginClose())
 	{
@@ -32,41 +34,41 @@ demo::OnSignOut(iconer::app::User& user)
 }
 
 void
-demo::OnRequestVersion(Framework& framework, iconer::app::User& user)
+demo::OnRequestVersion(Framework& framework, User& user)
 {
-	if (user.GetState() != iconer::app::UserStates::None)
+	if (user.GetState() != UserStates::None)
 	{
 		SEND(user, SendRespondVersionPacket);
 	}
 }
 
 void
-demo::OnRequestRoomList(Framework& framework, iconer::app::User& user)
+demo::OnRequestRoomList(Framework& framework, User& user)
 {
-	if (user.GetState() != iconer::app::UserStates::None)
+	if (user.GetState() != UserStates::None)
 	{
 		(void)framework.Schedule(user.requestContext, user.GetID());
 	}
 }
 
 void
-demo::OnRequestMemberList(Framework& framework, iconer::app::User& user)
+demo::OnRequestMemberList(Framework& framework, User& user)
 {
-	if (user.GetState() != iconer::app::UserStates::None)
+	if (user.GetState() != UserStates::None)
 	{
 		(void)framework.Schedule(user.requestMemberContext, user.GetID());
 	}
 }
 
 void
-demo::OnCreateRoom(demo::Framework& framework, iconer::app::User& user, const wchar_t(&room_title)[16])
+demo::OnCreateRoom(demo::Framework& framework, User& user, const wchar_t(&room_title)[16])
 {
 	bool success = false;
-	for (iconer::app::Room*& room : framework.everyRoom)
+	for (Room*& room : framework.everyRoom)
 	{
 		if (room->TryReserveContract())
 		{
-			room->SetOperation(iconer::app::AsyncOperations::OpReserveRoom);
+			room->SetOperation(AsyncOperations::OpReserveRoom);
 
 			if (framework.Schedule(room, user.GetID()))
 			{
@@ -78,7 +80,7 @@ demo::OnCreateRoom(demo::Framework& framework, iconer::app::User& user, const wc
 			{
 				if (room->TryCancelContract())
 				{
-					room->SetOperation(iconer::app::AsyncOperations::None);
+					room->SetOperation(AsyncOperations::None);
 				}
 			}
 		}
@@ -87,37 +89,37 @@ demo::OnCreateRoom(demo::Framework& framework, iconer::app::User& user, const wc
 	if (not success)
 	{
 		// every room is busy
-		SEND(user, SendRoomCreationFailedPacket, iconer::app::RoomContract::CannotLocateEmptyRoom);
+		SEND(user, SendRoomCreationFailedPacket, RoomContract::CannotLocateEmptyRoom);
 	}
 }
 
 void
-demo::OnJoinRoom(demo::Framework& framework, iconer::app::User& user, const std::int32_t& room_id)
+demo::OnJoinRoom(demo::Framework& framework, User& user, const std::int32_t& room_id)
 {
-	if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+	if (Room* room = framework.FindRoom(room_id); nullptr != room)
 	{
 		IGNORE_DISCARDED_BEGIN;
-		if (user.TryChangeState(iconer::app::UserStates::Idle, iconer::app::UserStates::EnteringRoom))
+		if (user.TryChangeState(UserStates::Idle, UserStates::EnteringRoom))
 		{
 			iconer::util::Chronograph chronograph{};
 			static constexpr auto time_limit = iconer::util::Chronograph::Seconds(3);
 
 			while (true)
 			{
-				if (iconer::app::RoomStates rstate = room->GetState(); rstate == iconer::app::RoomStates::Idle)
+				if (RoomStates rstate = room->GetState(); rstate == RoomStates::Idle)
 				{
 					if (user.myRoomId == -1)
 					{
-						user.roomContext.SetOperation(iconer::app::AsyncOperations::OpEnterRoom);
+						user.roomContext.SetOperation(AsyncOperations::OpEnterRoom);
 
 						if (not framework.Schedule(user.roomContext, user.GetID(), static_cast<unsigned long>(room_id)))
 						{
 							// rollback
-							user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
-							user.roomContext.SetOperation(iconer::app::AsyncOperations::None);
+							user.TryChangeState(UserStates::EnteringRoom, UserStates::Idle);
+							user.roomContext.SetOperation(AsyncOperations::None);
 
 							// server error
-							SEND(user, SendRoomJoinFailedPacket, iconer::app::RoomContract::ServerError);
+							SEND(user, SendRoomJoinFailedPacket, RoomContract::ServerError);
 						}
 
 						break; // while (true)
@@ -125,9 +127,9 @@ demo::OnJoinRoom(demo::Framework& framework, iconer::app::User& user, const std:
 					else
 					{
 						// rollback
-						user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
+						user.TryChangeState(UserStates::EnteringRoom, UserStates::Idle);
 
-						SEND(user, SendRoomJoinFailedPacket, iconer::app::RoomContract::AnotherRoomIsAlreadyAssigned);
+						SEND(user, SendRoomJoinFailedPacket, RoomContract::AnotherRoomIsAlreadyAssigned);
 
 						break; // while (true)
 					}
@@ -136,9 +138,9 @@ demo::OnJoinRoom(demo::Framework& framework, iconer::app::User& user, const std:
 				if (chronograph.HasTimePassed(time_limit))
 				{
 					// rollback
-					user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
+					user.TryChangeState(UserStates::EnteringRoom, UserStates::Idle);
 
-					SEND(user, SendRoomJoinFailedPacket, iconer::app::RoomContract::RoomIsBusy);
+					SEND(user, SendRoomJoinFailedPacket, RoomContract::RoomIsBusy);
 
 					break; // while (true)
 				}
@@ -146,19 +148,19 @@ demo::OnJoinRoom(demo::Framework& framework, iconer::app::User& user, const std:
 		}
 		else
 		{
-			SEND(user, SendRoomJoinFailedPacket, iconer::app::RoomContract::InvalidOperation);
+			SEND(user, SendRoomJoinFailedPacket, RoomContract::InvalidOperation);
 		}
 		IGNORE_DISCARDED_END;
 	}
 	else
 	{
 		// cannot find a room with the id
-		SEND(user, SendRoomJoinFailedPacket, iconer::app::RoomContract::NoRoomFoundWithId);
+		SEND(user, SendRoomJoinFailedPacket, RoomContract::NoRoomFoundWithId);
 	}
 }
 
 void
-demo::OnLeaveRoom(demo::Framework& framework, iconer::app::User& user)
+demo::OnLeaveRoom(demo::Framework& framework, User& user)
 {
 	if (user.myRoomId != -1)
 	{
@@ -168,30 +170,30 @@ demo::OnLeaveRoom(demo::Framework& framework, iconer::app::User& user)
 }
 
 void
-demo::OnGameStartSignal(demo::Framework& framework, iconer::app::User& user)
+demo::OnGameStartSignal(demo::Framework& framework, User& user)
 {
 	if (not framework.Schedule(user.gameContext, user.GetID()))
 	{
 		// cannot prepare the game: server error
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ServerError);
+		SEND(user, SendCannotStartGamePacket, GameContract::ServerError);
 	}
 }
 
-struct Remover final : public iconer::app::Room::MemberRemover
+struct Remover final : public Room::MemberRemover
 {
-	using Super = iconer::app::Room::MemberRemover;
+	using Super = Room::MemberRemover;
 
 	constexpr Remover(demo::Framework& framework) noexcept
 		: Super(), myFramework(framework)
 	{}
 
-	void operator()(volatile iconer::app::Room& room, const size_t& members_count) const noexcept override
+	void operator()(volatile Room& room, const size_t& members_count) const noexcept override
 	{
 		if (0 == members_count)
 		{
-			if (room.TryBeginClose(iconer::app::RoomStates::Ready))
+			if (room.TryBeginClose(RoomStates::Ready))
 			{
-				room.SetOperation(iconer::app::AsyncOperations::OpCloseRoom);
+				room.SetOperation(AsyncOperations::OpCloseRoom);
 
 				if (not myFramework.Schedule(room, room.GetID()))
 				{
@@ -205,25 +207,25 @@ struct Remover final : public iconer::app::Room::MemberRemover
 };
 
 void
-demo::OnGameLoadedSignal(demo::Framework& framework, iconer::app::User& user)
+demo::OnGameLoadedSignal(demo::Framework& framework, User& user)
 {
 	if (not framework.Schedule(user.loadingContext, user.GetID()))
 	{
 		// cannot prepare the game: server error
-		SEND(user, SendCannotStartGamePacket, iconer::app::GameContract::ServerError);
+		SEND(user, SendCannotStartGamePacket, GameContract::ServerError);
 	}
 }
 
 void
-demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is_red_team)
+demo::OnTeamChanged(demo::Framework& framework, User& user, bool is_red_team)
 {
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
-			const auto target = is_red_team ? iconer::app::Team::Red : iconer::app::Team::Blue;
+			const auto target = is_red_team ? Team::Red : Team::Blue;
 
 			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target, std::memory_order_release))
 			{
@@ -237,17 +239,17 @@ demo::OnTeamChanged(demo::Framework& framework, iconer::app::User& user, bool is
 }
 
 void
-demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, float x, float y, float z)
+demo::OnReceivePosition(demo::Framework& framework, User& user, float x, float y, float z)
 {
 	user.Positions(x, y, z);
 
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			room->ForEach(
-				[&user, x, y, z](iconer::app::User& member)
+				[&user, x, y, z](User& member)
 				{
 					SEND(member, SendPositionPacket, user.GetID(), x, y, z);
 				}
@@ -257,7 +259,7 @@ demo::OnReceivePosition(demo::Framework& framework, iconer::app::User& user, flo
 }
 
 void
-demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float roll, float yaw, float pitch)
+demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw, float pitch)
 {
 	user.RotationRight(roll);
 	user.RotationUp(yaw);
@@ -266,10 +268,10 @@ demo::OnReceiveRotation(Framework& framework, iconer::app::User& user, float rol
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			room->ForEach(
-				[&user, roll, yaw, pitch](iconer::app::User& member)
+				[&user, roll, yaw, pitch](User& member)
 				{
 					SEND(member, SendRotationPacket, user.GetID(), roll, yaw, pitch);
 				}
@@ -284,10 +286,10 @@ demo::OnRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, lo
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (iconer::app::Room* room = framework.FindRoom(room_id); nullptr != room)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			room->ForEach(
-				[&user, &rpc, arg](iconer::app::User& member)
+				[&user, &rpc, arg](User& member)
 				{
 					SEND(member, SendRpcPacket, user.GetID(), rpc, arg);
 				}
