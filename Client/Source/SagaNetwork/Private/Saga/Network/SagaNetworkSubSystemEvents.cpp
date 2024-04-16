@@ -125,8 +125,7 @@ USagaNetworkSubSystem::OnNetworkInitialized_Implementation(bool succeed)
 
 void
 USagaNetworkSubSystem::OnConnected_Implementation()
-{
-}
+{}
 
 void
 USagaNetworkSubSystem::OnFailedToConnect_Implementation(ESagaConnectionContract reason)
@@ -154,8 +153,7 @@ USagaNetworkSubSystem::OnRoomCreated_Implementation(int32 id)
 
 void
 USagaNetworkSubSystem::OnJoinedRoom_Implementation(int32 id)
-{
-}
+{}
 
 void
 USagaNetworkSubSystem::OnLeftRoomBySelf_Implementation()
@@ -177,13 +175,11 @@ USagaNetworkSubSystem::OnRespondVersion_Implementation(const FString& version_st
 
 void
 USagaNetworkSubSystem::OnUpdateRoomList_Implementation(const TArray<FSagaVirtualRoom>& list)
-{
-}
+{}
 
 void
 USagaNetworkSubSystem::OnUpdateMembers_Implementation(const TArray<FSagaVirtualUser>& list)
-{
-}
+{}
 
 void
 USagaNetworkSubSystem::OnTeamChanged_Implementation(int32 user_id, bool is_red_team)
@@ -199,8 +195,7 @@ USagaNetworkSubSystem::OnTeamChanged_Implementation(int32 user_id, bool is_red_t
 
 void
 USagaNetworkSubSystem::OnGetPreparedGame_Implementation()
-{
-}
+{}
 
 void
 USagaNetworkSubSystem::OnFailedToStartGame_Implementation(ESagaGameContract reason)
@@ -228,7 +223,8 @@ USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float 
 	// TODO: OnUpdateRotation_Implementation
 }
 
-void USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
+void
+USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 {
 	// TODO: OnRpc_Implementation
 }
