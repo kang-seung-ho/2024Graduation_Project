@@ -7,7 +7,7 @@ import Iconer.Net;
 import Iconer.Application.UserManager;
 import Iconer.Application.Packet;
 
-using namespace iconer;
+using namespace iconer::app;
 
 class DemoInitializerError : public std::exception
 {
@@ -37,7 +37,7 @@ demo::Framework::Awake()
 	using namespace std::string_view_literals;
 	myLogger.Awake(L"server.log"sv);
 
-	if (const auto startup_err = net::Startup())
+	if (const auto startup_err = iconer::net::Startup())
 	{
 		myLogger.LogError(L"Error {} occured when starting network system.", startup_err.value());
 
@@ -65,7 +65,7 @@ demo::Framework::Awake()
 		throw game_listener_bind_error;
 	}
 
-	net::ErrorCode completion_port_error;
+	iconer::net::ErrorCode completion_port_error;
 	if (not InitializeCompletionPort(completion_port_error))
 	{
 		throw completion_port_init_error;
@@ -84,14 +84,14 @@ demo::Framework::Awake()
 	}
 
 	myLogger.Log(L"\tcreating session managers..\n");
-	userManager = new iconer::app::UserManager{};
+	userManager = new UserManager{};
 
 	myLogger.Log(L"\tallocating memory of buffers...\n");
 	recvSpace = std::make_unique<std::byte[]>(userRecvSize * maxUsersNumber);
-	userSpace = std::make_unique<app::User[]>(maxUsersNumber);
-	serializedRoomsBuffer = std::make_unique<std::byte[]>(iconer::app::packets::SC_RespondRoomsPacket::MaxSize());
+	userSpace = std::make_unique<User[]>(maxUsersNumber);
+	serializedRoomsBuffer = std::make_unique<std::byte[]>(packets::SC_RespondRoomsPacket::MaxSize());
 
-	iconer::app::packets::SC_RespondRoomsPacket rooms_pk{};
+	packets::SC_RespondRoomsPacket rooms_pk{};
 	rooms_pk.Write(serializedRoomsBuffer.get());
 	serializedRoomsBufferSize = rooms_pk.WannabeSize();
 
