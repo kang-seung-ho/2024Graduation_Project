@@ -1,22 +1,23 @@
 export module Iconer.Application.Rpc;
 import <cstddef>;
 import <cstdint>;
-import <memory>;
 import Iconer.Application.IContext;
+
+#define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name,
 
 export namespace iconer::app::inline rpc
 {
 	enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	{
 		RPC_UNKNOWN = 0,
-		RPC_WALK,
-		RPC_RUN,
-		RPC_JUMP,
+		ICONER_RPC_ENUM_ITEM(WALK)
+		ICONER_RPC_ENUM_ITEM(RUN)
+		ICONER_RPC_ENUM_ITEM(JUMP)
+		ICONER_RPC_ENUM_ITEM(ATTACK_0) // Normal attack #1
+		ICONER_RPC_ENUM_ITEM(ATTACK_1) // Normal attack #2
+		ICONER_RPC_ENUM_ITEM(ATTACK_2) // Normal attack #3
+		ICONER_RPC_ENUM_ITEM(ATTACK_3) // Normal attack #4
 		RPC_RIDE,
-		RPC_ATTACK_0, // Normal attack #1
-		RPC_ATTACK_1, // Normal attack #2
-		RPC_ATTACK_2, // Special Attack #3
-		RPC_ATTACK_3, // Special Attack #4
 		RPC_SKILL_0, // Ability #1
 		RPC_SKILL_1, // Ability #2
 		RPC_SKILL_2, // Ability #3
@@ -26,13 +27,10 @@ export namespace iconer::app::inline rpc
 		RPC_USE_ITEM_2,
 		RPC_USE_ITEM_3,
 		RPC_USE_ITEM_4,
+		RPC_SPAWN_ITEM,
+		RPC_GRAB_ITEM,
 		RPC_CHANGE_HAND_ITEM,
 		RPC_DEAD,
-	};
-
-	struct [[nodiscard]] SerializedRpcPacket
-	{
-		std::unique_ptr<std::byte[]> buffer;
 	};
 
 	class RpcContext : public IContext
@@ -45,13 +43,11 @@ export namespace iconer::app::inline rpc
 			, rpcCategory(std::move(category))
 			, roomId(std::move(room_id))
 			, firstArgument(std::move(arg0)), secondArgument(std::move(arg1))
-			, rpcBuffer()
 		{}
 
 		RpcProtocol rpcCategory;
 		std::int32_t roomId;
 		std::int64_t firstArgument;
 		std::int32_t secondArgument;
-		std::unique_ptr<std::byte[]> rpcBuffer;
 	};
 }

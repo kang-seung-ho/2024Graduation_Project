@@ -3,18 +3,20 @@
 
 #include "SagaRpcProtocol.generated.h"
 
+#define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name,
+
 UENUM(BlueprintType)
 enum class [[nodiscard]] ESagaRpcProtocol : uint8
 {
 	RPC_UNKNOWN = 0,
-	RPC_WALK,
-	RPC_RUN,
-	RPC_JUMP,
+	RPC_BEG_WALK, RPC_END_WALK,
+	RPC_BEG_RUN, RPC_END_RUN,
+	RPC_BEG_JUMP, RPC_END_JUMP,
+	RPC_BEG_ATTACK_0, RPC_END_ATTACK_0, // Normal attack #1
+	RPC_BEG_ATTACK_1, RPC_END_ATTACK_1, // Normal attack #2
+	RPC_BEG_ATTACK_2, RPC_END_ATTACK_2, // Normal attack #3
+	RPC_BEG_ATTACK_3, RPC_END_ATTACK_3, // Normal attack #4
 	RPC_RIDE,
-	RPC_ATTACK_0, // Normal attack #1
-	RPC_ATTACK_1, // Normal attack #2
-	RPC_ATTACK_2, // Special Attack #3
-	RPC_ATTACK_3, // Special Attack #4
 	RPC_SKILL_0, // Ability #1
 	RPC_SKILL_1, // Ability #2
 	RPC_SKILL_2, // Ability #3
@@ -24,6 +26,8 @@ enum class [[nodiscard]] ESagaRpcProtocol : uint8
 	RPC_USE_ITEM_2,
 	RPC_USE_ITEM_3,
 	RPC_USE_ITEM_4,
+	RPC_SPAWN_ITEM,
+	RPC_GRAB_ITEM,
 	RPC_CHANGE_HAND_ITEM,
 	RPC_DEAD,
 };
