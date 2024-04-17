@@ -1,5 +1,6 @@
 module;
 #include <atomic>
+#include <array>
 
 #define SEND(user_var, method, ...)\
 if (auto [io, ctx] = ((user_var).method)(__VA_ARGS__); not io)\
@@ -252,9 +253,9 @@ demo::OnReceivePosition(demo::Framework& framework, User& user, float x, float y
 void
 demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw, float pitch)
 {
-	user.RotationRight(roll);
+	user.RotationRight(pitch);
 	user.RotationUp(yaw);
-	user.RotationLook(pitch);
+	user.RotationLook(roll);
 
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
@@ -296,9 +297,9 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 			auto ptr = stored_ctx.load();
 
 			if (stored_ctx.compare_exchange_strong(ptr, nullptr))
-	{
-		if (Room* room = framework.FindRoom(room_id); nullptr != room)
-		{
+			{
+				if (Room* room = framework.FindRoom(room_id); nullptr != room)
+				{
 					rpc_ctx = ptr;
 					rpc_ctx->rpcCategory = cat;
 					rpc_ctx->roomId = room_id;
