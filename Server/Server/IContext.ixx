@@ -1,6 +1,5 @@
 export module Iconer.Application.IContext;
 import Iconer.Utility.Constraints;
-import Iconer.Utility.AtomicSwitcher;
 import Iconer.Net.IoContext;
 export import Iconer.Application.AsyncOperation;
 
