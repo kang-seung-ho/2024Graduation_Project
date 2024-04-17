@@ -614,6 +614,13 @@ demo::Framework::RouteEvent(bool is_succeed
 	}
 	break;
 
+	// Phase 8
+	case OpCleanRpc:
+	{
+		OnCleanRpc(ctx);
+	}
+	break;
+
 	// Extras Phase
 	case OpEndWorkers:
 	{

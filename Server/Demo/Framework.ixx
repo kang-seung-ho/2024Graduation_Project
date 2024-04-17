@@ -224,12 +224,16 @@ export namespace demo
 
 		ICONER_NODISCARD bool OnRpc(iconer::app::IContext* ctx, const IdType& user_id);
 		void OnSentRpc(iconer::app::IContext* ctx);
+		void OnCleanRpc(iconer::app::IContext* ctx);
 
 		void SetRoomModifiedFlag() noexcept;
 		ICONER_NODISCARD bool GetRoomModifiedFlag() const noexcept;
 
 		ICONER_ALIGN iconer::app::ISessionManager<iconer::app::User>* userManager;
 		ICONER_ALIGN std::array<iconer::app::Room*, Framework::maxRoomsNumber> everyRoom;
+		ICONER_ALIGN std::array<std::atomic<iconer::app::RpcContext*>, 10000> everyRpcContexts;
+		ICONER_ALIGN std::array<std::atomic<iconer::app::RpcContext*>, 10000>::iterator lastRpcIterator;
+		ICONER_ALIGN std::atomic_bool lastRpcLock;
 
 		ICONER_ALIGN std::unique_ptr<iconer::app::User[]> userSpace;
 		ICONER_ALIGN Buffer recvSpace;

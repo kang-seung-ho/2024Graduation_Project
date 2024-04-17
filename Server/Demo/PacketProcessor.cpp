@@ -274,13 +274,47 @@ demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw,
 void
 demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
 {
-	const auto room_id = user.myRoomId.Load();
-	if (room_id != -1)
+	RpcContext* rpc_ctx = nullptr;
+
+	Framework::IdType room_id = -1;
+
+	if (user.GetOperation() != iconer::app::AsyncOperations::OpRecv)
+	{
+		return;
+	}
+
+	while (true)
+	{
+		room_id = user.myRoomId.Load();
+		if (room_id == -1)
+		{
+			return;
+		}
+
+		for (auto& stored_ctx : framework.everyRpcContexts)
+		{
+			auto ptr = stored_ctx.load();
+
+			if (stored_ctx.compare_exchange_strong(ptr, nullptr))
 	{
 		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
-			auto ctx = new RpcContext{ cat, room_id, arg0, arg1 };
-			(void)framework.Schedule(ctx, user.GetID());
+					rpc_ctx = ptr;
+					rpc_ctx->rpcCategory = cat;
+					rpc_ctx->roomId = room_id;
+					rpc_ctx->firstArgument = arg0;
+					rpc_ctx->secondArgument = arg1;
+
+					(void) framework.Schedule(rpc_ctx, user.GetID());
+					break;
+				}
+				else
+				{
+					// rollback
+					// rpc_ctx is nullptr
+					stored_ctx.compare_exchange_strong(rpc_ctx, ptr);
+				}
+			}
 		}
 	}
 }

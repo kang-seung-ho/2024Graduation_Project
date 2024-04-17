@@ -19,6 +19,7 @@ if (not io) \
 }()
 
 module Demo.Framework;
+import Iconer.Application.Room;
 import Iconer.Application.Rpc;
 
 using namespace iconer::app;
@@ -37,15 +38,15 @@ demo::Framework::OnCreatingCharacters(Room& room)
 	room.ForEach
 	(
 		[&](User& member)
+	{
+		auto [io, ctx] = member.SendCreateCharactersPacket();
+		if (not io)
 		{
-			auto [io, ctx] = member.SendCreateCharactersPacket(); 
-			if (not io)
-			{
-				ctx.Complete();
-			}
-
-			cnt_ref.FetchAdd(1);
+			ctx.Complete();
 		}
+
+		cnt_ref.FetchAdd(1);
+	}
 	);
 
 #if false
@@ -91,14 +92,30 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
+	if (room->GetMembersCount() == 0)
+	{
+		return false;
+	}
+
 	room->ForEach
 	(
 		[&](User& member)
-		{
+	{
 		SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
-			}
-		}
+	}
 	);
+
+	using enum RpcProtocol;
+
+	switch (rpc_ctx->rpcCategory)
+	{
+	case RPC_BEG_WALK:
+	{}
+	break;
+	}
+
+	rpc_ctx->lastOperation = AsyncOperations::OpCleanRpc;
+	(void) Schedule(rpc_ctx, 0);
 
 	return true;
 }
@@ -108,4 +125,38 @@ demo::Framework::OnSentRpc(iconer::app::IContext* ctx)
 {
 	auto rpc = std::launder(static_cast<RpcContext*>(ctx));
 	delete rpc;
+}
+
+void
+demo::Framework::OnCleanRpc(iconer::app::IContext* ctx)
+{
+	// returns the rpc context object
+	auto rpc_ctx = std::launder(static_cast<RpcContext*>(ctx));
+
+	auto it = lastRpcIterator;
+	while (true)
+	{
+		for (; it != everyRpcContexts.end(); ++it)
+		{
+			auto& stored_ctx = *it;
+
+			RpcContext* null = nullptr;
+			if (stored_ctx.compare_exchange_strong(null, rpc_ctx))
+			{
+				// try to update the last iterator
+				bool falsy = false;
+				if (lastRpcLock.compare_exchange_strong(falsy, true))
+				{
+					lastRpcIterator = std::move(it);
+
+					bool truthy = true;
+					while (not lastRpcLock.compare_exchange_strong(truthy, false));
+				}
+
+				break;
+			}
+		}
+
+		it = everyRpcContexts.begin();
+	}
 }

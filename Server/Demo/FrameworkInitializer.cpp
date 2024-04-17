@@ -86,7 +86,7 @@ demo::Framework::Awake()
 	myLogger.Log(L"\tcreating session managers..\n");
 	userManager = new UserManager{};
 
-	myLogger.Log(L"\tallocating memory of buffers...\n");
+	myLogger.Log(L"\tallocating memory for sessions...\n");
 	recvSpace = std::make_unique<std::byte[]>(userRecvSize * maxUsersNumber);
 	userSpace = std::make_unique<User[]>(maxUsersNumber);
 	serializedRoomsBuffer = std::make_unique<std::byte[]>(packets::SC_RespondRoomsPacket::MaxSize());
@@ -94,6 +94,12 @@ demo::Framework::Awake()
 	packets::SC_RespondRoomsPacket rooms_pk{};
 	rooms_pk.Write(serializedRoomsBuffer.get());
 	serializedRoomsBufferSize = rooms_pk.WannabeSize();
+
+	myLogger.Log(L"\tallocating memory for rpc...\n");
+	for (auto& ctx : everyRpcContexts)
+	{
+		ctx = new RpcContext{ RpcProtocol::RPC_UNKNOWN };
+	}
 
 	myLogger.Log(L"\tallocating space of objects...\n");
 	userManager->Reserve(maxUsersNumber);
