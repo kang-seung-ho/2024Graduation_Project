@@ -31,6 +31,6 @@ export namespace demo
 	void OnTeamChanged(Framework& framework, iconer::app::User& user, bool is_red_team);
 	void OnReceivePosition(Framework& framework, iconer::app::User& user, float x, float y, float z);
 	void OnReceiveRotation(Framework& framework, iconer::app::User& user, float roll, float yaw, float pitch);
-	void OnRpc(Framework& framework, iconer::app::User& user, iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1);
+	void OnRpc(Framework& framework, const iconer::app::User& user, iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1);
 	void OnOldRpc(Framework& framework, iconer::app::User& user, std::string&& rpc, long long arg);
 }

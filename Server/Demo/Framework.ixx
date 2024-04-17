@@ -229,6 +229,9 @@ export namespace demo
 		ICONER_NODISCARD bool OnCreatingCharacters(iconer::app::Room& room);
 		void OnFailedToCreateCharacters(iconer::app::Room& room) noexcept;
 
+		ICONER_NODISCARD bool OnRpc(iconer::app::IContext* ctx, const IdType& user_id);
+		void OnSentRpc(iconer::app::IContext* ctx);
+
 		void SetRoomModifiedFlag() noexcept;
 		ICONER_NODISCARD bool GetRoomModifiedFlag() const noexcept;
 

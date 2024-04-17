@@ -17,7 +17,9 @@ if (not io) \
 	} \
 	return true; \
 }()
+
 module Demo.Framework;
+import Iconer.Application.Rpc;
 
 using namespace iconer::app;
 
@@ -66,4 +68,47 @@ demo::Framework::OnFailedToCreateCharacters(Room& room)
 noexcept
 {
 
+}
+
+bool
+demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
+{
+	auto rpc = std::launder(static_cast<RpcContext*>(ctx));
+	if (nullptr == rpc)
+	{
+		return false;
+	}
+
+	const IdType room_id = rpc->roomId;
+	if (room_id <= -1)
+	{
+		return false;
+	}
+
+	auto room = FindRoom(room_id);
+	if (nullptr == room)
+	{
+		return false;
+	}
+
+	room->ForEach
+	(
+		[&](User& member)
+		{
+			auto io = member.SendRpcPacket(rpc, user_id, rpc->rpcCategory, rpc->firstArgument, rpc->secondArgument);
+			if (not io)
+			{
+				delete rpc;
+			}
+		}
+	);
+
+	return true;
+}
+
+void
+demo::Framework::OnSentRpc(iconer::app::IContext* ctx)
+{
+	auto rpc = std::launder(static_cast<RpcContext*>(ctx));
+	delete rpc;
 }

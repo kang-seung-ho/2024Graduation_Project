@@ -45,11 +45,13 @@ export namespace iconer::app::inline rpc
 			, rpcCategory(std::move(category))
 			, roomId(std::move(room_id))
 			, firstArgument(std::move(arg0)), secondArgument(std::move(arg1))
+			, rpcBuffer()
 		{}
 
 		RpcProtocol rpcCategory;
 		std::int32_t roomId;
 		std::int64_t firstArgument;
 		std::int32_t secondArgument;
+		std::unique_ptr<std::byte[]> rpcBuffer;
 	};
 }

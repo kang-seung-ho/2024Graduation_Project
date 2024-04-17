@@ -281,14 +281,15 @@ demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw,
 }
 
 void
-demo::OnRpc(Framework& framework, User& user, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
+demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
 {
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
 		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
-			(void)framework.Schedule(room, 0);
+			auto ctx = new RpcContext{ cat, room_id, arg0, arg1 };
+			(void)framework.Schedule(ctx, user.GetID());
 		}
 	}
 }

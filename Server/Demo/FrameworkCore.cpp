@@ -26,7 +26,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	switch (ctx->GetOperation())
 	{
-	// Phase 0
+		// Phase 0
 	case OpReserveSession:
 	{
 		auto&& user = *std::launder(static_cast<User*>(ctx));
@@ -564,7 +564,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 	}
 	break;
-	
+
 	// Phase 8
 	case OpUpdateRoom:
 	{
@@ -572,7 +572,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	}
 	break;
-	
+
 	// Phase 8
 	case OpCheckGuardian:
 	{
@@ -580,7 +580,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	}
 	break;
-	
+
 	// Phase 8
 	case OpCheckDead:
 	{
@@ -588,7 +588,32 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	}
 	break;
-	
+
+	// Phase 8
+	case OpRpc:
+	{
+		if (not is_succeed)
+		{
+			myLogger.LogError(L"\tRPC has failed at room {}\n", io_id);
+		}
+		else if (not OnRpc(ctx, static_cast<IdType>(io_id)))
+		{
+			myLogger.Log(L"\tRPC is failed at room {}\n", io_id);
+		}
+		else
+		{
+			myLogger.Log(L"\tRPC is proceed at room {}\n", io_id);
+		}
+	}
+	break;
+
+	// Phase 8
+	case OpSendRpc:
+	{
+		OnSentRpc(ctx);
+	}
+	break;
+
 	// Extras Phase
 	case OpEndWorkers:
 	{

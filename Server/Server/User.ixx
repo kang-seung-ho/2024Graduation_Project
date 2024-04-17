@@ -158,7 +158,7 @@ export namespace iconer::app
 		BorrowedIoResult SendPositionPacket(IdType id, float x, float y, float z) const;
 		BorrowedIoResult SendRotationPacket(IdType id, float r, float y, float p) const;
 		BorrowedIoResult SendCreateCharactersPacket() const;
-		BorrowedIoResult SendRpcPacket(IdType id, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1) const;
+		IoResult SendRpcPacket(IContext* ctx, IdType id, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1) const;
 		BorrowedIoResult SendOldRpcPacket(IdType id, std::string&& script, long long arg) const;
 		BorrowedIoResult SendOldRpcPacket(IdType id, std::string_view script, long long arg) const;
 
