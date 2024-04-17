@@ -95,11 +95,7 @@ export namespace demo
 			return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
 		}
 
-		ICONER_NODISCARD
-			auto WaitForIoResult() noexcept
-		{
-			return ioCompletionPort.WaitForIoResult();
-		}
+		ICONER_NODISCARD iconer::net::IoEvent WaitForIoResult() noexcept;
 
 		ICONER_NODISCARD
 			iconer::app::User* FindUser(const IdType& id) const noexcept
@@ -143,20 +139,17 @@ export namespace demo
 			return std::span<const std::byte, userRecvSize>{ data, userRecvSize };
 		}
 
-		ICONER_NODISCARD
-			bool IsWorkerCancelled() const noexcept
+		ICONER_NODISCARD bool IsWorkerCancelled() const noexcept
 		{
 			return workerCanceller.stop_requested();
 		}
 
-		ICONER_NODISCARD
-			static constexpr IdType MakeUidToIndex(const IdType& id) noexcept
+		ICONER_NODISCARD static constexpr IdType MakeUidToIndex(const IdType& id) noexcept
 		{
 			return id - beginUserID;
 		}
 
-		ICONER_NODISCARD
-			static constexpr IdType MakeUidToIndex(IdType&& id) noexcept
+		ICONER_NODISCARD static constexpr IdType MakeUidToIndex(IdType&& id) noexcept
 		{
 			return std::move(id) - beginUserID;
 		}
@@ -261,4 +254,11 @@ export namespace demo
 	};
 
 	void Worker(Framework& framework, size_t nth);
+}
+
+iconer::net::IoEvent
+demo::Framework::WaitForIoResult()
+noexcept
+{
+	return ioCompletionPort.WaitForIoResult();
 }

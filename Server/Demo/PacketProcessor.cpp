@@ -7,13 +7,6 @@ if (auto [io, ctx] = ((user_var).method)(__VA_ARGS__); not io)\
 	ctx.Complete(); \
 }
 
-#define IGNORE_DISCARDED_BEGIN \
-__pragma (warning(push)) \
-__pragma (warning(disable : 4834)) \
-
-#define IGNORE_DISCARDED_END \
-__pragma (warning(pop))
-
 module Demo.PacketProcessor;
 import Iconer.Utility.Chronograph;
 import Iconer.Application.RoomContract;
@@ -47,7 +40,7 @@ demo::OnRequestRoomList(Framework& framework, User& user)
 {
 	if (user.GetState() != UserStates::None)
 	{
-		(void)framework.Schedule(user.requestContext, user.GetID());
+		(void) framework.Schedule(user.requestContext, user.GetID());
 	}
 }
 
@@ -56,7 +49,7 @@ demo::OnRequestMemberList(Framework& framework, User& user)
 {
 	if (user.GetState() != UserStates::None)
 	{
-		(void)framework.Schedule(user.requestMemberContext, user.GetID());
+		(void) framework.Schedule(user.requestMemberContext, user.GetID());
 	}
 }
 
@@ -98,7 +91,6 @@ demo::OnJoinRoom(demo::Framework& framework, User& user, const std::int32_t& roo
 {
 	if (Room* room = framework.FindRoom(room_id); nullptr != room)
 	{
-		IGNORE_DISCARDED_BEGIN;
 		if (user.TryChangeState(UserStates::Idle, UserStates::EnteringRoom))
 		{
 			iconer::util::Chronograph chronograph{};
@@ -150,7 +142,6 @@ demo::OnJoinRoom(demo::Framework& framework, User& user, const std::int32_t& roo
 		{
 			SEND(user, SendRoomJoinFailedPacket, RoomContract::InvalidOperation);
 		}
-		IGNORE_DISCARDED_END;
 	}
 	else
 	{
@@ -233,7 +224,7 @@ demo::OnTeamChanged(demo::Framework& framework, User& user, bool is_red_team)
 				framework.SetRoomModifiedFlag();
 			}
 
-			(void)framework.Schedule(user.teamChangerContext, user.GetID());
+			(void) framework.Schedule(user.teamChangerContext, user.GetID());
 		}
 	}
 }

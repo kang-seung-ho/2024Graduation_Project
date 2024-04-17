@@ -34,7 +34,9 @@ export namespace iconer::app
 		OpCreateGame, OpSpreadGameTicket, OpReadyGame, OpGameTicketing, OpStartGame, OpLeaveGame, OpCloseGame,
 
 		/// <summary>Phase 8 ~ </summary>
-		OpCreateCharacters, OpUpdateRoom, OpCheckGuardian, OpCheckDead, OpRpc, OpSendRpc,
+		OpCreateCharacters, OpUpdateRoom, OpCheckGuardian, OpCheckDead,
+		/// <summary>Phase 8 ~ </summary>
+		OpRpc, OpSendRpc, OpCleanRpc,
 
 		/// <summary>Phase 10 - Sign out (Quit)</summary>
 		OpDisconnect,
