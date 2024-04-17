@@ -15,8 +15,7 @@ public class SagaGame : ModuleRules
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "Networking", "Sockets", "OnlineSubsystem" });
 
-		//Uncomment if you are using online features
-		 PrivateDependencyModuleNames.Add("OnlineSubsystem");
+		PublicDependencyModuleNames.AddRange(new string[] { "AIModule" });
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 
