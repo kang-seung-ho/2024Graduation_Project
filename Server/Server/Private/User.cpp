@@ -230,18 +230,13 @@ const
 	return { mySocket.Send(*ctx, pk.get(), BasicPacket::MinSize()), std::move(ctx) };
 }
 
-iconer::app::User::IoResult
-iconer::app::User::SendRpcPacket(IContext* ctx, IdType id, iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
+iconer::app::User::BorrowedIoResult
+iconer::app::User::SendRpcPacket(IdType id, iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
 const
 {
 	const iconer::app::packets::SC_DeterRpcPacket pk{ id, std::move(cat), std::move(arg0), std::move(arg1) };
 
-	auto rpc_ctx = std::launder(static_cast<RpcContext*>(ctx));
-
-	auto buf = pk.Serialize();
-	rpc_ctx->rpcBuffer = pk.Serialize();
-
-	return mySocket.Send(*ctx, rpc_ctx->rpcBuffer.get(), pk.WannabeSize());
+	return SendGeneralData(pk.Serialize(), pk.WannabeSize());
 }
 
 iconer::app::User::BorrowedIoResult
