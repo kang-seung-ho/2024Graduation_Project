@@ -120,23 +120,12 @@ export namespace demo
 		ICONER_NODISCARD
 			constexpr std::span<std::byte, userRecvSize>
 			GetBuffer(const IdType& id)
-			noexcept
+			const noexcept
 		{
 			std::byte* buf = this->recvSpace.get();
 			auto* data = buf + static_cast<ptrdiff_t>(MakeUidToIndex(id)) * userRecvSize;
 
 			return std::span<std::byte, userRecvSize>{ data, userRecvSize };
-		}
-
-		ICONER_NODISCARD
-			constexpr std::span<const std::byte, userRecvSize>
-			GetBuffer(const IdType& id)
-			const noexcept
-		{
-			std::byte* buf = recvSpace.get();
-			std::byte* data = buf + static_cast<ptrdiff_t>(MakeUidToIndex(id)) * userRecvSize;
-
-			return std::span<const std::byte, userRecvSize>{ data, userRecvSize };
 		}
 
 		ICONER_NODISCARD bool IsWorkerCancelled() const noexcept

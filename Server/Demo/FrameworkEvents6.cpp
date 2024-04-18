@@ -38,15 +38,15 @@ demo::Framework::OnCreatingCharacters(Room& room)
 	room.ForEach
 	(
 		[&](User& member)
-	{
-		auto [io, ctx] = member.SendCreateCharactersPacket();
-		if (not io)
 		{
-			ctx.Complete();
-		}
+			auto [io, ctx] = member.SendCreateCharactersPacket();
+			if (not io)
+			{
+				ctx.Complete();
+			}
 
-		cnt_ref.FetchAdd(1);
-	}
+			cnt_ref.FetchAdd(1);
+		}
 	);
 
 #if false
@@ -100,9 +100,9 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	room->ForEach
 	(
 		[&](User& member)
-	{
-		SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
-	}
+		{
+			SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
+		}
 	);
 
 	using enum RpcProtocol;
@@ -112,10 +112,13 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	case RPC_BEG_WALK:
 	{}
 	break;
+
+	default:
+		break;
 	}
 
 	rpc_ctx->lastOperation = AsyncOperations::OpCleanRpc;
-	(void) Schedule(rpc_ctx, 0);
+	(void)Schedule(rpc_ctx, 0);
 
 	return true;
 }
