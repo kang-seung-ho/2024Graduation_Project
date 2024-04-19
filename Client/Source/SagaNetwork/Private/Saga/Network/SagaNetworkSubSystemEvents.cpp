@@ -240,15 +240,15 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_WALK:
+	case ESagaRpcProtocol::RPC_BEG_WALK:
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_RUN:
+	case ESagaRpcProtocol::RPC_BEG_RUN:
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_JUMP:
+	case ESagaRpcProtocol::RPC_BEG_JUMP:
 	{}
 	break;
 
@@ -256,19 +256,19 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_ATTACK_0:
+	case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_ATTACK_1:
+	case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_ATTACK_2:
+	case ESagaRpcProtocol::RPC_BEG_ATTACK_2:
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_ATTACK_3:
+	case ESagaRpcProtocol::RPC_BEG_ATTACK_3:
 	{}
 	break;
 

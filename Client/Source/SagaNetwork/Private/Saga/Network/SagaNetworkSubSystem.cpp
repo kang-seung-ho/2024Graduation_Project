@@ -272,16 +272,17 @@ const noexcept
 	}
 }
 
-void
+const TArray<FSagaVirtualUser>&
 USagaNetworkSubSystem::UpdatePlayerList()
 {
 	// TODO: UpdatePlayerList
 	//TAtomic<bool> a;
+	return {};
 }
 
-void
+const TArray<FSagaVirtualRoom>&
 USagaNetworkSubSystem::UpdateRoomList()
 {
 	// TODO: UpdateRoomList
-
+	return {};
 }

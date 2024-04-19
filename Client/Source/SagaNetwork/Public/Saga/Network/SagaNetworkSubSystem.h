@@ -68,20 +68,19 @@ public:
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool Close();
 #pragma endregion
 
 	/* Complicated Network Methods */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Phase", meta = (UnsafeDuringActorConstruction))
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	bool ConnectToServer(const FString& nickname);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	bool Close();
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (Latent, UnsafeDuringActorConstruction))
-	void UpdatePlayerList();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (Latent, UnsafeDuringActorConstruction))
-	void UpdateRoomList();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	const TArray<FSagaVirtualUser>& UpdatePlayerList();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	const TArray<FSagaVirtualRoom>& UpdateRoomList();
 #pragma endregion
 
 	/* General Methods */

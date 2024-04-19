@@ -267,48 +267,6 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	}
 	break;
 
-	case EPacketProtocol::SC_CREATE_PLAYER:
-	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("Characters would be created"));
-
-		CallFunctionOnGameThread([this]()
-			{
-			}
-		);
-	}
-	break;
-
-	case EPacketProtocol::SC_REMOVE_PLAYER:
-	{
-		saga::SC_DestroyPlayerPacket pk{};
-		auto offset = pk.Read(packet_buffer);
-
-		UE_LOG(LogSagaNetwork, Log, TEXT("A client %d is destroyed(disconnected)"), pk.clientId);
-
-		CallFunctionOnGameThread([this, pk]()
-			{
-			}
-		);
-	}
-	break;
-
-	case EPacketProtocol::SC_MOVE_CHARACTER:
-	{
-		int32 client_id{};
-		float x{}, y{}, z{};
-
-		saga::ReceivePositionPacket(packet_buffer, client_id, x, y, z);
-
-		UE_LOG(LogSagaNetwork, Log, TEXT("Client id %d: pos(%f,%f,%f)"), client_id, x, y, z);
-
-		CallFunctionOnGameThread([this, client_id, x, y, z]()
-			{
-				BroadcastOnUpdatePosition(client_id, x, y, z);
-			}
-		);
-	}
-	break;
-
 	case EPacketProtocol::SC_SET_TEAM:
 	{
 		int32 client_id{};
@@ -334,6 +292,62 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	}
 	break;
 
+	case EPacketProtocol::SC_CREATE_PLAYER:
+	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Characters would be created"));
+
+		static ConstructorHelpers::FClassFinder<AActor> player_cls_ref(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
+		if (player_cls_ref.Succeeded() and player_cls_ref.Class)
+		{
+			UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] The class of playable character is found"));
+		}
+		else
+		{
+			UE_LOG(LogSagaNetwork, LogError, TEXT("[SagaGame] Cannot find the class of playable character"));
+		}
+
+		CallFunctionOnGameThread([this]()
+			{
+				for (auto& member : everyUsers)
+				{
+
+				}
+			}
+		);
+	}
+	break;
+
+	case EPacketProtocol::SC_REMOVE_PLAYER:
+	{
+		saga::SC_DestroyPlayerPacket pk{};
+		auto offset = pk.Read(packet_buffer);
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] A client %d is destroyed(disconnected)"), pk.clientId);
+
+		CallFunctionOnGameThread([this, pk]()
+			{
+			}
+		);
+	}
+	break;
+
+	case EPacketProtocol::SC_MOVE_CHARACTER:
+	{
+		int32 client_id{};
+		float x{}, y{}, z{};
+
+		saga::ReceivePositionPacket(packet_buffer, client_id, x, y, z);
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Client id %d: pos(%f,%f,%f)"), client_id, x, y, z);
+
+		CallFunctionOnGameThread([this, client_id, x, y, z]()
+			{
+				BroadcastOnUpdatePosition(client_id, x, y, z);
+			}
+		);
+	}
+	break;
+
 	case EPacketProtocol::SC_UPDATE_CHARACTER:
 	{
 	}
@@ -350,7 +364,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		auto name = UEnum::GetValueAsString(category);
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("[RPC] %s(%lld, %d) from client %d"), user_id, *name, argument0, argument1);
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), user_id, *name, argument0, argument1);
 
 		CallFunctionOnGameThread([&]()
 			{
