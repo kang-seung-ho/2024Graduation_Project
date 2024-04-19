@@ -5,6 +5,7 @@ import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
 import Iconer.Net.Socket;
 import Iconer.Application.RoomContract;
+import Iconer.Application.Rpc;
 import <cstddef>;
 import <type_traits>;
 import <expected>;
@@ -31,15 +32,17 @@ namespace test
 		None, Init, Logo, Title, MainMenu, Lobby, Room, Game, GameFinished,
 	};
 
-	iconer::net::Socket::IoResult SendSignInPacket();
-	iconer::net::Socket::IoResult SendCreateRoomPacket(std::wstring_view title);
-	iconer::net::Socket::IoResult SendJoinRoomPacket(IdType room_id);
-	iconer::net::Socket::IoResult SendLeaveRoomPacket();
-	iconer::net::Socket::IoResult SendRequestVersionPacket();
-	iconer::net::Socket::IoResult SendRequestRoomsPacket();
-	iconer::net::Socket::IoResult SendRequestMembersPacket();
-	iconer::net::Socket::IoResult SendGameStartPacket();
-	iconer::net::Socket::IoResult SendGameIsLoadedPacket();
+	using IoResult = iconer::net::Socket::IoResult;
+	IoResult SendSignInPacket();
+	IoResult SendCreateRoomPacket(std::wstring_view title);
+	IoResult SendJoinRoomPacket(IdType room_id);
+	IoResult SendLeaveRoomPacket();
+	IoResult SendRequestVersionPacket();
+	IoResult SendRequestRoomsPacket();
+	IoResult SendRequestMembersPacket();
+	IoResult SendGameStartPacket();
+	IoResult SendGameIsLoadedPacket();
+	IoResult SendRpcPacket(iconer::app::RpcProtocol cat, std::int64_t arg0 = 0, std::int32_t arg1 = 0);
 	bool SendPositionPacket();
 
 	const std::byte* ReceiveSignInSucceedPacket(const std::byte* buffer);

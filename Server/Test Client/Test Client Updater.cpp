@@ -17,6 +17,8 @@ test::Update()
 
 	static constexpr std::int32_t test_room_id = 22;
 
+	using enum iconer::app::RpcProtocol;
+
 	while (true)
 	{
 		const auto inputs = ::scanf_s("%s", commands, cmd_size);
@@ -125,42 +127,57 @@ test::Update()
 					localPlayer->z = --localPlayer->z;
 					SendPositionPacket();
 				}
-			}
+				else if (cmd == '1')
+				{
+					static bool is_walking = false;
 
-			auto cmd = std::string_view{ commands, static_cast<size_t>(inputs) };
-			if ("move up" == cmd)
-			{
-				localPlayer->z = ++localPlayer->z;
-				SendPositionPacket();
+					if (not is_walking)
+					{
+						SendRpcPacket(RPC_BEG_WALK);
+					}
+					else
+					{
+						SendRpcPacket(RPC_END_WALK);
+					}
+				}
 			}
-			else if ("move dw" == cmd)
+			else
 			{
-				localPlayer->z = --localPlayer->z;
-				SendPositionPacket();
-			}
-			else if ("move fw" == cmd)
-			{
-				localPlayer->y = ++localPlayer->y;
-				SendPositionPacket();
-			}
-			else if ("move bw" == cmd)
-			{
-				localPlayer->y = --localPlayer->y;
-				SendPositionPacket();
-			}
-			else if ("move lt" == cmd)
-			{
-				localPlayer->x = --localPlayer->x;
-				SendPositionPacket();
-			}
-			else if ("move rt" == cmd)
-			{
-				localPlayer->x = ++localPlayer->x;
-				SendPositionPacket();
-			}
-			else if ("quit" == cmd)
-			{
-				break;
+				auto cmd = std::string_view{ commands, static_cast<size_t>(inputs) };
+				if ("move up" == cmd)
+				{
+					localPlayer->z = ++localPlayer->z;
+					SendPositionPacket();
+				}
+				else if ("move dw" == cmd)
+				{
+					localPlayer->z = --localPlayer->z;
+					SendPositionPacket();
+				}
+				else if ("move fw" == cmd)
+				{
+					localPlayer->y = ++localPlayer->y;
+					SendPositionPacket();
+				}
+				else if ("move bw" == cmd)
+				{
+					localPlayer->y = --localPlayer->y;
+					SendPositionPacket();
+				}
+				else if ("move lt" == cmd)
+				{
+					localPlayer->x = --localPlayer->x;
+					SendPositionPacket();
+				}
+				else if ("move rt" == cmd)
+				{
+					localPlayer->x = ++localPlayer->x;
+					SendPositionPacket();
+				}
+				else if ("quit" == cmd)
+				{
+					break;
+				}
 			}
 
 			std::ranges::fill(commands, 0);

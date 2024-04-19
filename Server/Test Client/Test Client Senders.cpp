@@ -2,7 +2,7 @@ module TestClient;
 import Iconer.Application.BasicPacket;
 import Iconer.Application.Packet;
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendSignInPacket()
 {
 	const iconer::app::packets::CS_SignInPacket pk{ my_name.data(), my_name.size() };
@@ -15,7 +15,7 @@ test::SendSignInPacket()
 	return std::move(r);
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendCreateRoomPacket(std::wstring_view title)
 {
 	iconer::app::packets::CS_CreateRoomPacket pk{ title.data(), title.length() };
@@ -29,7 +29,7 @@ test::SendCreateRoomPacket(std::wstring_view title)
 	return std::move(r);
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendJoinRoomPacket(IdType room_id)
 {
 	iconer::app::packets::CS_EnterRoomPacket pk{};
@@ -40,7 +40,7 @@ test::SendJoinRoomPacket(IdType room_id)
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendLeaveRoomPacket()
 {
 	static constexpr iconer::app::packets::CS_LeaveRoomPacket pk{};
@@ -49,7 +49,7 @@ test::SendLeaveRoomPacket()
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendRequestVersionPacket()
 {
 	static constexpr iconer::app::packets::CS_RequestVersionPacket pk{};
@@ -58,7 +58,7 @@ test::SendRequestVersionPacket()
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendRequestRoomsPacket()
 {
 	static constexpr iconer::app::packets::CS_RequestRoomsPacket pk{};
@@ -67,7 +67,7 @@ test::SendRequestRoomsPacket()
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendRequestMembersPacket()
 {
 	static constexpr iconer::app::packets::CS_RequestMembersPacket pk{};
@@ -76,7 +76,7 @@ test::SendRequestMembersPacket()
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendGameStartPacket()
 {
 	static constexpr iconer::app::packets::CS_GameStartPacket pk{};
@@ -85,11 +85,20 @@ test::SendGameStartPacket()
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }
 
-iconer::net::Socket::IoResult
+test::IoResult
 test::SendGameIsLoadedPacket()
 {
 	static constexpr iconer::app::packets::CS_GameLoadedPacket pk{};
 	static auto ptr = pk.Serialize();
+
+	return app_socket.Send(ptr.get(), pk.WannabeSize());
+}
+
+test::IoResult
+test::SendRpcPacket(iconer::app::RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
+{
+	const iconer::app::packets::CS_DeterRpcPacket pk{ cat, arg0, arg1 };
+	auto ptr = pk.Serialize();
 
 	return app_socket.Send(ptr.get(), pk.WannabeSize());
 }

@@ -254,6 +254,22 @@ test::Receiver()
 						{
 						}
 						break;
+
+						case iconer::app::PacketProtocol::SC_RPC:
+						{
+							iconer::app::packets::SC_DeterRpcPacket pk{};
+							auto offset = pk.Read(recv_space);
+
+							switch (pk.rpcScript)
+							{
+							default:
+								break;
+							}
+
+							std::println("RPC: {}", static_cast<int>(pk.rpcScript));
+							PullReceiveBuffer(offset);
+						}
+						break;
 					}
 				}
 				else
