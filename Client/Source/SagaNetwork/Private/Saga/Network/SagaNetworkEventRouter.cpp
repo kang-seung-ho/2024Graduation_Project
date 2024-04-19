@@ -303,7 +303,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		}
 		else
 		{
-			UE_LOG(LogSagaNetwork, LogError, TEXT("[SagaGame] Cannot find the class of playable character"));
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
 		}
 
 		CallFunctionOnGameThread([this]()

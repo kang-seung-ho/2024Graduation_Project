@@ -6,7 +6,7 @@ ISagaNetworkRpcView::BeginWalk_Implementation()
 {
 	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
 
-	if (myId != -1)
+	if (GetID() != -1)
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK);
 	}
@@ -17,8 +17,15 @@ ISagaNetworkRpcView::EndWalk_Implementation()
 {
 	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
 
-	if (myId != -1)
+	if (GetID() != -1)
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK);
 	}
+}
+
+int32
+ISagaNetworkRpcView::GetID_Implementation()
+const noexcept
+{
+	return -1;
 }
