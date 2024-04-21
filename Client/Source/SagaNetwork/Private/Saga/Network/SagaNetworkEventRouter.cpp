@@ -296,21 +296,42 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Characters would be created"));
 
-		static ConstructorHelpers::FClassFinder<AActor> player_cls_ref(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
-		if (player_cls_ref.Succeeded() and player_cls_ref.Class)
-		{
-			UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] The class of playable character is found"));
-		}
-		else
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
-		}
-
 		CallFunctionOnGameThread([this]()
 			{
 				for (auto& member : everyUsers)
 				{
+					UClass* character_class_ref = nullptr;
+					ASagaCharacterPlayer* character = nullptr;
+					if (member.ID() == GetLocalUserId())
+					{
+						static ConstructorHelpers::FClassFinder<AActor> character_class_seek(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
+						if (character_class_seek.Succeeded() and character_class_seek.Class)
+						{
+							character_class_ref = character_class_seek.Class;
+						}
+						else
+						{
+							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
+						}
+					}
+					else
+					{
 
+					}
+
+					if (character_class_ref)
+					{
+						character = CreatePlayableCharacter(character_class_ref);
+						if (character)
+						{
+							member.ownedCharacter = character;
+							BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
+						}
+						else
+						{
+							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
+						}
+					}
 				}
 			}
 		);

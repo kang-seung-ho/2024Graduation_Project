@@ -1,4 +1,5 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "Character/SagaCharacterPlayer.h"
 
 void
 USagaNetworkSubSystem::BroadcastOnNetworkInitialized()
@@ -282,6 +283,21 @@ const
 	else
 	{
 		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnUpdateRotation` was not bound"));
+	}
+}
+
+void
+USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, ASagaCharacterPlayer* character) const
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnCreatingCharacter`"));
+
+	if (OnCreatingCharacter.IsBound())
+	{
+		OnCreatingCharacter.Broadcast(user_id, team, character);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnCreatingCharacter` was not bound"));
 	}
 }
 
