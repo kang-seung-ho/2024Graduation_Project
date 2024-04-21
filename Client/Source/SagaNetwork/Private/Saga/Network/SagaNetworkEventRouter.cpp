@@ -5,6 +5,7 @@
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Player/UserTeam.h"
+#include "Character/SagaCharacterPlayer.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size)
@@ -294,7 +295,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 	case EPacketProtocol::SC_CREATE_PLAYER:
 	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Characters would be created"));
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] %d Characters would be created"), everyUsers.Num());
 
 		CallFunctionOnGameThread([this]()
 			{
@@ -304,24 +305,16 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 					ASagaCharacterPlayer* character = nullptr;
 					if (member.ID() == GetLocalUserId())
 					{
-						static ConstructorHelpers::FClassFinder<AActor> character_class_seek(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
-						if (character_class_seek.Succeeded() and character_class_seek.Class)
-						{
-							character_class_ref = character_class_seek.Class;
-						}
-						else
-						{
-							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
-						}
+						character_class_ref = localPlayerClassReference.LoadSynchronous();
 					}
 					else
 					{
-
+						character_class_ref = dummyPlayerClassReference.LoadSynchronous();
 					}
 
-					if (character_class_ref)
+					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class_ref));
+					if (character)
 					{
-						character = CreatePlayableCharacter(character_class_ref);
 						if (character)
 						{
 							member.ownedCharacter = character;

@@ -4,7 +4,6 @@
 #include "Sockets.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
-#include "Character/SagaCharacterBase.h"
 #include "Character/SagaCharacterPlayer.h"
 
 TQueue<UE::Tasks::TTask<int32>> USagaNetworkSubSystem::taskQueue{};
@@ -274,14 +273,14 @@ const noexcept
 	}
 }
 
-ASagaCharacterPlayer*
-USagaNetworkSubSystem::CreatePlayableCharacter(TSubclassOf<ASagaCharacterPlayer> type)
+AActor*
+USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type)
 const
 {
-	if (*type != nullptr)
+	if (type != nullptr)
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
-		return GetWorld()->SpawnActor<ASagaCharacterPlayer>(type);
+		return GetWorld()->SpawnActor(type);
 	}
 	else
 	{

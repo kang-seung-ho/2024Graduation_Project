@@ -82,7 +82,7 @@ public:
 	bool Close();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	class ASagaCharacterPlayer* CreatePlayableCharacter(TSubclassOf<class ASagaCharacterPlayer> type) const;
+	AActor* CreatePlayableCharacter(UClass* type) const;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
 	const TArray<FSagaVirtualUser>& UpdatePlayerList();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
@@ -393,4 +393,9 @@ private:
 	TAtomic<bool> wasUsersUpdated;
 	TArray<FSagaVirtualRoom> everyRooms;
 	TAtomic<bool> wasRoomsUpdated;
+
+	UPROPERTY()
+	TSoftClassPtr<class ASagaCharacterPlayer> localPlayerClassReference;
+	UPROPERTY()
+	TSoftClassPtr<class ASagaCharacterPlayer> dummyPlayerClassReference;
 };

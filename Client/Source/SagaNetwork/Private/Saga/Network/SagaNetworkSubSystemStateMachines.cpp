@@ -18,7 +18,28 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, clientSocket(nullptr), netWorker(nullptr)
 	, everyUsers(), wasUsersUpdated(true)
 	, everyRooms(), wasRoomsUpdated(true)
-{}
+	, localPlayerClassReference(), dummyPlayerClassReference()
+{
+	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
+	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
+	{
+		localPlayerClassReference = character_class_seek1.Class;
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
+	}
+
+	static ConstructorHelpers::FClassFinder<AActor> character_class_seek2(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
+	if (character_class_seek2.Succeeded() and character_class_seek2.Class)
+	{
+		dummyPlayerClassReference = character_class_seek2.Class;
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of dummy character"));
+	}
+}
 
 void
 USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
