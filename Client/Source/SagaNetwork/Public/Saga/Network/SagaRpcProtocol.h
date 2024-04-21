@@ -16,8 +16,9 @@ enum class [[nodiscard]] ESagaRpcProtocol : uint8
 	RPC_BEG_ATTACK_1, RPC_END_ATTACK_1, // Normal attack #2
 	RPC_BEG_ATTACK_2, RPC_END_ATTACK_2, // Normal attack #3
 	RPC_BEG_ATTACK_3, RPC_END_ATTACK_3, // Normal attack #4
-	RPC_RIDE,
-	RPC_SKILL_0, // Ability #1
+	RPC_BEG_RIDE, // take on the guardian
+	RPC_END_RIDE, // take off from the guardian
+	RPC_SKILL_0 = 100, // Ability #1
 	RPC_SKILL_1, // Ability #2
 	RPC_SKILL_2, // Ability #3
 	RPC_SKILL_3, // Ability #4

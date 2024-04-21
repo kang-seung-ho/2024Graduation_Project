@@ -3,22 +3,22 @@ import <cstddef>;
 import <cstdint>;
 import Iconer.Application.IContext;
 
-#define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name,
+#define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name
 
 export namespace iconer::app::inline rpc
 {
 	enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	{
 		RPC_UNKNOWN = 0,
-		ICONER_RPC_ENUM_ITEM(WALK)
-		ICONER_RPC_ENUM_ITEM(RUN)
-		ICONER_RPC_ENUM_ITEM(JUMP)
-		ICONER_RPC_ENUM_ITEM(ATTACK_0) // Normal attack #1
-		ICONER_RPC_ENUM_ITEM(ATTACK_1) // Normal attack #2
-		ICONER_RPC_ENUM_ITEM(ATTACK_2) // Normal attack #3
-		ICONER_RPC_ENUM_ITEM(ATTACK_3) // Normal attack #4
-		RPC_RIDE,
-		RPC_SKILL_0, // Ability #1
+		ICONER_RPC_ENUM_ITEM(WALK),
+		ICONER_RPC_ENUM_ITEM(RUN),
+		ICONER_RPC_ENUM_ITEM(JUMP),
+		ICONER_RPC_ENUM_ITEM(ATTACK_0), // Normal attack #1
+		ICONER_RPC_ENUM_ITEM(ATTACK_1), // Normal attack #2
+		ICONER_RPC_ENUM_ITEM(ATTACK_2), // Normal attack #3
+		ICONER_RPC_ENUM_ITEM(ATTACK_3), // Normal attack #4
+		ICONER_RPC_ENUM_ITEM(RIDE),
+		RPC_SKILL_0 = 100, // Ability #1
 		RPC_SKILL_1, // Ability #2
 		RPC_SKILL_2, // Ability #3
 		RPC_SKILL_3, // Ability #4
