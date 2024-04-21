@@ -206,32 +206,27 @@ demo::Framework::OnNotifyTeam(iconer::app::User& user)
 	{
 		if (auto room = FindRoom(room_id); room != nullptr)
 		{
-			if (room->GetState() != iconer::app::RoomStates::Idle)
+			if (not room->HasMember(user_id))
 			{
 				// fixup
 				user.myRoomId.CompareAndSet(room_id, -1);
 
 				return false;
 			}
-			else if (not room->HasMember(user_id))
 			{
-				// fixup
-				user.myRoomId.CompareAndSet(room_id, -1);
-
-				return false;
-			}
-			else
-			{
-				room->ForEach(
-					[user_id, team_id](iconer::app::User& user)
-					{
-						auto [io, ctx] = user.SendChangeTeamPacket(user_id, team_id == iconer::app::Team::Red);
-						if (not io)
+				if (room->GetState() != iconer::app::RoomStates::Idle)
+				{
+					room->ForEach(
+						[user_id, team_id](iconer::app::User& user)
 						{
-							ctx.Complete();
-						};
-					}
-				);
+							auto [io, ctx] = user.SendChangeTeamPacket(user_id, team_id == iconer::app::Team::Red);
+							if (not io)
+							{
+								ctx.Complete();
+							};
+						}
+					);
+				}
 
 				return true;
 			}
