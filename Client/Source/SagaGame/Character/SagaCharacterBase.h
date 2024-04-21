@@ -5,6 +5,7 @@
 #include "Interface/SagaCharacterItemInterface.h"
 #include "Interface/SagaCharacterWidgetInterface.h"
 
+#include "Saga/Network/SagaNetworkRpcView.h"
 #include "SagaCharacterBase.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSagaCharacter, Log, All);

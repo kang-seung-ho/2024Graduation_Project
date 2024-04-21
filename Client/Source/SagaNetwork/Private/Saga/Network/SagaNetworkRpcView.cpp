@@ -2,30 +2,23 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
-ISagaNetworkRpcView::BeginWalk_Implementation()
+ISagaNetworkRpcView::BeginWalk()
 {
 	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
 
-	if (GetID() != -1)
+	if (GetRpcID() != -1)
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK);
 	}
 }
 
 void
-ISagaNetworkRpcView::EndWalk_Implementation()
+ISagaNetworkRpcView::EndWalk()
 {
 	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
 
-	if (GetID() != -1)
+	if (GetRpcID() != -1)
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK);
 	}
-}
-
-int32
-ISagaNetworkRpcView::GetID_Implementation()
-const noexcept
-{
-	return -1;
 }
