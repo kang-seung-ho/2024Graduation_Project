@@ -294,12 +294,12 @@ USagaNetworkSubSystem::UpdatePlayerList()
 {
 	// TODO: UpdatePlayerList
 	//TAtomic<bool> a;
-	return {};
+	return everyUsers;
 }
 
 const TArray<FSagaVirtualRoom>&
 USagaNetworkSubSystem::UpdateRoomList()
 {
 	// TODO: UpdateRoomList
-	return {};
+	return everyRooms;
 }
