@@ -1,7 +1,7 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Sockets.h"
 
-#include "Player/UserTeam.h"
+#include "Player/SagaUserTeam.h"
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkUtility.h"
 

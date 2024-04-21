@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 
-#include "UserTeam.generated.h"
+#include "SagaUserTeam.generated.h"
 
 UENUM(BlueprintType)
 enum class [[nodiscard]] EUserTeam : uint8

@@ -4,7 +4,7 @@
 #include "Saga/Network/SagaPacketProcessor.h"
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualUser.h"
-#include "Player/UserTeam.h"
+#include "Player/SagaUserTeam.h"
 #include "Character/SagaCharacterPlayer.h"
 
 void
@@ -315,15 +315,16 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class_ref));
 					if (character)
 					{
-						if (character)
-						{
-							member.ownedCharacter = character;
-							BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
-						}
-						else
-						{
-							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
-						}
+						member.ownedCharacter = character;
+						
+
+						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
+
+						UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
+					}
+					else
+					{
+						UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
 					}
 				}
 			}
