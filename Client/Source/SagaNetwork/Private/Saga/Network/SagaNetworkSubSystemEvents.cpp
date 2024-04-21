@@ -252,7 +252,13 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{}
 	break;
 
-	case ESagaRpcProtocol::RPC_RIDE:
+	// 수호자 탑승
+	case ESagaRpcProtocol::RPC_BEG_RIDE:
+	{}
+	break;
+
+	// 수호자 하차
+	case ESagaRpcProtocol::RPC_END_RIDE:
 	{}
 	break;
 
