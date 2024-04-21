@@ -4,7 +4,8 @@
 void
 ISagaNetworkRpcView::BeginWalk()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -15,7 +16,8 @@ ISagaNetworkRpcView::BeginWalk()
 void
 ISagaNetworkRpcView::EndWalk()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -26,7 +28,8 @@ ISagaNetworkRpcView::EndWalk()
 void
 ISagaNetworkRpcView::BeginRun()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -37,7 +40,8 @@ ISagaNetworkRpcView::BeginRun()
 void
 ISagaNetworkRpcView::EndRun()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -48,7 +52,8 @@ ISagaNetworkRpcView::EndRun()
 void
 ISagaNetworkRpcView::BeginJump()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -59,7 +64,8 @@ ISagaNetworkRpcView::BeginJump()
 void
 ISagaNetworkRpcView::EndJump()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -70,7 +76,8 @@ ISagaNetworkRpcView::EndJump()
 void
 ISagaNetworkRpcView::BeginAttack()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -81,7 +88,8 @@ ISagaNetworkRpcView::BeginAttack()
 void
 ISagaNetworkRpcView::EndAttack()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -92,7 +100,8 @@ ISagaNetworkRpcView::EndAttack()
 void
 ISagaNetworkRpcView::BeginRide()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
@@ -103,7 +112,8 @@ ISagaNetworkRpcView::BeginRide()
 void
 ISagaNetworkRpcView::EndRide()
 {
-	auto system = GEngine->GetEngineSubsystem<USagaNetworkSubSystem>();
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
 	if (GetRpcID() != -1)
 	{
