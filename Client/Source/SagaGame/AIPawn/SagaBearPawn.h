@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "CoreMinimal.h"
 #include "SagaMonsterAIPawn.h"
+
 #include "SagaBearPawn.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class SAGAGAME_API ASagaBearPawn : public ASagaMonsterAIPawn
 {
@@ -26,5 +21,4 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };

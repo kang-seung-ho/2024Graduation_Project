@@ -11,9 +11,9 @@
 UENUM(BlueprintType)
 enum class ESpawnType : uint8
 {
-	Normal, //»ý¼ºµÈ °´Ã¼°¡ Á¦°ÅµÇ¸é ÁöÁ¤µÈ ½Ã°£ÀÌ Áö³ª¸é »ý¼º ->Ä³¸¯ÅÍ¿¡ ¸®½ºÆù¿¡ »ç¿ë
-	Once,	//ÇÑ¹ø»ý¼º ÈÄ ½ºÆùÆ÷ÀÎÆ® Á¦°Å ->AI¿¡ »ç¿ë
-	Loop   //ÁöÁ¤µÈ È½¼ö¸¸Å­ »ý¼º
+	Normal, //ìƒì„±ëœ ê°ì²´ê°€ ì œê±°ë˜ë©´ ì§€ì •ëœ ì‹œê°„ì´ ì§€ë‚˜ë©´ ìƒì„± ->ìºë¦­í„°ì— ë¦¬ìŠ¤í°ì— ì‚¬ìš©
+	Once,	//í•œë²ˆìƒì„± í›„ ìŠ¤í°í¬ì¸íŠ¸ ì œê±° ->AIì— ì‚¬ìš©
+	Loop   //ì§€ì •ëœ íšŸìˆ˜ë§Œí¼ ìƒì„±
 };
 
 UCLASS()
@@ -35,24 +35,24 @@ protected:
 #endif
 
 
-	//»ý¼ºÇÏ·Á´Â Å¬·¡½º Á¤º¸ ÀúÀå
+	//ìƒì„±í•˜ë ¤ëŠ” í´ëž˜ìŠ¤ ì •ë³´ ì €ìž¥
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> mSpawnClass;
 
-	//À§ÀÇ Å¬·¡½º ÀÌ¿ëÇØ »ý¼ºµÈ ½ÇÁ¦ °´Ã¼ÀÇ ¸Þ¸ð¸®ÁÖ¼Ò ÀúÀå
+	//ìœ„ì˜ í´ëž˜ìŠ¤ ì´ìš©í•´ ìƒì„±ëœ ì‹¤ì œ ê°ì²´ì˜ ë©”ëª¨ë¦¬ì£¼ì†Œ ì €ìž¥
 	TObjectPtr<AActor> mSpawnActor;
 
 	UPROPERTY(EditAnywhere)
 	ESpawnType mSpawnType;
 
 
-	//½ºÆù½Ã°£ 0ÀÌ¸é Áï½Ã ½ºÆù
+	//ìŠ¤í°ì‹œê°„ 0ì´ë©´ ì¦‰ì‹œ ìŠ¤í°
 	UPROPERTY(EditAnywhere)
 	float mSpawnTime = 0.f;
 
 	float mSpawnAccTime;
 
-	//Ä«¿îÆ® ±âº»°ªÀº -1·Î ¼³Á¤ÇØÁÜ(¹«ÇÑ»ý¼º)
+	//ì¹´ìš´íŠ¸ ê¸°ë³¸ê°’ì€ -1ë¡œ ì„¤ì •í•´ì¤Œ(ë¬´í•œìƒì„±)
 	UPROPERTY(EditAnywhere)
 	int32 mCount = -1;
 

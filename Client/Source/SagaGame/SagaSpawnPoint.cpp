@@ -62,7 +62,7 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 			Spawn();
 			mSpawnAccTime -= mSpawnTime;
 
-			//¹«ÇÑÀ¸·Î µ¿ÀÛÇØÇáÇÒ °æ¿ì
+			//ë¬´í•œìœ¼ë¡œ ë™ìž‘í•´í–í•  ê²½ìš°
 			if (mCount > 0)
 			{
 				--mCount;
@@ -92,7 +92,7 @@ void ASagaSpawnPoint::Spawn()
 	FRotator Rot = GetActorRotation();
 
 	ASagaAIPawn* AIPawn = Cast<ASagaAIPawn>(mSpawnClass->GetDefaultObject<ASagaAIPawn>());
-	if (IsValid(AIPawn)) //AIÀÏ °æ¿ìÀÇ À§Ä¡ Á¶Á¤
+	if (IsValid(AIPawn)) //AIì¼ ê²½ìš°ì˜ ìœ„ì¹˜ ì¡°ì •
 	{
 		float HalfHeight = AIPawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 		Location.Z += HalfHeight;

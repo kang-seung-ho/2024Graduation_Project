@@ -1,12 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AIPawn/SagaBearPawn.h"
-
 
 ASagaBearPawn::ASagaBearPawn()
 {
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("")); //∑π∆€∑±Ω∫ ∫πªÁ
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("")); //Î†àÌçºÎü∞Ïä§ Î≥µÏÇ¨
 
 	if (MeshAsset.Succeeded())
 	{
@@ -19,12 +15,11 @@ ASagaBearPawn::ASagaBearPawn()
 	mMesh->SetRelativeLocation(FVector(0.f, 0.f, -85.f));
 	mMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("")); //∑π∆€∑±Ω∫ ∫πªÁ»ƒ ≥°ø° _C ∫Ÿ¿Ã±‚
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("")); //Î†àÌçºÎü∞Ïä§ Î≥µÏÇ¨ÌõÑ ÎÅùÏóê _C Î∂ôÏù¥Í∏∞
 	if(AnimAsset.Succeeded())
 	{
 		mMesh->SetAnimInstanceClass(AnimAsset.Class);
 	}
-
 }
 
 void ASagaBearPawn::BeginPlay()
