@@ -135,6 +135,7 @@ demo::Framework::OnCleanRpc(iconer::app::IContext* ctx)
 {
 	// returns the rpc context object
 	auto rpc_ctx = std::launder(static_cast<RpcContext*>(ctx));
+	rpc_ctx->lastOperation = AsyncOperations::OpRpc;
 
 	auto it = lastRpcIterator;
 	while (true)
