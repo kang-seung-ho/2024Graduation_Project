@@ -303,6 +303,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 				{
 					UClass* character_class_ref = nullptr;
 					ASagaCharacterPlayer* character = nullptr;
+
 					if (member.ID() == GetLocalUserId())
 					{
 						character_class_ref = localPlayerClassReference.LoadSynchronous();
@@ -316,7 +317,6 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 					if (character)
 					{
 						member.ownedCharacter = character;
-						
 
 						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
 

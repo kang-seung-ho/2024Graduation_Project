@@ -234,10 +234,13 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		return;
 	}
 
+	auto& character = user.ownedCharacter;
 	switch (cat)
 	{
 	case ESagaRpcProtocol::RPC_UNKNOWN:
-	{}
+	{
+
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_WALK:

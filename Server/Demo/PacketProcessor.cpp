@@ -41,7 +41,7 @@ demo::OnRequestRoomList(Framework& framework, User& user)
 {
 	if (user.GetState() != UserStates::None)
 	{
-		(void) framework.Schedule(user.requestContext, user.GetID());
+		(void)framework.Schedule(user.requestContext, user.GetID());
 	}
 }
 
@@ -50,7 +50,7 @@ demo::OnRequestMemberList(Framework& framework, User& user)
 {
 	if (user.GetState() != UserStates::None)
 	{
-		(void) framework.Schedule(user.requestMemberContext, user.GetID());
+		(void)framework.Schedule(user.requestMemberContext, user.GetID());
 	}
 }
 
@@ -225,7 +225,7 @@ demo::OnTeamChanged(demo::Framework& framework, User& user, bool is_red_team)
 				framework.SetRoomModifiedFlag();
 			}
 
-			(void) framework.Schedule(user.teamChangerContext, user.GetID());
+			(void)framework.Schedule(user.teamChangerContext, user.GetID());
 		}
 	}
 }
