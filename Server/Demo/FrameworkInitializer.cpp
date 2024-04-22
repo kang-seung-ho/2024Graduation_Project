@@ -100,6 +100,7 @@ demo::Framework::Awake()
 	{
 		ctx = new RpcContext{ RpcProtocol::RPC_UNKNOWN };
 	}
+	lastRpcIterator = everyRpcContexts.begin();
 
 	myLogger.Log(L"\tallocating space of objects...\n");
 	userManager->Reserve(maxUsersNumber);
