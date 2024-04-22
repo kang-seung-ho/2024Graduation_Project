@@ -27,7 +27,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of playable character"));
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
 	}
 
 	static ConstructorHelpers::FClassFinder<AActor> character_class_seek2(TEXT("/Game/BP/BP_SagaCharacterPlayer.BP_SagaCharacterPlayer_c"));
@@ -37,7 +37,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the class of dummy character"));
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the dummy character"));
 	}
 }
 

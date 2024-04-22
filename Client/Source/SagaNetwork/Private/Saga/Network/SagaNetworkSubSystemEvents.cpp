@@ -230,7 +230,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 
 	if (not FindUser(id, user))
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[RPC] Cannot find user %d"), id);
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find user %d"), id);
 		return;
 	}
 
