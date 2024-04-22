@@ -181,8 +181,17 @@ saga::ReceivePositionPacket(const std::byte* buffer
 const std::byte*
 saga::ReceiveRpcPacket(const std::byte* buffer, ESagaRpcProtocol& cat, int32& client_id, int64& arg0, int32& arg1)
 {
-	// TODO: ReceiveRpcPacket
-	return nullptr;
+	auto seek = buffer;
+
+	SC_DeterRpcPacket pk{};
+	seek = pk.Read(buffer);
+
+	cat = pk.rpcScript;
+	client_id = pk.clientId;
+	arg0 = pk.rpcArgument0;
+	arg1 = pk.rpcArgument1;
+
+	return seek;
 }
 
 const std::byte*
