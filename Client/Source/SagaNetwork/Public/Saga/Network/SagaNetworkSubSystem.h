@@ -82,7 +82,7 @@ public:
 	bool Close();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	AActor* CreatePlayableCharacter(UClass* type) const;
+	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
 	const TArray<FSagaVirtualUser>& UpdatePlayerList();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))

@@ -274,13 +274,13 @@ const noexcept
 }
 
 AActor*
-USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type)
+USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type, const FTransform& transform)
 const
 {
 	if (type != nullptr)
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
-		return GetWorld()->SpawnActor(type);
+		return GetWorld()->SpawnActor(type, &transform);
 	}
 	else
 	{

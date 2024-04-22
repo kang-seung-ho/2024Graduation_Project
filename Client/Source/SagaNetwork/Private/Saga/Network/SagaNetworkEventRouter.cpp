@@ -313,7 +313,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 						character_class_ref = dummyPlayerClassReference.LoadSynchronous();
 					}
 
-					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class_ref));
+					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class_ref, {}));
 					if (character)
 					{
 						member.ownedCharacter = character;
