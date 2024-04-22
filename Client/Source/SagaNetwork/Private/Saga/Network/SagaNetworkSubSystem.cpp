@@ -279,8 +279,11 @@ const
 {
 	if (type != nullptr)
 	{
+		FActorSpawnParameters setting{};
+		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
-		return GetWorld()->SpawnActor(type, &transform);
+		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
 	}
 	else
 	{
