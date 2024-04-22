@@ -214,7 +214,7 @@ demo::Framework::OnNotifyTeam(iconer::app::User& user)
 				return false;
 			}
 			{
-				if (room->GetState() != iconer::app::RoomStates::Idle)
+				if (room->GetState() == iconer::app::RoomStates::Idle)
 				{
 					room->ForEach(
 						[user_id, team_id](iconer::app::User& user)
