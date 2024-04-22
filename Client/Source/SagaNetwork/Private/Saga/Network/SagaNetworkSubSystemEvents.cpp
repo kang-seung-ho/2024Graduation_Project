@@ -1,9 +1,10 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Sockets.h"
 
-#include "Player/SagaUserTeam.h"
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkUtility.h"
+#include "Character/SagaCharacterPlayer.h"
+#include "Player/SagaUserTeam.h"
 
 [[nodiscard]] TSharedRef<FInternetAddr> CreateRemoteEndPoint();
 
@@ -244,11 +245,15 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_WALK:
-	{}
+	{
+
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_RUN:
-	{}
+	{
+		character;
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_JUMP:

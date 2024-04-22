@@ -1,5 +1,4 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Character/SagaCharacterPlayer.h"
 
 void
 USagaNetworkSubSystem::BroadcastOnNetworkInitialized()
