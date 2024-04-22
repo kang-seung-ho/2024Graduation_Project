@@ -12,7 +12,7 @@ struct SAGANETWORK_API FSagaVirtualUser : public FSagaVirtualSession
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Network|Session")
-	class ASagaCharacterPlayer* ownedCharacter = nullptr;
+	TObjectPtr<class ASagaCharacterPlayer> ownedCharacter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "CandyLandSaga|Network|Session")
-	EUserTeam myTeam = {};
+	EUserTeam myTeam;
 };
