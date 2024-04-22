@@ -306,8 +306,9 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 					rpc_ctx->firstArgument = arg0;
 					rpc_ctx->secondArgument = arg1;
 
-					(void) framework.Schedule(rpc_ctx, user.GetID());
-					break;
+					(void)framework.Schedule(rpc_ctx, user.GetID());
+
+					return;
 				}
 				else
 				{

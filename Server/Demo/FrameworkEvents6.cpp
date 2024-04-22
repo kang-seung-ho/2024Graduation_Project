@@ -156,7 +156,7 @@ demo::Framework::OnCleanRpc(iconer::app::IContext* ctx)
 					while (not lastRpcLock.compare_exchange_strong(truthy, false));
 				}
 
-				break;
+				return;
 			}
 		}
 
