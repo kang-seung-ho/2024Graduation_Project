@@ -363,6 +363,23 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	}
 	break;
 
+	case EPacketProtocol::SC_LOOK_CHARACTER:
+	{
+		int32 client_id{};
+		float r{}, y{}, p{};
+
+		//saga::ReceiveRotationPacket(packet_buffer, client_id, r, y, p);
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Client id %d: rotation(%f,%f,%f)"), client_id, r, y, p);
+
+		CallFunctionOnGameThread([this, client_id, r, y, p]()
+			{
+				BroadcastOnUpdateRotation(client_id, r, y, p);
+			}
+		);
+	}
+	break;
+
 	case EPacketProtocol::SC_UPDATE_CHARACTER:
 	{
 	}
@@ -370,10 +387,10 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 	case EPacketProtocol::SC_RPC:
 	{
-		ESagaRpcProtocol category{};
-		int32 user_id{};
-		int64 argument0{};
-		int32 argument1{};
+		static ESagaRpcProtocol category{};
+		static int32 user_id{};
+		static int64 argument0{};
+		static int32 argument1{};
 
 		saga::ReceiveRpcPacket(packet_buffer, category, user_id, argument0, argument1);
 
@@ -381,9 +398,9 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
-		CallFunctionOnGameThread([this, cat = MoveTemp(category), id = MoveTemp(user_id), arg0 = MoveTemp(argument0), arg1 = MoveTemp(argument1)]()
+		CallFunctionOnGameThread([&]()
 			{
-				BroadcastOnRpc(cat, id, arg0, arg1);
+				BroadcastOnRpc(category, user_id, argument0, argument1);
 			}
 		);
 	}
