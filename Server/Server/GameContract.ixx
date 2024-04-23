@@ -18,6 +18,7 @@ export namespace iconer::app
 		, UnstableRoom // Room's state is changed at time
 		, OtherClientFailed // Other member(s) in the room could not prepare the game
 		, ServerError // Unknown internal error
+		, Success = 200
 	};
 }
 

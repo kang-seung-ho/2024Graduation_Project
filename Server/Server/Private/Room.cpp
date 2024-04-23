@@ -204,6 +204,71 @@ volatile noexcept
 	return false;
 }
 
+bool
+iconer::app::Room::StartGame()
+{
+	if (CanStartGame() and TryBeginGame())
+	{
+		const auto max_cnt = proceedMemberCount.Load(std::memory_order_acquire);
+		size_t cnt = 0;
+
+		for (auto& [user, _] : myMembers)
+		{
+			if (auto ptr = user.Load(std::memory_order_acquire); nullptr != ptr)
+			{
+				user->SetState(UserStates::InGame);
+				auto [io, ctx] = user->SendGameJustStartedPacket();
+				if (not io)
+				{
+					ctx.Complete();
+				}
+
+				++cnt;
+			}
+		}
+
+		SetOperation(AsyncOperations::OpCreateCharacters);
+
+		return proceedMemberCount.CompareAndSet(cnt, 0, std::memory_order_release);
+	}
+	else
+	{
+		TryCancelBeginGame();
+		return false;
+	}
+}
+
+void
+iconer::app::Room::CloseGame()
+{
+	SetOperation(AsyncOperations::None);
+	proceedMemberCount = 0;
+	isGameReadyFailed = false;
+
+	if (0 < GetMembersCount())
+	{
+		if (TryEndClose(RoomStates::Idle))
+		{
+			ForEach
+			(
+				[](User& member)
+				{
+					member.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
+					member.TryChangeState(UserStates::ReadyForGame, UserStates::InRoom);
+				}
+			);
+		}
+	}
+	else
+	{
+		if (TryEndClose(RoomStates::None))
+		{
+			membersCount = 0;
+			isMemberUpdated = true;
+		}
+	}
+}
+
 void
 iconer::app::Room::ClearMembers()
 volatile noexcept

@@ -93,10 +93,23 @@ export namespace iconer::app
 			}
 		}
 
-		[[nodiscard]] std::span<std::byte> SerializeMembers() volatile;
-
 		bool ReadyMember(iconer::app::User& user) volatile noexcept;
 		bool UnreadyMember(iconer::app::User& user) volatile noexcept;
+
+		bool StartGame();
+		void CloseGame();
+
+		[[nodiscard]] std::span<std::byte> SerializeMembers() volatile;
+
+		[[nodiscard]] size_t GetMembersCount() const volatile noexcept;
+
+		[[nodiscard]] bool IsEmpty() const volatile noexcept;
+		[[nodiscard]] bool IsFull() const volatile noexcept;
+		[[nodiscard]] bool HasMember(const IdType& id) const volatile noexcept;
+		[[nodiscard]] bool IsEveryMemberIsLoaded() const volatile noexcept;
+		[[nodiscard]] bool CanCreateGame() const volatile noexcept;
+		[[nodiscard]] bool CanPrepareGame() const volatile noexcept;
+		[[nodiscard]] bool CanStartGame() const volatile noexcept;
 
 		[[nodiscard]]
 		constexpr iterator begin() noexcept
@@ -169,16 +182,6 @@ export namespace iconer::app
 		{
 			return myMembers + maxUsersNumberInRoom;
 		}
-
-		[[nodiscard]] size_t GetMembersCount() const volatile noexcept;
-
-		[[nodiscard]] bool IsEmpty() const volatile noexcept;
-		[[nodiscard]] bool IsFull() const volatile noexcept;
-		[[nodiscard]] bool HasMember(const IdType& id) const volatile noexcept;
-		[[nodiscard]] bool IsEveryMemberIsLoaded() const volatile noexcept;
-		[[nodiscard]] bool CanCreateGame() const volatile noexcept;
-		[[nodiscard]] bool CanPrepareGame() const volatile noexcept;
-		[[nodiscard]] bool CanStartGame() const volatile noexcept;
 
 		RoomMember myMembers[maxUsersNumberInRoom];
 		iconer::util::MovableAtomic<size_t> membersCount;

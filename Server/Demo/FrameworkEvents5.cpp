@@ -24,26 +24,7 @@ using namespace iconer::app;
 bool
 demo::Framework::OnStartGame(Room& room)
 {
-	if (room.CanStartGame() and room.TryBeginGame())
-	{
-		room.ForEach
-		(
-			[](User& member)
-			{
-				member.SetState(UserStates::InGame);
-				SEND(member, SendGameJustStartedPacket);
-			}
-		);
-
-		room.SetOperation(AsyncOperations::OpCreateCharacters);
-		room.proceedMemberCount = 0;
-
-		return Schedule(room, 0);
-	}
-	else
-	{
-		return false;
-	}
+	return room.StartGame() ? Schedule(room, 0) : false;
 }
 
 void
@@ -66,20 +47,5 @@ noexcept
 void
 demo::Framework::OnCloseGame(Room& room)
 {
-	if (room.TryEndClose(0 < room.GetMembersCount()
-		? RoomStates::Idle : RoomStates::None))
-	{
-		room.SetOperation(AsyncOperations::None);
-		room.proceedMemberCount = 0;
-		room.isGameReadyFailed = false;
-
-		room.ForEach
-		(
-			[](User& member)
-			{
-				member.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
-				member.TryChangeState(UserStates::ReadyForGame, UserStates::InRoom);
-			}
-		);
-	}
+	room.CloseGame();
 }
