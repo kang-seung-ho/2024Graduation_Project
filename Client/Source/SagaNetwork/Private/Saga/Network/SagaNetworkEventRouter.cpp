@@ -381,9 +381,9 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
-		CallFunctionOnGameThread([&]()
+		CallFunctionOnGameThread([this, cat = MoveTemp(category), id = MoveTemp(user_id), arg0 = MoveTemp(argument0), arg1 = MoveTemp(argument1)]()
 			{
-				BroadcastOnRpc(category, user_id, argument0, argument1);
+				BroadcastOnRpc(cat, id, arg0, arg1);
 			}
 		);
 	}
