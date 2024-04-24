@@ -320,7 +320,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
 
-						UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
+						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
 					}
 					else
 					{
