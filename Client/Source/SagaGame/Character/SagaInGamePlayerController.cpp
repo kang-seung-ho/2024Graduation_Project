@@ -16,7 +16,7 @@ void ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//¸ÅÇÎÄÁÅØ½ºÆ®¸¦ ÀÔ·Â½Ã½ºÅÛ¿¡ ÁöÁ¤
+	//ë§¤í•‘ì»¨í…ìŠ¤íŠ¸ë¥¼ ì…ë ¥ì‹œìŠ¤í…œì— ì§€ì •
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
@@ -62,20 +62,20 @@ void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
 	ControlledPawn->AddMovementInput(ForwardVector, InputValue.Y);
 	ControlledPawn->AddMovementInput(RightVector, InputValue.X);
 
-	//¿ì: InputValue.X°¡ 1
-	//¿Ş: InputValue.Y°¡ -1
-	//µÑ´Ù X : 0
+	//ìš°: InputValue.Xê°€ 1
+	//ì™¼: InputValue.Yê°€ -1
+	//ë‘˜ë‹¤ X : 0
 	mMoveDir = InputValue.X * 90.f;
 
-	//¾ÕÀ¸·Î ÀÌµ¿
+	//ì•ìœ¼ë¡œ ì´ë™
 	if (InputValue.Y > 0.f)
 	{
-		//¾ÕÀ¸·Î, + ¿ŞÂÊ
+		//ì•ìœ¼ë¡œ, + ì™¼ìª½
 		if (InputValue.X < 0.f)
 		{
 			mMoveDir = -45.f;
 		}
-		//¾ÕÀ¸·Î, + ¿À¸¥ÂÊ
+		//ì•ìœ¼ë¡œ, + ì˜¤ë¥¸ìª½
 		else if (InputValue.X > 0.f)
 		{
 			mMoveDir = 45.f;
@@ -83,12 +83,12 @@ void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
 	}
 	else if (InputValue.Y < 0.f)
 	{
-		//µÚ·Î, + ¿ŞÂÊ
+		//ë’¤ë¡œ, + ì™¼ìª½
 		if (InputValue.X < 0.f)
 		{
 			mMoveDir = -135.f;
 		}
-		//µÚ·Î, + ¿À¸¥ÂÊ
+		//ë’¤ë¡œ, + ì˜¤ë¥¸ìª½
 		else if (InputValue.X > 0.f)
 		{
 			mMoveDir = 135.f;
