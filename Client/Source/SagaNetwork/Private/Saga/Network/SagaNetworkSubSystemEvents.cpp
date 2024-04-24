@@ -248,26 +248,35 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 		if (character)
 		{
-			//character->wal
+			character->ExecuteWalk();
 		}
 	}
 	break;
 	
 	case ESagaRpcProtocol::RPC_END_WALK:
 	{
-
+		if (character)
+		{
+			character->TerminateWalk();
+		}
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_RUN:
 	{
-		character;
+		if (character)
+		{
+			character->ExecuteWalk();
+		}
 	}
 	break;
 	
 	case ESagaRpcProtocol::RPC_END_RUN:
 	{
-		character;
+		if (character)
+		{
+			character->TerminateWalk();
+		}
 	}
 	break;
 
