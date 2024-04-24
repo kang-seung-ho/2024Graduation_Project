@@ -266,7 +266,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 		if (character)
 		{
-			character->ExecuteWalk();
+			character->ExecuteRun();
 		}
 	}
 	break;
@@ -275,31 +275,74 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 		if (character)
 		{
-			character->TerminateWalk();
+			character->TerminateRun();
 		}
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_JUMP:
-	{}
+	{
+		if (character)
+		{
+			character->ExecuteJump();
+		}
+	}
 	break;
 
 	// 수호자 탑승
 	case ESagaRpcProtocol::RPC_BEG_RIDE:
-	{}
+	{
+		if (character)
+		{
+			character->ExecuteRide();
+		}
+	}
 	break;
 
 	// 수호자 하차
 	case ESagaRpcProtocol::RPC_END_RIDE:
-	{}
+	{
+		if (character)
+		{
+			character->TerminateRide();
+		}
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
-	{}
+	{
+		if (character)
+		{
+			character->ExecuteAttack();
+		}
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_END_ATTACK_0:
+	{
+		if (character)
+		{
+			character->TerminateAttack();
+		}
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
-	{}
+	{
+		if (character)
+		{
+			character->ExecuteAttack();
+		}
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_END_ATTACK_1:
+	{
+		if (character)
+		{
+			character->TerminateAttack();
+		}
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_2:
