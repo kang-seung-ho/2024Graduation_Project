@@ -34,7 +34,7 @@ export StoreString(5, "Unknown packet.");
 export StoreString(6, "Error when reserving acceptance of a socket.");
 export StoreWideString(7, "\tCannot assembly a packet due to `PacketProcessor`'s failure\n");
 export StoreWideString(8, "\tCannot assembly a packet in `PacketProcessor` due to lack of bytes\n");
-export StoreWideString(9, "\tA packet is assembled\n");
+export StoreWideString(9, "\tA packet '{}' is assembled ({}|{})\n");
 export StoreWideString(10, "\tCannot assembly a packet due to lack of bytes\n");
 export StoreString(11, "This packet is not supported by PacketProcessor\n");
 export StoreWideString(12, "\tWorker {} is finished\n");

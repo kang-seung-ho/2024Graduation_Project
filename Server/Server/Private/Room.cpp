@@ -229,6 +229,7 @@ iconer::app::Room::StartGame()
 
 		SetOperation(AsyncOperations::OpCreateCharacters);
 
+		// TODO: Room::StartGame()
 		//return proceedMemberCount.CompareAndSet(cnt - 1, 0, std::memory_order_release);
 		return true;
 	}

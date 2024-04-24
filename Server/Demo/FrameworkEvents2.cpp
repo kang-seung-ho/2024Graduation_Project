@@ -39,7 +39,7 @@ demo::Framework::OnReceived(iconer::app::User& user, const ptrdiff_t& bytes)
 		}
 		else LIKELY
 		{
-			myLogger.DebugLog(iconer::app::GetResourceString<9>());
+			myLogger.DebugLog(iconer::app::GetResourceString<9>(), static_cast<std::int8_t>(user_buffer[0]), static_cast<std::int8_t>(user_buffer[1]), static_cast<std::int8_t>(user_buffer[2]));
 
 			const auto last_off = user_buffer.size_bytes() - proceed_bytes;
 			std::memcpy(user_buffer.data() + proceed_bytes, user_buffer.data(), last_off);
@@ -64,10 +64,10 @@ demo::Framework::OnFailedReceive(iconer::app::User& user)
 					if (0 == members_count)
 					{
 						room.BeginClose();
-						room.SetOperation(iconer::app::AsyncOperations::OpCloseRoom);
 					}
 				}); removed)
 			{
+				room->SetOperation(iconer::app::AsyncOperations::OpCloseRoom);
 				if (not Schedule(room, room->GetID()))
 				{
 					room->Cleanup();
