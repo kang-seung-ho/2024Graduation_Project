@@ -134,10 +134,72 @@ test::Update()
 					if (not is_walking)
 					{
 						SendRpcPacket(RPC_BEG_WALK);
+						is_walking = !is_walking;
 					}
 					else
 					{
 						SendRpcPacket(RPC_END_WALK);
+						is_walking = !is_walking;
+					}
+				}
+				else if (cmd == '2')
+				{
+					static bool is_sprinting = false;
+
+					if (not is_sprinting)
+					{
+						SendRpcPacket(RPC_BEG_RUN);
+						is_sprinting = !is_sprinting;
+					}
+					else
+					{
+						SendRpcPacket(RPC_END_RUN);
+						is_sprinting = !is_sprinting;
+					}
+				}
+				else if (cmd == '3')
+				{
+					static bool is_attacking = false;
+
+					if (not is_attacking)
+					{
+						SendRpcPacket(RPC_BEG_ATTACK_0);
+						is_attacking = !is_attacking;
+					}
+					else
+					{
+						SendRpcPacket(RPC_END_ATTACK_0);
+						is_attacking = !is_attacking;
+					}
+				}
+				else if (cmd == '4')
+				{
+					static bool is_jumping = false;
+
+					//if (not is_jumping)
+					{
+						SendRpcPacket(RPC_BEG_JUMP);
+						//is_walking = !is_walking;
+					}
+					//else
+					{
+						//SendRpcPacket(RPC_END_WALK);
+						//is_walking = !is_walking;
+					}
+				}
+				else if (cmd == '5')
+				{
+					static bool is_riding = false;
+
+					if (not is_riding)
+					{
+						SendRpcPacket(RPC_BEG_RIDE);
+						is_riding = !is_riding;
+					}
+					else
+					{
+						SendRpcPacket(RPC_END_RIDE);
+						is_riding = !is_riding;
 					}
 				}
 			}
