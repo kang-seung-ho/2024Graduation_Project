@@ -223,13 +223,14 @@ iconer::app::Room::StartGame()
 					ctx.Complete();
 				}
 
-				++cnt;
+				cnt = proceedMemberCount.FetchAdd(1, std::memory_order_release);
 			}
 		}
 
 		SetOperation(AsyncOperations::OpCreateCharacters);
 
-		return proceedMemberCount.CompareAndSet(cnt, 0, std::memory_order_release);
+		//return proceedMemberCount.CompareAndSet(cnt - 1, 0, std::memory_order_release);
+		return true;
 	}
 	else
 	{
