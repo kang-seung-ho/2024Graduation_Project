@@ -240,17 +240,32 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 	case ESagaRpcProtocol::RPC_UNKNOWN:
 	{
-
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot rpc script by user %d"), id);
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_WALK:
+	{
+		if (character)
+		{
+			//character->wal
+		}
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_END_WALK:
 	{
 
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_BEG_RUN:
+	{
+		character;
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_END_RUN:
 	{
 		character;
 	}
