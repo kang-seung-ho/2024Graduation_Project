@@ -1,14 +1,15 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "../SagaGameInfo.h"
 #include "GameFramework/Character.h"
-
-#include "Saga/Network/SagaNetworkRpcView.h"
-
 #include "SagaCharacterPlayer.generated.h"
 
+
+
 UCLASS()
-class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaNetworkRpcView
+class SAGAGAME_API ASagaCharacterPlayer : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -17,11 +18,7 @@ public:
 	ASagaCharacterPlayer();
 
 protected:
-	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* mCamera;
-
-	UPROPERTY(VisibleAnywhere)
-	USpringArmComponent* mArm;
+	
 
 	class USagaPlayerAnimInstance* mAnimInst;
 
@@ -41,5 +38,7 @@ public:
 
 public:
 	void PlayAttackAnimation();
+
+
 
 };

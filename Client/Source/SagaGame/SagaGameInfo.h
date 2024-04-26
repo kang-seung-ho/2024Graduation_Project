@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "SagaGameInfo.generated.h"
 
+
+#define CPROFILE_SAGATRIGGER TEXT("SagaTrigger")
 /**
  * 
  */

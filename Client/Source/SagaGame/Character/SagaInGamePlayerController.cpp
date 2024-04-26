@@ -10,18 +10,38 @@
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer) : APlayerController(ObjectInitializer)
 {
 	mMoveDir = 0.f;
+
+	
 }
 
 void ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//ë§¤í•‘ì»¨í…ìŠ¤íŠ¸ë¥¼ ì…ë ¥ì‹œìŠ¤í…œì— ì§€ì •
+	//¸ÅÇÎÄÁÅØ½ºÆ®¸¦ ÀÔ·Â½Ã½ºÅÛ¿¡ ÁöÁ¤
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
 
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
+
+	//if (GetPawn())
+	//{
+	//	mArm->SetupAttachment(GetPawn()->GetRootComponent());
+	//	mCamera->SetupAttachment(mArm);
+
+	//	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	//	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
+	//	mArm->TargetArmLength = 150.f;
+	//}
+
+
+	//// Make sure the camera components are correctly initialized
+	//if (GetPawn())
+	//{
+	//	mArm->AttachToComponent(GetPawn()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//	mCamera->AttachToComponent(mArm, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//}
 }
 
 void ASagaInGamePlayerController::SetupInputComponent()
@@ -62,20 +82,20 @@ void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
 	ControlledPawn->AddMovementInput(ForwardVector, InputValue.Y);
 	ControlledPawn->AddMovementInput(RightVector, InputValue.X);
 
-	//ìš°: InputValue.Xê°€ 1
-	//ì™¼: InputValue.Yê°€ -1
-	//ë‘˜ë‹¤ X : 0
+	//¿ì: InputValue.X°¡ 1
+	//¿Ş: InputValue.Y°¡ -1
+	//µÑ´Ù X : 0
 	mMoveDir = InputValue.X * 90.f;
 
-	//ì•ìœ¼ë¡œ ì´ë™
+	//¾ÕÀ¸·Î ÀÌµ¿
 	if (InputValue.Y > 0.f)
 	{
-		//ì•ìœ¼ë¡œ, + ì™¼ìª½
+		//¾ÕÀ¸·Î, + ¿ŞÂÊ
 		if (InputValue.X < 0.f)
 		{
 			mMoveDir = -45.f;
 		}
-		//ì•ìœ¼ë¡œ, + ì˜¤ë¥¸ìª½
+		//¾ÕÀ¸·Î, + ¿À¸¥ÂÊ
 		else if (InputValue.X > 0.f)
 		{
 			mMoveDir = 45.f;
@@ -83,12 +103,12 @@ void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
 	}
 	else if (InputValue.Y < 0.f)
 	{
-		//ë’¤ë¡œ, + ì™¼ìª½
+		//µÚ·Î, + ¿ŞÂÊ
 		if (InputValue.X < 0.f)
 		{
 			mMoveDir = -135.f;
 		}
-		//ë’¤ë¡œ, + ì˜¤ë¥¸ìª½
+		//µÚ·Î, + ¿À¸¥ÂÊ
 		else if (InputValue.X > 0.f)
 		{
 			mMoveDir = 135.f;

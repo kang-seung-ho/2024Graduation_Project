@@ -3,6 +3,7 @@
 
 #include "SagaCharacterPlayer.h"
 #include "SagaPlayerAnimInstance.h"
+#include "../Item/SagaWeaponData.h"
 
 // Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
@@ -19,7 +20,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
 	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 
-	mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
+	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	mArm->SetupAttachment(GetMesh());
@@ -29,7 +30,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 
-	mArm->TargetArmLength = 150.f;
+	mArm->TargetArmLength = 150.f;*/
 
 }
 
@@ -38,7 +39,7 @@ void ASagaCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//ì´ í•¨ìˆ˜ í˜¸ì¶œë˜ê¸° ì „ì— SkeletalMeshCOmponentì— ì§€ì •ëœ AnimInstance í´ë˜ìŠ¤ ì´ìš©í•˜ì—¬ ì‚¬ìš©í•˜ê¸° ìœ„í•œ ê°ì²´ ë§Œë“¤ì–´ë†¨ìŒ.
+	//ÀÌ ÇÔ¼ö È£ÃâµÇ±â Àü¿¡ SkeletalMeshComponent¿¡ ÁöÁ¤µÈ AnimInstance Å¬·¡½º ÀÌ¿ëÇÏ¿© »ç¿ëÇÏ±â À§ÇÑ °´Ã¼ ¸¸µé¾î³ùÀ½.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 }
 
