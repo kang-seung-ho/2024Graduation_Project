@@ -97,24 +97,45 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
-	room->ForEach
-	(
-		[&](User& member)
-		{
-			SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
-		}
-	);
-
 	using enum RpcProtocol;
 
 	switch (rpc_ctx->rpcCategory)
 	{
-	case RPC_BEG_WALK:
-	{}
+	case RPC_BEG_RIDE:
+	{
+
+	}
+	break;
+
+	case RPC_END_RIDE:
+	{
+
+	}
+	break;
+
+	case RPC_BEG_ATTACK_0:
+	{
+
+	}
+	break;
+
+	case RPC_END_ATTACK_0:
+	{
+
+	}
 	break;
 
 	default:
-		break;
+	{
+		room->ForEach
+		(
+			[&](User& member)
+			{
+				SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
+			}
+		);
+	}
+	break;
 	}
 
 	rpc_ctx->lastOperation = AsyncOperations::OpCleanRpc;
