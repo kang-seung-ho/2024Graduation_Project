@@ -20,7 +20,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
 	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 
-	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
+	mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	mArm->SetupAttachment(GetMesh());
@@ -30,7 +30,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 
-	mArm->TargetArmLength = 150.f;*/
+	mArm->TargetArmLength = 150.f;
 
 }
 

@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "../Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
+#include "SagaNetwork/Public/Saga/Network/SagaNetworkSubSystem.h"
+#include "SagaNetwork/Public/Saga/Network/SagaRpcProtocol.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer) : APlayerController(ObjectInitializer)
 {
@@ -55,6 +57,7 @@ void ASagaInGamePlayerController::SetupInputComponent()
 
 	Input->BindAction(InputSystem->Move, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::OnMove);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
+	
 }
 
 
@@ -125,4 +128,125 @@ void ASagaInGamePlayerController::OnAttack(const FInputActionValue& Value)
 	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
 
 	ControlledPawn->PlayAttackAnimation();
+}
+
+
+void
+ASagaInGamePlayerController::BeginWalk()
+{
+	//auto singleton = GEngine->GetWorld()->GetGameInstance();
+	////auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	//if (system->GetLocalUserId() != -1)
+	//{
+	//	system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK);
+	//}
+}
+
+void
+ASagaInGamePlayerController::EndWalk()
+{
+	//auto singleton = GEngine->GetWorld()->GetGameInstance();
+	////auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	//if (system->GetLocalUserId() != -1)
+	//{
+	//	system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK);
+	//}
+}
+
+void
+ASagaInGamePlayerController::BeginRun()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
+	}
+}
+
+void
+ASagaInGamePlayerController::EndRun()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginJump()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
+	}
+}
+
+void
+ASagaInGamePlayerController::EndJump()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginAttack()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+	}
+}
+
+void
+ASagaInGamePlayerController::EndAttack()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginRide()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE);
+	}
+}
+
+void
+ASagaInGamePlayerController::EndRide()
+{
+	auto singleton = GEngine->GetWorld()->GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE);
+	}
 }

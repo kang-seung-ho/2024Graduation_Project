@@ -4,7 +4,7 @@
 #include "Sockets.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
-#include "Character/SagaCharacterPlayer.h"
+#include "SagaGame/Character/SagaCharacterPlayer.h"
 
 TQueue<UE::Tasks::TTask<int32>> USagaNetworkSubSystem::taskQueue{};
 //TMap<FStringView, TUniqueFunction<void()>> USagaNetworkSubSystem::rpcDatabase{};

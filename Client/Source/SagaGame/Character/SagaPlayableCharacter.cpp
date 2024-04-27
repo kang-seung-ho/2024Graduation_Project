@@ -1,4 +1,5 @@
 #include "SagaPlayableCharacter.h"
+#include "SagaPlayerAnimInstance.h"
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -40,7 +41,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 
 	//Weapon
 	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 }
 
 void ASagaPlayableCharacter::BeginPlay()
@@ -61,7 +62,11 @@ void ASagaPlayableCharacter::Tick(float DeltaTime)
 
 void ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
 {
-
+	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
+	if (WeaponDataItem)
+	{
+		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+	}
 }
 
 void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
@@ -76,7 +81,11 @@ void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
 
 void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
 {
-
+	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
+	if (WeaponDataItem)
+	{
+		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+	}
 }
 
 void ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)

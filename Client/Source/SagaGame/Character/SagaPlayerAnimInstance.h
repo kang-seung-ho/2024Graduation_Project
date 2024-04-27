@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "../Item/SagaWeaponData.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
 /**
@@ -35,6 +36,10 @@ public:
 
 public:
 	void PlayAttackMontage();
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EWeaponType mWeaponType;
 
 public:
 	UFUNCTION()
