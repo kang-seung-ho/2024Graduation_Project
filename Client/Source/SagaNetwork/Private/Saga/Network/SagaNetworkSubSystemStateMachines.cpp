@@ -20,7 +20,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, everyRooms(), wasRoomsUpdated(true)
 	, localPlayerClassReference(), dummyPlayerClassReference()
 {
-	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter_c'"));
+	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
 	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
 	{
 		localPlayerClassReference = character_class_seek1.Class;

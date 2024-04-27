@@ -13,14 +13,14 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 {
 	mMoveDir = 0.f;
 
-	
+	//GetGameInstance<class USagaNetworkSubSystem>();
 }
 
 void ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//¸ÅÇÎÄÁÅØ½ºÆ®¸¦ ÀÔ·Â½Ã½ºÅÛ¿¡ ÁöÁ¤
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø½ï¿½Æ®ï¿½ï¿½ ï¿½Ô·Â½Ã½ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
@@ -63,8 +63,8 @@ void ASagaInGamePlayerController::SetupInputComponent()
 	
 }
 
-//Begin, End -> RPC È£Ãâ
-//Execute, Terminate -> Å¬¶ó·ÎÁ÷ ½ÇÇà
+//Begin, End -> RPC È£ï¿½ï¿½
+//Execute, Terminate -> Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 void ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -93,20 +93,20 @@ void ASagaInGamePlayerController::ExecuteWalk()
 	ControlledPawn->AddMovementInput(ForwardVector, WalkDirection.Y);
 	ControlledPawn->AddMovementInput(RightVector, WalkDirection.X);
 
-	//¿ì: InputValue.X°¡ 1
-	//¿Þ: InputValue.Y°¡ -1
-	//µÑ´Ù X : 0
+	//ï¿½ï¿½: InputValue.Xï¿½ï¿½ 1
+	//ï¿½ï¿½: InputValue.Yï¿½ï¿½ -1
+	//ï¿½Ñ´ï¿½ X : 0
 	mMoveDir = WalkDirection.X * 90.f;
 
-	//¾ÕÀ¸·Î ÀÌµ¿
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
 	if (WalkDirection.Y > 0.f)
 	{
-		//¾ÕÀ¸·Î, + ¿ÞÂÊ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, + ï¿½ï¿½ï¿½ï¿½
 		if (WalkDirection.X < 0.f)
 		{
 			mMoveDir = -45.f;
 		}
-		//¾ÕÀ¸·Î, + ¿À¸¥ÂÊ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		else if (WalkDirection.X > 0.f)
 		{
 			mMoveDir = 45.f;
@@ -114,12 +114,12 @@ void ASagaInGamePlayerController::ExecuteWalk()
 	}
 	else if (WalkDirection.Y < 0.f)
 	{
-		//µÚ·Î, + ¿ÞÂÊ
+		//ï¿½Ú·ï¿½, + ï¿½ï¿½ï¿½ï¿½
 		if (WalkDirection.X < 0.f)
 		{
 			mMoveDir = -135.f;
 		}
-		//µÚ·Î, + ¿À¸¥ÂÊ
+		//ï¿½Ú·ï¿½, + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		else if (WalkDirection.X > 0.f)
 		{
 			mMoveDir = 135.f;
@@ -148,7 +148,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
 	float WalkAngle = FMath::RadiansToDegrees(FMath::Atan2(WalkDirection.Y, WalkDirection.X)) / 45;
 
 	auto singleton = GetGameInstance();
-	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>(); //¿¡·¯¹ß»ýÁöÁ¡
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>(); //ï¿½ï¿½ï¿½ï¿½ï¿½ß»ï¿½ï¿½ï¿½ï¿½ï¿½
 
 
 	if (system->GetLocalUserId() != -1)

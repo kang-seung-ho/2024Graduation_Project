@@ -264,8 +264,8 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		{
 			/*if (controller)
 			{
-				controller->ExecuteWalk();
-			}*/
+				//controller->ExecuteWalk();
+			}
 		}
 		break;
 
