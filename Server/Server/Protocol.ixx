@@ -33,8 +33,8 @@ export namespace iconer::app
 		CS_MY_ANIMATION_END,
 
 		CS_CHAT,
-		CS_RPC,
-		CS_GAME_LOADED,
+		CS_RPC, // 21
+		CS_GAME_LOADED, // 22
 		CS_READY,
 		CS_SET_TEAM,
 
