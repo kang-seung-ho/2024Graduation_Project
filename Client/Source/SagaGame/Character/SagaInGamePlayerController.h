@@ -21,6 +21,12 @@ public:
 protected:
 	float mMoveDir;
 
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* mCamera;
+
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* mArm;
+
 public:
 	float GetMoveDir()
 	{

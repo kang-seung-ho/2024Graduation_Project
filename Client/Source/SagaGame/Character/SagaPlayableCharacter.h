@@ -3,18 +3,42 @@
 #pragma once
 
 #include "SagaCharacterPlayer.h"
+#include "../Item/SagaWeaponData.h"
+#include "../Interface/SagaCharacterItemInterface.h"
 #include "SagaPlayableCharacter.generated.h"
 
+
+DECLARE_DELEGATE_OneParam(FOnTakeWeaponDelegate, class USagaWeaponData*);
+USTRUCT(BlueprintType)
+struct FTakeWeaponDelegateWrapper
+{
+	GENERATED_BODY()
+	FTakeWeaponDelegateWrapper() {}
+	FTakeWeaponDelegateWrapper(const FOnTakeWeaponDelegate& InWeaponDelegate) : WeaponDelegate(InWeaponDelegate) {}
+
+	FOnTakeWeaponDelegate WeaponDelegate;
+};
 /**
  * 
  */
 UCLASS()
-class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer
+class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public ISagaCharacterItemInterface
 {
 	GENERATED_BODY()
 	
 public:
 	ASagaPlayableCharacter();
+
+protected:
+	bool isRiding = false;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UStaticMeshComponent> Weapon;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EWeaponType mWeaponType;
 
 
 protected:
@@ -27,4 +51,13 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	UPROPERTY()
+	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
+	virtual void EquipHammer(class USagaWeaponData* WeaponData);
+	virtual void EquipLightSaber(class USagaWeaponData* WeaponData);
+	virtual void EquipWaterGun(class USagaWeaponData* WeaponData);
+
+	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
 };

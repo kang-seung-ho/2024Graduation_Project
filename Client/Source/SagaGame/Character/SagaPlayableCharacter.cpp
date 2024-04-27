@@ -32,6 +32,15 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 
 	mArm->TargetArmLength = 150.f;*/
+
+	//Weapon Add Action
+	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipHammer)));
+	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipLightSaber)));
+	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipWaterGun)));
+
+	//Weapon
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
 }
 
 void ASagaPlayableCharacter::BeginPlay()
@@ -48,3 +57,33 @@ void ASagaPlayableCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+
+void ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
+{
+
+}
+
+void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
+{
+	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
+	if (WeaponDataItem)
+	{
+		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+	}
+
+}
+
+void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
+{
+
+}
+
+void ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
+{
+	if (WeaponData)
+	{
+		TakeWeaponAction[(uint8)WeaponData->WeaponType].WeaponDelegate.ExecuteIfBound(WeaponData);
+	}
+}
+
