@@ -14,7 +14,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Network|Session")
 	TObjectPtr<class ASagaInGamePlayerController> localController;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Network|Session")
-	TObjectPtr<class ASagaRemotePlayerCharacter> remoteCharacter;
+	TObjectPtr<class ASagaCharacterPlayer> remoteCharacter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "CandyLandSaga|Network|Session")
 	EUserTeam myTeam;
 };

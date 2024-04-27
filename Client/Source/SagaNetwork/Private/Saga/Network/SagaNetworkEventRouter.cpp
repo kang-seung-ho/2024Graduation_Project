@@ -100,6 +100,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 							newbie.id,
 							MoveTempIfPossible(nickname),
 							nullptr,
+							nullptr,
 							static_cast<EUserTeam>(newbie.team_id)
 						}
 					);
@@ -210,6 +211,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 							user.id,
 							user.nickname,
 							nullptr,
+							nullptr,
 							team_id
 						});
 
@@ -316,9 +318,9 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(ASagaCharacterPlayer::StaticClass(), {}));
 					if (character)
 					{
-						member.ownedCharacter = character;
+						member.remoteCharacter = character;
 
-						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.ownedCharacter);
+						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.remoteCharacter);
 
 						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
 					}

@@ -1,12 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
-#include "../SagaGameInfo.h"
 #include "GameFramework/Character.h"
+#include "../SagaGameInfo.h"
+#include "Saga/Network/SagaNetworkRpcView.h"
 #include "SagaCharacterPlayer.generated.h"
-
-
 
 UCLASS()
 class SAGAGAME_API ASagaCharacterPlayer : public ACharacter
@@ -43,7 +39,10 @@ public:
 
 };
 
+UCLASS()
 class ASagaRemotePlayerCharacter : public ASagaCharacterPlayer, public ISagaNetworkRpcView
 {
+	GENERATED_BODY()
+
 public:
 };

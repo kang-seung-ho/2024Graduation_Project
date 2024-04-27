@@ -1,9 +1,11 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Sockets.h"
+#include "GameFramework/PlayerController.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkUtility.h"
 #include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaInGamePlayerController.h"
 #include "Player/SagaUserTeam.h"
 
 [[nodiscard]] TSharedRef<FInternetAddr> CreateRemoteEndPoint();
@@ -235,170 +237,356 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		return;
 	}
 
-	auto& character = user.remoteCharacter;
-	switch (cat)
+	bool is_local = false;
+	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
-	case ESagaRpcProtocol::RPC_UNKNOWN:
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot rpc script by user %d"), id);
-	}
-	break;
+		is_local = true;
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is my rpc message"));
 
-	case ESagaRpcProtocol::RPC_BEG_WALK:
-	{
-		if (character)
+		auto& controller = user.localController;
+		auto pawn = controller->GetPawn();
+		auto character = Cast<ASagaCharacterPlayer>(pawn);
+		if (not character)
 		{
-			character->ExecuteWalk();
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find local user %d's character"), id);
+			return;
 		}
-	}
-	break;
-	
-	case ESagaRpcProtocol::RPC_END_WALK:
-	{
-		if (character)
+
+		switch (cat)
 		{
-			character->TerminateWalk();
-		}
-	}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_RUN:
-	{
-		if (character)
+		case ESagaRpcProtocol::RPC_UNKNOWN:
 		{
-			character->ExecuteRun();
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot run rpc script by user %d"), id);
 		}
-	}
-	break;
-	
-	case ESagaRpcProtocol::RPC_END_RUN:
-	{
-		if (character)
-		{
-			character->TerminateRun();
-		}
-	}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_JUMP:
-	{
-		if (character)
-		{
-			character->ExecuteJump();
-		}
-	}
-	break;
-
-	// 수호자 탑승
-	case ESagaRpcProtocol::RPC_BEG_RIDE:
-	{
-		if (character)
-		{
-			character->ExecuteRide();
-		}
-	}
-	break;
-
-	// 수호자 하차
-	case ESagaRpcProtocol::RPC_END_RIDE:
-	{
-		if (character)
-		{
-			character->TerminateRide();
-		}
-	}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
-	{
-		if (character)
-		{
-			character->ExecuteAttack();
-		}
-	}
-	break;
-	
-	case ESagaRpcProtocol::RPC_END_ATTACK_0:
-	{
-		if (character)
-		{
-			character->TerminateAttack();
-		}
-	}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
-	{
-		if (character)
-		{
-			character->ExecuteAttack();
-		}
-	}
-	break;
-	
-	case ESagaRpcProtocol::RPC_END_ATTACK_1:
-	{
-		if (character)
-		{
-			character->TerminateAttack();
-		}
-	}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_ATTACK_2:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_BEG_ATTACK_3:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_SKILL_0:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_SKILL_1:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_SKILL_2:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_SKILL_3:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_0:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_1:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_2:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_3:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_4:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_DEAD:
-	{}
-	break;
-
-	default:
 		break;
+
+		case ESagaRpcProtocol::RPC_BEG_WALK:
+		{
+			if (controller)
+			{
+				//controller->ExecuteWalk();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_WALK:
+		{
+			if (controller)
+			{
+				//controller->TerminateWalk();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_RUN:
+		{
+			if (controller)
+			{
+				//controller->ExecuteRun();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_RUN:
+		{
+			if (controller)
+			{
+				//controller->TerminateRun();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_JUMP:
+		{
+			if (controller)
+			{
+				//controller->ExecuteJump();
+			}
+		}
+		break;
+
+		// 수호자 탑승
+		case ESagaRpcProtocol::RPC_BEG_RIDE:
+		{
+			if (controller)
+			{
+				//controller->ExecuteRide();
+			}
+		}
+		break;
+
+		// 수호자 하차
+		case ESagaRpcProtocol::RPC_END_RIDE:
+		{
+			if (controller)
+			{
+				//controller->TerminateRide();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
+		{
+			if (controller)
+			{
+				//controller->ExecuteAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_ATTACK_0:
+		{
+			if (controller)
+			{
+				//controller->TerminateAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
+		{
+			if (controller)
+			{
+				//controller->ExecuteAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_ATTACK_1:
+		{
+			if (controller)
+			{
+				//controller->TerminateAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_0:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_1:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_0:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_1:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_4:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_DEAD:
+		{}
+		break;
+
+		default:
+			break;
+		}
+	}
+	else // 원격 클라이언트
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %s's rpc message"), id);
+
+
+		auto& character = user.remoteCharacter;
+		switch (cat)
+		{
+		case ESagaRpcProtocol::RPC_UNKNOWN:
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot rpc script by user %d"), id);
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_WALK:
+		{
+			if (character)
+			{
+				//character->ExecuteWalk();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_WALK:
+		{
+			if (character)
+			{
+				//character->TerminateWalk();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_RUN:
+		{
+			if (character)
+			{
+				//character->ExecuteRun();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_RUN:
+		{
+			if (character)
+			{
+				//character->TerminateRun();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_JUMP:
+		{
+			if (character)
+			{
+				//character->ExecuteJump();
+			}
+		}
+		break;
+
+		// 수호자 탑승
+		case ESagaRpcProtocol::RPC_BEG_RIDE:
+		{
+			if (character)
+			{
+				//character->ExecuteRide();
+			}
+		}
+		break;
+
+		// 수호자 하차
+		case ESagaRpcProtocol::RPC_END_RIDE:
+		{
+			if (character)
+			{
+				//character->TerminateRide();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
+		{
+			if (character)
+			{
+				//character->ExecuteAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_ATTACK_0:
+		{
+			if (character)
+			{
+				//character->TerminateAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
+		{
+			if (character)
+			{
+				//character->ExecuteAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_END_ATTACK_1:
+		{
+			if (character)
+			{
+				//character->TerminateAttack();
+			}
+		}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_BEG_ATTACK_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_0:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_1:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_SKILL_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_0:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_1:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_2:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_3:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_USE_ITEM_4:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
+		{}
+		break;
+
+		case ESagaRpcProtocol::RPC_DEAD:
+		{}
+		break;
+
+		default:
+			break;
+		}
 	}
 }
 
