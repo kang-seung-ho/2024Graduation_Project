@@ -21,6 +21,27 @@ export namespace iconer::app
 		iconer::util::MovableAtomic<bool> isReady;
 	};
 
+	struct SagaSummonPoint
+	{
+		const int myId;
+		float x, y, z;
+		std::atomic_bool isAvailable;
+		std::atomic_bool isSummoning;
+	};
+
+	struct SagaBasePoint
+	{
+		float x, y, z;
+		float myHp;
+	};
+
+	struct SagaTeamStatus
+	{
+		SagaBasePoint myBase;
+		int myScore;
+		User* myMembers[3];
+	};
+
 	class [[nodiscard]] Room : public detail::RoomBase
 	{
 	public:
