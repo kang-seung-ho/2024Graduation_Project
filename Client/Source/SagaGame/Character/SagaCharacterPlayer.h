@@ -8,7 +8,7 @@
 #include "SagaCharacterPlayer.generated.h"
 
 UCLASS()
-class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaNetworkRpcView
+class SAGAGAME_API ASagaCharacterPlayer : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -42,4 +42,9 @@ public:
 public:
 	void PlayAttackAnimation();
 
+};
+
+class ASagaRemotePlayerCharacter : public ASagaCharacterPlayer, public ISagaNetworkRpcView
+{
+public:
 };

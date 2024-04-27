@@ -235,7 +235,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		return;
 	}
 
-	auto& character = user.ownedCharacter;
+	auto& character = user.remoteCharacter;
 	switch (cat)
 	{
 	case ESagaRpcProtocol::RPC_UNKNOWN:

@@ -4,8 +4,8 @@
 #include "Saga/Network/SagaPacketProcessor.h"
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualUser.h"
-#include "Player/SagaUserTeam.h"
-#include "Character/SagaCharacterPlayer.h"
+#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Character/SagaCharacterPlayer.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size)
