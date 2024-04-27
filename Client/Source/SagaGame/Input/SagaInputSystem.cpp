@@ -16,7 +16,14 @@ USagaInputSystem::USagaInputSystem()
 		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Move.IA_Move'"));
 
 		if (Asset.Succeeded())
-			Move = Asset.Object;
+			ForwardBackMove = Asset.Object;
+	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Strafe.IA_Strafe'"));
+
+		if (Asset.Succeeded())
+			StrafeMove = Asset.Object;
 	}
 	
 	{

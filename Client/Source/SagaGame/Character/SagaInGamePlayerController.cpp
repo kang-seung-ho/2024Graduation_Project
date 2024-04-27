@@ -55,12 +55,16 @@ void ASagaInGamePlayerController::SetupInputComponent()
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
 
-	Input->BindAction(InputSystem->Move, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::OnMove);
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 	
 }
 
-
+//Begin, End -> RPC 호출
+//Execute, Terminate -> 클라로직 실행
 void ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -70,11 +74,15 @@ void ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReas
 void ASagaInGamePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if(isForwardWalking || isStrafeWalking)
+	{
+		ExecuteWalk();
+	}
 }
 
-void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
+void ASagaInGamePlayerController::ExecuteWalk()
 {
-	const FVector InputValue = Value.Get<FVector>();
+	
 	APawn* ControlledPawn = GetPawn();
 
 	const FRotator Rotation = K2_GetActorRotation();
@@ -82,37 +90,37 @@ void ASagaInGamePlayerController::OnMove(const FInputActionValue& Value)
 	const FVector ForwardVector = YawRotation.Vector();
 	const FVector RightVector = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::Y);
 
-	ControlledPawn->AddMovementInput(ForwardVector, InputValue.Y);
-	ControlledPawn->AddMovementInput(RightVector, InputValue.X);
+	ControlledPawn->AddMovementInput(ForwardVector, WalkDirection.Y);
+	ControlledPawn->AddMovementInput(RightVector, WalkDirection.X);
 
 	//우: InputValue.X가 1
 	//왼: InputValue.Y가 -1
 	//둘다 X : 0
-	mMoveDir = InputValue.X * 90.f;
+	mMoveDir = WalkDirection.X * 90.f;
 
 	//앞으로 이동
-	if (InputValue.Y > 0.f)
+	if (WalkDirection.Y > 0.f)
 	{
 		//앞으로, + 왼쪽
-		if (InputValue.X < 0.f)
+		if (WalkDirection.X < 0.f)
 		{
 			mMoveDir = -45.f;
 		}
 		//앞으로, + 오른쪽
-		else if (InputValue.X > 0.f)
+		else if (WalkDirection.X > 0.f)
 		{
 			mMoveDir = 45.f;
 		}
 	}
-	else if (InputValue.Y < 0.f)
+	else if (WalkDirection.Y < 0.f)
 	{
 		//뒤로, + 왼쪽
-		if (InputValue.X < 0.f)
+		if (WalkDirection.X < 0.f)
 		{
 			mMoveDir = -135.f;
 		}
 		//뒤로, + 오른쪽
-		else if (InputValue.X > 0.f)
+		else if (WalkDirection.X > 0.f)
 		{
 			mMoveDir = 135.f;
 		}
@@ -132,28 +140,86 @@ void ASagaInGamePlayerController::OnAttack(const FInputActionValue& Value)
 
 
 void
-ASagaInGamePlayerController::BeginWalk()
+ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
 {
-	//auto singleton = GEngine->GetWorld()->GetGameInstance();
-	////auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	isForwardWalking = true;
+	FVector TempDirection = Value.Get<FVector>();
+	WalkDirection.Y = TempDirection.Y;
+	float WalkAngle = FMath::RadiansToDegrees(FMath::Atan2(WalkDirection.Y, WalkDirection.X)) / 45;
 
-	//if (system->GetLocalUserId() != -1)
-	//{
-	//	system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK);
-	//}
+	auto singleton = GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>(); //에러발생지점
+
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, floor(WalkAngle));
+	}
+
+	
+
+	FString KeyAsString = Value.ToString();
+	UE_LOG(LogTemp, Warning, TEXT("Y    KeyAsString : %s"), *KeyAsString);
 }
 
 void
-ASagaInGamePlayerController::EndWalk()
+ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& Value)
 {
-	//auto singleton = GEngine->GetWorld()->GetGameInstance();
-	////auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	isForwardWalking = false;
 
-	//if (system->GetLocalUserId() != -1)
-	//{
-	//	system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK);
-	//}
+	FVector TempDirection = Value.Get<FVector>();
+	WalkDirection.Y = TempDirection.Y;
+	float WalkAngle = FMath::RadiansToDegrees(FMath::Atan2(WalkDirection.Y, WalkDirection.X)) / 45;
+	auto singleton = GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, floor(WalkAngle));
+	}
+
 }
+
+void ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
+{
+	isStrafeWalking = true;
+
+	FVector TempDirection = Value.Get<FVector>();
+	WalkDirection.X = TempDirection.X;
+	float WalkAngle = FMath::RadiansToDegrees(FMath::Atan2(WalkDirection.Y, WalkDirection.X)) / 45;
+
+	FString KeyAsString = Value.ToString();
+
+	auto singleton = GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, floor(WalkAngle));
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("X     KeyAsString : %s"), *KeyAsString);
+}
+
+void ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
+{
+	isStrafeWalking = false;
+
+	FVector TempDirection = Value.Get<FVector>();
+	WalkDirection.X = TempDirection.X;
+	float WalkAngle = FMath::RadiansToDegrees(FMath::Atan2(WalkDirection.Y, WalkDirection.X)) / 45;
+
+	auto singleton = GetGameInstance();
+	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+
+	if (system->GetLocalUserId() != -1)
+	{
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, floor(WalkAngle));
+	}
+
+}
+
+
 
 void
 ASagaInGamePlayerController::BeginRun()

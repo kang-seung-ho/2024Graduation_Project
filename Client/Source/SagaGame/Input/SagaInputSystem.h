@@ -23,6 +23,7 @@ public:
 	UInputMappingContext* DefaultContext = nullptr;
 
 public:
-	UInputAction* Move = nullptr;
+	UInputAction* ForwardBackMove = nullptr;
+	UInputAction* StrafeMove = nullptr; // Left and Right
 	UInputAction* Attack = nullptr;
 };

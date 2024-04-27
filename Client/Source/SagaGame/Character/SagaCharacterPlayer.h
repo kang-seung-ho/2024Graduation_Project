@@ -14,7 +14,11 @@ public:
 	ASagaCharacterPlayer();
 
 protected:
-	
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* mCamera;
+
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* mArm;
 
 	class USagaPlayerAnimInstance* mAnimInst;
 

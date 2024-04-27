@@ -24,6 +24,12 @@ public:
 protected:
 	float mMoveDir;
 
+	bool isForwardWalking;
+	bool isStrafeWalking;
+
+	FVector WalkDirection;
+
+
 	/*UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
 
@@ -45,16 +51,24 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 
-protected:
-	void OnMove(const FInputActionValue& Value);
+public:
+
 	void OnAttack(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginWalk();
+	virtual void BeginForwardWalk(const FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndWalk();
+	virtual void EndForwardWalk(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void BeginStrafeWalk(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void EndStrafeWalk(const FInputActionValue& Value);
+
+
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteWalk() {}
+	virtual void ExecuteWalk();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateWalk() {}
 

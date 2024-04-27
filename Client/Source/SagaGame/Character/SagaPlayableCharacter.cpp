@@ -67,6 +67,8 @@ void ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
 	{
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
+
+	mWeaponType = WeaponDataItem->WeaponType;
 }
 
 void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
@@ -77,6 +79,7 @@ void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
 
+	mWeaponType = WeaponDataItem->WeaponType;
 }
 
 void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
@@ -86,6 +89,7 @@ void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
 	{
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
+	mWeaponType = WeaponDataItem->WeaponType;
 }
 
 void ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)

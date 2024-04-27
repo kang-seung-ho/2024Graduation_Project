@@ -35,6 +35,7 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			mMoveDir = Controller->GetMoveDir();
 		}
 
+		
 	}
 }
 
