@@ -37,6 +37,7 @@ public:
 
 public:
 	void PlayAttackAnimation();
+	void RotationCameraArm(float Scale);
 
 
 

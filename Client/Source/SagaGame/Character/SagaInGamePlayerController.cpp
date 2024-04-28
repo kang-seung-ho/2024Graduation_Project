@@ -61,6 +61,7 @@ void ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
+	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
 	
 }
 
@@ -283,6 +284,32 @@ void ASagaInGamePlayerController::ExecuteJump()
 
 void ASagaInGamePlayerController::TerminateJump()
 {
+}
+
+void ASagaInGamePlayerController::BeginRotation()
+{
+}
+
+void ASagaInGamePlayerController::EndRotation()
+{
+}
+
+void ASagaInGamePlayerController::ExecuteRotation(const FInputActionValue& Value)
+{
+	const FVector	InputValue = Value.Get<FVector>();
+
+	AddYawInput(InputValue.X);
+
+	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
+	if (ControlledPawn != nullptr) {
+		ControlledPawn->RotationCameraArm(InputValue.Y);
+	}
+	
+}
+
+void ASagaInGamePlayerController::TerminateRotation()
+{
+
 }
 
 void

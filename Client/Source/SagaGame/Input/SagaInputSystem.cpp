@@ -39,4 +39,11 @@ USagaInputSystem::USagaInputSystem()
 		if (Asset.Succeeded())
 			Jump = Asset.Object;
 	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Rotation.IA_Rotation'"));
+
+		if (Asset.Succeeded())
+			Rotate = Asset.Object;
+	}
 }

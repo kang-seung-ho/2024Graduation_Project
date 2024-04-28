@@ -27,4 +27,5 @@ public:
 	UInputAction* StrafeMove = nullptr; // Left and Right
 	UInputAction* Attack = nullptr;
 	UInputAction* Jump = nullptr;
+	UInputAction* Rotate = nullptr;
 };

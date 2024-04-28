@@ -66,3 +66,16 @@ void ASagaCharacterPlayer::PlayAttackAnimation()
 	mAnimInst->PlayAttackMontage();
 }
 
+void ASagaCharacterPlayer::RotationCameraArm(float Scale)
+{
+	mArm->AddRelativeRotation(FRotator(Scale, 0.0, 0.0));
+
+	FRotator	Rot = mArm->GetRelativeRotation();
+
+	if (Rot.Pitch < -60.0)
+		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
+
+	else if (Rot.Pitch > 60.0)
+		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+}
+

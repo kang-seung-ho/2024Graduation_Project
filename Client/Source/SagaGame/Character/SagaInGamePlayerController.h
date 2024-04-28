@@ -91,22 +91,32 @@ public:
 	void TerminateJump();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginAttack();
+	void BeginRotation();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndAttack();
+	void EndRotation();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteAttack() {}
+	void ExecuteRotation(const FInputActionValue& Value);
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateAttack() {}
+	void TerminateRotation();
+
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginRide();
+	void BeginAttack();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndRide();
+	void EndAttack();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteRide() {}
+	void ExecuteAttack() {}
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateRide() {}
+	void TerminateAttack() {}
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void BeginRide();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void EndRide();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void ExecuteRide() {}
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void TerminateRide() {}
 
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC")
 	virtual int32 GetRpcID() const noexcept
