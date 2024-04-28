@@ -60,6 +60,7 @@ void ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
 	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
+	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
 	
 }
 
@@ -267,6 +268,21 @@ ASagaInGamePlayerController::EndJump()
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
 	}
+}
+
+void ASagaInGamePlayerController::ExecuteJump()
+{
+	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
+	if (ControlledPawn != nullptr) {
+		if (ControlledPawn->CanJump())
+			ControlledPawn->Jump();
+	}
+
+
+}
+
+void ASagaInGamePlayerController::TerminateJump()
+{
 }
 
 void

@@ -33,4 +33,10 @@ USagaInputSystem::USagaInputSystem()
 			Attack = Asset.Object;
 	}
 
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Jump.IA_Jump'"));
+
+		if (Asset.Succeeded())
+			Jump = Asset.Object;
+	}
 }
