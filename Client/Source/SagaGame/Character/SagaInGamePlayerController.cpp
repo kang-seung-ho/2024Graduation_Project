@@ -82,6 +82,10 @@ void ASagaInGamePlayerController::Tick(float DeltaTime)
 	{
 		ExecuteWalk();
 	}
+	if (isRunning)
+	{
+		ExecuteRun();
+	}
 }
 
 void ASagaInGamePlayerController::ExecuteWalk()
@@ -228,6 +232,7 @@ void ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
 void
 ASagaInGamePlayerController::BeginRun()
 {
+	isRunning = true;
 	auto singleton = GEngine->GetWorld()->GetGameInstance();
 	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 
@@ -240,6 +245,7 @@ ASagaInGamePlayerController::BeginRun()
 void
 ASagaInGamePlayerController::EndRun()
 {
+	isRunning = false;
 	auto singleton = GEngine->GetWorld()->GetGameInstance();
 	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 

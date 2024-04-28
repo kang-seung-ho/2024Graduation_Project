@@ -32,6 +32,9 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 
 	mArm->TargetArmLength = 150.f;
 
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
 }
 
 

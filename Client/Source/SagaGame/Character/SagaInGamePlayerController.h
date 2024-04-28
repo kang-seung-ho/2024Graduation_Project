@@ -26,6 +26,7 @@ protected:
 
 	bool isForwardWalking;
 	bool isStrafeWalking;
+	bool isRunning;
 
 	FVector WalkDirection;
 
