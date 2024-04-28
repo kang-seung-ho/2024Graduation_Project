@@ -73,13 +73,13 @@ public:
 	virtual void TerminateWalk() {}
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginRun();
+	void BeginRun();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndRun();
+	void EndRun();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteRun() {}
+	void ExecuteRun();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateRun() {}
+	void TerminateRun();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void BeginJump();

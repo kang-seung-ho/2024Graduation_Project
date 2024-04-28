@@ -62,6 +62,8 @@ void ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
 	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteRun);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::TerminateRun);
 	
 }
 
@@ -246,6 +248,30 @@ ASagaInGamePlayerController::EndRun()
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
 	}
 }
+
+void ASagaInGamePlayerController::ExecuteRun()
+{
+	ACharacter* MyCharacter = GetCharacter();
+	if (MyCharacter)
+	{
+		// 달리기 시작할 때 속도를 높임
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Run"));
+}
+
+void ASagaInGamePlayerController::TerminateRun()
+{
+	ACharacter* MyCharacter = GetCharacter();
+	if (MyCharacter)
+	{
+		// 달리기를 멈췄을 때 속도를 원래대로 복원
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("End Run"));
+}
+
 
 void
 ASagaInGamePlayerController::BeginJump()
