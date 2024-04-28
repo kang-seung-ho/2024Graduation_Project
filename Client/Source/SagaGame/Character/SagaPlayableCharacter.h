@@ -36,17 +36,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EWeaponType mWeaponType;
-
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-protected:
 
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EWeaponType mWeaponType;
+
+public:
+	EWeaponType GetWeaponType() const { return mWeaponType; }
 
 public:
 	// Called every frame

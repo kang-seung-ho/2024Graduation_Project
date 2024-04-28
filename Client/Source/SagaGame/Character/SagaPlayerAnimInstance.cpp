@@ -21,6 +21,12 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (IsValid(PlayerCharacter))
 	{
+		ASagaPlayableCharacter* WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(PlayerCharacter);
+		if (IsValid(WeaponHoldingCharacter))
+		{
+			mWeaponType = WeaponHoldingCharacter->GetWeaponType();
+		}
+
 		UCharacterMovementComponent* Movement = PlayerCharacter->GetCharacterMovement();
 		if (IsValid(Movement))
 		{
@@ -87,7 +93,6 @@ void USagaPlayerAnimInstance::AnimNotify_AttackEnable()
 }
 
 void USagaPlayerAnimInstance::AnimNotify_AttackEnd()
-{
-	
+{	
 	mAttackIndex = 0;
 }
