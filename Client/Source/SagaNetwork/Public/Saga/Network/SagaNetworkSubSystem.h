@@ -72,6 +72,10 @@ public:
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+
+	static void StoreSelfInstance(USagaNetworkSubSystem* self) noexcept;
+	static USagaNetworkSubSystem* LoadSelfInstance() noexcept;
+	static USagaNetworkSubSystem* SelfInstance;
 #pragma endregion
 
 	/* Complicated Network Methods */
