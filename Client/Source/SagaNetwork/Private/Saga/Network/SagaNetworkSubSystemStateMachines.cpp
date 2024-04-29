@@ -3,6 +3,8 @@
 
 #include "Saga/Network/SagaNetworkSettings.h"
 
+USagaNetworkSubSystem* USagaNetworkSubSystem::SelfInstance = nullptr;
+
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
 	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle()

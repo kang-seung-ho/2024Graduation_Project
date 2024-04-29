@@ -262,7 +262,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 
 		case ESagaRpcProtocol::RPC_BEG_WALK:
 		{
-			/*if (controller)
+			if (controller)
 			{
 				//controller->ExecuteWalk();
 			}
@@ -271,10 +271,10 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 
 		case ESagaRpcProtocol::RPC_END_WALK:
 		{
-			/*if (controller)
+			if (controller)
 			{
-				controller->TerminateWalk();
-			}*/
+				//controller->TerminateWalk();
+			}
 		}
 		break;
 

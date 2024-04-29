@@ -38,7 +38,7 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		ASagaInGamePlayerController* Controller = PlayerCharacter->GetController<ASagaInGamePlayerController>();
 		if (IsValid(Controller))
 		{
-			//mMoveDir = Controller->GetMoveDir();
+			mMoveDir = Controller->GetMoveDir();
 		}
 	}
 }

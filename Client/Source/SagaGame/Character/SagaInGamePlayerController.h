@@ -17,6 +17,7 @@ protected:
 
 	FVector walkDirection;
 	FVector preferedDirection;
+	float mMoveDir;
 
 	/*UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
@@ -39,11 +40,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void EndStrafeWalk(const FInputActionValue& Value);
 
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteWalk(const float& delta_time);
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateWalk() {}
-
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	void UpdateMovement(const float& delta_time);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	void ExecuteWalk(const float& delta_time);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	void TerminateWalk(const float& delta_time);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void BeginRun();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
@@ -89,6 +91,11 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void TerminateRide() {}
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
+	float GetMoveDir() const noexcept
+	{
+		return mMoveDir;
+	}
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	double GetNormalizedMoveDir() const noexcept;
 
