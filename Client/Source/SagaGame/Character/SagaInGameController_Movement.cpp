@@ -25,7 +25,7 @@ void
 PrintVector(const FVector& vector)
 {
 	const FString str = vector.ToString();
-	UE_LOG(LogSagaGame, Warning, TEXT("[Character] Movement Vector: (%s)"), *str);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] Movement Vector: (%s)"), *str);
 }
 
 void
@@ -39,7 +39,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Walk Straight"));
+		UE_LOG(LogSagaGame, Log, TEXT("[Character] Walk Straight"));
 
 		//auto singleton = GEngine->GetWorld()->GetGameInstance();
 		//auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
@@ -93,7 +93,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Strafe"));
+		UE_LOG(LogSagaGame, Log, TEXT("[Character] Strafe"));
 
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
