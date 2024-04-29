@@ -193,13 +193,17 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnTeamChanged(int32 id, bool is_red_team) const
+USagaNetworkSubSystem::BroadcastOnTeamChanged(int32 user_id, bool is_red_team) const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnTeamChanged`"));
 
 	if (OnTeamChanged.IsBound())
 	{
-		OnTeamChanged.Broadcast(id, is_red_team);
+		CallPureFunctionOnGameThread([this, user_id, is_red_team]()
+			{
+				OnTeamChanged.Broadcast(user_id, is_red_team);
+			}
+		);
 	}
 	else
 	{
@@ -214,7 +218,11 @@ USagaNetworkSubSystem::BroadcastOnGetPreparedGame() const
 
 	if (OnGetPreparedGame.IsBound())
 	{
-		OnGetPreparedGame.Broadcast();
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnGetPreparedGame.Broadcast();
+			}
+		);
 	}
 	else
 	{
@@ -230,7 +238,11 @@ const
 
 	if (OnFailedToStartGame.IsBound())
 	{
-		OnFailedToStartGame.Broadcast(reason);
+		CallPureFunctionOnGameThread([this, reason]()
+			{
+				OnFailedToStartGame.Broadcast(reason);
+			}
+		);
 	}
 	else
 	{
@@ -245,7 +257,11 @@ USagaNetworkSubSystem::BroadcastOnStartGame() const
 
 	if (OnStartGame.IsBound())
 	{
-		OnStartGame.Broadcast();
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnStartGame.Broadcast();
+			}
+		);
 	}
 	else
 	{
@@ -261,7 +277,11 @@ const
 
 	if (OnUpdatePosition.IsBound())
 	{
-		OnUpdatePosition.Broadcast(user_id, x, y, z);
+		CallPureFunctionOnGameThread([this, user_id, x, y, z]()
+			{
+				OnUpdatePosition.Broadcast(user_id, x, y, z);
+			}
+		);
 	}
 	else
 	{
@@ -277,7 +297,11 @@ const
 
 	if (OnUpdateRotation.IsBound())
 	{
-		OnUpdateRotation.Broadcast(user_id, r, y, p);
+		CallPureFunctionOnGameThread([this, user_id, r, y, p]()
+			{
+				OnUpdateRotation.Broadcast(user_id, r, y, p);
+			}
+		);
 	}
 	else
 	{
@@ -292,7 +316,11 @@ USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam tea
 
 	if (OnCreatingCharacter.IsBound())
 	{
-		OnCreatingCharacter.Broadcast(user_id, team, character);
+		CallPureFunctionOnGameThread([this, user_id, team, character]()
+			{
+				OnCreatingCharacter.Broadcast(user_id, team, character);
+			}
+		);
 	}
 	else
 	{
@@ -307,7 +335,11 @@ USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64
 
 	if (OnRpc.IsBound())
 	{
-		OnRpc.Broadcast(cat, user_id, arg0, arg1);
+		CallPureFunctionOnGameThread([this, cat, user_id, arg0, arg1]()
+			{
+				OnRpc.Broadcast(cat, user_id, arg0, arg1);
+			}
+		);
 	}
 	else
 	{

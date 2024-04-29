@@ -225,6 +225,27 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	}
 	break;
 
+	case EPacketProtocol::SC_SET_TEAM:
+	{
+		int32 client_id{};
+		bool is_red_team{};
+
+		saga::ReceiveTeamChangerPacket(packet_buffer, client_id, is_red_team);
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("Client %d's team changed to %s"), client_id, is_red_team ? TEXT("Red") : TEXT("Blue"));
+
+		for (auto& member : everyUsers)
+		{
+			if (member.MyID == client_id)
+			{
+				member.myTeam = is_red_team ? EUserTeam::Red : EUserTeam::Blue;
+			}
+		}
+
+		BroadcastOnTeamChanged(client_id, is_red_team);
+	}
+	break;
+
 	case EPacketProtocol::SC_FAILED_GAME_START:
 	{
 		saga::SC_FailedGameStartingPacket pk{};
@@ -235,11 +256,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Failed to start game due to %s"), *str);
 
-		CallPureFunctionOnGameThread([this, cause]()
-			{
-				BroadcastOnFailedToStartGame(cause);
-			}
-		);
+		BroadcastOnFailedToStartGame(cause);
 	}
 	break;
 
@@ -250,11 +267,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start loading game..."));
 
-		CallPureFunctionOnGameThread([this]()
-			{
-				BroadcastOnGetPreparedGame();
-			}
-		);
+		BroadcastOnGetPreparedGame();
 	}
 	break;
 
@@ -262,36 +275,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start game..."));
 
-		CallPureFunctionOnGameThread([this]()
-			{
-				BroadcastOnStartGame();
-			}
-		);
-	}
-	break;
-
-	case EPacketProtocol::SC_SET_TEAM:
-	{
-		int32 client_id{};
-		bool is_red_team{};
-
-		saga::ReceiveTeamChangerPacket(packet_buffer, client_id, is_red_team);
-
-		UE_LOG(LogSagaNetwork, Log, TEXT("Client %d's team changed to %s"), client_id, is_red_team ? TEXT("Red") : TEXT("Blue"));
-
-		CallFunctionOnGameThread([this, client_id, is_red_team]()
-			{
-				for (auto& member : everyUsers)
-				{
-					if (member.MyID == client_id)
-					{
-						member.myTeam = is_red_team ? EUserTeam::Red : EUserTeam::Blue;
-					}
-				}
-
-				BroadcastOnTeamChanged(client_id, is_red_team);
-			}
-		);
+		BroadcastOnStartGame();
 	}
 	break;
 
@@ -400,11 +384,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
-		CallFunctionOnGameThread([&]()
-			{
-				BroadcastOnRpc(category, user_id, argument0, argument1);
-			}
-		);
+		BroadcastOnRpc(category, user_id, argument0, argument1);
 	}
 	break;
 	}
