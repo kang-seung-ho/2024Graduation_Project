@@ -1,12 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "SagaCharacterPlayer.h"
 #include "../Item/SagaWeaponData.h"
 #include "../Interface/SagaCharacterItemInterface.h"
 #include "SagaPlayableCharacter.generated.h"
-
 
 DECLARE_DELEGATE_OneParam(FOnTakeWeaponDelegate, class USagaWeaponData*);
 USTRUCT(BlueprintType)

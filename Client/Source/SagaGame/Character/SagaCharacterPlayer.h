@@ -1,5 +1,6 @@
 #pragma once
 #include "GameFramework/Character.h"
+
 #include "../SagaGameInfo.h"
 #include "Saga/Network/SagaNetworkRpcView.h"
 #include "SagaCharacterPlayer.generated.h"

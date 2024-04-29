@@ -208,8 +208,6 @@ public:
 	int32 SendOldRpcPacket(const FString& string, int64 argument = 0);
 #pragma endregion
 
-	friend class FSagaNetworkWorker;
-
 	/* Public Properties */
 #pragma region =========================
 #pragma endregion
@@ -289,10 +287,9 @@ public:
 	//static TMap<FStringView, TUniqueFunction<void()>> rpcDatabase;
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "CandyLandSaga|Network")
 	TMap<FString, FSagaEventOnRpc> rpcDatabase;
-
 #pragma endregion
 
-protected:
+private:
 	/* Internal Functions */
 #pragma region =========================
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
@@ -342,9 +339,9 @@ protected:
 	void RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size);
 #pragma endregion
 
-private:
-	/* Internal Event Broadcasting Methods */
+	friend class FSagaNetworkWorker;
 
+	/* Internal Event Broadcasting Methods */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnNetworkInitialized() const;
