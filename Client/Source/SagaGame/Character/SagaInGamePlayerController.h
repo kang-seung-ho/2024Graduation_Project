@@ -1,35 +1,22 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "GameFramework/PlayerController.h"
+#include "InputActionValue.h"
 
 #include "../SagaGameInfo.h"
-#include "InputActionValue.h"
-#include "GameFramework/PlayerController.h"
 #include "SagaInGamePlayerController.generated.h"
 
-
-
-
-/**
- * 
- */
-UCLASS()
+UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-public:
-	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
 protected:
-	float mMoveDir;
-
 	bool isForwardWalking;
 	bool isStrafeWalking;
 	bool isRunning;
 
-	FVector WalkDirection;
-
+	FVector walkDirection;
+	FVector preferedDirection;
 
 	/*UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
@@ -38,21 +25,7 @@ protected:
 	USpringArmComponent* mArm;*/
 
 public:
-	float GetMoveDir()
-	{
-		return mMoveDir;
-	}
-
-protected:
-	virtual void BeginPlay() override;
-	virtual void SetupInputComponent();
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
-
-public:
-	virtual void Tick(float DeltaTime) override;
-	
-
-public:
+	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	void OnAttack(const FInputActionValue& Value);
 
@@ -63,13 +36,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void BeginStrafeWalk(const FInputActionValue& Value);
-
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void EndStrafeWalk(const FInputActionValue& Value);
 
-
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteWalk();
+	virtual void ExecuteWalk(const float& delta_time);
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateWalk() {}
 
@@ -100,7 +71,6 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void TerminateRotation();
 
-
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void BeginAttack();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
@@ -119,9 +89,13 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void TerminateRide() {}
 
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC")
-	virtual int32 GetRpcID() const noexcept
-	{
-		return -1;
-	}
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
+	double GetNormalizedMoveDir() const noexcept;
+
+	virtual void Tick(float delta_time) override;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	virtual void SetupInputComponent();
 };
