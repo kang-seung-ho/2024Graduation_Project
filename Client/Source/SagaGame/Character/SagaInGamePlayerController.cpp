@@ -65,24 +65,36 @@ void ASagaInGamePlayerController::TerminateRotation()
 void
 ASagaInGamePlayerController::BeginRide()
 {
-	auto singleton = GEngine->GetWorld()->GetGameInstance();
-	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-	if (system->GetLocalUserId() != -1)
+	if constexpr (not saga::IsOfflineMode)
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE);
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
 	}
 }
 
 void
 ASagaInGamePlayerController::EndRide()
 {
-	auto singleton = GEngine->GetWorld()->GetGameInstance();
-	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-	if (system->GetLocalUserId() != -1)
+	if constexpr (not saga::IsOfflineMode)
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE);
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
 	}
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "SagaGame.h"
 #include "GameFramework/Character.h"
 
 #include "../SagaGameInfo.h"

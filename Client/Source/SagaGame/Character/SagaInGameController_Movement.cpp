@@ -22,6 +22,195 @@ ASagaInGamePlayerController::UpdateMovement(const float& delta_time)
 }
 
 void
+PrintVector(const FVector& vector)
+{
+	const FString str = vector.ToString();
+	UE_LOG(LogSagaGame, Warning, TEXT("[Character] Movement Vector: (%s)"), *str);
+}
+
+void
+ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
+{
+	isForwardWalking = true;
+
+	preferedDirection.Y = Value.Get<FVector>().Y;
+
+	PrintVector(preferedDirection);
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Walk Straight"));
+
+		//auto singleton = GEngine->GetWorld()->GetGameInstance();
+		//auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& Value)
+{
+	isForwardWalking = false;
+
+	preferedDirection.Y = Value.Get<FVector>().Y;
+
+	PrintVector(preferedDirection);
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
+{
+	isStrafeWalking = true;
+
+	preferedDirection.X = Value.Get<FVector>().X;
+
+	PrintVector(preferedDirection);
+
+	FString KeyAsString = Value.ToString();
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Strafe"));
+
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
+{
+	isStrafeWalking = false;
+
+	preferedDirection.X = Value.Get<FVector>().X;
+
+	PrintVector(preferedDirection);
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginRun()
+{
+	isRunning = true;
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Run"));
+
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::EndRun()
+{
+	isRunning = false;
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::BeginJump()
+{
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::EndJump()
+{
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
 ASagaInGamePlayerController::ExecuteWalk(const float& delta_time)
 {
 	APawn* ControlledPawn = GetPawn();
@@ -67,143 +256,6 @@ void
 ASagaInGamePlayerController::TerminateWalk(const float& delta_time)
 {}
 
-void
-ASagaInGamePlayerController::OnAttack(const FInputActionValue& Value)
-{
-	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
-
-	ControlledPawn->PlayAttackAnimation();
-}
-
-void
-PrintVector(const FVector& vector)
-{
-	const FString str = vector.ToString();
-	UE_LOG(LogTemp, Warning, TEXT("[SagaGame][Character] Movement Vector: (%s)"), *str);
-}
-
-void
-ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
-{
-	isForwardWalking = true;
-
-	preferedDirection.Y = Value.Get<FVector>().Y;
-
-	PrintVector(preferedDirection);
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& Value)
-{
-	isForwardWalking = false;
-
-	preferedDirection.Y = Value.Get<FVector>().Y;
-
-	PrintVector(preferedDirection);
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
-{
-	isStrafeWalking = true;
-
-	preferedDirection.X = Value.Get<FVector>().X;
-
-	PrintVector(preferedDirection);
-
-	FString KeyAsString = Value.ToString();
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
-{
-	isStrafeWalking = false;
-
-	preferedDirection.X = Value.Get<FVector>().X;
-
-	PrintVector(preferedDirection);
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, GetNormalizedMoveDir());
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::BeginRun()
-{
-	isRunning = true;
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
-		}
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[SagaGame][Character] Run"));
-}
-
-void
-ASagaInGamePlayerController::EndRun()
-{
-	isRunning = false;
-
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto singleton = GetGameInstance();
-		auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-		if (system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
-		}
-	}
-}
-
 void ASagaInGamePlayerController::ExecuteRun()
 {
 	ACharacter* MyCharacter = GetCharacter();
@@ -224,31 +276,7 @@ ASagaInGamePlayerController::TerminateRun()
 		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("End Run"));
-}
-
-void
-ASagaInGamePlayerController::BeginJump()
-{
-	auto singleton = GEngine->GetWorld()->GetGameInstance();
-	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-	if (system->GetLocalUserId() != -1)
-	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
-	}
-}
-
-void
-ASagaInGamePlayerController::EndJump()
-{
-	auto singleton = GEngine->GetWorld()->GetGameInstance();
-	auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-
-	if (system->GetLocalUserId() != -1)
-	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
-	}
+	UE_LOG(LogSagaGame, Warning, TEXT("End Run"));
 }
 
 void
