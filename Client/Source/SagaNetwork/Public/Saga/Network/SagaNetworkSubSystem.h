@@ -72,10 +72,6 @@ public:
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-
-	static void StoreSelfInstance(USagaNetworkSubSystem* self) noexcept;
-	static USagaNetworkSubSystem* LoadSelfInstance() noexcept;
-	static USagaNetworkSubSystem* SelfInstance;
 #pragma endregion
 
 	/* Complicated Network Methods */
@@ -164,6 +160,8 @@ public:
 
 	/* Getters */
 #pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
 	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
@@ -214,6 +212,7 @@ public:
 
 	/* Public Properties */
 #pragma region =========================
+#pragma endregion
 
 	/* Local Session's Properties */
 #pragma region =========================

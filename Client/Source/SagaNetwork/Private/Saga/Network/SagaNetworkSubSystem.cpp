@@ -180,6 +180,14 @@ const noexcept
 	return everyRooms.ContainsByPredicate(FSagaSessionIdComparator{ id });
 }
 
+USagaNetworkSubSystem*
+USagaNetworkSubSystem::GetSubSystem(const UWorld* world) noexcept
+{
+	auto singleton = world->GetGameInstance();
+
+	return singleton->GetSubsystem<USagaNetworkSubSystem>();
+}
+
 const TArray<FSagaVirtualUser>&
 USagaNetworkSubSystem::GetUserList()
 const noexcept
