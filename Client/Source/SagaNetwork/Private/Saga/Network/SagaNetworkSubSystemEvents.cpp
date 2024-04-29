@@ -134,7 +134,7 @@ void
 USagaNetworkSubSystem::OnFailedToConnect_Implementation(ESagaConnectionContract reason)
 {
 	auto msg = UEnum::GetValueAsString(reason);
-	UE_LOG(LogSagaNetwork, Log, TEXT("Local client can't get an id from server due to %s"), *msg);
+	UE_LOG(LogSagaNetwork, Log, TEXT("Local client can't get an id from server due to %s."), *msg);
 }
 
 void
@@ -149,7 +149,7 @@ USagaNetworkSubSystem::OnDisconnected_Implementation()
 void
 USagaNetworkSubSystem::OnRoomCreated_Implementation(int32 id)
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("A room %d is created"), id);
+	UE_LOG(LogSagaNetwork, Log, TEXT("A room %d is created."), id);
 
 	SendRequestMembersPacket();
 }
@@ -161,13 +161,13 @@ USagaNetworkSubSystem::OnJoinedRoom_Implementation(int32 id)
 void
 USagaNetworkSubSystem::OnLeftRoomBySelf_Implementation()
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Local client has been left from room"));
+	UE_LOG(LogSagaNetwork, Log, TEXT("Local client has been left from room."));
 }
 
 void
 USagaNetworkSubSystem::OnLeftRoom_Implementation(int32 id)
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Remote client %d has been left from room"), id);
+	UE_LOG(LogSagaNetwork, Log, TEXT("Remote client %d has been left from room."), id);
 }
 
 void
@@ -205,7 +205,7 @@ USagaNetworkSubSystem::OnFailedToStartGame_Implementation(ESagaGameContract reas
 {
 	auto name = UEnum::GetValueAsString(reason);
 
-	UE_LOG(LogSagaNetwork, Error, TEXT("Cannot start the game, due to '%s'"), *name);
+	UE_LOG(LogSagaNetwork, Error, TEXT("Cannot start the game, due to '%s'."), *name);
 }
 
 void
@@ -233,7 +233,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 
 	if (not FindUser(id, user))
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find user %d"), id);
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find user %d."), id);
 		return;
 	}
 
@@ -241,14 +241,26 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
 		is_local = true;
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is my rpc message"));
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] This is my rpc message."));
 
-		auto& controller = user.localController;
-		auto pawn = controller->GetPawn();
-		auto character = Cast<ASagaCharacterPlayer>(pawn);
-		if (not character)
+		const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
+		if (nullptr == player)
 		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find local user %d's character"), id);
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a handle of the local player."));
+			return;
+		}
+
+		const auto world = GEngine->GetWorld();
+		if (nullptr == world)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] The handle of world is null."));
+			return;
+		}
+
+		auto controller = player->GetPlayerController(world);
+		if (nullptr == controller)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find the local player's controller."));
 			return;
 		}
 
@@ -256,7 +268,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		{
 		case ESagaRpcProtocol::RPC_UNKNOWN:
 		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot run rpc script by user %d"), id);
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot run rpc script by user %d."), id);
 		}
 		break;
 
@@ -419,15 +431,20 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	}
 	else // 원격 클라이언트
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %s's rpc message"), id);
-
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %s's rpc message."), id);
 
 		auto& character = user.remoteCharacter;
+		if (not character)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		switch (cat)
 		{
 		case ESagaRpcProtocol::RPC_UNKNOWN:
 		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot rpc script by user %d"), id);
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot execute a rpc script by user %d."), id);
 		}
 		break;
 
