@@ -3,8 +3,6 @@
 
 #include "Saga/Network/SagaNetworkSettings.h"
 
-USagaNetworkSubSystem* USagaNetworkSubSystem::SelfInstance = nullptr;
-
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
 	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle()
@@ -78,8 +76,6 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		BroadcastOnFailedToInitializeNetwork();
 	}
-
-	StoreSelfInstance(this);
 }
 
 void
@@ -102,20 +98,6 @@ USagaNetworkSubSystem::Deinitialize()
 	{
 		UE_LOG(LogSagaNetwork, Warning, TEXT("The network subsystem has been destroyed. (Offline Mode)"));
 	}
-}
-
-void
-USagaNetworkSubSystem::StoreSelfInstance(USagaNetworkSubSystem* self)
-noexcept
-{
-	SelfInstance = self;
-}
-
-USagaNetworkSubSystem*
-USagaNetworkSubSystem::LoadSelfInstance()
-noexcept
-{
-	return SelfInstance;
 }
 
 bool
