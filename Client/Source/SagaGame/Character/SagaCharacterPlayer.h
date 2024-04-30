@@ -1,7 +1,6 @@
 #pragma once
 #include "SagaGame.h"
 #include "GameFramework/Character.h"
-
 #include "../SagaGameInfo.h"
 #include "Saga/Network/SagaNetworkRpcView.h"
 #include "SagaCharacterPlayer.generated.h"
@@ -29,6 +28,10 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 
+public:
+	virtual void SwordAttack();
+
+
 
 public:	
 	// Called every frame
@@ -36,6 +39,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
 	void PlayAttackAnimation();

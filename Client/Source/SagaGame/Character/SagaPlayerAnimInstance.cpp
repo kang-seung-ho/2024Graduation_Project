@@ -30,7 +30,7 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		UCharacterMovementComponent* Movement = PlayerCharacter->GetCharacterMovement();
 		if (IsValid(Movement))
 		{
-			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Óµï¿½ï¿½ï¿½ ï¿½Ö´ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//±¸ÇØÁØ ÀÌµ¿¼Óµµ¸¦ ÃÖ´ë¼Óµµ·Î ³ª´©¾î ºñÀ²±¸ÇÔ
 			mMoveSpeed = Movement->Velocity.Length();
 			mMoveSpeed /= Movement->MaxWalkSpeed;
 		}
@@ -40,6 +40,8 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			mMoveDir = Controller->GetMoveDir();
 		}
+
+		
 	}
 }
 
@@ -82,7 +84,11 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 void USagaPlayerAnimInstance::AnimNotify_Attack()
 {
-
+	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->SwordAttack();
+	}
 }
 
 void USagaPlayerAnimInstance::AnimNotify_AttackEnable()

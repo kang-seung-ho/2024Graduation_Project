@@ -24,7 +24,7 @@ void USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		UCharacterMovementComponent* Movement = BearCharacter->GetCharacterMovement();
 		if (IsValid(Movement))
 		{
-			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Óµï¿½ï¿½ï¿½ ï¿½Ö´ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//±¸ÇØÁØ ÀÌµ¿¼Óµµ¸¦ ÃÖ´ë¼Óµµ·Î ³ª´©¾î ºñÀ²±¸ÇÔ
 			mMoveSpeed = Movement->Velocity.Length();
 			mMoveSpeed /= Movement->MaxWalkSpeed;
 		}
@@ -34,6 +34,8 @@ void USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			mMoveDir = Controller->GetMoveDir();
 		}
+
+
 	}
 }
 

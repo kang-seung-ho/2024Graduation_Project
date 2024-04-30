@@ -51,6 +51,11 @@ void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void ASagaCharacterPlayer::SwordAttack()
+{
+
+}
+
 void ASagaCharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -62,6 +67,13 @@ void ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+float ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	return DamageAmount;
 }
 
 void ASagaCharacterPlayer::PlayAttackAnimation()

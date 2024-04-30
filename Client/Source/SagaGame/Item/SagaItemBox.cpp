@@ -37,6 +37,9 @@ ASagaItemBox::ASagaItemBox()
 		Effect->SetTemplate(EffectRef.Object);
 		Effect->bAutoActivate = false;
 	}
+
+	Trigger->SetCollisionProfileName(TEXT("Item"));
+
 }
 
 void ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
