@@ -14,6 +14,11 @@ public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
 
+public:
+	int16 teamColor = 0;
+
+	void SetTeamColorAndCollision(int16 Team); //1이면 레드, 2이면 블루
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;

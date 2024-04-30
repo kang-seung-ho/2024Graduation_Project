@@ -37,6 +37,19 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
 }
 
+void ASagaCharacterPlayer::SetTeamColorAndCollision(int16 Team)
+{
+	teamColor = Team;
+	if (teamColor == 1)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (teamColor == 2)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
 
 void ASagaCharacterPlayer::BeginPlay()
 {
