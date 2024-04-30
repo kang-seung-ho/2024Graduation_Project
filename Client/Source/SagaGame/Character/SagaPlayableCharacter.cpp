@@ -1,5 +1,6 @@
 #include "SagaPlayableCharacter.h"
 #include "SagaPlayerAnimInstance.h"
+#include "../Effect/SagaSwordEffect.h"
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
@@ -86,6 +87,15 @@ void ASagaPlayableCharacter::SwordAttack()
 	{
 		FDamageEvent DamageEvent;
 		Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+		ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
+
+		Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
+		Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 	}
 
 }

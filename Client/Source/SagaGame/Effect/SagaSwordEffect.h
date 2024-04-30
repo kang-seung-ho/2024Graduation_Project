@@ -33,5 +33,10 @@ public:
 public:
 	void SetParticle(const FString& Path);
 	void SetParticle(UParticleSystem* particle);
+	void SetSound(const FString& Path);
+	void SetSound(USoundBase* sound);
 
+public:
+	UFUNCTION()
+	void OnParticleFinish(UParticleSystemComponent* FinishComponent);
 };
