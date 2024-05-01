@@ -107,7 +107,31 @@ const noexcept
 	return floor(angle / 45);
 }
 
-void ASagaInGamePlayerController::Tick(float delta_time)
+bool
+ASagaInGamePlayerController::IsLocalPlayer()
+const noexcept
+{
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system)
+		{
+			return (system->GetLocalUserId() != -1);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void
+ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 

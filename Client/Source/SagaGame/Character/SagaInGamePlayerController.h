@@ -106,6 +106,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	double GetNormalizedMoveDir() const noexcept;
 
+	/* Flag Methods */
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	bool IsLocalPlayer() const noexcept;
 
 	/* Unreal Engine Methods */
 
