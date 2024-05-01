@@ -322,7 +322,7 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 }
 
 void
-OnUpdateRoom(Framework& framework, iconer::app::User& user)
+demo::OnUpdateRoom(demo::Framework& framework, iconer::app::User& user)
 {
 	if (user.GetOperation() != iconer::app::AsyncOperations::OpRecv)
 	{
@@ -335,5 +335,13 @@ OnUpdateRoom(Framework& framework, iconer::app::User& user)
 		return;
 	}
 
+	if (Room* room = framework.FindRoom(room_id); nullptr != room)
+	{
 
+	}
+	else
+	{
+		// rollback
+		user.myRoomId.CompareAndSet(room_id, -1);
+	}
 }
