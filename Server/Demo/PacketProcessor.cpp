@@ -322,19 +322,18 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 }
 
 void
-demo::OnOldRpc(Framework& framework, User& user, std::string&& rpc, long long arg)
+OnUpdateRoom(Framework& framework, iconer::app::User& user)
 {
-	const auto room_id = user.myRoomId.Load();
-	if (room_id != -1)
+	if (user.GetOperation() != iconer::app::AsyncOperations::OpRecv)
 	{
-		if (Room* room = framework.FindRoom(room_id); nullptr != room)
-		{
-			room->ForEach(
-				[&user, &rpc, arg](User& member)
-				{
-					SEND(member, SendOldRpcPacket, user.GetID(), rpc, arg);
-				}
-			);
-		}
+		return;
 	}
+
+	const auto room_id = user.myRoomId.Load();
+	if (room_id == -1)
+	{
+		return;
+	}
+
+
 }

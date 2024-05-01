@@ -399,28 +399,13 @@ saga::SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 
 }
 
 std::optional<int32>
-saga::SendOldRpcPacket(FSocket* socket, FStringView rpc, int64 arg)
+saga::SendRoomUpdaterPacket(FSocket* socket)
 {
 	if (socket)
 	{
 		if (::IsConnected(socket))
 		{
-			auto trimmed = rpc.TrimStartAndEnd();
-			if (trimmed.Len() <= 0)
-			{
-				return std::nullopt;
-			}
-
-			saga::CS_RpcPacket pk{ arg };
-
-			size_t index = 0;
-			for (auto& chr : pk.rpcScript)
-			{
-				chr = trimmed[index++];
-
-				if (trimmed.Len() <= index) break;
-			}
-
+			const saga::CS_UpdateRoomPacket pk{};
 			auto ptr = pk.Serialize();
 
 			const int32 sent_bytes = saga::RawSend(socket, ptr.get(), pk.WannabeSize());
@@ -431,12 +416,12 @@ saga::SendOldRpcPacket(FSocket* socket, FStringView rpc, int64 arg)
 		}
 		else
 		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("The socket is not connected. (SendRpcPacket)"));
+			UE_LOG(LogSagaNetwork, Error, TEXT("The socket is not connected. (SendRoomUpdaterPacket)"));
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("The socket is null. (SendRpcPacket)"));
+		UE_LOG(LogSagaNetwork, Error, TEXT("The socket is null. (SendRoomUpdaterPacket)"));
 	}
 
 	return std::nullopt;

@@ -205,7 +205,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendRpcPacket(ESagaRpcProtocol category, int64 argument0 = 0, int32 argument1 = 0);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendOldRpcPacket(const FString& string, int64 argument = 0);
+	int32 SendRoomUpdaterPacket();
 #pragma endregion
 
 	/* Public Properties */

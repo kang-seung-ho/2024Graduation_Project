@@ -63,23 +63,23 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_REQUEST_VERSION:
 		{
-			// Empty packet
 			OnRequestVersion(framework, user);
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_REQUEST_ROOMS:
 		{
-			// Empty packet
 			OnRequestRoomList(framework, user);
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_REQUEST_USERS:
 		{
-			// Empty packet
 			OnRequestMemberList(framework, user);
 		}
 		break;
@@ -93,9 +93,9 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_ROOM_DESTROY:
 		{
-			// Empty packet
 
 		}
 		break;
@@ -109,29 +109,29 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_ROOM_MATCH:
 		{
-			// Empty packet
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_ROOM_LEAVE:
 		{
-			// Empty packet
 			OnLeaveRoom(framework, user);
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_GAME_START:
 		{
-			// Empty packet
 			OnGameStartSignal(framework, user);
 		}
 		break;
 
+		// Empty packet
 		case PacketProtocol::CS_GAME_LOADED:
 		{
-			// Empty packet
 			OnGameLoadedSignal(framework, user);
 		}
 		break;
@@ -207,6 +207,13 @@ demo::PacketProcessor(demo::Framework& framework
 			packets::Deserialize(last_buf, category, arg0, arg1);
 
 			OnRpc(framework, user, category, arg0, arg1);
+		}
+		break;
+
+		// Empty packet
+		case PacketProtocol::CS_UPDATE_ROOM:
+		{
+
 		}
 		break;
 

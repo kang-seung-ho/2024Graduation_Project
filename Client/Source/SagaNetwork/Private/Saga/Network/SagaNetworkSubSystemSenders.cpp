@@ -80,7 +80,7 @@ USagaNetworkSubSystem::SendRpcPacket(ESagaRpcProtocol category, int64 argument0,
 }
 
 int32
-USagaNetworkSubSystem::SendOldRpcPacket(const FString& string, int64 argument)
+USagaNetworkSubSystem::SendRoomUpdaterPacket()
 {
-	return saga::SendOldRpcPacket(clientSocket, string, MoveTemp(argument)).value_or(0);
+	return saga::SendRoomUpdaterPacket(clientSocket).value_or(0);
 }
