@@ -35,12 +35,11 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
 
 	preferedDirection.Y = Value.Get<FVector>().Y;
 
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] Begin Straight Walking"));
 	PrintVector(preferedDirection);
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[Character] Walk Straight"));
-
 		//auto singleton = GEngine->GetWorld()->GetGameInstance();
 		//auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
@@ -63,7 +62,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& Value)
 
 	preferedDirection.Y = Value.Get<FVector>().Y;
 
-	PrintVector(preferedDirection);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Straight Walking"));
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -87,14 +86,11 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
 
 	preferedDirection.X = Value.Get<FVector>().X;
 
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] Begin Strafe Walking"));
 	PrintVector(preferedDirection);
-
-	FString KeyAsString = Value.ToString();
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[Character] Strafe"));
-
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
@@ -115,7 +111,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
 
 	preferedDirection.X = Value.Get<FVector>().X;
 
-	PrintVector(preferedDirection);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Strafe Walking"));
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -150,8 +146,6 @@ ASagaInGamePlayerController::BeginRun()
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Run"));
-
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
