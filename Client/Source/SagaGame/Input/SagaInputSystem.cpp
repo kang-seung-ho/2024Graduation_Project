@@ -61,3 +61,13 @@ USagaInputSystem::USagaInputSystem()
 			Interact = Asset.Object;
 	}
 }
+
+USagaCharacterSelectInputSystem::USagaCharacterSelectInputSystem()
+{
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/CharacterSelect/IA_CharacterSelect.IA_CharacterSelect'"));
+
+		if (Asset.Succeeded())
+			Click = Asset.Object;
+	}
+}

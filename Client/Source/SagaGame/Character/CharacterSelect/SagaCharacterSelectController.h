@@ -16,13 +16,27 @@ class SAGAGAME_API ASagaCharacterSelectController : public APlayerController
 
 public:
 	ASagaCharacterSelectController();
+
+protected:
+	AActor* mUnderCursorActor;
+	AActor* mSelectActor;
+
+public:
+	AActor* GetSelectActor() const
+	{
+		return mSelectActor;
+	}
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent();
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	void OnClick(const FInputActionValue& Value);
 
 };

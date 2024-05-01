@@ -31,3 +31,19 @@ public:
 	UInputAction* Sprint = nullptr;
 	UInputAction* Interact = nullptr;
 };
+
+
+UCLASS()
+class SAGAGAME_API USagaCharacterSelectInputSystem : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	USagaCharacterSelectInputSystem();
+
+public:
+	UInputMappingContext* DefaultContext = nullptr;
+
+public:
+	UInputAction* Click = nullptr;
+};

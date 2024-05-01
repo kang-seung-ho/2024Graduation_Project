@@ -5,6 +5,7 @@
 #include "EngineMinimal.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/DamageEvents.h"
+#include "InputActionValue.h"
 
 #include "UObject/NoExportTypes.h"
 #include "SagaGameInfo.generated.h"

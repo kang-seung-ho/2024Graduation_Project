@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	EPlayerWeapon mWeapon = EPlayerWeapon::None;
 
+public:
+	EPlayerWeapon GetWeapon() const { return mWeapon; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
