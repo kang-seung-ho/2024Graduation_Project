@@ -31,8 +31,8 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
 	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteRun);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::TerminateRun);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
 }
 
 void
@@ -140,6 +140,10 @@ ASagaInGamePlayerController::Tick(float delta_time)
 	if (isRunning)
 	{
 		ExecuteRun();
+	}
+	else
+	{
+		TerminateRun();
 	}
 
 	if (isForwardWalking || isStrafeWalking)
