@@ -240,6 +240,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	bool is_local = false;
 	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
+#pragma region RPC from Local Client
 		is_local = true;
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] This is my rpc message."));
 
@@ -428,9 +429,11 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		default:
 			break;
 		}
+#pragma endregion
 	}
 	else // 원격 클라이언트
 	{
+#pragma region RPC from Remote Client
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %s's rpc message."), id);
 
 		auto& character = user.remoteCharacter;
@@ -604,6 +607,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		default:
 			break;
 		}
+#pragma endregion
 	}
 }
 
