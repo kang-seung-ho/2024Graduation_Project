@@ -57,7 +57,8 @@ ASagaInGamePlayerController::ExecuteRotation(const FInputActionValue& Value)
 	}
 }
 
-void ASagaInGamePlayerController::TerminateRotation()
+void
+ASagaInGamePlayerController::TerminateRotation()
 {
 
 }

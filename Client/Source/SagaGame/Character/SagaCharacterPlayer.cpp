@@ -55,7 +55,7 @@ void ASagaCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//ÀÌ ÇÔ¼ö È£ÃâµÇ±â Àü¿¡ SkeletalMeshComponent¿¡ ÁöÁ¤µÈ AnimInstance Å¬·¡½º ÀÌ¿ëÇÏ¿© »ç¿ëÇÏ±â À§ÇÑ °´Ã¼ ¸¸µé¾î³ùÀ½.
+	//ì´ í•¨ìˆ˜ í˜¸ì¶œë˜ê¸° ì „ì— SkeletalMeshComponentì— ì§€ì •ëœ AnimInstance í´ë˜ìŠ¤ ì´ìš©í•˜ì—¬ ì‚¬ìš©í•˜ê¸° ìœ„í•œ ê°ì²´ ë§Œë“¤ì–´ë†¨ìŒ.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 }
 

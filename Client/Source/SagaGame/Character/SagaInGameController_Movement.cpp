@@ -291,5 +291,6 @@ ASagaInGamePlayerController::ExecuteJump()
 	}
 }
 
-void ASagaInGamePlayerController::TerminateJump()
+void
+ASagaInGamePlayerController::TerminateJump()
 {}
