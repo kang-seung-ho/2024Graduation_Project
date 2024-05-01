@@ -16,6 +16,11 @@ export namespace iconer::app::packets::inline cs
 {
 #pragma pack(push, 1)
 	/// <summary>
+	/// Room updater packet for client
+	/// </summary>
+	/// <remarks>Client would send it to the server</remarks>
+	MAKE_EMPTY_PACKET(CS_UpdateRoomPacket, PacketProtocol::CS_UPDATE_ROOM);
+	/// <summary>
 	/// RPC packet for client
 	/// </summary>
 	/// <param name="rpc">- The category of rpc msg</param>
@@ -234,48 +239,6 @@ export namespace iconer::app::packets::inline cs
 		}
 
 		wchar_t userName[nickNameLength];
-	};
-	/// <summary>
-	/// RPC packet for client
-	/// </summary>
-	/// <param name="rpcScript">- A descriptor for rpc msg</param>
-	/// <remarks>Client would send it to the server</remarks>
-	struct [[nodiscard]] CS_RpcPacket : public BasicPacket
-	{
-		using Super = BasicPacket;
-
-		static inline constexpr size_t msgLength = 12;
-
-		[[nodiscard]]
-		static consteval size_t WannabeSize() noexcept
-		{
-			return Super::MinSize() + sizeof(rpcScript) + sizeof(rpcArgument);
-		}
-
-		[[nodiscard]]
-		static consteval ptrdiff_t SignedWannabeSize() noexcept
-		{
-			return static_cast<ptrdiff_t>(WannabeSize());
-		}
-
-		[[nodiscard]]
-		constexpr std::unique_ptr<std::byte[]> Serialize() const
-		{
-			return iconer::util::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
-		}
-
-		constexpr std::byte* Write(std::byte* buffer) const
-		{
-			return iconer::util::Serialize(iconer::util::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
-		}
-
-		constexpr const std::byte* Read(const std::byte* buffer)
-		{
-			return iconer::util::Deserialize(iconer::util::Deserialize(Super::Read(buffer), rpcScript), rpcArgument);
-		}
-
-		char rpcScript[msgLength];
-		long long rpcArgument;
 	};
 #pragma pack(pop)
 }

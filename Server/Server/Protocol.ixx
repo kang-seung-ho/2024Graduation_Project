@@ -57,6 +57,7 @@ export namespace iconer::app
 		CS_RPC_USE_ITEM_4,
 		CS_RPC_CHANGE_HAND_ITEM,
 		CS_RPC_DEAD,
+		CS_UPDATE_ROOM = 50,
 
 		SC_SIGNIN_SUCCESS = 120,
 		SC_SIGNIN_FAILURE,
