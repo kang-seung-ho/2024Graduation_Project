@@ -35,11 +35,12 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& Value)
 
 	preferedDirection.Y = Value.Get<FVector>().Y;
 
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] Begin Straight Walking"));
 	PrintVector(preferedDirection);
 
 	if constexpr (not saga::IsOfflineMode)
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[Character] Walk Straight"));
+
 		//auto singleton = GEngine->GetWorld()->GetGameInstance();
 		//auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
@@ -62,7 +63,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& Value)
 
 	preferedDirection.Y = Value.Get<FVector>().Y;
 
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Straight Walking"));
+	PrintVector(preferedDirection);
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -86,11 +87,14 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& Value)
 
 	preferedDirection.X = Value.Get<FVector>().X;
 
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] Begin Strafe Walking"));
 	PrintVector(preferedDirection);
+
+	FString KeyAsString = Value.ToString();
 
 	if constexpr (not saga::IsOfflineMode)
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[Character] Strafe"));
+
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
@@ -111,7 +115,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& Value)
 
 	preferedDirection.X = Value.Get<FVector>().X;
 
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Strafe Walking"));
+	PrintVector(preferedDirection);
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -133,19 +137,10 @@ ASagaInGamePlayerController::BeginRun()
 {
 	isRunning = true;
 
-	// begin sprinting
-	// Set the limit of velocity now
-	ACharacter* MyCharacter = GetCharacter();
-	if (MyCharacter)
-	{
-		// 달리기 시작할 때 속도를 높임
-		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = normalRunSpeed;
-	}
-
-	UE_LOG(LogSagaGame, Warning, TEXT("[Character] Sprinting"));
-
 	if constexpr (not saga::IsOfflineMode)
 	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[Character] Run"));
+
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
@@ -163,16 +158,6 @@ void
 ASagaInGamePlayerController::EndRun()
 {
 	isRunning = false;
-
-	// end sprinting
-	// Set the limit of velocity now
-	ACharacter* MyCharacter = GetCharacter();
-	if (MyCharacter)
-	{
-		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = normalWalkSpeed;
-	}
-
-	UE_LOG(LogSagaGame, Warning, TEXT("[Character] End Sprinting"));
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -272,11 +257,27 @@ ASagaInGamePlayerController::TerminateWalk(const float& delta_time)
 {}
 
 void ASagaInGamePlayerController::ExecuteRun()
-{}
+{
+	ACharacter* MyCharacter = GetCharacter();
+	if (MyCharacter)
+	{
+		// 달리기 시작할 때 속도를 높임
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+}
 
 void
 ASagaInGamePlayerController::TerminateRun()
-{}
+{
+	ACharacter* MyCharacter = GetCharacter();
+	if (MyCharacter)
+	{
+		// 달리기를 멈췄을 때 속도를 원래대로 복원
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	}
+
+	UE_LOG(LogSagaGame, Warning, TEXT("End Run"));
+}
 
 void
 ASagaInGamePlayerController::ExecuteJump()
@@ -291,6 +292,5 @@ ASagaInGamePlayerController::ExecuteJump()
 	}
 }
 
-void
-ASagaInGamePlayerController::TerminateJump()
+void ASagaInGamePlayerController::TerminateJump()
 {}

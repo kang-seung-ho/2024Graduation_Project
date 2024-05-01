@@ -27,5 +27,9 @@ public:
 	EWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, Category = "WeaponMesh")
-	TObjectPtr<UStaticMesh> WeaponMesh;
+	TObjectPtr<UTexture2D> WeaponMesh;
+
+public:
+	void SetItemType(EWeaponType Type) { WeaponType = Type; }
+	void SetWeaponMesh(TObjectPtr<UTexture2D> Mesh) { WeaponMesh = Mesh; }
 };

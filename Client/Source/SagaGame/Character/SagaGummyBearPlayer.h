@@ -17,5 +17,14 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
 public:
 	ASagaGummyBearPlayer();
 
+protected:
+	// ¿À¹ö·¦ ¹Ú½º
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBoxComponent* InteractionBox;
 
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

@@ -29,4 +29,5 @@ public:
 	UInputAction* Jump = nullptr;
 	UInputAction* Rotate = nullptr;
 	UInputAction* Sprint = nullptr;
+	UInputAction* Interact = nullptr;
 };

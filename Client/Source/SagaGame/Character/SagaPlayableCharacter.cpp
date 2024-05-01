@@ -64,7 +64,7 @@ void ASagaPlayableCharacter::SwordAttack()
 {
 	Super::SwordAttack();
 
-	//ê³µê²©ê³¼ ì¶©ëŒë˜ëŠ” ë¬¼ì²´ ì—¬ë¶€ íŒë‹¨
+	//°ø°Ý°ú Ãæµ¹µÇ´Â ¹°Ã¼ ¿©ºÎ ÆÇ´Ü
 	FHitResult Result;
 
 	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -77,7 +77,7 @@ void ASagaPlayableCharacter::SwordAttack()
 
 #if ENABLE_DRAW_DEBUG
 
-	//ì¶©ëŒì‹œ ë¹¨ê°• ì•„ë‹ˆë©´ ë…¹ìƒ‰
+	//Ãæµ¹½Ã »¡°­ ¾Æ´Ï¸é ³ì»ö
 	FColor Color = Collision ? FColor::Red : FColor::Green;
 
 	DrawDebugCapsule(GetWorld(), (Start+End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
@@ -94,8 +94,8 @@ void ASagaPlayableCharacter::SwordAttack()
 
 		ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
 
-		Effect->SetParticle(TEXT("")); //ì´ê³³ì— ë ˆí¼ëŸ°ìŠ¤ ë³µì‚¬
-		Effect->SetSound(TEXT("")); //ì´ê³³ì— ë ˆí¼ëŸ°ìŠ¤ ë³µì‚¬
+		Effect->SetParticle(TEXT("")); //ÀÌ°÷¿¡ ·¹ÆÛ·±½º º¹»ç
+		Effect->SetSound(TEXT("")); //ÀÌ°÷¿¡ ·¹ÆÛ·±½º º¹»ç
 	}
 
 }

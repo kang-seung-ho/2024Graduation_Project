@@ -53,4 +53,11 @@ USagaInputSystem::USagaInputSystem()
 		if (Asset.Succeeded())
 			Sprint = Asset.Object;
 	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Interact.IA_Interact'"));
+
+		if (Asset.Succeeded())
+			Interact = Asset.Object;
+	}
 }

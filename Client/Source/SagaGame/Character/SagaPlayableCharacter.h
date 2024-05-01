@@ -65,4 +65,6 @@ protected:
 	virtual void EquipWaterGun(class USagaWeaponData* WeaponData);
 
 	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
+
+
 };

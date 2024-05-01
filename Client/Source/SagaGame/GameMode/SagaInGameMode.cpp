@@ -7,7 +7,12 @@
 
 ASagaInGameMode::ASagaInGameMode()
 {
-	DefaultPawnClass = ASagaPlayableCharacter::StaticClass();
+	//DefaultPawnClass = ASagaPlayableCharacter::StaticClass();
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassRef(TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C"));
+	if (PlayerPawnClassRef.Class != nullptr)
+	{
+		DefaultPawnClass = PlayerPawnClassRef.Class;
+	}
 	PlayerControllerClass = ASagaInGamePlayerController::StaticClass();
 }
 

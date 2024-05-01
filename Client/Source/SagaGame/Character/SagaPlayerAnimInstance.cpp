@@ -30,7 +30,7 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		UCharacterMovementComponent* Movement = PlayerCharacter->GetCharacterMovement();
 		if (IsValid(Movement))
 		{
-			//êµ¬í•´ì¤€ ì´ë™ì†ë„ë¥¼ ìµœëŒ€ì†ë„ë¡œ ë‚˜ëˆ„ì–´ ë¹„ìœ¨êµ¬í•¨
+			//±¸ÇØÁØ ÀÌµ¿¼Óµµ¸¦ ÃÖ´ë¼Óµµ·Î ³ª´©¾î ºñÀ²±¸ÇÔ
 			mMoveSpeed = Movement->Velocity.Length();
 			mMoveSpeed /= Movement->MaxWalkSpeed;
 		}
@@ -74,11 +74,21 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 	if (!Montage_IsPlaying(mAttackMontageArray[mAttackIndex]))
 	{
-		Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
+		if (mWeaponType == EWeaponType::Lightsaber) {
+			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
 
-		Montage_Play(mAttackMontageArray[mAttackIndex]);
+			Montage_Play(mAttackMontageArray[mAttackIndex]);
 
-		mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
+			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
+		}
+		else if (mWeaponType == EWeaponType::WaterGun) {
+			Montage_SetPosition(mGunAttackMontageArray[mAttackIndex], 0.f);
+
+			Montage_Play(mGunAttackMontageArray[mAttackIndex]);
+
+			mAttackIndex = (mAttackIndex + 1) % mGunAttackMontageArray.Num();
+		}
+		
 	}
 }
 

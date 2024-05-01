@@ -12,18 +12,10 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 protected:
-	// for character
-	static inline constexpr float normalWalkSpeed = 400;
-	// for character
-	static inline constexpr float normalRunSpeed = 600;
-	// for guardian
-	static inline constexpr float riderWalkSpeed = 250;
-	// for guardian
-	static inline constexpr float riderRunSpeed = 400;
-
 	bool isForwardWalking;
 	bool isStrafeWalking;
 	bool isRunning;
+	bool isRiding = false;
 
 	FVector walkDirection;
 	FVector preferedDirection;
@@ -38,7 +30,7 @@ protected:
 public:
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/* RPC Methods */
+	void OnAttack(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void BeginForwardWalk(const FInputActionValue& Value);
@@ -90,38 +82,24 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void ExecuteAttack() {}
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateAttack() {}
+	void TerminateAttack() {};
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void BeginRide();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void EndRide();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteRide() {}
+	void ExecuteRide();
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void TerminateRide() {}
-
-	/* Events */
-
-	void OnAttack(const FInputActionValue& Value);
-
-	/* Getters */
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	float GetMoveDir() const noexcept
 	{
 		return mMoveDir;
 	}
-
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	double GetNormalizedMoveDir() const noexcept;
-
-	/* Flag Methods */
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
-	bool IsLocalPlayer() const noexcept;
-
-	/* Unreal Engine Methods */
 
 	virtual void Tick(float delta_time) override;
 
