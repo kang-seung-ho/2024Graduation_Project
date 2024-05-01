@@ -4,26 +4,6 @@
 #include <algorithm>
 
 std::unique_ptr<std::byte[]>
-saga::cs::CS_RpcPacket::Serialize()
-const
-{
-	return saga::Serializes(myProtocol, mySize, std::string_view{ rpcScript, msgLength }, rpcArgument);
-}
-
-std::byte*
-saga::cs::CS_RpcPacket::Write(std::byte* buffer)
-const
-{
-	return saga::Serialize(saga::Serialize(Super::Write(buffer), std::string_view{ rpcScript, msgLength }), rpcArgument);
-}
-
-const std::byte*
-saga::cs::CS_RpcPacket::Read(const std::byte* buffer)
-{
-	return saga::Deserialize(saga::Deserialize(Super::Read(buffer), msgLength, rpcScript), rpcArgument);
-}
-
-std::unique_ptr<std::byte[]>
 saga::cs::CS_CreateRoomPacket::Serialize()
 const
 {
