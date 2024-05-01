@@ -12,6 +12,15 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 protected:
+	// for character
+	static inline constexpr float normalWalkSpeed = 400;
+	// for character
+	static inline constexpr float normalRunSpeed = 600;
+	// for guardian
+	static inline constexpr float riderWalkSpeed = 250;
+	// for guardian
+	static inline constexpr float riderRunSpeed = 400;
+
 	bool isForwardWalking;
 	bool isStrafeWalking;
 	bool isRunning;
@@ -103,6 +112,7 @@ public:
 	{
 		return mMoveDir;
 	}
+
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	double GetNormalizedMoveDir() const noexcept;
 
