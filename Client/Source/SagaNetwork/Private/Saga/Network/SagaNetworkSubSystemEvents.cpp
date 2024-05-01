@@ -250,7 +250,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 			return;
 		}
 
-		const auto world = GEngine->GetWorld();
+		const auto world = player->GetWorld();
 		if (nullptr == world)
 		{
 			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] The handle of world is null."));
