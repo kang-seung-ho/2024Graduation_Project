@@ -29,7 +29,7 @@ protected:
 public:
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	void OnAttack(const FInputActionValue& Value);
+	/* RPC Methods */
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void BeginForwardWalk(const FInputActionValue& Value);
@@ -92,6 +92,12 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void TerminateRide() {}
 
+	/* Events */
+
+	void OnAttack(const FInputActionValue& Value);
+
+	/* Getters */
+
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	float GetMoveDir() const noexcept
 	{
@@ -99,6 +105,9 @@ public:
 	}
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	double GetNormalizedMoveDir() const noexcept;
+
+
+	/* Unreal Engine Methods */
 
 	virtual void Tick(float delta_time) override;
 
