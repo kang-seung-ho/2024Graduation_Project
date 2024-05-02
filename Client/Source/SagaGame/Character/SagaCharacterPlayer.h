@@ -1,11 +1,12 @@
 #pragma once
 #include "SagaGame.h"
 #include "GameFramework/Character.h"
+
 #include "../SagaGameInfo.h"
 #include "Saga/Network/SagaNetworkRpcView.h"
 #include "SagaCharacterPlayer.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaCharacterPlayer : public ACharacter
 {
 	GENERATED_BODY()
@@ -17,7 +18,7 @@ public:
 public:
 	int16 teamColor = 0;
 
-	void SetTeamColorAndCollision(int16 Team); //1ÀÌ¸é ·¹µå, 2ÀÌ¸é ºí·ç
+	void SetTeamColorAndCollision(int16 Team); //1ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½, 2ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -54,7 +55,7 @@ public:
 
 };
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class ASagaRemotePlayerCharacter : public ASagaCharacterPlayer, public ISagaNetworkRpcView
 {
 	GENERATED_BODY()

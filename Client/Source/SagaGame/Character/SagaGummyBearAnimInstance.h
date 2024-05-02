@@ -1,15 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+
 #include "SagaGummyBearAnimInstance.generated.h"
 
-/**
- * 
- */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API USagaGummyBearAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
@@ -45,8 +40,7 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
-
-
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mMoveSpeed;

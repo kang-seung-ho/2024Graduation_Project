@@ -1,15 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Character/SagaCharacterPlayer.h"
+
 #include "SagaShootingCharacterPlayer.generated.h"
 
-/**
- * 
- */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaShootingCharacterPlayer : public ASagaCharacterPlayer
 {
 	GENERATED_BODY()

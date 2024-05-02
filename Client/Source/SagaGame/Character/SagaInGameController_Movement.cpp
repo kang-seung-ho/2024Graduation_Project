@@ -256,7 +256,8 @@ void
 ASagaInGamePlayerController::TerminateWalk(const float& delta_time)
 {}
 
-void ASagaInGamePlayerController::ExecuteRun()
+void
+ASagaInGamePlayerController::ExecuteRun()
 {
 	ACharacter* MyCharacter = GetCharacter();
 	if (MyCharacter)
@@ -292,5 +293,6 @@ ASagaInGamePlayerController::ExecuteJump()
 	}
 }
 
-void ASagaInGamePlayerController::TerminateJump()
+void
+ASagaInGamePlayerController::TerminateJump()
 {}

@@ -1,20 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+
 #include "../Item/SagaWeaponData.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
-/**
- * 
- */
-UCLASS()
+UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")
 class SAGAGAME_API USagaPlayerAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-
 
 public:
 	// the below functions are the native overrides for each phase

@@ -59,7 +59,8 @@ ASagaInGamePlayerController::ExecuteRotation(const FInputActionValue& Value)
 	}
 }
 
-void ASagaInGamePlayerController::TerminateRotation()
+void
+ASagaInGamePlayerController::TerminateRotation()
 {
 
 }
@@ -100,23 +101,24 @@ ASagaInGamePlayerController::EndRide()
 	}
 }
 
-void ASagaInGamePlayerController::ExecuteRide()
+void
+ASagaInGamePlayerController::ExecuteRide()
 {
-	//if (isRiding) // Å¾½Â ÁßÀÏ °æ¿ì ³»¸®´Â ·ÎÁ÷
+	//if (isRiding) // íƒ‘ìŠ¹ ì¤‘ì¼ ê²½ìš° ë‚´ë¦¬ëŠ” ë¡œì§
 	//{
 	//	isRiding = false;
-	//	GetOwner()->SetActorHiddenInGame(false);  // ÇÃ·¹ÀÌ¾î¸¦ ´Ù½Ã º¸ÀÌ°Ô ÇÔ
+	//	GetOwner()->SetActorHiddenInGame(false);  // í”Œë ˆì´ì–´ë¥¼ ë‹¤ì‹œ ë³´ì´ê²Œ í•¨
 	//	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	//	if (PlayerController)
 	//	{
-	//		PlayerController->UnPossess();  // ÀÌÀü¿¡ ºùÀÇÇß´ø NPC¿¡¼­ ¹ş¾î³²
-	//		PlayerController->Possess(GetPawn());  // ¿ø·¡ ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ·Î ´Ù½Ã ºùÀÇ
+	//		PlayerController->UnPossess();  // ì´ì „ì— ë¹™ì˜í–ˆë˜ NPCì—ì„œ ë²—ì–´ë‚¨
+	//		PlayerController->Possess(GetPawn());  // ì›ë˜ í”Œë ˆì´ì–´ ìºë¦­í„°ë¡œ ë‹¤ì‹œ ë¹™ì˜
 	//	}
 	//}
-	//else // Å¾½ÂÇÏ´Â ·ÎÁ÷
+	//else // íƒ‘ìŠ¹í•˜ëŠ” ë¡œì§
 	//{
 	//	TArray<AActor*> OverlappingActors;
-	//	GetOverlappingActors(OverlappingActors, ASagaGummyBearPlayer::StaticClass());  // GummyBear NPC Å¬·¡½º·Î ÇÊÅÍ¸µ
+	//	GetOverlappingActors(OverlappingActors, ASagaGummyBearPlayer::StaticClass());  // GummyBear NPC í´ë˜ìŠ¤ë¡œ í•„í„°ë§
 
 	//	for (AActor* Actor : OverlappingActors)
 	//	{
@@ -124,13 +126,13 @@ void ASagaInGamePlayerController::ExecuteRide()
 	//		if (NPCCharacter)
 	//		{
 	//			UE_LOG(LogSagaGame, Log, TEXT("Interacted With NPC"));
-	//			// Å¾½ÂÇÑ °æ¿ì ÇÃ·¹ÀÌ¾î¸¦ ¼û±è
+	//			// íƒ‘ìŠ¹í•œ ê²½ìš° í”Œë ˆì´ì–´ë¥¼ ìˆ¨ê¹€
 	//			GetPawn()->SetActorHiddenInGame(true);
 	//			isRiding = true;
 
-	//			// ÇöÀç ÄÁÆ®·Ñ·¯·Î NPC ºùÀÇ
+	//			// í˜„ì¬ ì»¨íŠ¸ë¡¤ëŸ¬ë¡œ NPC ë¹™ì˜
 	//			Possess(NPCCharacter);
-	//			break;  // ºùÀÇ¿¡ ¼º°øÇÏ¸é ·çÇÁ Á¾·á
+	//			break;  // ë¹™ì˜ì— ì„±ê³µí•˜ë©´ ë£¨í”„ ì¢…ë£Œ
 	//		}
 	//		else {
 	//			UE_LOG(LogSagaGame, Log, TEXT("No NPC to ride"));
@@ -149,7 +151,8 @@ const noexcept
 	return floor(angle / 45);
 }
 
-void ASagaInGamePlayerController::Tick(float delta_time)
+void
+ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
@@ -170,7 +173,8 @@ void ASagaInGamePlayerController::Tick(float delta_time)
 	}
 }
 
-void ASagaInGamePlayerController::BeginPlay()
+void
+ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -199,7 +203,8 @@ void ASagaInGamePlayerController::BeginPlay()
 	//}
 }
 
-void ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void
+ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 }

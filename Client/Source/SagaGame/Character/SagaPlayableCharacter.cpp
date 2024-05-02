@@ -1,8 +1,6 @@
 #include "SagaPlayableCharacter.h"
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 {
@@ -21,8 +19,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
 	}
 	
-
-
 	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
@@ -45,26 +41,30 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 }
 
-void ASagaPlayableCharacter::BeginPlay()
+void
+ASagaPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void
+ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 }
 
-void ASagaPlayableCharacter::Tick(float DeltaTime)
+void
+ASagaPlayableCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void ASagaPlayableCharacter::SwordAttack()
+void
+ASagaPlayableCharacter::SwordAttack()
 {
 	Super::SwordAttack();
 
-	//∞¯∞›∞˙ √Êµπµ«¥¬ π∞√º ø©∫Œ ∆«¥‹
+	//Í≥µÍ≤©Í≥º Ï∂©ÎèåÎêòÎäî Î¨ºÏ≤¥ Ïó¨Î∂Ä ÌåêÎã®
 	FHitResult Result;
 
 	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -77,7 +77,7 @@ void ASagaPlayableCharacter::SwordAttack()
 
 #if ENABLE_DRAW_DEBUG
 
-	//√ÊµπΩ√ ª°∞≠ æ∆¥œ∏È ≥Ïªˆ
+	//Ï∂©ÎèåÏãú Îπ®Í∞ï ÏïÑÎãàÎ©¥ ÎÖπÏÉâ
 	FColor Color = Collision ? FColor::Red : FColor::Green;
 
 	DrawDebugCapsule(GetWorld(), (Start+End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
@@ -94,14 +94,14 @@ void ASagaPlayableCharacter::SwordAttack()
 
 		ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
 
-		Effect->SetParticle(TEXT("")); //¿Ã∞˜ø° ∑π∆€∑±Ω∫ ∫πªÁ
-		Effect->SetSound(TEXT("")); //¿Ã∞˜ø° ∑π∆€∑±Ω∫ ∫πªÁ
+		Effect->SetParticle(TEXT("")); //Ïù¥Í≥≥Ïóê Î†àÌçºÎü∞Ïä§ Î≥µÏÇ¨
+		Effect->SetSound(TEXT("")); //Ïù¥Í≥≥Ïóê Î†àÌçºÎü∞Ïä§ Î≥µÏÇ¨
 	}
 
 }
 
-
-void ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
+void
+ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
 {
 	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
 	if (WeaponDataItem)
@@ -112,7 +112,8 @@ void ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
 	mWeaponType = WeaponDataItem->WeaponType;
 }
 
-void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
+void
+ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
 {
 	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
 	if (WeaponDataItem)
@@ -123,7 +124,8 @@ void ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
 	mWeaponType = WeaponDataItem->WeaponType;
 }
 
-void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
+void
+ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
 {
 	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
 	if (WeaponDataItem)
@@ -133,11 +135,11 @@ void ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
 	mWeaponType = WeaponDataItem->WeaponType;
 }
 
-void ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
+void
+ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
 {
 	if (WeaponData)
 	{
 		TakeWeaponAction[(uint8)WeaponData->WeaponType].WeaponDelegate.ExecuteIfBound(WeaponData);
 	}
 }
-
