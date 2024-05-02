@@ -88,10 +88,10 @@ public:
 	void BeginRide();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void EndRide();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void ExecuteRide();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateRide() {}
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void TerminateRide();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	float GetMoveDir() const noexcept

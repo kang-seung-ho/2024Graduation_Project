@@ -31,7 +31,9 @@ export namespace iconer::app
 
 	struct SagaGuardian : public TransformUnit
 	{
+		std::atomic_bool isActivated;
 		std::atomic_bool isAlive;
+		std::atomic_bool isRidingAnyone;
 		float myHp;
 	};
 }

@@ -30,6 +30,9 @@ export namespace iconer::app::inline rpc
 		RPC_SPAWN_ITEM,
 		RPC_GRAB_ITEM,
 		RPC_CHANGE_HAND_ITEM,
+		RPC_DMG_PLYER,
+		RPC_DMG_GUARDIAN,
+		RPC_DMG_GUARDIANS_PART,
 		RPC_DEAD,
 	};
 
