@@ -21,6 +21,9 @@ protected:
 	AActor* mUnderCursorActor;
 	AActor* mSelectActor;
 
+	TSubclassOf<UUserWidget> mSelectWidgetClass;
+	class USagaCharacterSelectWidget* mSelectWidget;
+
 public:
 	AActor* GetSelectActor() const
 	{

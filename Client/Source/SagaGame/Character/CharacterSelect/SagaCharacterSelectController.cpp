@@ -5,17 +5,35 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "../../Input/SagaInputSystem.h"
+#include "../../UI/SagaCharacterSelectWidget.h"
 
 ASagaCharacterSelectController::ASagaCharacterSelectController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	bShowMouseCursor = true;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_CharacterSelect.UI_CharacterSelect_C'"));
+
+	if (WidgetClass.Succeeded())
+	{
+		mSelectWidgetClass = WidgetClass.Class;
+	}
 }
 
 void ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(mSelectWidgetClass))
+	{
+		mSelectWidget = CreateWidget<USagaCharacterSelectWidget>(GetWorld(), mSelectWidgetClass);
+
+		if (IsValid(mSelectWidget))
+		{
+			mSelectWidget->AddToViewport();
+		}
+	}
 
 	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
@@ -47,6 +65,7 @@ void ASagaCharacterSelectController::Tick(float DeltaTime)
 
 	if (Hit)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Mouse On"));
 		mUnderCursorActor = result.GetActor();
 	}
 	else
@@ -58,4 +77,16 @@ void ASagaCharacterSelectController::Tick(float DeltaTime)
 void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 {
 	mSelectActor = mUnderCursorActor;
+	UE_LOG(LogTemp, Warning, TEXT("Clicked"));
+
+	if (mSelectActor)
+	{
+		mSelectWidget->StartButtonEnable(true);
+		UE_LOG(LogTemp, Warning, TEXT("Actor Selected"));
+		UE_LOG(LogTemp, Warning,TEXT("%s"),  *mSelectActor->GetName());
+	}
+	else
+	{
+		mSelectWidget->StartButtonEnable(false);
+	}
 }

@@ -17,7 +17,7 @@ ASagaSelectCharacter::ASagaSelectCharacter()
 
 	mMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	RootComponent = mBody;
+	SetRootComponent(mBody);
 
 	mMesh->SetupAttachment(mBody);
 

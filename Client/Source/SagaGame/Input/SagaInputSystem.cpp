@@ -65,6 +65,13 @@ USagaInputSystem::USagaInputSystem()
 USagaCharacterSelectInputSystem::USagaCharacterSelectInputSystem()
 {
 	{
+		ConstructorHelpers::FObjectFinder<UInputMappingContext>Asset(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/CharacterSelect/IMC_CharacterSelect.IMC_CharacterSelect'"));
+
+		if (Asset.Succeeded())
+			DefaultContext = Asset.Object;
+	}
+
+	{
 		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/CharacterSelect/IA_CharacterSelect.IA_CharacterSelect'"));
 
 		if (Asset.Succeeded())

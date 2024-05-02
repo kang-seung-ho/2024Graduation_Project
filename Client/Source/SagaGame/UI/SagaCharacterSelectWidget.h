@@ -25,5 +25,7 @@ protected:
 public:
 	UFUNCTION()
 	void StartButtonClick();
+
+	void StartButtonEnable(bool bEnable);
 	
 };
