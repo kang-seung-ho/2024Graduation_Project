@@ -372,6 +372,9 @@
     <ClCompile Include="TransformUnit.ixx">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="GameInfo.ixx">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Server.natvis" />
