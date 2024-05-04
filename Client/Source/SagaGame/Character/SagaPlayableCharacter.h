@@ -14,6 +14,10 @@ struct FTakeWeaponDelegateWrapper
 	GENERATED_BODY()
 
 public:
+	FTakeWeaponDelegateWrapper()
+		: WeaponDelegate()
+	{}
+
 	FTakeWeaponDelegateWrapper(const FOnTakeWeaponDelegate& InWeaponDelegate)
 		: WeaponDelegate(InWeaponDelegate)
 	{}
