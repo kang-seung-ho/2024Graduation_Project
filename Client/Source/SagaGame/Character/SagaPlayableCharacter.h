@@ -46,8 +46,8 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EWeaponType mWeaponType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
