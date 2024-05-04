@@ -13,6 +13,7 @@
 #include "Saga/Network/SagaVirtualRoom.h"
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaRpcProtocol.h"
+#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 #include "SagaNetworkSubSystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool, was_succeed);
@@ -288,6 +289,21 @@ public:
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "CandyLandSaga|Network")
 	TMap<FString, FSagaEventOnRpc> rpcDatabase;
 #pragma endregion
+
+public:
+	EPlayerWeapon CurrentPlayerWeapon;
+
+public:
+	EPlayerWeapon GetWeaponType() const
+	{
+		return CurrentPlayerWeapon;
+	}
+
+	void SetWeaponType(EPlayerWeapon Type)
+	{
+		CurrentPlayerWeapon = Type;
+	}
+
 
 private:
 	/* Internal Functions */

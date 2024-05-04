@@ -94,14 +94,14 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 			// 무기 유형에 따라 서버전송 처리를 수행
 			FString WeaponName = TEXT("Unknown");
+			auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 			switch (WeaponType)
 			{
 			case EPlayerWeapon::LightSabor:
-				WeaponName = TEXT("Light Sabor");
+				WeaponName = TEXT("Light Sabor");				
+				system->SetWeaponType(EPlayerWeapon::LightSabor);
 				if constexpr (not saga::IsOfflineMode)
 				{
-					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
 					if (nullptr != system and system->GetLocalUserId() != -1)
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 0);
@@ -114,10 +114,9 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 				break;
 			case EPlayerWeapon::WaterGun:
 				WeaponName = TEXT("Water Gun");
+				system->SetWeaponType(EPlayerWeapon::WaterGun);
 				if constexpr (not saga::IsOfflineMode)
 				{
-					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
 					if (nullptr != system and system->GetLocalUserId() != -1)
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 1);
@@ -130,10 +129,9 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 				break;
 			case EPlayerWeapon::Hammer:
 				WeaponName = TEXT("Hammer");
+				system->SetWeaponType(EPlayerWeapon::Hammer);
 				if constexpr (not saga::IsOfflineMode)
 				{
-					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
 					if (nullptr != system and system->GetLocalUserId() != -1)
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 2);
