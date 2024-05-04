@@ -101,44 +101,15 @@ ASagaInGamePlayerController::EndRide()
 	}
 }
 
-void
-ASagaInGamePlayerController::ExecuteRide()
+void ASagaInGamePlayerController::TerminateRide_Implementation()
 {
-	//if (isRiding) // 탑승 중일 경우 내리는 로직
-	//{
-	//	isRiding = false;
-	//	GetOwner()->SetActorHiddenInGame(false);  // 플레이어를 다시 보이게 함
-	//	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	//	if (PlayerController)
-	//	{
-	//		PlayerController->UnPossess();  // 이전에 빙의했던 NPC에서 벗어남
-	//		PlayerController->Possess(GetPawn());  // 원래 플레이어 캐릭터로 다시 빙의
-	//	}
-	//}
-	//else // 탑승하는 로직
-	//{
-	//	TArray<AActor*> OverlappingActors;
-	//	GetOverlappingActors(OverlappingActors, ASagaGummyBearPlayer::StaticClass());  // GummyBear NPC 클래스로 필터링
 
-	//	for (AActor* Actor : OverlappingActors)
-	//	{
-	//		ASagaGummyBearPlayer* NPCCharacter = Cast<ASagaGummyBearPlayer>(Actor);
-	//		if (NPCCharacter)
-	//		{
-	//			UE_LOG(LogSagaGame, Log, TEXT("Interacted With NPC"));
-	//			// 탑승한 경우 플레이어를 숨김
-	//			GetPawn()->SetActorHiddenInGame(true);
-	//			isRiding = true;
+}
 
-	//			// 현재 컨트롤러로 NPC 빙의
-	//			Possess(NPCCharacter);
-	//			break;  // 빙의에 성공하면 루프 종료
-	//		}
-	//		else {
-	//			UE_LOG(LogSagaGame, Log, TEXT("No NPC to ride"));
-	//		}
-	//	}
-	//}
+void
+ASagaInGamePlayerController::ExecuteRide_Implementation()
+{
+	
 }
 
 
