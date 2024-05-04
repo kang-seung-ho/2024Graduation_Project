@@ -437,6 +437,9 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %d's rpc message."), id);
 
 		auto& character = user.remoteCharacter;
+
+		//DestoryActor(character);
+		//character = SpawnActer<GummyBear>();
 		if (not character)
 		{
 			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a character of user %d'."), id);
@@ -501,6 +504,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		{
 			if (character)
 			{
+
 				//character->ExecuteRide();
 			}
 		}

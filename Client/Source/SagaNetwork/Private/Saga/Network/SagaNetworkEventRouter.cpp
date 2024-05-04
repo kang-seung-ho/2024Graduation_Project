@@ -6,6 +6,7 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaGame/Character/SagaCharacterPlayer.h"
+#include "SagaGame/Character/SagaPlayableCharacter.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size)
@@ -299,7 +300,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 						character_class_ref = dummyPlayerClassReference.LoadSynchronous();
 					}
 
-					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(ASagaCharacterPlayer::StaticClass(), {}));
+					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(ASagaPlayableCharacter::StaticClass(), {}));
 					if (character)
 					{
 						member.remoteCharacter = character;
