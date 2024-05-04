@@ -1,6 +1,7 @@
 module;
 #include <tuple>
 #include <atomic>
+#include <chrono>
 #include <array>
 
 #define SEND(user_var, method, ...)\
@@ -96,7 +97,7 @@ demo::OnJoinRoom(demo::Framework& framework, User& user, const std::int32_t& roo
 		if (user.TryChangeState(UserStates::Idle, UserStates::EnteringRoom))
 		{
 			iconer::util::Chronograph chronograph{};
-			static constexpr auto time_limit = iconer::util::Chronograph::Seconds(3);
+			static auto time_limit = iconer::util::Chronograph::Seconds(3);
 
 			while (true)
 			{
