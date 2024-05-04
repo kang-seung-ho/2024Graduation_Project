@@ -185,3 +185,39 @@ demo::Framework::OnCleanRpc(iconer::app::IContext* ctx)
 		it = everyRpcContexts.begin();
 	}
 }
+
+bool
+demo::Framework::OnUpdatingRoom(iconer::app::Room& room)
+{
+	if (room.GetState() == iconer::app::RoomStates::InGame)
+	{
+		//auto list = room.
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void
+demo::Framework::OnFailedToUpdateRoom(iconer::app::Room& room)
+noexcept
+{
+	if (room.GetMembersCount() == 0)
+	{
+		if (room.TryCancelBeginGame())
+		{
+			room.Cleanup();
+		}
+	}
+	else if (room.GetState() == iconer::app::RoomStates::InGame)
+	{
+
+	}
+	else
+	{
+
+	}
+}

@@ -215,6 +215,9 @@ export namespace demo
 		void OnSentRpc(iconer::app::IContext* ctx);
 		void OnCleanRpc(iconer::app::IContext* ctx);
 
+		ICONER_NODISCARD bool OnUpdatingRoom(iconer::app::Room& room);
+		void OnFailedToUpdateRoom(iconer::app::Room& room) noexcept;
+
 		void SetRoomModifiedFlag() noexcept;
 		ICONER_NODISCARD bool GetRoomModifiedFlag() const noexcept;
 
