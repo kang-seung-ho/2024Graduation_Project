@@ -110,9 +110,16 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	switch (rpc_ctx->rpcCategory)
 	{
+	case RPC_MAIN_WEAPON:
+	{
+		// arg0: kind of weapon
+
+	}
+	break;
+
 	case RPC_BEG_RIDE:
 	{
-
+		// arg0: index of guardian
 	}
 	break;
 
