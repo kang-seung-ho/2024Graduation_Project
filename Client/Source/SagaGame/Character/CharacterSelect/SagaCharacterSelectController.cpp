@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "../../Input/SagaInputSystem.h"
 #include "../../UI/SagaCharacterSelectWidget.h"
+#include "SagaSelectCharacter.h"
 
 ASagaCharacterSelectController::ASagaCharacterSelectController()
 {
@@ -77,13 +78,36 @@ void ASagaCharacterSelectController::Tick(float DeltaTime)
 void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 {
 	mSelectActor = mUnderCursorActor;
-	UE_LOG(LogTemp, Warning, TEXT("Clicked"));
 
 	if (mSelectActor)
 	{
-		mSelectWidget->StartButtonEnable(true);
-		UE_LOG(LogTemp, Warning, TEXT("Actor Selected"));
-		UE_LOG(LogTemp, Warning,TEXT("%s"),  *mSelectActor->GetName());
+		ASagaSelectCharacter* SelectedCharacter = Cast<ASagaSelectCharacter>(mSelectActor);
+		if (SelectedCharacter)
+		{
+			EPlayerWeapon WeaponType = SelectedCharacter->GetWeapon();
+
+			mSelectWidget->StartButtonEnable(true);
+
+			// 무기 유형에 따라 서버전송 처리를 수행
+			FString WeaponName = TEXT("Unknown");
+			switch (WeaponType)
+			{
+			case EPlayerWeapon::LightSabor:
+				WeaponName = TEXT("Light Sabor");
+				break;
+			case EPlayerWeapon::WaterGun:
+				WeaponName = TEXT("Water Gun");
+				break;
+			case EPlayerWeapon::Hammer:
+				WeaponName = TEXT("Hammer");
+				break;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Selected weapon: %s"), *WeaponName);
+		}
+		else
+		{
+			mSelectWidget->StartButtonEnable(false);
+		}
 	}
 	else
 	{

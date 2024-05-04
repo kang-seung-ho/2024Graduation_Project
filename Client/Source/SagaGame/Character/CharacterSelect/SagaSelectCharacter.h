@@ -9,7 +9,6 @@
 UENUM(BlueprintType)
 enum class EPlayerWeapon : uint8
 {
-	None,
 	LightSabor,
 	WaterGun,
 	Hammer
@@ -33,7 +32,7 @@ protected:
 	USkeletalMeshComponent* mMesh;
 
 	UPROPERTY(EditAnywhere)
-	EPlayerWeapon mWeapon = EPlayerWeapon::None;
+	EPlayerWeapon mWeapon = EPlayerWeapon::LightSabor;
 
 public:
 	EPlayerWeapon GetWeapon() const

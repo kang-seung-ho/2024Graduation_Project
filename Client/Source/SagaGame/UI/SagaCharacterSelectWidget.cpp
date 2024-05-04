@@ -18,11 +18,15 @@ void USagaCharacterSelectWidget::NativeTick(const FGeometry& MyGeometry, float I
 
 void USagaCharacterSelectWidget::StartButtonClick()
 {
+
+	//서버로 보내는 함수 추가
+
+
+
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
 }
 
 void USagaCharacterSelectWidget::StartButtonEnable(bool bEnable)
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartButtonEnable"))
 	mStartButton->SetIsEnabled(bEnable);
 }
