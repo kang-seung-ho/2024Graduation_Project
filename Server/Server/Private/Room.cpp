@@ -50,10 +50,21 @@ namespace iconer::app
 	}
 }
 
+void ClearGuardian(iconer::app::game::SagaGuardian& guardian)
+{
+	guardian.myStatus = {};
+	guardian.isRidingByAnyone = false;
+}
+
 void
 iconer::app::Room::Awake()
 noexcept
 {
+	for (auto& guardian : sagaGuardians)
+	{
+		ClearGuardian(guardian);
+	}
+
 	preRespondMembersPacket = std::make_unique_for_overwrite<std::byte[]>(packets::SC_RespondMembersPacket::MaxSize());
 }
 
@@ -61,13 +72,20 @@ void
 iconer::app::Room::Cleanup()
 noexcept
 {
-	ClearMembers();
 	Clear();
 	SetState(RoomStates::None);
 	SetOperation(AsyncOperations::None);
+
+	ClearMembers();
 	membersCount = 0;
 	isMemberUpdated = true;
 	proceedMemberCount = 0;
+
+	for (auto& guardian : sagaGuardians)
+	{
+		ClearGuardian(guardian);
+	}
+
 	isGameReadyFailed = false;
 }
 
@@ -75,13 +93,20 @@ void
 iconer::app::Room::Cleanup()
 volatile noexcept
 {
-	ClearMembers();
 	Clear();
 	SetState(RoomStates::None);
 	SetOperation(AsyncOperations::None);
+
+	ClearMembers();
 	membersCount = 0;
 	isMemberUpdated = true;
 	proceedMemberCount = 0;
+
+	for (auto& guardian : sagaGuardians)
+	{
+		ClearGuardian(guardian);
+	}
+
 	isGameReadyFailed = false;
 }
 

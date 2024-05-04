@@ -4,10 +4,13 @@ module;
 export module Iconer.Application.GameInfo;
 import Iconer.Application.TransformUnit;
 
-export namespace iconer::app
+namespace iconer::app
 {
 	class User;
+}
 
+export namespace iconer::app::game
+{
 	struct SagaSummonPoint
 	{
 		const int myId;
@@ -29,11 +32,38 @@ export namespace iconer::app
 		User* myMembers[3];
 	};
 
+	namespace SagaGuardianState
+	{
+		enum Type
+		{
+			Statue = 0,
+			Awakening, Idle, Dead
+		};
+	}
+
 	struct SagaGuardian : public TransformUnit
 	{
-		std::atomic_bool isActivated;
-		std::atomic_bool isAlive;
-		std::atomic_bool isRidingAnyone;
+		SagaGuardianState::Type myStatus;
+
+		[[nodiscard]]
+		constexpr bool IsActivated() const noexcept
+		{
+			return myStatus != SagaGuardianState::Statue;
+		}
+
+		[[nodiscard]]
+		constexpr bool IsAlive() const noexcept
+		{
+			return myStatus != SagaGuardianState::Dead;
+		}
+
+		[[nodiscard]]
+		constexpr bool IsDead() const noexcept
+		{
+			return myStatus == SagaGuardianState::Dead;
+		}
+
+		std::atomic_bool isRidingByAnyone;
 		float myHp;
 	};
 }

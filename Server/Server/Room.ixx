@@ -10,6 +10,7 @@ export import :RoomStates;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.MovableAtomic;
 export import Iconer.Application.NativeTimer;
+export import Iconer.Application.GameInfo;
 
 export namespace iconer::app
 {
@@ -49,12 +50,15 @@ export namespace iconer::app
 		explicit constexpr Room(ForwardedId&& id)
 			noexcept(nothrow_constructible<Super, const IdType&>)
 			: Super(std::forward<ForwardedId>(id))
-			, myMembers(), membersCount()
-			, proceedMemberCount(), isGameReadyFailed()
+			, myMembers(), membersCount(), proceedMemberCount()
+			, isGameReadyFailed()
+			, exclusivePermission()
 			, myTimer()
+			, sagaTeams()
+			, sagaSummons{ game::SagaSummonPoint{ 0 }, game::SagaSummonPoint{ 1 }, game::SagaSummonPoint{ 2 } }
+			, sagaGuardians()
 			, preRespondMembersPacket()
-		{
-		}
+		{}
 
 		void Awake() noexcept;
 		void Cleanup() noexcept;
@@ -185,10 +189,15 @@ export namespace iconer::app
 
 		RoomMember myMembers[maxUsersNumberInRoom];
 		iconer::util::MovableAtomic<size_t> membersCount;
-		iconer::util::MovableAtomic<bool> isMemberUpdated;
 		iconer::util::MovableAtomic<size_t> proceedMemberCount;
+		iconer::util::MovableAtomic<bool> isMemberUpdated;
 		iconer::util::MovableAtomic<bool> isGameReadyFailed;
+		iconer::util::MovableAtomic<bool> exclusivePermission;
 		NativeTimer myTimer;
+
+		game::SagaTeamStatus sagaTeams[2];
+		game::SagaSummonPoint sagaSummons[3];
+		game::SagaGuardian sagaGuardians[3];
 
 	protected:
 		std::unique_ptr<std::byte[]> preRespondMembersPacket;
