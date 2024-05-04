@@ -434,7 +434,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	else // 원격 클라이언트
 	{
 #pragma region RPC from Remote Client
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %s's rpc message."), id);
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %d's rpc message."), id);
 
 		auto& character = user.remoteCharacter;
 		if (not character)
