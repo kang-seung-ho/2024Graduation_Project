@@ -8,6 +8,10 @@
 #include "../../UI/SagaCharacterSelectWidget.h"
 #include "SagaSelectCharacter.h"
 
+#include "Saga/Network/SagaNetworkSettings.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
+#include "Saga/Network/SagaRpcProtocol.h"
+
 ASagaCharacterSelectController::ASagaCharacterSelectController()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -94,12 +98,51 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 			case EPlayerWeapon::LightSabor:
 				WeaponName = TEXT("Light Sabor");
+				if constexpr (not saga::IsOfflineMode)
+				{
+					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+					if (nullptr != system and system->GetLocalUserId() != -1)
+					{
+						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 0);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+					}
+				}
 				break;
 			case EPlayerWeapon::WaterGun:
 				WeaponName = TEXT("Water Gun");
+				if constexpr (not saga::IsOfflineMode)
+				{
+					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+					if (nullptr != system and system->GetLocalUserId() != -1)
+					{
+						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 1);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+					}
+				}
 				break;
 			case EPlayerWeapon::Hammer:
 				WeaponName = TEXT("Hammer");
+				if constexpr (not saga::IsOfflineMode)
+				{
+					auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+					if (nullptr != system and system->GetLocalUserId() != -1)
+					{
+						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 2);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+					}
+				}
 				break;
 			}
 			UE_LOG(LogTemp, Warning, TEXT("Selected weapon: %s"), *WeaponName);
