@@ -7,15 +7,19 @@
 #include "SagaPlayableCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FOnTakeWeaponDelegate, class USagaWeaponData*);
+
 USTRUCT(BlueprintType)
 struct FTakeWeaponDelegateWrapper
 {
 	GENERATED_BODY()
-	FTakeWeaponDelegateWrapper() {}
-	FTakeWeaponDelegateWrapper(const FOnTakeWeaponDelegate& InWeaponDelegate) : WeaponDelegate(InWeaponDelegate) {}
+
+public:
+	FTakeWeaponDelegateWrapper(const FOnTakeWeaponDelegate& InWeaponDelegate)
+		: WeaponDelegate(InWeaponDelegate)
+	{}
 
 	FOnTakeWeaponDelegate WeaponDelegate;
-
+};
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public ISagaCharacterItemInterface
@@ -25,39 +29,28 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public 
 public:
 	ASagaPlayableCharacter();
 
-protected:
-	bool isRiding = false;
-
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UStaticMeshComponent> Weapon;
-
-
-protected:
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
-
-
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EWeaponType mWeaponType;
-
-public:
-	EWeaponType GetWeaponType() const { return mWeaponType; }
-
-public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-public:
+	constexpr EWeaponType GetWeaponType() const noexcept { return mWeaponType; }
+
 	virtual void SwordAttack();
 
 protected:
-	UPROPERTY()
-	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
 	virtual void EquipHammer(class USagaWeaponData* WeaponData);
 	virtual void EquipLightSaber(class USagaWeaponData* WeaponData);
 	virtual void EquipWaterGun(class USagaWeaponData* WeaponData);
-
 	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
+
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	EWeaponType mWeaponType;
+	TObjectPtr<class UStaticMeshComponent> Weapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character");
+	bool isRiding = false;
 };
