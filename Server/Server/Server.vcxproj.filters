@@ -375,6 +375,9 @@
     <ClCompile Include="GameInfo.ixx">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Private\UserSenders.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Server.natvis" />
