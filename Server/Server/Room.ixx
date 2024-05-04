@@ -88,11 +88,11 @@ export namespace iconer::app
 		template<invocables<User&> Predicate>
 		void ForEach(Predicate&& predicate) const
 		{
-			for (auto& [user, _] : myMembers)
+			for (auto& [member, _] : myMembers)
 			{
-				if (nullptr != user.Load(std::memory_order_acquire))
+				if (auto ptr = member.Load(std::memory_order_acquire); nullptr != ptr)
 				{
-					std::invoke(std::forward<Predicate>(predicate), *user);
+					std::invoke(std::forward<Predicate>(predicate), *member);
 				}
 			}
 		}
