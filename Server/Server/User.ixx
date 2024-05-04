@@ -46,6 +46,7 @@ export namespace iconer::app
 		using BlobIoResult = std::pair<IoResult, BlobSendContext*>;
 		using BorrowedIoResult = std::pair<IoResult, Borrower>;
 
+		static inline constexpr bool nothrowDtor = nothrow_destructibles<Super, iconer::net::Socket>;
 		static inline constexpr size_t nicknameLength = 16;
 
 		explicit User() = default;
@@ -63,63 +64,20 @@ export namespace iconer::app
 			, requestMemberContext(AsyncOperations::OpNotifyMember)
 			, teamChangerContext(AsyncOperations::OpNotifyTeam)
 			, gameContext(AsyncOperations::OpCreateGame), loadingContext(AsyncOperations::OpReadyGame)
-			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
+			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(-1)
 			, isRidingGuardian(false)
 			, preSignInPacket(), preRoomCreationPacket()
 		{
 		}
 
-		~User() noexcept(nothrow_destructibles<Super, iconer::net::Socket>)
-		{
-			if (mySocket.IsAvailable())
-			{
-				std::exchange(mySocket, iconer::net::Socket{}).Close();
-			}
-		}
+		~User() noexcept(nothrowDtor);
 
 		void Awake();
+		void Cleanup() noexcept;
 
-		bool BeginClose() noexcept
-		{
-			ContextType::Clear();
-
-			SetState(UserStates::Dead);
-			SetOperation(AsyncOperations::OpDisconnect);
-			return mySocket.CloseAsync(this);
-		}
-
-		bool BeginClose(UserStates prev_state) noexcept
-		{
-			ContextType::Clear();
-
-			if (TryChangeState(prev_state, UserStates::Dead, std::memory_order_acq_rel))
-			{
-				SetOperation(AsyncOperations::OpDisconnect);
-				return mySocket.CloseAsync(this);
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		bool EndClose() noexcept
-		{
-			return TryChangeState(UserStates::Dead, UserStates::None, std::memory_order_acq_rel);
-		}
-
-		void Cleanup() noexcept
-		{
-			SetOperation(AsyncOperations::None);
-			SetState(UserStates::None);
-			ContextType::Clear();
-			myName.clear();
-			recvOffset = 0;
-			myRoomId = -1;
-			myTeamId = GetID() % 2 == 0 ? Team::Red : Team::Blue;
-			myWeaponId = 0;
-			isRidingGuardian = false;
-		}
+		bool BeginClose() noexcept;
+		bool BeginClose(UserStates prev_state) noexcept;
+		bool EndClose(UserStates prev_state = UserStates::Dead) noexcept;
 
 		template<size_t Size>
 		[[nodiscard]]
