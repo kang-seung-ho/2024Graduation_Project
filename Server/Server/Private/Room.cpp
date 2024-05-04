@@ -89,6 +89,16 @@ noexcept
 	isMemberUpdated = true;
 	proceedMemberCount = 0;
 
+	for (auto& team : sagaTeams)
+	{
+		team.Cleanup();
+	}
+
+	for (auto& sum_zone : sagaSummons)
+	{
+		sum_zone.Cleanup();
+	}
+
 	for (auto& guardian : sagaGuardians)
 	{
 		ClearGuardian(guardian);

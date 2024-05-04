@@ -1,7 +1,5 @@
 module;
 #include <cstdint>
-#include <initializer_list>
-#include <memory>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
@@ -19,6 +17,7 @@ import <tuple>;
 import <string>;
 import <string_view>;
 import <span>;
+export import <memory>;
 
 export namespace iconer::app
 {

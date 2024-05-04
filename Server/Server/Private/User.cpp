@@ -38,7 +38,7 @@ noexcept
 	myName.clear();
 	recvOffset = 0;
 	myRoomId = -1;
-	myTeamId = GetID() % 2 == 0 ? Team::Red : Team::Blue;
+	myTeamId = GetID() % 2 == 1 ? Team::Red : Team::Blue;
 	myWeaponId = 0;
 	isRidingGuardian = false;
 }
