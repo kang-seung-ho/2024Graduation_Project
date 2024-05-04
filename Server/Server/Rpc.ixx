@@ -29,6 +29,7 @@ export namespace iconer::app::inline rpc
 		RPC_USE_ITEM_4,
 		RPC_SPAWN_ITEM,
 		RPC_GRAB_ITEM,
+		RPC_MAIN_WEAPON,
 		RPC_CHANGE_HAND_ITEM,
 		RPC_DMG_PLYER,
 		RPC_DMG_GUARDIAN,
