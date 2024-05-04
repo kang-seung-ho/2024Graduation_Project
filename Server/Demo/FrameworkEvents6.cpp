@@ -113,13 +113,38 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	case RPC_MAIN_WEAPON:
 	{
 		// arg0: kind of weapon
-
+		// 0: lightsaber
+		// 1: watergun
+		// 2: hammer
+		if (user->myWeaponId.CompareAndSet(0, static_cast<std::uint8_t>(arg0)))
+		{
+			// broadcast his weapon
+			room->ForEach
+			(
+				[&](User& member)
+				{
+					// NOTICE: RPC_MAIN_WEAPON(arg0, 0)
+					SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, 0);
+				}
+			);
+		}
 	}
 	break;
 
 	case RPC_BEG_RIDE:
 	{
 		// arg0: index of guardian
+		if (arg0 < 0 or 3 <= arg0)
+		{
+			break;
+		}
+
+		auto& guardian = room->sagaGuardians[arg0];
+
+		if (guardian.CanRide())
+		{
+
+		}
 	}
 	break;
 
