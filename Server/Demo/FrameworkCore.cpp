@@ -570,6 +570,22 @@ demo::Framework::RouteEvent(bool is_succeed
 	{
 		auto room = std::launder(static_cast<Room*>(ctx));
 
+		if (not is_succeed)
+		{
+			myLogger.LogError(L"\tRoom {}'s operation of update has failed\n", room->GetID());
+
+			OnFailedToUpdateRoom(*room);
+		}
+		else if (not OnUpdatingRoom(*room))
+		{
+			myLogger.Log(L"\tCannot update the room {}\n", room->GetID());
+
+			OnFailedToUpdateRoom(*room);
+		}
+		else
+		{
+			myLogger.Log(L"\tRoom {} is updated\n", room->GetID());
+		}
 	}
 	break;
 
