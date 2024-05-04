@@ -97,6 +97,15 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
+	auto user = FindUser(user_id);
+	if (nullptr == user)
+	{
+		return false;
+	}
+
+	auto& arg0 = rpc_ctx->firstArgument;
+	auto& arg1 = rpc_ctx->secondArgument;
+
 	using enum RpcProtocol;
 
 	switch (rpc_ctx->rpcCategory)
