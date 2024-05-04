@@ -50,7 +50,15 @@ namespace iconer::app
 	}
 }
 
-void ClearGuardian(iconer::app::game::SagaGuardian& guardian)
+void
+ClearGuardian(iconer::app::game::SagaGuardian& guardian)
+{
+	guardian.myStatus = {};
+	guardian.isRidingByAnyone = false;
+}
+
+void
+ClearGuardian(volatile iconer::app::game::SagaGuardian& guardian)
 {
 	guardian.myStatus = {};
 	guardian.isRidingByAnyone = false;
