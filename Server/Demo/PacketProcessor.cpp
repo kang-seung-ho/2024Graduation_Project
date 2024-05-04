@@ -1,4 +1,5 @@
 module;
+#include <tuple>
 #include <atomic>
 #include <array>
 
@@ -214,7 +215,7 @@ demo::OnTeamChanged(demo::Framework& framework, User& user, bool is_red_team)
 	const auto room_id = user.myRoomId.Load();
 	if (room_id != -1)
 	{
-		if (Room* room = framework.FindRoom(room_id); nullptr != room)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room and room->GetState() == iconer::app::RoomStates::Idle)
 		{
 			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
 			const auto target = is_red_team ? Team::Red : Team::Blue;
@@ -337,7 +338,11 @@ demo::OnUpdateRoom(demo::Framework& framework, iconer::app::User& user)
 
 	if (Room* room = framework.FindRoom(room_id); nullptr != room)
 	{
-
+		if (room->GetState() == iconer::app::RoomStates::InGame)
+		{
+			room->SetOperation(iconer::app::AsyncOperations::OpUpdateRoom);
+			(void)framework.Schedule(room, user.GetID());
+		}
 	}
 	else
 	{
