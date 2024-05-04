@@ -4,6 +4,7 @@
 
 #include "../SagaGameInfo.h"
 #include "Saga/Network/SagaNetworkRpcView.h"
+#include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaCharacterPlayer.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -21,6 +22,8 @@ public:
 	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
 
 protected:
+	EPlayerWeapon mWeapon;
+
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
 

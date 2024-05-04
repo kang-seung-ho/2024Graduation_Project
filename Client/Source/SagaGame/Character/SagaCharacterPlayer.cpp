@@ -5,6 +5,9 @@
 #include "SagaPlayerAnimInstance.h"
 #include "../Item/SagaWeaponData.h"
 
+#include "Saga/Network/SagaNetworkSubSystem.h"
+
+
 // Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 {
@@ -57,6 +60,10 @@ void ASagaCharacterPlayer::BeginPlay()
 	
 	//이 함수 호출되기 전에 SkeletalMeshComponent에 지정된 AnimInstance 클래스 이용하여 사용하기 위한 객체 만들어놨음.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	mWeapon = system->GetWeaponType();
+	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeapon);
 }
 
 void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
