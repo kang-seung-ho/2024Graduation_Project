@@ -213,7 +213,7 @@ demo::PacketProcessor(demo::Framework& framework
 		// Empty packet
 		case PacketProtocol::CS_UPDATE_ROOM:
 		{
-
+			OnUpdateRoom(framework, user);
 		}
 		break;
 
