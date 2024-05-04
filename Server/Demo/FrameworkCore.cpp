@@ -150,7 +150,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tReceving is proceed on user {}\n", id);
+			//myLogger.Log(L"\tReceving is proceed on user {}\n", id);
 		}
 	}
 	break;
