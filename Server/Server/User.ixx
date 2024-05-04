@@ -64,7 +64,7 @@ export namespace iconer::app
 			, requestMemberContext(AsyncOperations::OpNotifyMember)
 			, teamChangerContext(AsyncOperations::OpNotifyTeam)
 			, gameContext(AsyncOperations::OpCreateGame), loadingContext(AsyncOperations::OpReadyGame)
-			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(-1)
+			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
 			, isRidingGuardian(false)
 			, preSignInPacket(), preRoomCreationPacket()
 		{
