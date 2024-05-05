@@ -63,7 +63,8 @@ export namespace iconer::app
 			, requestMemberContext(AsyncOperations::OpNotifyMember)
 			, teamChangerContext(AsyncOperations::OpNotifyTeam)
 			, gameContext(AsyncOperations::OpCreateGame), loadingContext(AsyncOperations::OpReadyGame)
-			, myRoomId(-1), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
+			, myRoomId(-1)
+			, myHealth(100), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
 			, isRidingGuardian(false)
 			, preSignInPacket(), preRoomCreationPacket()
 		{
@@ -130,6 +131,7 @@ export namespace iconer::app
 		IContext teamChangerContext;
 		IContext gameContext, loadingContext;
 
+		iconer::util::MovableAtomic<float> myHealth;
 		iconer::util::MovableAtomic<IdType> myRoomId;
 		iconer::util::MovableAtomic<Team> myTeamId;
 		iconer::util::MovableAtomic<std::uint8_t> myWeaponId;
