@@ -302,6 +302,8 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 			{
 				if (Room* room = framework.FindRoom(room_id); nullptr != room)
 				{
+					if (ptr == nullptr) return;
+
 					rpc_ctx = ptr;
 					rpc_ctx->rpcCategory = cat;
 					rpc_ctx->roomId = room_id;
