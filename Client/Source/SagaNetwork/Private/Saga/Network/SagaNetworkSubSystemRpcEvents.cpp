@@ -230,7 +230,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		{
 			if (character)
 			{
-				UE_LOG(LogSagaGame, Log, TEXT("[Character][Remote] Begin Walk"));
+				UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC][Remote] Begin Walk"));
 
 				const double denorm = static_cast<double>(arg0) * 45.0;
 
@@ -275,7 +275,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 			}
 			else
 			{
-				UE_LOG(LogSagaGame, Error, TEXT("[Character][Remote] No character"));
+				UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC][Remote] No character"));
 			}
 		}
 		break;
@@ -284,7 +284,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 		{
 			if (character)
 			{
-				UE_LOG(LogSagaGame, Log, TEXT("[Character][Remote] End Walk"));
+				UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC][Remote] End Walk"));
 
 				const double denorm = static_cast<double>(arg0) * 45.0;
 
@@ -296,7 +296,7 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 			}
 			else
 			{
-				UE_LOG(LogSagaGame, Error, TEXT("[Character][Remote] No character"));
+				UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC][Remote] No character"));
 			}
 		}
 		break;
