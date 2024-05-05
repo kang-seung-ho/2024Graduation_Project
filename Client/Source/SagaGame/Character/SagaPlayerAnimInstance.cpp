@@ -71,14 +71,14 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 	if (!Montage_IsPlaying(mAttackMontageArray[mAttackIndex]))
 	{
-		if (mWeaponType == EWeaponType::Lightsaber) {
+		if (mWeaponType == EItemType::Lightsaber) {
 			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mAttackMontageArray[mAttackIndex]);
 
 			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
 		}
-		else if (mWeaponType == EWeaponType::WaterGun) {
+		else if (mWeaponType == EItemType::WaterGun) {
 			Montage_SetPosition(mGunAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mGunAttackMontageArray[mAttackIndex]);

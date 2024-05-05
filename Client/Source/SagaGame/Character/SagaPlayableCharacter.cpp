@@ -53,6 +53,7 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+
 void
 ASagaPlayableCharacter::Tick(float DeltaTime)
 {

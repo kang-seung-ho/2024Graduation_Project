@@ -7,7 +7,7 @@
 #include "SagaWeaponData.generated.h"
 
 UENUM(BlueprintType)
-enum class EWeaponType : uint8
+enum class EItemType : uint8
 {
 	Hammer,
 	Lightsaber,
@@ -24,12 +24,12 @@ class SAGAGAME_API USagaWeaponData : public UPrimaryDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Type")
-	EWeaponType WeaponType;
+	EItemType WeaponType;
 
 	UPROPERTY(EditAnywhere, Category = "WeaponMesh")
 	TObjectPtr<UStaticMesh> WeaponMesh;
 
 public:
-	void SetItemType(EWeaponType Type) { WeaponType = Type; }
+	void SetItemType(EItemType Type) { WeaponType = Type; }
 	void SetWeaponMesh(TObjectPtr<UStaticMesh> Mesh) { WeaponMesh = Mesh; }
 };

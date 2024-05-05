@@ -114,3 +114,126 @@ void ASagaCharacterPlayer::RotationCameraArm(float Scale)
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
 }
 
+void ASagaCharacterPlayer::ExecuteRotation(FVector2D RotationInput)
+{
+	// 2D 벡터를 3D 벡터로 변환하여 저장. Z 값은 0으로 설정
+	const FVector InputValue = FVector(RotationInput.X, RotationInput.Y, 0.0f);
+
+
+	AddControllerYawInput(InputValue.X);
+
+	ASagaCharacterPlayer* ControlledPawn = this;
+	if (ControlledPawn != nullptr)
+	{
+		ControlledPawn->RotationCameraArm(InputValue.Y);
+	}
+}
+
+void ASagaCharacterPlayer::TerminateRotation()
+{
+	
+}
+
+void ASagaCharacterPlayer::ExecuteJump()
+{
+	ASagaCharacterPlayer* ControlledPawn = this;
+	if (ControlledPawn != nullptr)
+	{
+		if (ControlledPawn->CanJump())
+		{
+			ControlledPawn->Jump();
+		}
+	}
+}
+
+void ASagaCharacterPlayer::TerminateJump()
+{
+	
+}
+
+void ASagaCharacterPlayer::ExecuteAttack()
+{
+	/*PlayAttackAnimation();*/
+}
+
+void ASagaCharacterPlayer::TerminateAttack()
+{
+	
+}
+
+void ASagaCharacterPlayer::ExecuteRide_Implementation()
+{
+	
+}
+
+void ASagaCharacterPlayer::TerminateRide_Implementation()
+{
+	
+}
+
+void ASagaCharacterPlayer::ExecuteRun()
+{
+	ACharacter* MyCharacter = this;
+	if (MyCharacter)
+	{
+		// 달리기 시작할 때 속도를 높임
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+}
+
+void ASagaCharacterPlayer::TerminateRun()
+{
+	ACharacter* MyCharacter = this;
+	if (MyCharacter)
+	{
+		// 달리기를 멈췄을 때 속도를 원래대로 복원
+		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	}
+
+}
+
+void ASagaCharacterPlayer::ExecuteWalk(FVector walkDirection)
+{
+	APawn* ControlledPawn = this;
+
+	const FRotator Rotation = K2_GetActorRotation();
+	const FRotator YawRotation = FRotator(0.0, Rotation.Yaw, 0.0);
+	const FVector ForwardVector = YawRotation.Vector();
+	const FVector RightVector = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::Y);
+
+	ControlledPawn->AddMovementInput(ForwardVector, walkDirection.Y);
+	ControlledPawn->AddMovementInput(RightVector, walkDirection.X);
+
+	auto move_dir = walkDirection.X * 90.f;
+	if (walkDirection.Y > 0.f)
+	{
+		if (walkDirection.X < 0.f)
+		{
+			move_dir = -45.f;
+		}
+		else if (walkDirection.X > 0.f)
+		{
+			move_dir = 45.f;
+		}
+	}
+	else if (walkDirection.Y < 0.f)
+	{
+		if (walkDirection.X < 0.f)
+		{
+			move_dir = -135.f;
+		}
+		else if (walkDirection.X > 0.f)
+		{
+			move_dir = 135.f;
+		}
+		else
+		{
+			move_dir = 180.f;
+		}
+	}
+}
+
+void ASagaCharacterPlayer::TerminateWalk(const float& delta_time)
+{
+	
+}

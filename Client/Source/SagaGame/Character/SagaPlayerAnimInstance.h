@@ -33,7 +33,7 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EWeaponType mWeaponType;
+	EItemType mWeaponType;
 
 public:
 	UFUNCTION()

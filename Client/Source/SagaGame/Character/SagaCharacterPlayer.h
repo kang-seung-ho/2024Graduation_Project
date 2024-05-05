@@ -17,7 +17,7 @@ public:
 	ASagaCharacterPlayer();
 
 public:
-	int16 teamColor = 0;
+	int32 teamColor = 0;
 
 	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
 
@@ -54,14 +54,36 @@ public:
 	void PlayAttackAnimation();
 	void RotationCameraArm(float Scale);
 
-
-
-};
-
-UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
-class ASagaRemotePlayerCharacter : public ASagaCharacterPlayer, public ISagaNetworkRpcView
-{
-	GENERATED_BODY()
-
 public:
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void ExecuteRide();
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void TerminateRide();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteAttack();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateAttack();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteRotation(FVector2D RotationInput);
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateRotation();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteJump();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateJump();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteRun();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateRun();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteWalk(FVector walkDirection);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateWalk(const float& delta_time);
+
+
 };

@@ -36,7 +36,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	constexpr EWeaponType GetWeaponType() const noexcept { return mWeaponType; }
+	constexpr EItemType GetWeaponType() const noexcept { return mWeaponType; }
 
 	virtual void SwordAttack();
 
@@ -50,11 +50,42 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	EWeaponType mWeaponType;
+	EItemType mWeaponType;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character");
 	bool isRiding = false;
+
+//public:
+//	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteRide() override;
+//	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateRide() override;
+//
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteAttack() override;
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateAttack() override;
+//
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteRotation() override;
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateRotation() override;
+//
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteJump() override;
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateJump() override;
+//
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteRun() override;
+//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateRun() override;
+//
+//	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+//	virtual void ExecuteWalk(const float& delta_time) override;
+//	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+//	virtual void TerminateWalk(const float& delta_time) override;
 };
