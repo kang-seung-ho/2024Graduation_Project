@@ -300,8 +300,6 @@ ASagaInGamePlayerController::TerminateRun()
 		// 달리기를 멈췄을 때 속도를 원래대로 복원
 		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 	}
-
-	UE_LOG(LogSagaGame, Warning, TEXT("End Run"));
 }
 
 void
