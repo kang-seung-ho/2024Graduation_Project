@@ -152,12 +152,12 @@ demo::PacketProcessor(demo::Framework& framework
 
 		case PacketProtocol::CS_MY_TRANSFORM:
 		{
-			float pr{}; // roll (z)
-			float py{}; // yaw (y)
 			float pp{}; // pitch (x)
-			packets::Deserialize(last_buf, pr, py, pp);
+			float py{}; // yaw (y)
+			float pr{}; // roll (z)
+			packets::Deserialize(last_buf, pp, py, pr);
 
-			OnReceiveRotation(framework, user, pr, py, pp);
+			OnReceiveRotation(framework, user, pp, py, pr);
 		}
 		break;
 

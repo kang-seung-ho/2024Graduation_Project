@@ -17,11 +17,13 @@ ASagaInGamePlayerController::OnUpdateTransform()
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
 		{
-			const auto loc = GetPawn()->K2_GetActorLocation();
+			const auto pawn = GetPawn();
+
+			const auto loc = pawn->K2_GetActorLocation();
 			system->SendPositionPacket(loc.X, loc.Y, loc.Z);
 
-			const auto rot = GetPawn()->K2_GetActorRotation();
-			system->SendRotationPacket(loc.X, loc.Y, loc.Z);
+			const auto rot = pawn->K2_GetActorRotation();
+			system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
 		}
 		else
 		{

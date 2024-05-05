@@ -52,9 +52,9 @@ IMPL_SERIALIZE_METHOD(saga::cs::CS_UpdatePositionPacket, x, y, z);
 IMPL_WRITE_METHOD(saga::cs::CS_UpdatePositionPacket, x, y, z);
 IMPL_READ_METHOD_V3(saga::cs::CS_UpdatePositionPacket, x, y, z);
 
-IMPL_SERIALIZE_METHOD(saga::cs::CS_UpdateRotationPacket, r, y, p);
-IMPL_WRITE_METHOD(saga::cs::CS_UpdateRotationPacket, r, y, p);
-IMPL_READ_METHOD_V3(saga::cs::CS_UpdateRotationPacket, r, y, p);
+IMPL_SERIALIZE_METHOD(saga::cs::CS_UpdateRotationPacket, p, y, r);
+IMPL_WRITE_METHOD(saga::cs::CS_UpdateRotationPacket, p, y, r);
+IMPL_READ_METHOD_V3(saga::cs::CS_UpdateRotationPacket, p, y, r);
 
 IMPL_SERIALIZE_METHOD(saga::cs::CS_EnterRoomPacket, roomId);
 IMPL_WRITE_METHOD(saga::cs::CS_EnterRoomPacket, roomId);

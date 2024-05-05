@@ -149,7 +149,7 @@ namespace saga::inline cs
 	/// <param name="y">yaw</param>
 	/// <param name="p">pitch</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_PACKET_3VAR(CS_UpdateRotationPacket, EPacketProtocol::CS_MY_TRANSFORM, float, r, pr, float, y, py, float, p, pp);
+	MAKE_PACKET_3VAR(CS_UpdateRotationPacket, EPacketProtocol::CS_MY_TRANSFORM, float, p, pp, float, y, py, float, r, pr);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>

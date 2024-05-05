@@ -158,11 +158,11 @@ export namespace iconer::app::packets::inline cs
 	/// <summary>
 	/// Rotation packet for client
 	/// </summary>
-	/// <param name="r">roll</param>
-	/// <param name="y">yaw</param>
 	/// <param name="p">pitch</param>
+	/// <param name="y">yaw</param>
+	/// <param name="r">roll</param>
 	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, PacketProtocol::CS_MY_TRANSFORM, float, r, float, y, float, p);
+	MAKE_EMPTY_PACKET_3VAR(CS_UpdateRotationPacket, PacketProtocol::CS_MY_TRANSFORM, float, p, float, y, float, r);
 	/// <summary>
 	/// Login packet for client
 	/// </summary>

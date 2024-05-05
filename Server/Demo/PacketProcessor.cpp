@@ -253,7 +253,7 @@ demo::OnReceivePosition(demo::Framework& framework, User& user, float x, float y
 }
 
 void
-demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw, float pitch)
+demo::OnReceiveRotation(Framework& framework, User& user, float pitch, float yaw, float roll)
 {
 	user.RotationRight(pitch);
 	user.RotationUp(yaw);
@@ -265,9 +265,9 @@ demo::OnReceiveRotation(Framework& framework, User& user, float roll, float yaw,
 		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
 			room->ForEach(
-				[&user, roll, yaw, pitch](User& member)
+				[&user, pitch, yaw, roll](User& member)
 				{
-					SEND(member, SendRotationPacket, user.GetID(), roll, yaw, pitch);
+					SEND(member, SendRotationPacket, user.GetID(), pitch, yaw, roll);
 				}
 			);
 		}

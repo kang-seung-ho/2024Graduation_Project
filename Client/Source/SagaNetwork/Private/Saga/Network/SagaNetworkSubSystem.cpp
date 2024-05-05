@@ -36,6 +36,13 @@ const
 	return localUserName;
 }
 
+bool
+USagaNetworkSubSystem::GetLocalUserTeam(EUserTeam& outpin)
+noexcept
+{
+	return GetTeam(localUserId, outpin);
+}
+
 void
 USagaNetworkSubSystem::SetCurrentRoomId(int32 id)
 noexcept
@@ -105,6 +112,23 @@ noexcept
 {
 	everyUsers.Reset();
 	wasUsersUpdated = true;
+}
+
+bool
+USagaNetworkSubSystem::GetTeam(int32 user_id, EUserTeam& outpin)
+noexcept
+{
+	FSagaVirtualUser user{};
+
+	if (FindUser(user_id, user))
+	{
+		outpin = user.myTeam;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void

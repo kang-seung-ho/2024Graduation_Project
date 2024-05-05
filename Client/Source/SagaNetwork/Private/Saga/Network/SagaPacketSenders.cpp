@@ -341,13 +341,13 @@ saga::SendPositionPacket(FSocket* socket, float x, float y, float z)
 }
 
 std::optional<int32>
-saga::SendRotationPacket(FSocket* socket, float r, float y, float p)
+saga::SendRotationPacket(FSocket* socket, float p, float y, float r)
 {
 	if (socket)
 	{
 		if (::IsConnected(socket))
 		{
-			const saga::CS_UpdateRotationPacket pk{ r, y, p };
+			const saga::CS_UpdateRotationPacket pk{ p, y, r };
 			auto ptr = pk.Serialize();
 
 			const int32 sent_bytes = saga::RawSend(socket, ptr.get(), pk.WannabeSize());

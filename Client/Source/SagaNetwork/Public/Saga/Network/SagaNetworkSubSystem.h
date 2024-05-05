@@ -14,6 +14,7 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaNetworkSubSystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool, was_succeed);
@@ -116,6 +117,31 @@ public:
 	}
 #pragma endregion
 
+	/* Overall Clients Methods */
+#pragma region =========================
+	void AddUser(const FSagaVirtualUser& client);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
+	bool RemoveUser(int32 id) noexcept;
+	void ClearUserList() noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool HasUser(int32 id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetTeam(int32 id, EUserTeam& outpin) noexcept;
+#pragma endregion
+
+	/* Overall Rooms Methods */
+#pragma region =========================
+	void AddRoom(const FSagaVirtualRoom& room);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool FindRoom(int32 id, FSagaVirtualRoom& outpin) const noexcept;
+	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
+	bool RemoveRoom(int32 id) noexcept;
+	void ClearRoomList() noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool HasRoom(int32 user_id) const noexcept;
+#pragma endregion
+
 	/* Local Client Methods */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -134,29 +160,8 @@ public:
 	void SetCurrentRoomTitle(const FString& title);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	FString GetCurrentRoomTitle() const;
-#pragma endregion
-
-	/* Overall Clients Methods */
-#pragma region =========================
-	void AddUser(const FSagaVirtualUser& client);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
-	bool RemoveUser(int32 id) noexcept;
-	void ClearUserList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool HasUser(int32 id) const noexcept;
-#pragma endregion
-
-	/* Overall Rooms Methods */
-#pragma region =========================
-	void AddRoom(const FSagaVirtualRoom& room);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool FindRoom(int32 id, FSagaVirtualRoom& outpin) const noexcept;
-	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
-	bool RemoveRoom(int32 id) noexcept;
-	void ClearRoomList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool HasRoom(int32 id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetLocalUserTeam(EUserTeam& outpin) noexcept;
 #pragma endregion
 
 	/* Getters */
@@ -348,7 +353,7 @@ private:
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnUpdatePosition_Implementation(int32 id, float x, float y, float z);
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
-	void OnUpdateRotation_Implementation(int32 id, float r, float y, float p);
+	void OnUpdateRotation_Implementation(int32 id, float p, float y, float r);
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 

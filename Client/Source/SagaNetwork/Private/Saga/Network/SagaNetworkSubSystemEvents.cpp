@@ -273,7 +273,7 @@ USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float 
 }
 
 void
-USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float y, float p)
+USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float p, float y, float r)
 {
 	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
@@ -295,7 +295,7 @@ USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float 
 			return;
 		}
 
-		character->SetActorRotation(FRotator{ r, y, p });
+		character->SetActorRotation(FRotator{ p, y, r });
 	}
 }
 
