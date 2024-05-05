@@ -165,24 +165,36 @@ void ASagaCharacterPlayer::TerminateJump()
 	
 }
 
-void ASagaCharacterPlayer::ExecuteAttack()
+void
+ASagaCharacterPlayer::ProcessForwardWalk(const int& direction)
+noexcept
 {
-	/*PlayAttackAnimation();*/
+	if (direction != 0)
+	{
+		isForwardWalking = true;
+	}
+	else
+	{
+		isForwardWalking = false;
+	}
+
+	walkDirection.Y = direction;
 }
 
-void ASagaCharacterPlayer::TerminateAttack()
+void
+ASagaCharacterPlayer::ProcessStrafeWalk(const int& direction)
+noexcept
 {
-	
-}
+	if (direction != 0)
+	{
+		isStrafeWalking = true;
+	}
+	else
+	{
+		isStrafeWalking = false;
+	}
 
-void ASagaCharacterPlayer::ExecuteRide_Implementation()
-{
-	
-}
-
-void ASagaCharacterPlayer::TerminateRide_Implementation()
-{
-	
+	walkDirection.X = direction;
 }
 
 void ASagaCharacterPlayer::ExecuteRun()
@@ -250,4 +262,24 @@ void ASagaCharacterPlayer::ExecuteWalk()
 void ASagaCharacterPlayer::TerminateWalk()
 {
 	
+}
+
+void ASagaCharacterPlayer::ExecuteAttack()
+{
+	/*PlayAttackAnimation();*/
+}
+
+void ASagaCharacterPlayer::TerminateAttack()
+{
+
+}
+
+void ASagaCharacterPlayer::ExecuteRide_Implementation()
+{
+
+}
+
+void ASagaCharacterPlayer::TerminateRide_Implementation()
+{
+
 }

@@ -18,15 +18,14 @@ public:
 
 public:
 	int32 id;
+	int32 teamColor = 0;
+
 	bool isForwardWalking;
 	bool isStrafeWalking;
 	bool isRunning;
-	bool isRiding = false;
+	bool isRiding;
 
 	FVector walkDirection;
-
-public:
-	int32 teamColor = 0;
 
 	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
 
@@ -65,29 +64,19 @@ public:
 	void RotationCameraArm(float Scale);
 
 public:
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteRide();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateRide();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ProcessForwardWalk(const int& direction) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	virtual void ProcessStrafeWalk(const int& direction) noexcept;
 
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteAttack();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateAttack();
-
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteRotation(FVector2D RotationInput);
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateRotation();
-
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void ExecuteJump();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateJump();
 
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void ExecuteRun();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateRun();
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
@@ -95,5 +84,18 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateWalk();
 
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteRotation(FVector2D RotationInput);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateRotation();
 
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteAttack();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateAttack();
+
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	void ExecuteRide();
+	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	void TerminateRide();
 };

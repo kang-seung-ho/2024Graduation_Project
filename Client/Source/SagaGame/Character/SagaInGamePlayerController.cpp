@@ -112,16 +112,6 @@ ASagaInGamePlayerController::ExecuteRide_Implementation()
 	
 }
 
-
-double
-ASagaInGamePlayerController::GetNormalizedMoveDir()
-const noexcept
-{
-	const auto angle = FMath::RadiansToDegrees(FMath::Atan2(walkDirection.Y, walkDirection.X));
-
-	return floor(angle / 45);
-}
-
 void
 ASagaInGamePlayerController::Tick(float delta_time)
 {

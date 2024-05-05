@@ -295,4 +295,15 @@ ASagaInGamePlayerController::ExecuteJump()
 
 void
 ASagaInGamePlayerController::TerminateJump()
-{}
+{
+
+}
+
+double
+ASagaInGamePlayerController::GetNormalizedMoveDir()
+const noexcept
+{
+	const auto angle = FMath::RadiansToDegrees(FMath::Atan2(preferedDirection.Y, preferedDirection.X));
+
+	return floor(angle / 45);
+}
