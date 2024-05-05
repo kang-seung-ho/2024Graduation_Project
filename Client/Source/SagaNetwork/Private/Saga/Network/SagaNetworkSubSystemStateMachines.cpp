@@ -2,6 +2,7 @@
 #include "Delegates/Delegate.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
+#include "SagaGame/Character/SagaPlayableCharacter.h"
 
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
@@ -30,7 +31,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
 	}
 
-	static ConstructorHelpers::FClassFinder<AActor> character_class_seek2(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
+	/*static ConstructorHelpers::FClassFinder<AActor> character_class_seek2(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
 	if (character_class_seek2.Succeeded() and character_class_seek2.Class)
 	{
 		dummyPlayerClassReference = character_class_seek2.Class;
@@ -38,7 +39,8 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	else
 	{
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the dummy character"));
-	}
+	}*/
+	dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
 }
 
 void

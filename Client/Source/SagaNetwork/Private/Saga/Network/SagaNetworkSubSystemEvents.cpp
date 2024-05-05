@@ -211,19 +211,92 @@ USagaNetworkSubSystem::OnFailedToStartGame_Implementation(ESagaGameContract reas
 void
 USagaNetworkSubSystem::OnStartGame_Implementation()
 {
-	// TODO: OnStartGame_Implementation
+	const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
+	if (nullptr == player)
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnUpdatePosition] Cannot find a handle of the local player."));
+		return;
+	}
+
+	const auto world = player->GetWorld();
+	if (nullptr == world)
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] The handle of world is null."));
+		return;
+	}
+
+	auto controller = player->GetPlayerController(world);
+	if (nullptr == controller)
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnUpdatePosition] Cannot find the local player's controller."));
+		return;
+	}
+
+	auto my_pawn = controller->GetPawn();
+	if (nullptr == my_pawn)
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnUpdatePosition] Cannot find a pawn of the local player."));
+		return;
+	}
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][OnUpdatePosition] System found the character of local player."));
+	localPlayerCharacter = my_pawn;
 }
 
 void
 USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float y, float z)
 {
-	// TODO: OnUpdatePosition_Implementation
+	if (id == GetLocalUserId()) // 로컬 클라이언트
+	{
+		//auto movement = localPlayerCharacter->GetMovementComponent();
+		//localPlayerCharacter->SetActorLocation(FVector{ x, y, z });
+	}
+	else // 원격 클라이언트
+	{
+		FSagaVirtualUser user{};
+
+		if (not FindUser(id, user))
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find remote player %d."), id);
+			return;
+		}
+
+		auto& character = user.remoteCharacter;
+		if (not character)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a character of remote player %d'."), id);
+			return;
+		}
+
+		character->SetActorLocation(FVector{ x, y, z });
+	}
 }
 
 void
 USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float r, float y, float p)
 {
-	// TODO: OnUpdateRotation_Implementation
+	if (id == GetLocalUserId()) // 로컬 클라이언트
+	{
+	}
+	else // 원격 클라이언트
+	{
+		FSagaVirtualUser user{};
+
+		if (not FindUser(id, user))
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find remote player %d."), id);
+			return;
+		}
+
+		auto& character = user.remoteCharacter;
+		if (not character)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a character of remote player %d'."), id);
+			return;
+		}
+
+		character->SetActorRotation(FRotator{ r, y, p });
+	}
 }
 
 TSharedRef<FInternetAddr>

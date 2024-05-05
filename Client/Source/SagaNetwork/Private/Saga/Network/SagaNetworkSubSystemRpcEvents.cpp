@@ -4,148 +4,73 @@
 void
 USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 {
-	FSagaVirtualUser user{};
-
-	if (not FindUser(id, user))
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find user %d."), id);
-		return;
-	}
-
-	bool is_local = false;
 	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
 #pragma region RPC from Local Client
-		is_local = true;
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] This is my rpc message."));
-
-		const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
-		if (nullptr == player)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a handle of the local player."));
-			return;
-		}
-
-		const auto world = player->GetWorld();
-		if (nullptr == world)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] The handle of world is null."));
-			return;
-		}
-
-		auto controller = player->GetPlayerController(world);
-		if (nullptr == controller)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find the local player's controller."));
-			return;
-		}
 
 		switch (cat)
 		{
 		case ESagaRpcProtocol::RPC_UNKNOWN:
 		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot run rpc script by user %d."), id);
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot run rpc script by local client."));
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_BEG_WALK:
 		{
-			if (controller)
-			{
-				//controller->ExecuteWalk();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_END_WALK:
 		{
-			if (controller)
-			{
-				//controller->TerminateWalk();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_BEG_RUN:
 		{
-			if (controller)
-			{
-				//controller->ExecuteRun();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_END_RUN:
 		{
-			if (controller)
-			{
-				//controller->TerminateRun();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_BEG_JUMP:
 		{
-			if (controller)
-			{
-				//controller->ExecuteJump();
-			}
 		}
 		break;
 
 		// 수호자 탑승
 		case ESagaRpcProtocol::RPC_BEG_RIDE:
 		{
-			if (controller)
-			{
-				//controller->ExecuteRide();
-			}
 		}
 		break;
 
 		// 수호자 하차
 		case ESagaRpcProtocol::RPC_END_RIDE:
 		{
-			if (controller)
-			{
-				//controller->TerminateRide();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
 		{
-			if (controller)
-			{
-				//controller->ExecuteAttack();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_END_ATTACK_0:
 		{
-			if (controller)
-			{
-				//controller->TerminateAttack();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
 		{
-			if (controller)
-			{
-				//controller->ExecuteAttack();
-			}
 		}
 		break;
 
 		case ESagaRpcProtocol::RPC_END_ATTACK_1:
 		{
-			if (controller)
-			{
-				//controller->TerminateAttack();
-			}
 		}
 		break;
 
@@ -209,6 +134,14 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	else // 원격 클라이언트
 	{
 #pragma region RPC from Remote Client
+		FSagaVirtualUser user{};
+
+		if (not FindUser(id, user))
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find remote player %d."), id);
+			return;
+		}
+
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] This is user %d's rpc message."), id);
 
 		auto& character = user.remoteCharacter;

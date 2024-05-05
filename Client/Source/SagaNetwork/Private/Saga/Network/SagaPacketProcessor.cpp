@@ -179,6 +179,22 @@ saga::ReceivePositionPacket(const std::byte* buffer
 }
 
 const std::byte*
+saga::ReceiveRotationPacket(const std::byte* buffer, int32& client_id, float& r, float& y, float& p)
+{
+	auto seek = buffer;
+
+	SC_UpdateRotationPacket pk{};
+	seek = pk.Read(buffer);
+
+	client_id = pk.clientId;
+	r = pk.r;
+	y = pk.y;
+	p = pk.p;
+
+	return seek;
+}
+
+const std::byte*
 saga::ReceiveRpcPacket(const std::byte* buffer, ESagaRpcProtocol& cat, int32& client_id, int64& arg0, int32& arg1)
 {
 	auto seek = buffer;

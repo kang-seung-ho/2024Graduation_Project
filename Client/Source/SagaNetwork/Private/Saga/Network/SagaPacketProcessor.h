@@ -27,6 +27,7 @@ namespace saga
 	const std::byte* ReceiveTeamChangerPacket(const std::byte* buffer, int32& client_id, bool& is_red_team);
 
 	const std::byte* ReceivePositionPacket(const std::byte* buffer, int32& client_id, float& x, float& y, float& z);
+	const std::byte* ReceiveRotationPacket(const std::byte* buffer, int32& client_id, float& r, float& y, float& p);
 
 	const std::byte* ReceiveRpcPacket(const std::byte* buffer, ESagaRpcProtocol& cat, int32& client_id,  int64& arg0, int32& arg1);
 

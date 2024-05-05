@@ -6,6 +6,7 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaGame/Character/SagaCharacterPlayer.h"
+#include "SagaGame/Character/SagaPlayableCharacter.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size)
@@ -283,34 +284,62 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] %d Characters would be created"), everyUsers.Num());
 
-		CallFunctionOnGameThread([this]()
+
+		const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
+		if (nullptr == player)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find a handle of the local player."));
+			return;
+		}
+
+		const auto world = player->GetWorld();
+		if (nullptr == world)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] The handle of world is null."));
+			return;
+		}
+
+		auto controller = player->GetPlayerController(world);
+		if (nullptr == controller)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][RPC] Cannot find the local player's controller."));
+			return;
+		}
+
+		// 여기서 로컬 캐릭터 할당
+		auto my_pawn = controller->GetPawn();
+		localPlayerCharacter = my_pawn;
+
+		CallFunctionOnGameThread([this, my_pawn]()
 			{
+				auto remote_character_class = dummyPlayerClassReference.LoadSynchronous();
+
 				for (auto& member : everyUsers)
 				{
-					UClass* character_class_ref = nullptr;
-					ASagaCharacterPlayer* character = nullptr;
-
 					if (member.ID() == GetLocalUserId())
 					{
-						character_class_ref = localPlayerClassReference.LoadSynchronous();
+						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Local client `%d` doesn't need to create a character."), member.ID());
+
+						member.remoteCharacter = Cast<ASagaCharacterPlayer>(Cast<ACharacter>(my_pawn));
 					}
 					else
 					{
-						character_class_ref = dummyPlayerClassReference.LoadSynchronous();
-					}
+						FTransform transform{};
+						transform.TransformPosition({ 0, 0, 100 });
 
-					character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(ASagaCharacterPlayer::StaticClass(), {}));
-					if (character)
-					{
-						member.remoteCharacter = character;
+						auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(remote_character_class, transform));
+						if (character)
+						{
+							member.remoteCharacter = character;
 
-						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.remoteCharacter);
+							BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.remoteCharacter);
 
-						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
-					}
-					else
-					{
-						UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
+							UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
+						}
+						else
+						{
+							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
+						}
 					}
 				}
 			}
@@ -354,7 +383,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		int32 client_id{};
 		float r{}, y{}, p{};
 
-		//saga::ReceiveRotationPacket(packet_buffer, client_id, r, y, p);
+		saga::ReceiveRotationPacket(packet_buffer, client_id, r, y, p);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Client id %d: rotation(%f,%f,%f)"), client_id, r, y, p);
 
