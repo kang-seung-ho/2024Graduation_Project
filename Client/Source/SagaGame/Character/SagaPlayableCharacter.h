@@ -7,23 +7,23 @@
 #include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaPlayableCharacter.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnTakeWeaponDelegate, class USagaWeaponData*);
+DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class USagaWeaponData*);
 
 USTRUCT(BlueprintType)
-struct FTakeWeaponDelegateWrapper
+struct FTakeItemDelegateWrapper
 {
 	GENERATED_BODY()
 
 public:
-	FTakeWeaponDelegateWrapper()
-		: WeaponDelegate()
+	FTakeItemDelegateWrapper()
+		: ItemDelegate()
 	{}
 
-	FTakeWeaponDelegateWrapper(const FOnTakeWeaponDelegate& InWeaponDelegate)
-		: WeaponDelegate(InWeaponDelegate)
+	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate)
+		: ItemDelegate(InItemDelegate)
 	{}
 
-	FOnTakeWeaponDelegate WeaponDelegate;
+	FOnTakeItemDelegate ItemDelegate;
 };
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -45,9 +45,9 @@ protected:
 	EItemType mItemType;
 
 protected:
-	virtual void EquipHammer(class USagaWeaponData* WeaponData);
-	virtual void EquipLightSaber(class USagaWeaponData* WeaponData);
-	virtual void EquipWaterGun(class USagaWeaponData* WeaponData);
+	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
+	virtual void Acquire_Gum(class USagaWeaponData* WeaponData);
+	virtual void Acquire_smokebomb(class USagaWeaponData* WeaponData);
 	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
 
 	virtual void BeginPlay() override;
@@ -57,7 +57,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	TArray<FTakeWeaponDelegateWrapper> TakeWeaponAction;
+	TArray<FTakeItemDelegateWrapper> TakeItemAction;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character");
 	bool isRiding = false;
 

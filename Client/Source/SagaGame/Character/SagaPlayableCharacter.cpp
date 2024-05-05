@@ -32,13 +32,13 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	mArm->TargetArmLength = 150.f;*/
 
 	//Weapon Add Action
-	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipHammer)));
-	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipLightSaber)));
-	TakeWeaponAction.Add(FTakeWeaponDelegateWrapper(FOnTakeWeaponDelegate::CreateUObject(this, &ASagaPlayableCharacter::EquipWaterGun)));
+	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
+	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
+	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 
 	//Weapon
-	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	//Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	//Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 }
 
 void
@@ -102,38 +102,41 @@ ASagaPlayableCharacter::SwordAttack()
 }
 
 void
-ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
+ASagaPlayableCharacter::Acquire_Drink(USagaWeaponData* ItemData)
 {
-	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
-	if (WeaponDataItem)
+	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
+	if (AcquiredItemData)
 	{
-		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+		//HP 회복 전송 코드 or 아이템 획득 전송 코드
+		//로컬 인벤토리에 저장
 	}
 
-	mItemType = WeaponDataItem->ItemType;
+	mItemType = AcquiredItemData->ItemType;
 }
 
 void
-ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
+ASagaPlayableCharacter::Acquire_Gum(USagaWeaponData* ItemData)
 {
-	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
-	if (WeaponDataItem)
+	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
+	if (AcquiredItemData)
 	{
-		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+		//아이템 획득 전송 코드
+		//로컬 인벤토리에 저장
 	}
 
-	mItemType = WeaponDataItem->ItemType;
+	mItemType = AcquiredItemData->ItemType;
 }
 
 void
-ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
+ASagaPlayableCharacter::Acquire_smokebomb(USagaWeaponData* ItemData)
 {
-	USagaWeaponData* WeaponDataItem = Cast<USagaWeaponData>(WeaponData);
-	if (WeaponDataItem)
+	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
+	if (AcquiredItemData)
 	{
-		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
+		//아이템 획득 전송 코드
+		//로컬 인벤토리에 저장
 	}
-	mItemType = WeaponDataItem->ItemType;
+	mItemType = AcquiredItemData->ItemType;
 }
 
 void
@@ -141,6 +144,6 @@ ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
 {
 	if (WeaponData)
 	{
-		TakeWeaponAction[(uint8)WeaponData->ItemType].WeaponDelegate.ExecuteIfBound(WeaponData);
+		TakeItemAction[(uint8)WeaponData->ItemType].ItemDelegate.ExecuteIfBound(WeaponData);
 	}
 }
