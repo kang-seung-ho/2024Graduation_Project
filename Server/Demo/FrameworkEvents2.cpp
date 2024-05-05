@@ -50,34 +50,3 @@ demo::Framework::OnReceived(iconer::app::User& user, const ptrdiff_t& bytes)
 
 	return user.Receive(user_buffer);
 }
-
-void
-demo::Framework::OnFailedReceive(iconer::app::User& user)
-{
-	// Make room out now
-	if (auto room_id = user.myRoomId.Exchange(-1); -1 != room_id)
-	{
-		if (auto room = FindRoom(room_id); nullptr != room)
-		{
-			if (bool removed = room->RemoveMember(user.GetID()
-				, [](volatile iconer::app::Room& room, const size_t& members_count) noexcept {
-					if (0 == members_count)
-					{
-						room.BeginClose();
-					}
-				}); removed)
-			{
-				room->SetOperation(iconer::app::AsyncOperations::OpCloseRoom);
-				if (not Schedule(room, room->GetID()))
-				{
-					room->Cleanup();
-				}
-
-				SetRoomModifiedFlag();
-			}
-		}
-	}
-
-	user.Cleanup();
-	user.BeginClose();
-}

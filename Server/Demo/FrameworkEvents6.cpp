@@ -170,7 +170,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	{
 		room->ForEach
 		(
-			[&](User& member)
+			[rpc_ctx, user_id](User& member)
 			{
 				SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
 			}

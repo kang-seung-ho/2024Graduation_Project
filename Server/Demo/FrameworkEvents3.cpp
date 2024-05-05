@@ -2,7 +2,7 @@ module;
 #include <string_view>
 module Demo.Framework;
 
-bool RemoveRoomMember(demo::Framework& framework, iconer::app::Room& room, const iconer::app::User::IdType& user_id) noexcept;
+bool RemoveRoomMember(demo::Framework& framework, iconer::app::Room& room, const iconer::app::User::IdType user_id) noexcept;
 
 iconer::app::RoomContract
 demo::Framework::OnReservingRoom(iconer::app::Room& room, iconer::app::User& user)
@@ -70,7 +70,6 @@ demo::Framework::OnFailedToReserveRoom(iconer::app::Room& room, iconer::app::Use
 
 	::RemoveRoomMember(*this, room, user.GetID());
 	user.myRoomId.CompareAndSet(room.GetID(), -1);
-	SetRoomModifiedFlag();
 
 	auto [io, ctx] = user.SendRoomCreationFailedPacket(reason);
 	if (not io)
@@ -109,7 +108,6 @@ demo::Framework::OnFailedToCreateRoom(iconer::app::Room& room, iconer::app::User
 
 	::RemoveRoomMember(*this, room, user.GetID());
 	user.myRoomId.CompareAndSet(room.GetID(), -1);
-	SetRoomModifiedFlag();
 
 	auto [io, ctx] = user.SendRoomCreationFailedPacket(reason);
 	if (not io)
@@ -167,11 +165,10 @@ demo::Framework::OnJoiningRoom(iconer::app::Room& room, iconer::app::User& user)
 			user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
 			user.myRoomId.CompareAndSet(room_id, -1);
 			::RemoveRoomMember(*this, room, user.GetID());
-			SetRoomModifiedFlag();
 
 			return iconer::app::RoomContract::InvalidOperation;
 		}
-		
+
 		auto sent_r = user.SendRoomJoinedPacket(room_id, user);
 		if (not sent_r.first.has_value())
 		{
@@ -179,12 +176,9 @@ demo::Framework::OnJoiningRoom(iconer::app::Room& room, iconer::app::User& user)
 			user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
 			user.myRoomId.CompareAndSet(room_id, -1);
 			::RemoveRoomMember(*this, room, user.GetID());
-			SetRoomModifiedFlag();
 
 			return iconer::app::RoomContract::ServerError;
 		}
-
-		SetRoomModifiedFlag();
 
 		return iconer::app::RoomContract::Success;
 	}
@@ -197,10 +191,7 @@ demo::Framework::OnFailedToJoinRoom(iconer::app::Room& room, iconer::app::User& 
 	user.TryChangeState(iconer::app::UserStates::EnteringRoom, iconer::app::UserStates::Idle);
 	user.myRoomId.CompareAndSet(room.GetID(), -1);
 
-	if (::RemoveRoomMember(*this, room, user.GetID()))
-	{
-		SetRoomModifiedFlag();
-	}
+	::RemoveRoomMember(*this, room, user.GetID());
 
 	auto [io, ctx] = user.SendRoomJoinFailedPacket(reason);
 	if (not io)
@@ -235,27 +226,7 @@ demo::Framework::OnLeavingRoom(iconer::app::User& user)
 
 		if (auto room = FindRoom(room_id); nullptr != room)
 		{
-			if (::RemoveRoomMember(*this, *room, user.GetID()))
-			{
-				SetRoomModifiedFlag();
-
-				room->ForEach([&user, &room_id](iconer::app::User& member) {
-					if (int(iconer::app::UserStates::Idle) <= int(user.GetState()))
-					{
-						if (member.GetID() != user.GetID()) // `user` already have sent a packet
-						{
-							// just send the packet
-							auto [io, ctx] = member.SendRoomLeftPacket(user.GetID(), false);
-							if (not io)
-							{
-								ctx.Complete();
-							}
-						}
-					}
-					});
-
-				return true;
-			}
+			return ::RemoveRoomMember(*this, *room, user.GetID());
 		}
 	}
 
@@ -268,8 +239,69 @@ demo::Framework::OnClosingRoom(iconer::app::Room& room)
 	room.Cleanup();
 }
 
+void
+demo::Framework::OnFailedReceive(iconer::app::User& user)
+{
+	struct ReceiveRemover final : public iconer::app::Room::MemberRemover
+	{
+		using Super = iconer::app::Room::MemberRemover;
+
+		constexpr ReceiveRemover(demo::Framework& framework) noexcept
+			: Super(), myFramework(framework)
+		{}
+
+		void operator()(volatile iconer::app::Room& room, const size_t& members_count) const noexcept override
+		{
+			if (0 == members_count)
+			{
+				room.BeginClose();
+				room.SetOperation(iconer::app::AsyncOperations::OpCloseRoom);
+
+				if (not myFramework.Schedule(room, room.GetID()))
+				{
+					room.Cleanup();
+				}
+			}
+		}
+
+		demo::Framework& myFramework;
+	};
+
+	// Make room out now
+	if (auto room_id = user.myRoomId.Exchange(-1); -1 != room_id)
+	{
+		if (auto room = FindRoom(room_id); nullptr != room)
+		{
+			if (bool removed = room->RemoveMember(user.GetID(), ReceiveRemover{ *this }); removed)
+			{
+				SetRoomModifiedFlag();
+
+				room->ForEach([user_id = user.GetID()](iconer::app::User& member)
+					{
+						if (member.IsOnline())
+						{
+							if (member.GetID() != user_id) // `user` already have sent a packet
+							{
+								// just send the packet
+								auto [io, ctx] = member.SendRoomLeftPacket(user_id, false);
+								if (not io)
+								{
+									ctx.Complete();
+								}
+							}
+						}
+					}
+				);
+			}
+		}
+	}
+
+	user.Cleanup();
+	user.BeginClose();
+}
+
 bool
-RemoveRoomMember(demo::Framework& framework, iconer::app::Room& room, const iconer::app::User::IdType& user_id)
+RemoveRoomMember(demo::Framework& framework, iconer::app::Room& room, const iconer::app::User::IdType user_id)
 noexcept
 {
 	struct Remover final : public iconer::app::Room::MemberRemover
@@ -278,8 +310,7 @@ noexcept
 
 		constexpr Remover(demo::Framework& framework) noexcept
 			: Super(), myFramework(framework)
-		{
-		}
+		{}
 
 		void operator()(volatile iconer::app::Room& room, const size_t& members_count) const noexcept override
 		{
@@ -300,9 +331,27 @@ noexcept
 		demo::Framework& myFramework;
 	};
 
-	if (auto r = room.RemoveMember(user_id, Remover{ framework }); r)
+	if (auto removed = room.RemoveMember(user_id, Remover{ framework }); removed)
 	{
 		framework.SetRoomModifiedFlag();
+
+		room.ForEach([user_id](iconer::app::User& member)
+			{
+				if (member.IsOnline())
+				{
+					if (member.GetID() != user_id) // `user` already have sent a packet
+					{
+						// just send the packet
+						auto [io, ctx] = member.SendRoomLeftPacket(user_id, false);
+						if (not io)
+						{
+							ctx.Complete();
+						}
+					}
+				}
+			}
+		);
+
 		return true;
 	}
 	else
