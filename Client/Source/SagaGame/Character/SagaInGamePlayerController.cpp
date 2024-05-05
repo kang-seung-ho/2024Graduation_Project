@@ -11,7 +11,8 @@
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
-	, isForwardWalking(), isStrafeWalking(), isRunning()
+	, isForwardWalking(), isStrafeWalking(), isRunning(), isRiding()
+	, wasMoved(), wasTilted()
 	, walkDirection(), preferedDirection()
 	, tranformUpdateTimer()
 {}
@@ -30,6 +31,7 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
 	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
 	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
+
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
 	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
@@ -49,6 +51,8 @@ ASagaInGamePlayerController::EndRotation()
 void
 ASagaInGamePlayerController::ExecuteRotation(const FInputActionValue& Value)
 {
+	wasTilted = true;
+
 	const FVector InputValue = Value.Get<FVector>();
 
 	AddYawInput(InputValue.X);

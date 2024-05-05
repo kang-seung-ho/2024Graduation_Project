@@ -19,11 +19,17 @@ ASagaInGamePlayerController::OnUpdateTransform()
 		{
 			const auto pawn = GetPawn();
 
-			const auto loc = pawn->K2_GetActorLocation();
-			system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+			if (wasMoved)
+			{
+				const auto loc = pawn->K2_GetActorLocation();
+				system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+			}
 
-			const auto rot = pawn->K2_GetActorRotation();
-			system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+			if (wasTilted)
+			{
+				const auto rot = pawn->K2_GetActorRotation();
+				system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+			}
 		}
 		else
 		{
@@ -239,6 +245,8 @@ ASagaInGamePlayerController::EndJump()
 void
 ASagaInGamePlayerController::ExecuteWalk(const float& delta_time)
 {
+	wasMoved = true;
+
 	APawn* ControlledPawn = GetPawn();
 
 	const FRotator Rotation = K2_GetActorRotation();
