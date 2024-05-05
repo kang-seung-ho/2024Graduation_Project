@@ -17,6 +17,15 @@ public:
 	ASagaCharacterPlayer();
 
 public:
+	int32 id;
+	bool isForwardWalking;
+	bool isStrafeWalking;
+	bool isRunning;
+	bool isRiding = false;
+
+	FVector walkDirection;
+
+public:
 	int32 teamColor = 0;
 
 	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
@@ -81,9 +90,9 @@ public:
 	virtual void TerminateRun();
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	virtual void ExecuteWalk(FVector walkDirection);
+	virtual void ExecuteWalk();
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	virtual void TerminateWalk(const float& delta_time);
+	virtual void TerminateWalk();
 
 
 };

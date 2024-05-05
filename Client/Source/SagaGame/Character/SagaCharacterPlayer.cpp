@@ -80,6 +80,20 @@ void ASagaCharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (isRunning)
+	{
+		ExecuteRun();
+	}
+
+	if (isForwardWalking || isStrafeWalking)
+	{
+		ExecuteWalk();
+	}
+	else
+	{
+		TerminateWalk();
+	}
+
 }
 
 // Called to bind functionality to input
@@ -192,7 +206,7 @@ void ASagaCharacterPlayer::TerminateRun()
 
 }
 
-void ASagaCharacterPlayer::ExecuteWalk(FVector walkDirection)
+void ASagaCharacterPlayer::ExecuteWalk()
 {
 	APawn* ControlledPawn = this;
 
@@ -233,7 +247,7 @@ void ASagaCharacterPlayer::ExecuteWalk(FVector walkDirection)
 	}
 }
 
-void ASagaCharacterPlayer::TerminateWalk(const float& delta_time)
+void ASagaCharacterPlayer::TerminateWalk()
 {
 	
 }

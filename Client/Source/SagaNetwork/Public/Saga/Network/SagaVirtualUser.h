@@ -17,6 +17,4 @@ public:
 	TObjectPtr<class ASagaCharacterPlayer> remoteCharacter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "CandyLandSaga|Network|Session")
 	EUserTeam myTeam;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Network|Session")
-	float myHealth;
 };
