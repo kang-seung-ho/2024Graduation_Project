@@ -120,6 +120,12 @@ export namespace iconer::app
 		BorrowedIoResult SendOldRpcPacket(IdType id, std::string&& script, long long arg) const;
 		BorrowedIoResult SendOldRpcPacket(IdType id, std::string_view script, long long arg) const;
 
+		[[nodiscard]]
+		bool IsOnline() const noexcept
+		{
+			return std::to_underlying(iconer::app::UserStates::Idle) <= std::to_underlying(GetState());
+		}
+
 		User(User&&) noexcept = default;
 		User& operator=(User&&) noexcept = default;
 
