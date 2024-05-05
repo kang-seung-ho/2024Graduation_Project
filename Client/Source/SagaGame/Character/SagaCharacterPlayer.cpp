@@ -62,8 +62,8 @@ void ASagaCharacterPlayer::BeginPlay()
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	mWeapon = system->GetWeaponType();
-	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeapon);
+	mWeaponType = system->GetWeaponType();
+	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
 }
 
 void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)

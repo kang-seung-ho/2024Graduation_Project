@@ -110,7 +110,7 @@ ASagaPlayableCharacter::EquipHammer(USagaWeaponData* WeaponData)
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
 
-	mWeaponType = WeaponDataItem->WeaponType;
+	mItemType = WeaponDataItem->ItemType;
 }
 
 void
@@ -122,7 +122,7 @@ ASagaPlayableCharacter::EquipLightSaber(USagaWeaponData* WeaponData)
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
 
-	mWeaponType = WeaponDataItem->WeaponType;
+	mItemType = WeaponDataItem->ItemType;
 }
 
 void
@@ -133,7 +133,7 @@ ASagaPlayableCharacter::EquipWaterGun(USagaWeaponData* WeaponData)
 	{
 		Weapon->SetStaticMesh(WeaponDataItem->WeaponMesh);
 	}
-	mWeaponType = WeaponDataItem->WeaponType;
+	mItemType = WeaponDataItem->ItemType;
 }
 
 void
@@ -141,6 +141,6 @@ ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
 {
 	if (WeaponData)
 	{
-		TakeWeaponAction[(uint8)WeaponData->WeaponType].WeaponDelegate.ExecuteIfBound(WeaponData);
+		TakeWeaponAction[(uint8)WeaponData->ItemType].WeaponDelegate.ExecuteIfBound(WeaponData);
 	}
 }

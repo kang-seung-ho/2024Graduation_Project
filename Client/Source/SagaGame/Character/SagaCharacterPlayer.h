@@ -31,7 +31,8 @@ public:
 	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
 
 protected:
-	EPlayerWeapon mWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	EPlayerWeapon mWeaponType;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;

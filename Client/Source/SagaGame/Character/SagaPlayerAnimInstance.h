@@ -1,8 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "CharacterSelect/SagaSelectCharacter.h"
 
-#include "../Item/SagaWeaponData.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")
@@ -32,8 +32,8 @@ public:
 	void PlayAttackMontage();
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EItemType mWeaponType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EPlayerWeapon mWeaponTypes;
 
 public:
 	UFUNCTION()

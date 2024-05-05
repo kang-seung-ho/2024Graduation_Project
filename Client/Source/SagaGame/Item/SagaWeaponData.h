@@ -24,12 +24,12 @@ class SAGAGAME_API USagaWeaponData : public UPrimaryDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Type")
-	EItemType WeaponType;
+	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, Category = "WeaponMesh")
 	TObjectPtr<UStaticMesh> WeaponMesh;
 
 public:
-	void SetItemType(EItemType Type) { WeaponType = Type; }
+	void SetItemType(EItemType Type) { ItemType = Type; }
 	void SetWeaponMesh(TObjectPtr<UStaticMesh> Mesh) { WeaponMesh = Mesh; }
 };

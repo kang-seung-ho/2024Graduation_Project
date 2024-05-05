@@ -21,7 +21,7 @@ void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		ASagaPlayableCharacter* WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(PlayerCharacter);
 		if (IsValid(WeaponHoldingCharacter))
 		{
-			mWeaponType = WeaponHoldingCharacter->GetWeaponType();
+			mWeaponTypes = WeaponHoldingCharacter->GetWeaponType();
 		}
 
 		UCharacterMovementComponent* Movement = PlayerCharacter->GetCharacterMovement();
@@ -71,14 +71,14 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 	if (!Montage_IsPlaying(mAttackMontageArray[mAttackIndex]))
 	{
-		if (mWeaponType == EItemType::Lightsaber) {
+		if (mWeaponTypes == EPlayerWeapon::LightSabor) {
 			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mAttackMontageArray[mAttackIndex]);
 
 			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
 		}
-		else if (mWeaponType == EItemType::WaterGun) {
+		else if (mWeaponTypes == EPlayerWeapon::WaterGun) {
 			Montage_SetPosition(mGunAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mGunAttackMontageArray[mAttackIndex]);

@@ -4,6 +4,7 @@
 
 #include "../Item/SagaWeaponData.h"
 #include "../Interface/SagaCharacterItemInterface.h"
+#include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaPlayableCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FOnTakeWeaponDelegate, class USagaWeaponData*);
@@ -36,9 +37,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	constexpr EItemType GetWeaponType() const noexcept { return mWeaponType; }
+	constexpr EPlayerWeapon GetWeaponType() const noexcept { return mWeaponType; }
 
 	virtual void SwordAttack();
+
+protected:
+	EItemType mItemType;
 
 protected:
 	virtual void EquipHammer(class USagaWeaponData* WeaponData);
@@ -49,8 +53,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	EItemType mWeaponType;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
