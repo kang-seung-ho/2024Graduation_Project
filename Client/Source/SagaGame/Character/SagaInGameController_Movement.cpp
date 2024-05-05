@@ -223,31 +223,31 @@ ASagaInGamePlayerController::ExecuteWalk(const float& delta_time)
 	ControlledPawn->AddMovementInput(ForwardVector, walkDirection.Y);
 	ControlledPawn->AddMovementInput(RightVector, walkDirection.X);
 
-	auto move_dir = walkDirection.X * 90.f;
+	mMoveDir = walkDirection.X * 90.f;
 	if (walkDirection.Y > 0.f)
 	{
 		if (walkDirection.X < 0.f)
 		{
-			move_dir = -45.f;
+			mMoveDir = -45.f;
 		}
 		else if (walkDirection.X > 0.f)
 		{
-			move_dir = 45.f;
+			mMoveDir = 45.f;
 		}
 	}
 	else if (walkDirection.Y < 0.f)
 	{
 		if (walkDirection.X < 0.f)
 		{
-			move_dir = -135.f;
+			mMoveDir = -135.f;
 		}
 		else if (walkDirection.X > 0.f)
 		{
-			move_dir = 135.f;
+			mMoveDir = 135.f;
 		}
 		else
 		{
-			move_dir = 180.f;
+			mMoveDir = 180.f;
 		}
 	}
 }

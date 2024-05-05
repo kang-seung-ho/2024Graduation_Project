@@ -9,9 +9,9 @@
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
-	Hammer,
-	Lightsaber,
-	WaterGun
+	Drink,
+	Gum,
+	SmokeBomb
 };
 
 /**
@@ -26,10 +26,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Type")
 	EItemType ItemType;
 
-	UPROPERTY(EditAnywhere, Category = "WeaponMesh")
-	TObjectPtr<UTexture2D> WeaponMesh;
+	UPROPERTY(EditAnywhere, Category = "ItemIcon")
+	TObjectPtr<UTexture2D> ItemIcon;
 
 public:
 	void SetItemType(EItemType Type) { ItemType = Type; }
-	void SetWeaponMesh(TObjectPtr<UTexture2D> Mesh) { WeaponMesh = Mesh; }
+	void SetWeaponMesh(TObjectPtr<UTexture2D> Mesh) { ItemIcon = Mesh; }
 };
