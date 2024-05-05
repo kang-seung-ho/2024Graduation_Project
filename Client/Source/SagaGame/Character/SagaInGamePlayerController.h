@@ -12,13 +12,20 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	bool isForwardWalking;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	bool isStrafeWalking;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
-	bool isRiding = false;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	bool isRiding;
 
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	FVector preferedDirection;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	float mMoveDir;
 
 	/*UPROPERTY(VisibleAnywhere)
@@ -30,6 +37,7 @@ protected:
 public:
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnAttack(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
