@@ -13,6 +13,7 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	: APlayerController(ObjectInitializer)
 	, isForwardWalking(), isStrafeWalking(), isRunning()
 	, walkDirection(), preferedDirection()
+	, tranformUpdateTimer()
 {}
 
 void
@@ -155,17 +156,35 @@ ASagaInGamePlayerController::BeginPlay()
 	//	mArm->TargetArmLength = 150.f;
 	//}
 
-
 	//// Make sure the camera components are correctly initialized
 	//if (GetPawn())
 	//{
 	//	mArm->AttachToComponent(GetPawn()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//	mCamera->AttachToComponent(mArm, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//}
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (nullptr != system and system->GetLocalUserId() != -1)
+	{
+		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+	}
 }
 
 void
 ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
+	GetWorldTimerManager().ClearTimer(tranformUpdateTimer);
+}
+
+void
+ASagaInGamePlayerController::OnGameStarted()
+{
+	GetWorldTimerManager().SetTimer(tranformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 1.00f, true, 5.0f);
 }

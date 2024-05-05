@@ -27,6 +27,8 @@ protected:
 	FVector preferedDirection;
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	float mMoveDir;
+	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	FTimerHandle tranformUpdateTimer;
 
 	/*UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
@@ -39,6 +41,10 @@ public:
 
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnAttack(const FInputActionValue& Value);
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	void OnGameStarted();
+	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	void OnUpdateTransform();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void BeginForwardWalk(const FInputActionValue& Value);

@@ -7,6 +7,30 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 
 void
+ASagaInGamePlayerController::OnUpdateTransform()
+{
+	if constexpr (not saga::IsOfflineMode)
+	{
+		//UE_LOG(LogSagaGame, Log, TEXT("[Character] Synchronizing Transform"));
+
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			const auto loc = GetPawn()->K2_GetActorLocation();
+			system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+
+			const auto rot = GetPawn()->K2_GetActorRotation();
+			system->SendRotationPacket(loc.X, loc.Y, loc.Z);
+		}
+		else
+		{
+			//UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
 ASagaInGamePlayerController::UpdateMovement(const float& delta_time)
 {
 	// acceleration
