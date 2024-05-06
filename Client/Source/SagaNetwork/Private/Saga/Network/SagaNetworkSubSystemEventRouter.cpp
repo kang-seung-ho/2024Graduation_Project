@@ -1,6 +1,5 @@
-#include "Saga/Network/SagaNetworkEventRouter.h"
-
 #include "Saga/Network/SagaNetworkSubSystem.h"
+
 #include "Saga/Network/SagaPacketProcessor.h"
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualUser.h"

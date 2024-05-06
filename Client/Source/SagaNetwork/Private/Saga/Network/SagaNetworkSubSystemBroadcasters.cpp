@@ -193,7 +193,8 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnTeamChanged(int32 user_id, bool is_red_team) const
+USagaNetworkSubSystem::BroadcastOnTeamChanged(int32 user_id, bool is_red_team)
+const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnTeamChanged`"));
 
@@ -212,7 +213,8 @@ USagaNetworkSubSystem::BroadcastOnTeamChanged(int32 user_id, bool is_red_team) c
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnGetPreparedGame() const
+USagaNetworkSubSystem::BroadcastOnGetPreparedGame()
+const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnGetPreparedGame`"));
 
@@ -251,7 +253,8 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnStartGame() const
+USagaNetworkSubSystem::BroadcastOnStartGame()
+const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnStartGame`"));
 
@@ -310,7 +313,8 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, ASagaCharacterPlayer* character) const
+USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, ASagaCharacterPlayer* character)
+const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnCreatingCharacter`"));
 
@@ -329,7 +333,8 @@ USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam tea
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const
+USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
+const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
 
