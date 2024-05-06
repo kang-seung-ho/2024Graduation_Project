@@ -16,8 +16,9 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, OnTeamChanged()
 	, OnGetPreparedGame(), OnStartGame()
 	, OnUpdatePosition(), OnUpdateRotation(), OnCreatingCharacter()
-	, clientSocket(nullptr), netWorker(nullptr)
+	, clientSocket(), netWorker(), taskWorker()
 	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
+	, receivedDataLock()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
 	, localPlayerClassReference(), dummyPlayerClassReference()
 {
@@ -35,7 +36,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 }
 
 bool
-USagaNetworkSubSystem::ConnectToServer(const FString & nickname)
+USagaNetworkSubSystem::ConnectToServer(const FString& nickname)
 {
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -182,9 +183,13 @@ USagaNetworkSubSystem::Receive()
 #endif
 
 				// Peeks a packet
-				const auto dst = transitBuffer.GetData() + transitOffset;
-				std::memcpy(dst, read_buffer, static_cast<size_t>(basic_pk.mySize));
-				transitOffset += basic_pk.mySize;
+				{
+					FScopeLock locker{ &receivedDataLock };
+
+					const auto dst = transitBuffer.GetData() + transitOffset;
+					std::memcpy(dst, read_buffer, static_cast<size_t>(basic_pk.mySize));
+					transitOffset += basic_pk.mySize;
+				}
 
 				recvBytes -= basic_pk.mySize;
 				read_offset += basic_pk.mySize;
@@ -206,29 +211,42 @@ USagaNetworkSubSystem::Receive()
 			UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Buffer is pulled by %d bytes"), read_offset);
 		}
 
-		int32 process_offset{};
+		AsyncTask(ENamedThreads::AnyNormalThreadNormalTask, [this]()
+			{
+				int32 process_offset{};
 
-		while (0 < transitOffset)
-		{
-			auto process_buffer = transitBuffer.GetData() + process_offset;
+				while (0 < transitOffset)
+				{
+					// Process a packet
+					{
+						FScopeLock locker{ &receivedDataLock };
 
-			FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
-			basic_pk.Read(reinterpret_cast<std::byte*>(process_buffer));
+						auto process_buffer = transitBuffer.GetData() + process_offset;
 
-			// Routes stacked events
-			RouteEvents(transitBuffer, process_offset, basic_pk.myProtocol, basic_pk.mySize);
+						FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
+						basic_pk.Read(reinterpret_cast<std::byte*>(process_buffer));
 
-			process_offset += basic_pk.mySize;
-			transitOffset -= basic_pk.mySize;
-		}
+						if (basic_pk.mySize <= 0 or transitOffset < basic_pk.SignedMinSize())
+						{
+							break;
+						}
 
+						// Routes stacked events
+						RouteEvents(transitBuffer, process_offset, basic_pk.myProtocol, basic_pk.mySize);
+
+						process_offset += basic_pk.mySize;
+						transitOffset -= basic_pk.mySize;
+					}
+				}
+			}
+		);
 	} // IF constexpr (IsOfflineMode)
 
 	return true;
 }
 
 AActor*
-USagaNetworkSubSystem::CreatePlayableCharacter(UClass * type, const FTransform & transform)
+USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type, const FTransform& transform)
 const
 {
 	if (type != nullptr)
@@ -246,7 +264,7 @@ const
 }
 
 USagaNetworkSubSystem*
-USagaNetworkSubSystem::GetSubSystem(const UWorld * world) noexcept
+USagaNetworkSubSystem::GetSubSystem(const UWorld* world) noexcept
 {
 	auto singleton = world->GetGameInstance();
 

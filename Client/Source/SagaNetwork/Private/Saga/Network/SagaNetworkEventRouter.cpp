@@ -69,7 +69,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		saga::ReceiveRoomCreationFailedPacket(alt_buffer, error);
 
 		const auto msg = std::to_wstring(error);
-		UE_LOG(LogSagaNetwork, Log, TEXT("Could not create a room due to %s"), msg.data());
+		UE_LOG(LogSagaNetwork, Warning, TEXT("Could not create a room due to %s"), msg.data());
 	}
 	break;
 
@@ -122,7 +122,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		saga::ReceiveRoomJoinFailedPacket(alt_buffer, error);
 
 		const auto msg = std::to_wstring(error);
-		UE_LOG(LogSagaNetwork, Log, TEXT("Failed to join to a room due to %s"), msg.data());
+		UE_LOG(LogSagaNetwork, Warning, TEXT("Failed to join to a room due to %s"), msg.data());
 	}
 	break;
 

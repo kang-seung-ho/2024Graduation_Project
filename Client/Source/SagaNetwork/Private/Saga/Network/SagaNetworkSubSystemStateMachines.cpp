@@ -31,7 +31,7 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	everyRooms.Reserve(100);
 
 	recvBuffer.Init(0, recvLimit);
-	transitBuffer.Reserve(recvLimit);
+	transitBuffer.Init(0, recvLimit);
 
 	if (InitializeNetwork_Implementation())
 	{
