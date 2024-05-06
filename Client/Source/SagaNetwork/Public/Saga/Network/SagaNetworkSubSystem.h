@@ -310,6 +310,23 @@ public:
 	}
 
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CurrentMode = 1;
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentMode(int32 Mode)
+	{
+		CurrentMode = Mode;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentMode() const
+		{
+		return CurrentMode;
+	}
+
+
 private:
 	/* Internal Functions */
 #pragma region =========================
