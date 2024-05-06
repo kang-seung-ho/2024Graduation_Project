@@ -3,9 +3,13 @@
 
 #include "SagaCharacterPlayer.h"
 #include "SagaPlayerAnimInstance.h"
+#include "SagaGummyBearAnimInstance.h"
 #include "../Item/SagaWeaponData.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
+
+#include "SagaPlayableCharacter.h"
+#include "SagaGummyBearPlayer.h"
 
 
 // Sets default values
@@ -60,6 +64,7 @@ void ASagaCharacterPlayer::BeginPlay()
 	
 	//이 함수 호출되기 전에 SkeletalMeshComponent에 지정된 AnimInstance 클래스 이용하여 사용하기 위한 객체 만들어놨음.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	mWeaponType = system->GetWeaponType();
@@ -112,8 +117,42 @@ float ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& D
 
 void ASagaCharacterPlayer::PlayAttackAnimation()
 {
-	mAnimInst->PlayAttackMontage();
+	UE_LOG(LogTemp, Warning, TEXT("Entered PlayAttackAnimation"));
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	int32 CharacterMode = system->GetCurrentMode();
+	UE_LOG(LogTemp, Warning, TEXT("Character Mode : %d"), CharacterMode);
+
+	if (CharacterMode == 1)
+	{
+		if (mAnimInst != nullptr)
+		{
+			mAnimInst->PlayAttackMontage();
+			UE_LOG(LogTemp, Warning, TEXT("This character is a SagaPlayableCharacter"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("mAnimInst is null"));
+		}
+	}
+	else if (CharacterMode == 2)
+	{
+		if (mBearAnimInst != nullptr)
+		{
+			mBearAnimInst->PlayAttackMontage();
+			UE_LOG(LogTemp, Warning, TEXT("This character is a SagaBear"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("mBearAnimInst is null"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Character Mode"));
+	}
 }
+
 
 void ASagaCharacterPlayer::RotationCameraArm(float Scale)
 {

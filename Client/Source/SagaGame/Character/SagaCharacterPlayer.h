@@ -40,6 +40,7 @@ protected:
 	USpringArmComponent* mArm;
 
 	class USagaPlayerAnimInstance* mAnimInst;
+	class USagaGummyBearAnimInstance* mBearAnimInst;
 
 protected:
 	virtual void BeginPlay() override;
