@@ -3,9 +3,13 @@
 #include <cstddef>
 
 #include "Saga/Network/SagaNetworkSettings.h"
+#include "Saga/Network/SagaNetworkUtility.h"
+#include "Saga/Network/SagaNetworkWorker.h"
 #include "Saga/Network/SagaBasicPacket.h"
 #include "SagaGame/Character/SagaCharacterPlayer.h"
 #include "SagaGame/Character/SagaPlayableCharacter.h"
+
+[[nodiscard]] TSharedRef<FInternetAddr> CreateRemoteEndPoint();
 
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
@@ -245,22 +249,104 @@ USagaNetworkSubSystem::Receive()
 	return true;
 }
 
-AActor*
-USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type, const FTransform& transform)
-const
+bool
+USagaNetworkSubSystem::InitializeNetwork_Implementation()
 {
-	if (type != nullptr)
+	if (nullptr != clientSocket)
 	{
-		FActorSpawnParameters setting{};
-		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		return true;
+	}
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
-		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
-	}
-	else
+	clientSocket = saga::CreateTcpSocket();
+	if (nullptr == clientSocket)
 	{
-		return nullptr;
+		return false;
 	}
+
+	// NOTICE: 클라는 바인드 금지
+	//auto local_endpoint = saga::MakeEndPoint(FIPv4Address::InternalLoopback, saga::GetLocalPort());
+	//if (not clientSocket->Bind(*local_endpoint))
+	//{
+	//	return false;
+	//}
+
+	if (not clientSocket->SetReuseAddr())
+	{
+		return false;
+	}
+
+	if (not clientSocket->SetNoDelay())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+ESagaConnectionContract
+USagaNetworkSubSystem::ConnectToServer_Implementation()
+{
+	if (not IsSocketAvailable())
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("The socket is not available."));
+		return ESagaConnectionContract::NoSocket;
+	}
+
+	// #1 연결 부분
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto remote_endpoint = CreateRemoteEndPoint();
+		if (not remote_endpoint->IsValid())
+		{
+			auto err_msg = saga::GetLastErrorContents();
+			UE_LOG(LogSagaNetwork, Error, TEXT("The endpoint has fault, due to '%s'"), *err_msg);
+
+			return ESagaConnectionContract::WrongAddress;
+		}
+
+		if (not clientSocket->Connect(*remote_endpoint))
+		{
+			// 연결 실패 처리
+			auto err_msg = saga::GetLastErrorContents();
+			UE_LOG(LogSagaNetwork, Error, TEXT("Cannot connect to the server, due to '%s'"), *err_msg);
+
+			return ESagaConnectionContract::OtherError;
+		}
+	}
+
+	// #2
+	netWorker = new FSagaNetworkWorker{ this };
+	if (netWorker == nullptr)
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("Has failed to create the worker thread."));
+		return ESagaConnectionContract::CannotCreateWorker;
+	}
+
+	// #3
+	// 클라는 접속 이후에 닉네임 패킷을 보내야 한다.
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto sent_r = SendSignInPacket(localUserName);
+		if (sent_r <= 0)
+		{
+			auto err_msg = saga::GetLastErrorContents();
+			UE_LOG(LogSagaNetwork, Error, TEXT("First try of sending signin packet has been failed, due to '%s'"), *err_msg);
+
+			return ESagaConnectionContract::SignInFailed;
+		}
+	}
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("User's nickname is %s."), *localUserName);
+
+	return ESagaConnectionContract::Success;
+}
+
+bool
+USagaNetworkSubSystem::CloseNetwork_Implementation()
+{
+	//clientSocket->Shutdown(ESocketShutdownMode::ReadWrite);
+
+	return std::exchange(clientSocket, nullptr)->Close();
 }
 
 USagaNetworkSubSystem*
@@ -304,5 +390,44 @@ const noexcept
 	else
 	{
 		return false;
+	}
+}
+
+AActor*
+USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type, const FTransform& transform)
+const
+{
+	if (type != nullptr)
+	{
+		FActorSpawnParameters setting{};
+		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
+		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+TSharedRef<FInternetAddr>
+CreateRemoteEndPoint()
+{
+	if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Local)
+	{
+		return saga::MakeEndPoint(FIPv4Address::Any, saga::RemotePort);
+	}
+	else if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Host)
+	{
+		return saga::MakeEndPoint(FIPv4Address::InternalLoopback, saga::RemotePort);
+	}
+	else if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Remote)
+	{
+		return saga::MakeEndPointFrom(saga::RemoteAddress, saga::RemotePort);
+	}
+	else
+	{
+		throw "error!";
 	}
 }

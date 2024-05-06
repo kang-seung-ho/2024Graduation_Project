@@ -89,7 +89,7 @@ public:
 	bool RemoveUser(int32 id) noexcept;
 	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void ClearUserList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
@@ -107,7 +107,7 @@ public:
 	bool RemoveRoom(int32 id) noexcept;
 	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void ClearRoomList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
@@ -313,6 +313,8 @@ private:
 	bool CloseNetwork_Implementation();
 
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	void RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset, EPacketProtocol protocol, int16 packet_size);
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnConnected_Implementation();
@@ -349,11 +351,9 @@ private:
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset, EPacketProtocol protocol, int16 packet_size);
 #pragma endregion
 
-	/* Internal Event Broadcasting Methods */
+	/* Event Broadcasting Methods */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnNetworkInitialized() const;
@@ -401,6 +401,7 @@ private:
 #pragma region =========================
 	FSocket* clientSocket;
 	class FSagaNetworkWorker* netWorker;
+	class FSagaTaskWorker* taskWorker;
 
 	static inline constexpr int32 recvLimit = 512;
 	UPROPERTY(VisibleInstanceOnly)
@@ -411,6 +412,7 @@ private:
 	TArray<uint8> transitBuffer;
 	UPROPERTY(VisibleInstanceOnly)
 	int32 transitOffset;
+	FCriticalSection receivedDataLock;
 #pragma endregion
 
 	/// <remarks>로컬 플레이어도 포함</remarks>
