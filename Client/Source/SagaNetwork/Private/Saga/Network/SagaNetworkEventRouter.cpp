@@ -9,14 +9,17 @@
 #include "SagaGame/Character/SagaPlayableCharacter.h"
 
 void
-USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size)
+USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset
+	, EPacketProtocol protocol, int16 packet_size)
 {
+	auto alt_buffer = reinterpret_cast<const std::byte*>(packet_buffer.GetData()) + offset;
+
 	switch (protocol)
 	{
 	case EPacketProtocol::SC_SIGNIN_SUCCESS:
 	{
 		int32 my_id{};
-		saga::ReceiveSignInSucceedPacket(packet_buffer, my_id);
+		saga::ReceiveSignInSucceedPacket(alt_buffer, my_id);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Local client's id is %d"), my_id);
 
@@ -33,7 +36,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_SIGNIN_FAILURE:
 	{
 		int32 error{};
-		saga::ReceiveSignInFailurePacket(packet_buffer, error);
+		saga::ReceiveSignInFailurePacket(alt_buffer, error);
 
 		CallFunctionOnGameThread([this]()
 			{
@@ -48,7 +51,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_ROOM_CREATED:
 	{
 		int32 room_id{};
-		saga::ReceiveRoomCreatedPacket(packet_buffer, room_id);
+		saga::ReceiveRoomCreatedPacket(alt_buffer, room_id);
 
 		CallFunctionOnGameThread([this, room_id]()
 			{
@@ -63,7 +66,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_ROOM_CREATE_FAILED:
 	{
 		ERoomContract error{};
-		saga::ReceiveRoomCreationFailedPacket(packet_buffer, error);
+		saga::ReceiveRoomCreationFailedPacket(alt_buffer, error);
 
 		const auto msg = std::to_wstring(error);
 		UE_LOG(LogSagaNetwork, Log, TEXT("Could not create a room due to %s"), msg.data());
@@ -74,7 +77,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		saga::datagrams::SerializedMember newbie{};
 		int32 room_id{};
-		saga::ReceiveRoomJoinedPacket(packet_buffer, newbie, room_id, GetLocalUserId());
+		saga::ReceiveRoomJoinedPacket(alt_buffer, newbie, room_id, GetLocalUserId());
 
 		if (newbie.id == GetLocalUserId())
 		{
@@ -116,7 +119,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_ROOM_JOIN_FAILED:
 	{
 		ERoomContract error{};
-		saga::ReceiveRoomJoinFailedPacket(packet_buffer, error);
+		saga::ReceiveRoomJoinFailedPacket(alt_buffer, error);
 
 		const auto msg = std::to_wstring(error);
 		UE_LOG(LogSagaNetwork, Log, TEXT("Failed to join to a room due to %s"), msg.data());
@@ -126,7 +129,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_ROOM_LEFT:
 	{
 		int32 left_client_id{};
-		saga::ReceiveRoomLeftPacket(packet_buffer, left_client_id);
+		saga::ReceiveRoomLeftPacket(alt_buffer, left_client_id);
 
 		if (left_client_id == GetLocalUserId())
 		{
@@ -156,7 +159,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		wchar_t version_string[16]{};
 
-		saga::ReceiveRespondVersionPacket(packet_buffer, version_string, 16);
+		saga::ReceiveRespondVersionPacket(alt_buffer, version_string, 16);
 
 		CallPureFunctionOnGameThread([this, version_string]()
 			{
@@ -170,7 +173,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		std::vector<saga::datagrams::SerializedRoom> rooms{};
 
-		saga::ReceiveRespondRoomsPacket(packet_buffer, rooms);
+		saga::ReceiveRespondRoomsPacket(alt_buffer, rooms);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Number of rooms: %d"), rooms.size());
 
@@ -196,7 +199,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	{
 		std::vector<saga::datagrams::SerializedMember> users{};
 
-		saga::ReceiveRespondUsersPacket(packet_buffer, users);
+		saga::ReceiveRespondUsersPacket(alt_buffer, users);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Members: %d"), users.size());
 
@@ -231,7 +234,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		int32 client_id{};
 		bool is_red_team{};
 
-		saga::ReceiveTeamChangerPacket(packet_buffer, client_id, is_red_team);
+		saga::ReceiveTeamChangerPacket(alt_buffer, client_id, is_red_team);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Client %d's team changed to %s"), client_id, is_red_team ? TEXT("Red") : TEXT("Blue"));
 
@@ -250,7 +253,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_FAILED_GAME_START:
 	{
 		saga::SC_FailedGameStartingPacket pk{};
-		auto offset = pk.Read(packet_buffer);
+		auto offset = pk.Read(alt_buffer);
 
 		const ESagaGameContract cause = static_cast<ESagaGameContract>(static_cast<uint8>(pk.errCause));
 		auto str = UEnum::GetValueAsString(cause);
@@ -264,7 +267,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_GAME_GETTING_READY:
 	{
 		//SC_ReadyForGamePacket pk{};
-		//auto offset = pk.Read(packet_buffer);
+		//auto offset = pk.Read(alt_buffer);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start loading game..."));
 
@@ -350,7 +353,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 	case EPacketProtocol::SC_REMOVE_PLAYER:
 	{
 		saga::SC_DestroyPlayerPacket pk{};
-		auto offset = pk.Read(packet_buffer);
+		auto offset = pk.Read(alt_buffer);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] A client %d is destroyed(disconnected)"), pk.clientId);
 
@@ -366,7 +369,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		int32 client_id{};
 		float x{}, y{}, z{};
 
-		saga::ReceivePositionPacket(packet_buffer, client_id, x, y, z);
+		saga::ReceivePositionPacket(alt_buffer, client_id, x, y, z);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Client id %d: pos(%f,%f,%f)"), client_id, x, y, z);
 
@@ -383,7 +386,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		int32 client_id{};
 		float p{}, y{}, r{};
 
-		saga::ReceiveRotationPacket(packet_buffer, client_id, p, y, r);
+		saga::ReceiveRotationPacket(alt_buffer, client_id, p, y, r);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Client id %d: rotation(%f,%f,%f)"), client_id, p, y, r);
 
@@ -407,7 +410,7 @@ USagaNetworkSubSystem::RouteEvents(const std::byte* packet_buffer, EPacketProtoc
 		static int64 argument0{};
 		static int32 argument1{};
 
-		saga::ReceiveRpcPacket(packet_buffer, category, user_id, argument0, argument1);
+		saga::ReceiveRpcPacket(alt_buffer, category, user_id, argument0, argument1);
 
 		auto name = UEnum::GetValueAsString(category);
 

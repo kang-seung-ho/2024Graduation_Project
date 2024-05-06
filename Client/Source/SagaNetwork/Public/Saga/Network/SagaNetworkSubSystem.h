@@ -1,10 +1,6 @@
 #pragma once
-#include <cstddef>
 #include "SagaNetwork.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "HAL/Runnable.h"
-#include "HAL/RunnableThread.h"
-#include "Tasks/Task.h"
 #include "Async/Async.h"
 
 #include "Saga/Network/SagaPacketProtocol.h"
@@ -44,22 +40,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, in
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
-class SAGANETWORK_API FSagaNetworkWorker final : public FRunnable, public FNoncopyable
-{
-public:
-	FSagaNetworkWorker(TObjectPtr<USagaNetworkSubSystem> instance);
-	~FSagaNetworkWorker();
-
-	virtual bool Init() override;
-	virtual uint32 Run() override;
-	virtual void Exit() override;
-	virtual void Stop() override;
-
-private:
-	FRunnableThread* MyThread;
-	TObjectPtr<USagaNetworkSubSystem> SubSystemInstance;
-};
-
 UCLASS(Category = "CandyLandSaga|Network")
 class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
 {
@@ -68,27 +48,11 @@ class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
 public:
 	USagaNetworkSubSystem();
 
-	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
-
 	/* State Machines */
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-#pragma endregion
-
-	/* Complicated Network Methods */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool ConnectToServer(const FString& nickname);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool Close();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
-	const TArray<FSagaVirtualUser>& UpdatePlayerList();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
-	const TArray<FSagaVirtualRoom>& UpdateRoomList();
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 #pragma endregion
 
 	/* General Methods */
@@ -119,25 +83,36 @@ public:
 
 	/* Overall Clients Methods */
 #pragma region =========================
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void AddUser(const FSagaVirtualUser& client);
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
+	bool RemoveUser(int32 id) noexcept;
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
+	void ClearUserList() noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
+	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
-	bool RemoveUser(int32 id) noexcept;
-	void ClearUserList() noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool HasUser(int32 id) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetTeam(int32 id, EUserTeam& outpin) noexcept;
+	bool GetTeam(int32 id, EUserTeam& outpin) const noexcept;
 #pragma endregion
 
 	/* Overall Rooms Methods */
 #pragma region =========================
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void AddRoom(const FSagaVirtualRoom& room);
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
+	bool RemoveRoom(int32 id) noexcept;
+	UFUNCTION(Category = "CandyLandSaga|Network|Session")
+	void ClearRoomList() noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
+	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool FindRoom(int32 id, FSagaVirtualRoom& outpin) const noexcept;
-	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
-	bool RemoveRoom(int32 id) noexcept;
-	void ClearRoomList() noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool HasRoom(int32 user_id) const noexcept;
 #pragma endregion
@@ -153,6 +128,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	FString GetLocalUserName() const;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetLocalUserTeam(EUserTeam& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetCurrentRoomId(int32 id) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	int32 GetCurrentRoomId() const noexcept;
@@ -160,18 +137,12 @@ public:
 	void SetCurrentRoomTitle(const FString& title);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	FString GetCurrentRoomTitle() const;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetLocalUserTeam(EUserTeam& outpin) noexcept;
 #pragma endregion
 
 	/* Getters */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
-	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session", meta = (UnsafeDuringActorConstruction))
-	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
 #pragma endregion
 
 	/* Observers */
@@ -180,6 +151,23 @@ public:
 	bool IsSocketAvailable() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network")
 	bool IsConnected() const noexcept;
+#pragma endregion
+
+	/* Network Methods */
+#pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	bool ConnectToServer(const FString& nickname);
+
+	UFUNCTION(Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	bool Receive();
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	bool Close();
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	const TArray<FSagaVirtualUser>& UpdatePlayerList();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	const TArray<FSagaVirtualRoom>& UpdateRoomList();
 #pragma endregion
 
 	/* Packet Senders */
@@ -280,21 +268,6 @@ public:
 	FSagaEventOnRpc OnRpc;
 #pragma endregion
 
-	/* Tasks */
-#pragma region =========================
-	void AddRpcCallback(const FString& id, FSagaEventOnRpc& delegate)
-	{
-		rpcDatabase.Add(id) = delegate;
-	}
-
-	static TQueue<UE::Tasks::TTask<int32>> taskQueue;
-	FGraphEventArray TaskCompletionEvents;
-
-	//static TMap<FStringView, TUniqueFunction<void()>> rpcDatabase;
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "CandyLandSaga|Network")
-	TMap<FString, FSagaEventOnRpc> rpcDatabase;
-#pragma endregion
-
 public:
 	EPlayerWeapon CurrentPlayerWeapon;
 
@@ -309,6 +282,8 @@ public:
 		CurrentPlayerWeapon = Type;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -330,54 +305,53 @@ public:
 private:
 	/* Internal Functions */
 #pragma region =========================
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	bool InitializeNetwork_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	ESagaConnectionContract ConnectToServer_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	bool CloseNetwork_Implementation();
 
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnConnected_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToConnect_Implementation(ESagaConnectionContract reason);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnDisconnected_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRoomCreated_Implementation(int32 id);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnJoinedRoom_Implementation(int32 id);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnLeftRoomBySelf_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnLeftRoom_Implementation(int32 id);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRespondVersion_Implementation(const FString& version_string);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnUpdateRoomList_Implementation(UPARAM(ref) const TArray<FSagaVirtualRoom>& list);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnUpdateMembers_Implementation(UPARAM(ref) const TArray<FSagaVirtualUser>& list);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnTeamChanged_Implementation(int32 user_id, bool is_red_team);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnGetPreparedGame_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnStartGame_Implementation();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnUpdatePosition_Implementation(int32 id, float x, float y, float z);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnUpdateRotation_Implementation(int32 id, float p, float y, float r);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
-	void RouteEvents(const std::byte* packet_buffer, EPacketProtocol protocol, int16 packet_size);
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	void RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset, EPacketProtocol protocol, int16 packet_size);
 #pragma endregion
-
-	friend class FSagaNetworkWorker;
 
 	/* Internal Event Broadcasting Methods */
 #pragma region =========================
@@ -423,13 +397,28 @@ private:
 	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion
 
+	/* Managed Network Properties */
+#pragma region =========================
 	FSocket* clientSocket;
-	TUniquePtr<FSagaNetworkWorker> netWorker;
+	class FSagaNetworkWorker* netWorker;
+
+	static inline constexpr int32 recvLimit = 512;
+	UPROPERTY(VisibleInstanceOnly)
+	TArray<uint8> recvBuffer;
+	UPROPERTY(VisibleInstanceOnly)
+	int32 recvBytes;
+	UPROPERTY(VisibleInstanceOnly)
+	TArray<uint8> transitBuffer;
+	UPROPERTY(VisibleInstanceOnly)
+	int32 transitOffset;
+#pragma endregion
 
 	/// <remarks>로컬 플레이어도 포함</remarks>
+	UPROPERTY()
 	TArray<FSagaVirtualUser> everyUsers;
-	TAtomic<bool> wasUsersUpdated;
+	UPROPERTY()
 	TArray<FSagaVirtualRoom> everyRooms;
+	TAtomic<bool> wasUsersUpdated;
 	TAtomic<bool> wasRoomsUpdated;
 
 	UPROPERTY()

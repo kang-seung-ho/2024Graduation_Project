@@ -44,10 +44,4 @@ public:
 	virtual void ExecuteRide() {}
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateRide() {}
-
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC")
-	virtual int32 GetRpcID() const noexcept
-	{
-		return -1;
-	}
 };

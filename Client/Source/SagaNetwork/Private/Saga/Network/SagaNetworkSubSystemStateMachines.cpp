@@ -2,46 +2,6 @@
 #include "Delegates/Delegate.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
-#include "SagaGame/Character/SagaPlayableCharacter.h"
-
-USagaNetworkSubSystem::USagaNetworkSubSystem()
-	: UGameInstanceSubsystem()
-	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle()
-	, OnNetworkInitialized(), OnConnected(), OnFailedToConnect(), OnDisconnected()
-	, OnRoomCreated(), OnJoinedRoom(), OnOtherJoinedRoom(), OnLeftRoomBySelf(), OnLeftRoom()
-	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
-	, OnTeamChanged()
-	, OnGetPreparedGame(), OnStartGame()
-	, OnUpdatePosition(), OnUpdateRotation(), OnCreatingCharacter()
-	, OnRpc()
-	, TaskCompletionEvents()
-	, rpcDatabase()
-	, clientSocket(nullptr), netWorker(nullptr)
-	, everyUsers(), wasUsersUpdated(true)
-	, everyRooms(), wasRoomsUpdated(true)
-	, localPlayerClassReference(), dummyPlayerClassReference()
-{
-	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
-	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
-	{
-		localPlayerClassReference = character_class_seek1.Class;
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
-	}
-
-	/*static ConstructorHelpers::FClassFinder<AActor> character_class_seek2(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
-	if (character_class_seek2.Succeeded() and character_class_seek2.Class)
-	{
-		dummyPlayerClassReference = character_class_seek2.Class;
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the dummy character"));
-	}*/
-	dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
-}
 
 void
 USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -69,6 +29,9 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	everyUsers.Reserve(100);
 	everyRooms.Reserve(100);
+
+	recvBuffer.Init(0, recvLimit);
+	transitBuffer.Reserve(recvLimit);
 
 	if (InitializeNetwork_Implementation())
 	{
@@ -133,35 +96,5 @@ const
 	else
 	{
 		return false;
-	}
-}
-
-bool
-USagaNetworkSubSystem::Close()
-{
-	if constexpr (not saga::IsOfflineMode)
-	{
-		if (not IsSocketAvailable())
-		{
-			UE_LOG(LogSagaNetwork, Warning, TEXT("The socket of client is null."));
-			return true;
-		}
-		else if (not IsConnected())
-		{
-			UE_LOG(LogSagaNetwork, Warning, TEXT("The network subsystem had been closed."));
-
-			return CloseNetwork_Implementation();
-		}
-		else
-		{
-			UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem..."));
-
-			return CloseNetwork_Implementation();
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem... (Offline Mode)"));
-		return true;
 	}
 }

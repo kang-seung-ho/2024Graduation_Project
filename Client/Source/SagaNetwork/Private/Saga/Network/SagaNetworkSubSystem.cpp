@@ -1,233 +1,41 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Containers/Queue.h"
-#include "Containers/Map.h"
 #include "Sockets.h"
+#include <cstddef>
 
 #include "Saga/Network/SagaNetworkSettings.h"
+#include "Saga/Network/SagaBasicPacket.h"
 #include "SagaGame/Character/SagaCharacterPlayer.h"
+#include "SagaGame/Character/SagaPlayableCharacter.h"
 
-TQueue<UE::Tasks::TTask<int32>> USagaNetworkSubSystem::taskQueue{};
-//TMap<FStringView, TUniqueFunction<void()>> USagaNetworkSubSystem::rpcDatabase{};
-
-void
-USagaNetworkSubSystem::SetLocalUserId(int32 id)
-noexcept
+USagaNetworkSubSystem::USagaNetworkSubSystem()
+	: UGameInstanceSubsystem()
+	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle()
+	, OnNetworkInitialized(), OnConnected(), OnFailedToConnect(), OnDisconnected()
+	, OnRoomCreated(), OnJoinedRoom(), OnOtherJoinedRoom(), OnLeftRoomBySelf(), OnLeftRoom()
+	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
+	, OnTeamChanged()
+	, OnGetPreparedGame(), OnStartGame()
+	, OnUpdatePosition(), OnUpdateRotation(), OnCreatingCharacter()
+	, clientSocket(nullptr), netWorker(nullptr)
+	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
+	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
+	, localPlayerClassReference(), dummyPlayerClassReference()
 {
-	localUserId = id;
-}
-
-int32
-USagaNetworkSubSystem::GetLocalUserId()
-const noexcept
-{
-	return localUserId;
-}
-
-void
-USagaNetworkSubSystem::SetLocalUserName(const FString& nickname)
-{
-	localUserName = nickname;
-}
-
-FString
-USagaNetworkSubSystem::GetLocalUserName()
-const
-{
-	return localUserName;
-}
-
-bool
-USagaNetworkSubSystem::GetLocalUserTeam(EUserTeam& outpin)
-noexcept
-{
-	return GetTeam(localUserId, outpin);
-}
-
-void
-USagaNetworkSubSystem::SetCurrentRoomId(int32 id)
-noexcept
-{
-	currentRoomId = id;
-}
-
-int32
-USagaNetworkSubSystem::GetCurrentRoomId()
-const noexcept
-{
-	return currentRoomId;
-}
-
-void
-USagaNetworkSubSystem::SetCurrentRoomTitle(const FString& title)
-{
-	currentRoomTitle = title;
-}
-
-FString
-USagaNetworkSubSystem::GetCurrentRoomTitle()
-const
-{
-	return currentRoomTitle;
-}
-
-void
-USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
-{
-	everyUsers.Add(client);
-	wasUsersUpdated = true;
-}
-
-bool
-USagaNetworkSubSystem::FindUser(int32 id, FSagaVirtualUser& outpin)
-const noexcept
-{
-	auto handle = everyUsers.FindByPredicate(FSagaSessionIdComparator{ id });
-	if (nullptr != handle)
+	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
+	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
 	{
-		outpin = *handle;
-		return true;
+		localPlayerClassReference = character_class_seek1.Class;
 	}
 	else
 	{
-		return false;
+		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
 	}
+
+	dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
 }
 
 bool
-USagaNetworkSubSystem::RemoveUser(int32 id)
-noexcept
-{
-	const bool result = 0 < everyUsers.RemoveAllSwap(FSagaSessionIdComparator{ id });
-	if (result)
-	{
-		wasUsersUpdated = true;
-	}
-
-	return result;
-}
-
-void
-USagaNetworkSubSystem::ClearUserList()
-noexcept
-{
-	everyUsers.Reset();
-	wasUsersUpdated = true;
-}
-
-bool
-USagaNetworkSubSystem::GetTeam(int32 user_id, EUserTeam& outpin)
-noexcept
-{
-	FSagaVirtualUser user{};
-
-	if (FindUser(user_id, user))
-	{
-		outpin = user.myTeam;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void
-USagaNetworkSubSystem::AddRoom(const FSagaVirtualRoom& room)
-{
-	everyRooms.Add(room);
-	wasRoomsUpdated = true;
-}
-
-bool
-USagaNetworkSubSystem::FindRoom(int32 id, FSagaVirtualRoom& outpin)
-const noexcept
-{
-	auto handle = everyRooms.FindByPredicate(FSagaSessionIdComparator{ id });
-	if (nullptr != handle)
-	{
-		outpin = *handle;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool
-USagaNetworkSubSystem::RoomAt(int32 index, FSagaVirtualRoom& outpin)
-noexcept
-{
-	if (everyRooms.IsValidIndex(index))
-	{
-		outpin = everyRooms[index];
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool
-USagaNetworkSubSystem::RemoveRoom(int32 id)
-noexcept
-{
-	const bool result = 0 < everyRooms.RemoveAllSwap(FSagaSessionIdComparator{ id });
-	if (result)
-	{
-		wasRoomsUpdated = true;
-	}
-
-	return result;
-}
-
-void
-USagaNetworkSubSystem::ClearRoomList()
-noexcept
-{
-	everyRooms.Reset();
-	wasRoomsUpdated = true;
-}
-
-bool
-USagaNetworkSubSystem::HasUser(int32 id)
-const noexcept
-{
-	return everyUsers.ContainsByPredicate(FSagaSessionIdComparator{ id });
-}
-
-bool
-USagaNetworkSubSystem::HasRoom(int32 id)
-const noexcept
-{
-	return everyRooms.ContainsByPredicate(FSagaSessionIdComparator{ id });
-}
-
-USagaNetworkSubSystem*
-USagaNetworkSubSystem::GetSubSystem(const UWorld* world) noexcept
-{
-	auto singleton = world->GetGameInstance();
-
-	return singleton->GetSubsystem<USagaNetworkSubSystem>();
-}
-
-const TArray<FSagaVirtualUser>&
-USagaNetworkSubSystem::GetUserList()
-const noexcept
-{
-	return everyUsers;
-}
-
-const TArray<FSagaVirtualRoom>&
-USagaNetworkSubSystem::GetRoomList()
-const noexcept
-{
-	return everyRooms;
-}
-
-bool
-USagaNetworkSubSystem::ConnectToServer(const FString& nickname)
+USagaNetworkSubSystem::ConnectToServer(const FString & nickname)
 {
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -285,6 +93,182 @@ USagaNetworkSubSystem::ConnectToServer(const FString& nickname)
 }
 
 bool
+USagaNetworkSubSystem::Close()
+{
+	if constexpr (not saga::IsOfflineMode)
+	{
+		if (not IsSocketAvailable())
+		{
+			UE_LOG(LogSagaNetwork, Warning, TEXT("The socket of client is null."));
+			return true;
+		}
+		else if (not IsConnected())
+		{
+			UE_LOG(LogSagaNetwork, Warning, TEXT("The network subsystem had been closed."));
+
+			return CloseNetwork_Implementation();
+		}
+		else
+		{
+			UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem..."));
+
+			return CloseNetwork_Implementation();
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem... (Offline Mode)"));
+		return true;
+	}
+}
+
+bool
+USagaNetworkSubSystem::Receive()
+{
+	auto recv_buffer = recvBuffer.GetData();
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		int32 read_bytes{};
+
+		// Checks
+		if (not clientSocket->Recv(recv_buffer + recvBytes
+			, recvLimit - recvBytes
+			, read_bytes))
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Receiving has been failed!"));
+			BroadcastOnDisconnected();
+
+			// Return #1
+			return false;
+		}
+		else if (read_bytes <= 0)
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Received %d byte!"), read_bytes);
+			BroadcastOnDisconnected();
+
+			// Return #2
+			return false;
+		}
+
+		// Increases the bytes
+		recvBytes += read_bytes;
+
+		int32 read_offset{};
+
+		// Peeks packets as many as possible
+		while (FSagaBasicPacket::MinSize() <= recvBytes)
+		{
+			// The current state buffer
+			const auto read_buffer = recv_buffer + read_offset;
+
+			// Reads the protocol and size
+			FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
+			basic_pk.Read(reinterpret_cast<std::byte*>(read_buffer));
+
+			// Validates
+			if (basic_pk.mySize <= 0)
+			{
+				UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Packet's size was %d!"), basic_pk.mySize);
+
+				// Return #3
+				return false;
+			}
+			else if (basic_pk.mySize <= recvBytes)
+			{
+#if WITH_EDITOR
+				const auto ename = UEnum::GetValueAsString(basic_pk.myProtocol);
+				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Received a packet (%s, %d)."), *ename, basic_pk.mySize);
+#endif
+
+				// Peeks a packet
+				const auto dst = transitBuffer.GetData() + transitOffset;
+				std::memcpy(dst, read_buffer, static_cast<size_t>(basic_pk.mySize));
+				transitOffset += basic_pk.mySize;
+
+				recvBytes -= basic_pk.mySize;
+				read_offset += basic_pk.mySize;
+			}
+			else
+			{
+				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] A receive phase is done."));
+
+				break;
+			}
+		} // WHILE (true)
+
+		if (0 < read_offset)
+		{
+			const auto adv_buffer = recv_buffer + read_offset;
+			const auto remained_size = static_cast<size_t>(recvLimit - read_offset);
+			std::memcpy(recv_buffer, recv_buffer + read_offset, remained_size);
+			std::memset(adv_buffer, 0, remained_size);
+			UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Buffer is pulled by %d bytes"), read_offset);
+		}
+
+		int32 process_offset{};
+
+		while (0 < transitOffset)
+		{
+			auto process_buffer = transitBuffer.GetData() + process_offset;
+
+			FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
+			basic_pk.Read(reinterpret_cast<std::byte*>(process_buffer));
+
+			// Routes stacked events
+			RouteEvents(transitBuffer, process_offset, basic_pk.myProtocol, basic_pk.mySize);
+
+			process_offset += basic_pk.mySize;
+			transitOffset -= basic_pk.mySize;
+		}
+
+	} // IF constexpr (IsOfflineMode)
+
+	return true;
+}
+
+AActor*
+USagaNetworkSubSystem::CreatePlayableCharacter(UClass * type, const FTransform & transform)
+const
+{
+	if (type != nullptr)
+	{
+		FActorSpawnParameters setting{};
+		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
+		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+USagaNetworkSubSystem*
+USagaNetworkSubSystem::GetSubSystem(const UWorld * world) noexcept
+{
+	auto singleton = world->GetGameInstance();
+
+	return singleton->GetSubsystem<USagaNetworkSubSystem>();
+}
+
+const TArray<FSagaVirtualUser>&
+USagaNetworkSubSystem::UpdatePlayerList()
+{
+	// TODO: UpdatePlayerList
+	//TAtomic<bool> a;
+	return everyUsers;
+}
+
+const TArray<FSagaVirtualRoom>&
+USagaNetworkSubSystem::UpdateRoomList()
+{
+	// TODO: UpdateRoomList
+	return everyRooms;
+}
+
+bool
 USagaNetworkSubSystem::IsSocketAvailable()
 const noexcept
 {
@@ -303,37 +287,4 @@ const noexcept
 	{
 		return false;
 	}
-}
-
-AActor*
-USagaNetworkSubSystem::CreatePlayableCharacter(UClass* type, const FTransform& transform)
-const
-{
-	if (type != nullptr)
-	{
-		FActorSpawnParameters setting{};
-		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Creating a playable character"));
-		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
-const TArray<FSagaVirtualUser>&
-USagaNetworkSubSystem::UpdatePlayerList()
-{
-	// TODO: UpdatePlayerList
-	//TAtomic<bool> a;
-	return everyUsers;
-}
-
-const TArray<FSagaVirtualRoom>&
-USagaNetworkSubSystem::UpdateRoomList()
-{
-	// TODO: UpdateRoomList
-	return everyRooms;
 }

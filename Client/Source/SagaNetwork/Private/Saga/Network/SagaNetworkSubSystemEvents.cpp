@@ -4,6 +4,7 @@
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkUtility.h"
+#include "Saga/Network/SagaNetworkWorker.h"
 #include "Character/SagaCharacterPlayer.h"
 #include "Character/SagaInGamePlayerController.h"
 #include "Player/SagaUserTeam.h"
@@ -76,7 +77,7 @@ USagaNetworkSubSystem::ConnectToServer_Implementation()
 	}
 
 	// #2
-	netWorker = MakeUnique<FSagaNetworkWorker>(this);
+	netWorker = new FSagaNetworkWorker{ this };
 	if (netWorker == nullptr)
 	{
 		UE_LOG(LogSagaNetwork, Error, TEXT("Has failed to create the worker thread."));
