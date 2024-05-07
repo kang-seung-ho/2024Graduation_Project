@@ -69,39 +69,38 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	void TerminateRide();
 
-protected:
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	int32 id;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int32 myId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	FVector walkDirection;
 
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isForwardWalking;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isStrafeWalking;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
 	UPROPERTY()
 	bool wasMoved; // 이동했는지 여부
 	UPROPERTY()
 	bool wasTilted; // 회전했는지 여부
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	FVector walkDirection;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	EUserTeam myTEAM;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	FVector preferedDirection;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	float mMoveDir;
+
 	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;
 
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	EUserTeam myTEAM;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	EPlayerWeapon mWeaponType;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	UCameraComponent* mCamera;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	USpringArmComponent* mArm;
 
 	class USagaPlayerAnimInstance* mAnimInst;

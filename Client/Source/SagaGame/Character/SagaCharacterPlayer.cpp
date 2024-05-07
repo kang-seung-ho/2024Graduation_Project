@@ -9,6 +9,13 @@
 
 // Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
+	: myId(-1)
+	, walkDirection(), preferedDirection()
+	, isForwardWalking(), isStrafeWalking()
+	, isRunning()
+	, wasMoved(), wasTilted()
+	, tranformUpdateTimer()
+
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

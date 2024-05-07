@@ -18,23 +18,37 @@ public:
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void Tick(float delta_time) override;
-	
-	void TriggerRideNPC(const FInputActionValue& Value);
-	void RideNPCCallFunction();
 
+	/* Getters */
+#pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
 	float GetMoveDir() const noexcept
 	{
 		return mMoveDir;
 	}
+#pragma endregion
 
+	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
 
 protected:
+	/* State Machines */
+#pragma region =========================
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
-	virtual void SetupInputComponent();
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void SetupInputComponent() override;
+#pragma endregion
 
+	/* Methods */
+#pragma region =========================
+	UFUNCTION()
+	void TriggerRideNPC(const FInputActionValue& Value);
+	UFUNCTION()
+	void RideNPCCallFunction();
+#pragma endregion
+
+	/* Events */
+#pragma region =========================
 	UFUNCTION()
 	void OnAttack(const FInputActionValue& Value);
 	UFUNCTION()
@@ -43,7 +57,10 @@ protected:
 	void OnUpdateTransform();
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
+#pragma endregion
 
+	/* Actions */
+#pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
 	void BeginForwardWalk(const FInputActionValue& Value);
 	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
@@ -78,12 +95,10 @@ protected:
 	void BeginRide();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	void EndRide();
+#pragma endregion
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
 	bool SendRpc(const ESagaRpcProtocol& rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
-	double GetNormalizedMoveDir() const noexcept;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool wasMoved;
@@ -91,13 +106,13 @@ protected:
 	bool wasTilted;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRiding;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	float mMoveDir;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	float mMoveDir;
 
 	/*UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;

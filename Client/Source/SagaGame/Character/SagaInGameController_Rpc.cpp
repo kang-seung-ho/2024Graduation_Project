@@ -1,5 +1,6 @@
 #include "SagaInGamePlayerController.h"
 #include "Character/SagaCharacterPlayer.h"
+#include "SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -120,13 +121,15 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Ride"));
+
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
 			
 			UWorld* World = GetWorld();
 			auto BearCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), user.remoteCharacter->GetActorLocation(), user.remoteCharacter->GetActorRotation(), SpawnParams));
 			
-			UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC][Remote] Begin Ride"));
+
 			if (IsValid(user.remoteCharacter))
 			{
 				user.remoteCharacter->Destroy();

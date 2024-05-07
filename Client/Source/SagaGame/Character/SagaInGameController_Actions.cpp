@@ -26,7 +26,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Walking Straight"));
 
-	walkDirection.Y = v.Get<FVector>().Y;
+	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
 	SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);

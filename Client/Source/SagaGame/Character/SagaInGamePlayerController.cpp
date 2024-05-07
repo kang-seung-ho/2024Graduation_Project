@@ -11,163 +11,39 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	: APlayerController(ObjectInitializer)
 	, wasMoved(), wasTilted()
 	, isRiding()
-	, walkDirection(), mMoveDir()
+	, walkDirection()
 	, tranformUpdateTimer()
+	, mMoveDir()
+	, OnRideNPC()
 {}
-
-
-
-void
-ASagaInGamePlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
-	ensure(Input);
-
-	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
-
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
-
-	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
-	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteJump);
-	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteRun);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::TerminateRun);
-	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
-
-
-	// �̺�Ʈ�� ��������Ʈ ���ε�
-	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
-}
 
 void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 {
 	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
-	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
+	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
+
 	if (ControlledCharacter)
 	{
 		ControlledCharacter->RideNPC();  // ���� ĳ������ �Լ� ȣ��
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
+		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
 	}
 }
 
 void ASagaInGamePlayerController::RideNPCCallFunction()
 {
 	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
-	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
+
+	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
 	if (ControlledCharacter)
 	{
 		ControlledCharacter->RideNPC();  // ���� ĳ������ �Լ� ȣ��
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
-	}
-}
-
-void
-ASagaInGamePlayerController::BeginRotation()
-{}
-
-void
-ASagaInGamePlayerController::EndRotation()
-{}
-
-void
-ASagaInGamePlayerController::ExecuteRotation(const FInputActionValue& Value)
-{
-	wasTilted = true;
-
-	const FVector InputValue = Value.Get<FVector>();
-
-	AddYawInput(InputValue.X);
-
-	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
-	if (ControlledPawn != nullptr)
-	{
-		ControlledPawn->RotationCameraArm(InputValue.Y);
-	}
-}
-
-void
-ASagaInGamePlayerController::TerminateRotation()
-{
-
-}
-
-void
-ASagaInGamePlayerController::BeginRide()
-{
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (nullptr != system and system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::EndRide()
-{
-	if constexpr (not saga::IsOfflineMode)
-	{
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (nullptr != system and system->GetLocalUserId() != -1)
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-		}
-	}
-}
-
-void ASagaInGamePlayerController::TerminateRide_Implementation()
-{
-
-}
-
-void
-ASagaInGamePlayerController::ExecuteRide_Implementation()
-{
-	
-}
-
-void
-ASagaInGamePlayerController::Tick(float delta_time)
-{
-	Super::Tick(delta_time);
-
-	UpdateMovement(delta_time);
-
-	if (isRunning)
-	{
-		ExecuteRun();
-	}
-
-	if (isForwardWalking || isStrafeWalking)
-	{
-		ExecuteWalk(delta_time);
-	}
-	else
-	{
-		TerminateWalk(delta_time);
+		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
 	}
 }
 
@@ -294,5 +170,8 @@ ASagaInGamePlayerController::SetupInputComponent()
 
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 
-	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRide);
+	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
+
+	// �̺�Ʈ�� ��������Ʈ ���ε�
+	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
 }
