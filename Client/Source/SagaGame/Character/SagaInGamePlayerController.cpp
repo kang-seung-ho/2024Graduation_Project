@@ -9,6 +9,8 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSettings.h"
 
+#include "SagaPlayableCharacter.h"
+
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
 	, isForwardWalking(), isStrafeWalking(), isRunning(), isRiding()
@@ -16,6 +18,8 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	, walkDirection(), preferedDirection()
 	, tranformUpdateTimer()
 {}
+
+
 
 void
 ASagaInGamePlayerController::SetupInputComponent()
@@ -37,7 +41,39 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::ExecuteRotation);
 	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ExecuteRun);
 	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::TerminateRun);
-	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRide);
+	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
+
+
+	// 이벤트에 델리게이트 바인딩
+	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
+}
+
+void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
+{
+	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
+	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
+	if (ControlledCharacter)
+	{
+		ControlledCharacter->RideNPC();  // 실제 캐릭터의 함수 호출
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
+	}
+}
+
+void ASagaInGamePlayerController::RideNPCCallFunction()
+{
+	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
+	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
+	if (ControlledCharacter)
+	{
+		ControlledCharacter->RideNPC();  // 실제 캐릭터의 함수 호출
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
+	}
 }
 
 void

@@ -1,5 +1,7 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaInGamePlayerController.h"
+#include "Character/SagaGummyBearPlayer.h"
 
 void
 USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
@@ -144,7 +146,20 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 		if (is_remote)
 		{
-			//character->ExecuteRide();
+			FVector Location = user.remoteCharacter->GetActorLocation();  // 기존 캐릭터의 위치
+			FRotator Rotation = user.remoteCharacter->GetActorRotation();  // 기존 캐릭터의 회전
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
+
+
+			UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC][Remote] Begin Ride"));
+			if (IsValid(user.remoteCharacter))
+			{
+				user.remoteCharacter->Destroy();
+			}
+			UWorld* World = GetWorld();
+			user.remoteCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), Location, Rotation, SpawnParams));
+
 		}
 	}
 	break;

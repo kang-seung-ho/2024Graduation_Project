@@ -2,9 +2,12 @@
 #include "SagaGame.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
-
 #include "../SagaGameInfo.h"
+
 #include "SagaInGamePlayerController.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRideNPCDelegate);
+
 
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
@@ -42,6 +45,10 @@ protected:
 
 public:
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	FOnRideNPCDelegate OnRideNPC;
+	void TriggerRideNPC(const FInputActionValue& Value);
+	void RideNPCCallFunction();
 
 	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
 	void OnAttack(const FInputActionValue& Value);

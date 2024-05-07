@@ -41,6 +41,20 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	//Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 }
 
+void ASagaPlayableCharacter::RideNPC()
+{
+	UE_LOG(LogTemp, Warning, TEXT("RideNPC Called"))
+	FOutputDeviceNull Ar;
+	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
+	if (ret == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RidingFunction Called"))
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("RidingFunction Not Found"))
+	}
+}
+
 void
 ASagaPlayableCharacter::BeginPlay()
 {

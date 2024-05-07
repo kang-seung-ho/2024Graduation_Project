@@ -11,6 +11,9 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 #include "SagaGame/Player/SagaUserTeam.h"
+
+#include "SagaGame/Character/SagaPlayableCharacter.h"
+
 #include "SagaNetworkSubSystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool, was_succeed);
@@ -302,6 +305,7 @@ public:
 	}
 
 
+
 private:
 	/* Internal Functions */
 #pragma region =========================
@@ -418,6 +422,20 @@ private:
 	/// <remarks>로컬 플레이어도 포함</remarks>
 	UPROPERTY()
 	TArray<FSagaVirtualUser> everyUsers;
+
+	void ChangeRemoteCharacter()
+	{
+		for (auto x : everyUsers)
+		{
+			if (x.MyID == GetLocalUserId())
+			{
+				delete x.StaticStruct();
+				new FSagaVirtualUser;
+
+			}
+		}
+	}
+	
 	UPROPERTY()
 	TArray<FSagaVirtualRoom> everyRooms;
 	TAtomic<bool> wasUsersUpdated;

@@ -5,6 +5,7 @@
 #include "../Item/SagaWeaponData.h"
 #include "../Interface/SagaCharacterItemInterface.h"
 #include "CharacterSelect/SagaSelectCharacter.h"
+#include "Misc/OutputDeviceNull.h"
 #include "SagaPlayableCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class USagaWeaponData*);
@@ -33,6 +34,11 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public 
 	
 public:
 	ASagaPlayableCharacter();
+	void RideNPC();
+
+public:
+	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
+	//void RidingFunction();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
