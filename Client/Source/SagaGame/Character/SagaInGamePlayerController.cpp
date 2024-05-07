@@ -5,6 +5,7 @@
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
+
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
@@ -24,7 +25,7 @@ void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 
 	if (ControlledCharacter)
 	{
-		ControlledCharacter->RideNPC();  // ���� ĳ������ �Լ� ȣ��
+		ControlledCharacter->RideNPC();
 	}
 	else
 	{
@@ -39,7 +40,7 @@ void ASagaInGamePlayerController::RideNPCCallFunction()
 	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
 	if (ControlledCharacter)
 	{
-		ControlledCharacter->RideNPC();  // ���� ĳ������ �Լ� ȣ��
+		ControlledCharacter->RideNPC();
 	}
 	else
 	{

@@ -1,6 +1,7 @@
 #include "SagaInGamePlayerController.h"
 
 #include "SagaCharacterPlayer.h"
+#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 
 void
@@ -18,7 +19,16 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+	}
 }
 
 void
@@ -29,7 +39,16 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->TerminateStraightWalk();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+	}
 }
 
 void
@@ -40,7 +59,16 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+	}
 }
 
 void
@@ -51,7 +79,16 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->TerminateStraightWalk();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+	}
 }
 
 void
@@ -59,7 +96,16 @@ ASagaInGamePlayerController::BeginRun()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] Begin Running"));
 
-	SendRpc(ESagaRpcProtocol::RPC_BEG_RUN);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->ExecuteRun();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_RUN);
+	}
 }
 
 void
@@ -67,7 +113,16 @@ ASagaInGamePlayerController::EndRun()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] End Running"));
 
-	SendRpc(ESagaRpcProtocol::RPC_END_RUN);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->TerminateRun();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_RUN);
+	}
 }
 
 void
@@ -75,7 +130,16 @@ ASagaInGamePlayerController::BeginJump()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] Begin Jumping"));
 
-	SendRpc(ESagaRpcProtocol::RPC_BEG_JUMP);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->ExecuteJump();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_JUMP);
+	}
 }
 
 void
@@ -83,7 +147,16 @@ ASagaInGamePlayerController::EndJump()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] End Jumping"));
 
-	SendRpc(ESagaRpcProtocol::RPC_END_JUMP);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+
+		character->TerminateJump();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_JUMP);
+	}
 }
 
 void
@@ -113,23 +186,51 @@ ASagaInGamePlayerController::EndRotate(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginAttack()
 {
-	SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+	}
 }
 
 void
 ASagaInGamePlayerController::EndAttack()
 {
-	SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
+	}
 }
 
 void
 ASagaInGamePlayerController::BeginRide()
 {
-	SendRpc(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
+	}
 }
 
 void
 ASagaInGamePlayerController::EndRide()
 {
-	SendRpc(ESagaRpcProtocol::RPC_END_RIDE, 0);
+	if constexpr (saga::IsOfflineMode)
+	{
+		auto character = GetPawn<ASagaCharacterPlayer>();
+	}
+	else
+	{
+		SendRpc(ESagaRpcProtocol::RPC_END_RIDE, 0);
+	}
 }

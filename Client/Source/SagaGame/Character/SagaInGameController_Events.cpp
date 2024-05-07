@@ -1,6 +1,6 @@
 #include "SagaInGamePlayerController.h"
-
 #include "SagaCharacterPlayer.h"
+
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaRpcProtocol.h"
