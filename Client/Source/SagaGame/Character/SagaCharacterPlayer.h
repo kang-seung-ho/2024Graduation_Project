@@ -5,6 +5,7 @@
 #include "../SagaGameInfo.h"
 #include "Saga/Network/SagaNetworkRpcView.h"
 #include "CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaCharacterPlayer.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -18,7 +19,6 @@ public:
 
 public:
 	int32 id;
-	int32 teamColor = 0;
 
 	bool isForwardWalking;
 	bool isStrafeWalking;
@@ -27,7 +27,10 @@ public:
 
 	FVector walkDirection;
 
-	void SetTeamColorAndCollision(int32 Team); //1 - red, 2 - blue
+	void SetTeamColorAndCollision();
+
+public:
+	EUserTeam myTEAM;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))

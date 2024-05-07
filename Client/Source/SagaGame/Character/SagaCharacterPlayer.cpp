@@ -12,6 +12,7 @@
 #include "SagaGummyBearPlayer.h"
 
 
+
 // Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 {
@@ -41,17 +42,17 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red")); //임시 설정
+	
 }
 
-void ASagaCharacterPlayer::SetTeamColorAndCollision(int32 Team)
+void ASagaCharacterPlayer::SetTeamColorAndCollision()
 {
-	teamColor = Team;
-	if (teamColor == 1)
+	
+	if (myTEAM == EUserTeam::Red)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 	}
-	else if (teamColor == 2)
+	else if (myTEAM == EUserTeam::Blue)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
 	}
@@ -70,8 +71,9 @@ void ASagaCharacterPlayer::BeginPlay()
 	mWeaponType = system->GetWeaponType();
 	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
 
-	//int team = system->GetTeam();
-	SetTeamColorAndCollision(1); //NetworkSubsystem에서 받아온 팀 색깔로 설정
+	system->GetLocalUserTeam(myTEAM);
+
+	SetTeamColorAndCollision(); //NetworkSubsystem에서 받아온 팀 색깔로 설정
 }
 
 void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
