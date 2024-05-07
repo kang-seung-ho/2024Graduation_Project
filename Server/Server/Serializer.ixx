@@ -11,7 +11,6 @@ module;
 export module Iconer.Utility.Serializer;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.Byte;
-import Iconer.Utility.File;
 export import <memory>;
 export import <string>;
 export import <string_view>;

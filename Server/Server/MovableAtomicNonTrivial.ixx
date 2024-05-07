@@ -8,7 +8,6 @@ module;
 export module Iconer.Utility.MovableAtomic:NonTrivial;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.Atomic;
-import Iconer.Utility.Annihilator;
 import :Storage;
 
 namespace iconer::util
