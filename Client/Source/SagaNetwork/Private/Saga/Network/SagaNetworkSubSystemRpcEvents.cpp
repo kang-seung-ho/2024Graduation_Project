@@ -146,20 +146,19 @@ USagaNetworkSubSystem::OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int6
 	{
 		if (is_remote)
 		{
-			FVector Location = user.remoteCharacter->GetActorLocation();  // 기존 캐릭터의 위치
-			FRotator Rotation = user.remoteCharacter->GetActorRotation();  // 기존 캐릭터의 회전
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
-
+			UWorld* World = GetWorld();
+			auto BearCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), user.remoteCharacter->GetActorLocation(), user.remoteCharacter->GetActorRotation(), SpawnParams));
+			
 
 			UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC][Remote] Begin Ride"));
 			if (IsValid(user.remoteCharacter))
 			{
 				user.remoteCharacter->Destroy();
 			}
-			UWorld* World = GetWorld();
-			user.remoteCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), Location, Rotation, SpawnParams));
 
+			user.remoteCharacter = BearCharacter;
 		}
 	}
 	break;
