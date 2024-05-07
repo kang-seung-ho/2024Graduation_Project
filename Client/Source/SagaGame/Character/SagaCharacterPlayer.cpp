@@ -1,26 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SagaCharacterPlayer.h"
 #include "SagaPlayerAnimInstance.h"
 #include "SagaGummyBearAnimInstance.h"
+#include "SagaPlayableCharacter.h"
+#include "SagaGummyBearPlayer.h"
 #include "../Item/SagaWeaponData.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-#include "SagaPlayableCharacter.h"
-#include "SagaGummyBearPlayer.h"
-
-
-
 // Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
-	if(MeshAsset.Succeeded())
+	if (MeshAsset.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
 	}
@@ -42,12 +36,11 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
 }
 
-void ASagaCharacterPlayer::SetTeamColorAndCollision()
+void
+ASagaCharacterPlayer::SetTeamColorAndCollision()
 {
-	
 	if (myTEAM == EUserTeam::Red)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
@@ -58,11 +51,11 @@ void ASagaCharacterPlayer::SetTeamColorAndCollision()
 	}
 }
 
-
-void ASagaCharacterPlayer::BeginPlay()
+void
+ASagaCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//이 함수 호출되기 전에 SkeletalMeshComponent에 지정된 AnimInstance 클래스 이용하여 사용하기 위한 객체 만들어놨음.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
@@ -76,51 +69,64 @@ void ASagaCharacterPlayer::BeginPlay()
 	SetTeamColorAndCollision(); //NetworkSubsystem에서 받아온 팀 색깔로 설정
 }
 
-void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void
+ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 }
 
-void ASagaCharacterPlayer::Attack()
+void
+ASagaCharacterPlayer::Tick(float delta_time)
 {
+	Super::Tick(delta_time);
 
-}
-
-void ASagaCharacterPlayer::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (isRunning)
+	// Accelerate toward to prefered direction
+	if (preferedDirection != walkDirection)
 	{
-		ExecuteRun();
+		// Acceleration delta
+		constexpr double scalar_delta = 100;
+
+		// Accelerate toward to the prefered direction
+		auto dir_delta = preferedDirection - walkDirection;
+		const auto dir_delta_size = dir_delta.Length();
+
+		// Make it unit vector
+		dir_delta.Normalize();
+
+		walkDirection += dir_delta * FMath::Min(dir_delta_size, scalar_delta * delta_time);
 	}
 
+	// Do walk
 	if (isForwardWalking || isStrafeWalking)
 	{
 		ExecuteWalk();
 	}
-	else
-	{
-		TerminateWalk();
-	}
-
 }
 
 // Called to bind functionality to input
-void ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void
+ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-float ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void
+ASagaCharacterPlayer::Attack()
+{
+
+}
+
+float
+ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	return DamageAmount;
 }
 
-void ASagaCharacterPlayer::PlayAttackAnimation()
+void
+ASagaCharacterPlayer::PlayAttackAnimation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Entered PlayAttackAnimation"));
 
@@ -158,55 +164,81 @@ void ASagaCharacterPlayer::PlayAttackAnimation()
 	}
 }
 
-
-void ASagaCharacterPlayer::RotationCameraArm(float Scale)
+void
+ASagaCharacterPlayer::ExecuteWalk()
 {
-	mArm->AddRelativeRotation(FRotator(Scale, 0.0, 0.0));
+	const FRotator rotation = K2_GetActorRotation();
+	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
+	const FVector forward_dir = yaw.Vector();
+	const FVector right_dir = FRotationMatrix(yaw).GetScaledAxis(EAxis::Y);
 
-	FRotator	Rot = mArm->GetRelativeRotation();
-
-	if (Rot.Pitch < -60.0)
-		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
-
-	else if (Rot.Pitch > 60.0)
-		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+	AddMovementInput(forward_dir, walkDirection.Y);
+	AddMovementInput(right_dir, walkDirection.X);
 }
 
-void ASagaCharacterPlayer::ExecuteRotation(FVector2D RotationInput)
+void
+ASagaCharacterPlayer::TerminateStraightWalk()
 {
-	// 2D 벡터를 3D 벡터로 변환하여 저장. Z 값은 0으로 설정
-	const FVector InputValue = FVector(RotationInput.X, RotationInput.Y, 0.0f);
+	isForwardWalking = false;
+	walkDirection.Y = 0;
+}
 
+void
+ASagaCharacterPlayer::TerminateStrafeWalk()
+{
+	isStrafeWalking = false;
+	walkDirection.X = 0;
+}
 
-	AddControllerYawInput(InputValue.X);
+void
+ASagaCharacterPlayer::ExecuteRun()
+{
+	// 달리기 시작할 때 속도를 높임
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+}
 
-	ASagaCharacterPlayer* ControlledPawn = this;
-	if (ControlledPawn != nullptr)
+void
+ASagaCharacterPlayer::TerminateRun()
+{
+	// 달리기를 멈췄을 때 속도를 원래대로 복원
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+}
+
+void
+ASagaCharacterPlayer::ExecuteJump_Implementation()
+{
+	if (CanJump())
 	{
-		ControlledPawn->RotationCameraArm(InputValue.Y);
+		Jump();
 	}
 }
 
-void ASagaCharacterPlayer::TerminateRotation()
+void
+ASagaCharacterPlayer::TerminateJump_Implementation()
+{}
+
+void
+ASagaCharacterPlayer::ExecuteAttack_Implementation()
 {
-	
+	/*PlayAttackAnimation();*/
 }
 
-void ASagaCharacterPlayer::ExecuteJump()
+void
+ASagaCharacterPlayer::TerminateAttack_Implementation()
 {
-	ASagaCharacterPlayer* ControlledPawn = this;
-	if (ControlledPawn != nullptr)
-	{
-		if (ControlledPawn->CanJump())
-		{
-			ControlledPawn->Jump();
-		}
-	}
+
 }
 
-void ASagaCharacterPlayer::TerminateJump()
+void
+ASagaCharacterPlayer::ExecuteRide_Implementation()
 {
-	
+
+}
+
+void
+ASagaCharacterPlayer::TerminateRide_Implementation()
+{
+
 }
 
 void
@@ -222,7 +254,7 @@ noexcept
 		isForwardWalking = false;
 	}
 
-	walkDirection.Y = direction;
+	preferedDirection.Y = static_cast<double>(direction);
 }
 
 void
@@ -238,92 +270,19 @@ noexcept
 		isStrafeWalking = false;
 	}
 
-	walkDirection.X = direction;
+	preferedDirection.X = static_cast<double>(direction);
 }
 
-void ASagaCharacterPlayer::ExecuteRun()
+void
+ASagaCharacterPlayer::RotationCameraArm(float Scale)
 {
-	ACharacter* MyCharacter = this;
-	if (MyCharacter)
-	{
-		// 달리기 시작할 때 속도를 높임
-		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	}
-}
+	mArm->AddRelativeRotation(FRotator(Scale, 0.0, 0.0));
 
-void ASagaCharacterPlayer::TerminateRun()
-{
-	ACharacter* MyCharacter = this;
-	if (MyCharacter)
-	{
-		// 달리기를 멈췄을 때 속도를 원래대로 복원
-		MyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-	}
+	FRotator Rot = mArm->GetRelativeRotation();
 
-}
+	if (Rot.Pitch < -60.0)
+		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
 
-void ASagaCharacterPlayer::ExecuteWalk()
-{
-	APawn* ControlledPawn = this;
-
-	const FRotator Rotation = K2_GetActorRotation();
-	const FRotator YawRotation = FRotator(0.0, Rotation.Yaw, 0.0);
-	const FVector ForwardVector = YawRotation.Vector();
-	const FVector RightVector = FRotationMatrix(YawRotation).GetScaledAxis(EAxis::Y);
-
-	ControlledPawn->AddMovementInput(ForwardVector, walkDirection.Y);
-	ControlledPawn->AddMovementInput(RightVector, walkDirection.X);
-
-	auto move_dir = walkDirection.X * 90.f;
-	if (walkDirection.Y > 0.f)
-	{
-		if (walkDirection.X < 0.f)
-		{
-			move_dir = -45.f;
-		}
-		else if (walkDirection.X > 0.f)
-		{
-			move_dir = 45.f;
-		}
-	}
-	else if (walkDirection.Y < 0.f)
-	{
-		if (walkDirection.X < 0.f)
-		{
-			move_dir = -135.f;
-		}
-		else if (walkDirection.X > 0.f)
-		{
-			move_dir = 135.f;
-		}
-		else
-		{
-			move_dir = 180.f;
-		}
-	}
-}
-
-void ASagaCharacterPlayer::TerminateWalk()
-{
-	
-}
-
-void ASagaCharacterPlayer::ExecuteAttack()
-{
-	/*PlayAttackAnimation();*/
-}
-
-void ASagaCharacterPlayer::TerminateAttack()
-{
-
-}
-
-void ASagaCharacterPlayer::ExecuteRide_Implementation()
-{
-
-}
-
-void ASagaCharacterPlayer::TerminateRide_Implementation()
-{
-
+	else if (Rot.Pitch > 60.0)
+		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
 }

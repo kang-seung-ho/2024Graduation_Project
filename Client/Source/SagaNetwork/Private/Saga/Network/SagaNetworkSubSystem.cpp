@@ -24,6 +24,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
 	, receivedDataLock()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
+	, localPlayerCharacter(), localPlayerController()
 	, localPlayerClassReference(), dummyPlayerClassReference()
 {
 	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));

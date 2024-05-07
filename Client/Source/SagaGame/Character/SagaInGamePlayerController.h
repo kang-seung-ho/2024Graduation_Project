@@ -2,8 +2,8 @@
 #include "SagaGame.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
-#include "../SagaGameInfo.h"
 
+#include "../SagaGameInfo.h"
 #include "SagaInGamePlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRideNPCDelegate);
@@ -14,27 +14,89 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	bool isForwardWalking;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	bool isStrafeWalking;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	bool isRunning;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	bool isRiding;
-	UPROPERTY()
-	bool wasMoved; // 이동했는지 여부
-	UPROPERTY()
-	bool wasTilted; // 회전했는지 여부
+public:
+	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	virtual void Tick(float delta_time) override;
+	
+	void TriggerRideNPC(const FInputActionValue& Value);
+	void RideNPCCallFunction();
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
+	float GetMoveDir() const noexcept
+	{
+		return mMoveDir;
+	}
+
+	FOnRideNPCDelegate OnRideNPC;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	virtual void SetupInputComponent();
+
+	UFUNCTION()
+	void OnAttack(const FInputActionValue& Value);
+	UFUNCTION()
+	void OnGameStarted();
+	UFUNCTION()
+	void OnUpdateTransform();
+	UFUNCTION()
+	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void BeginForwardWalk(const FInputActionValue& Value);
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndForwardWalk(const FInputActionValue& Value);
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void BeginStrafeWalk(const FInputActionValue& Value);
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndStrafeWalk(const FInputActionValue& Value);
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void BeginRun();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndRun();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void BeginJump();
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndJump();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void BeginRotate(const FInputActionValue& input);
+	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndRotate(const FInputActionValue& input);
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void BeginAttack();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void EndAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void BeginRide();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	void EndRide();
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
+	bool SendRpc(const ESagaRpcProtocol& rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
+	double GetNormalizedMoveDir() const noexcept;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool wasMoved;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool wasTilted;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRiding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	FVector preferedDirection;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	float mMoveDir;
-	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;
 
 	/*UPROPERTY(VisibleAnywhere)
@@ -42,94 +104,4 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* mArm;*/
-
-public:
-	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	FOnRideNPCDelegate OnRideNPC;
-	void TriggerRideNPC(const FInputActionValue& Value);
-	void RideNPCCallFunction();
-
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
-	void OnAttack(const FInputActionValue& Value);
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
-	void OnGameStarted();
-	UFUNCTION(meta = (BlueprintInternalUseOnly, NotBlueprintThreadSafe))
-	void OnUpdateTransform();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginForwardWalk(const FInputActionValue& Value);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndForwardWalk(const FInputActionValue& Value);
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void BeginStrafeWalk(const FInputActionValue& Value);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	virtual void EndStrafeWalk(const FInputActionValue& Value);
-
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void UpdateMovement(const float& delta_time);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void ExecuteWalk(const float& delta_time);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void TerminateWalk(const float& delta_time);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void BeginRun();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void EndRun();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteRun();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateRun();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void BeginJump();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void EndJump();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteJump();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateJump();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void BeginRotation();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void EndRotation();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteRotation(const FInputActionValue& Value);
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateRotation();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void BeginAttack();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void EndAttack();
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteAttack() {}
-	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateAttack() {};
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void BeginRide();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void EndRide();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void ExecuteRide();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-	void TerminateRide();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
-	float GetMoveDir() const noexcept
-	{
-		return mMoveDir;
-	}
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
-	double GetNormalizedMoveDir() const noexcept;
-
-	virtual void Tick(float delta_time) override;
-
-protected:
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
-	virtual void SetupInputComponent();
 };

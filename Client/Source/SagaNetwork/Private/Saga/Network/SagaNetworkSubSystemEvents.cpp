@@ -123,6 +123,7 @@ USagaNetworkSubSystem::OnStartGame_Implementation()
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnStartGame] Cannot find the local player's controller."));
 		return;
 	}
+	localPlayerController = controller;
 
 	auto my_pawn = controller->GetPawn();
 	if (nullptr == my_pawn)

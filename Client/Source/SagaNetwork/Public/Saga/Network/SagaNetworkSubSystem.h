@@ -446,5 +446,7 @@ private:
 	UPROPERTY()
 	TSoftClassPtr<class ASagaCharacterPlayer> dummyPlayerClassReference;
 	UPROPERTY()
+	TObjectPtr<APlayerController> localPlayerController;
+	UPROPERTY()
 	TObjectPtr<APawn> localPlayerCharacter;
 };

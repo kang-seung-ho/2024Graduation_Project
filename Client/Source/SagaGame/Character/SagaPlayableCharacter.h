@@ -66,8 +66,6 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character");
-	bool isRiding = false;
 
 public:
 	// 데미지 처리를 위해 오버라이드

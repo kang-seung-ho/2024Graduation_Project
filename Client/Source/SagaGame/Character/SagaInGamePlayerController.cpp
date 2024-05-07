@@ -6,16 +6,12 @@
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Saga/Network/SagaRpcProtocol.h"
-#include "Saga/Network/SagaNetworkSettings.h"
-
-#include "SagaPlayableCharacter.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
-	, isForwardWalking(), isStrafeWalking(), isRunning(), isRiding()
 	, wasMoved(), wasTilted()
-	, walkDirection(), preferedDirection()
+	, isRiding()
+	, walkDirection(), mMoveDir()
 	, tranformUpdateTimer()
 {}
 
@@ -44,7 +40,7 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
 
 
-	// ÀÌº¥Æ®¿¡ µ¨¸®°ÔÀÌÆ® ¹ÙÀÎµù
+	// ï¿½Ìºï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Îµï¿½
 	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
 }
 
@@ -54,7 +50,7 @@ void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
 	if (ControlledCharacter)
 	{
-		ControlledCharacter->RideNPC();  // ½ÇÁ¦ Ä³¸¯ÅÍÀÇ ÇÔ¼ö È£Ãâ
+		ControlledCharacter->RideNPC();  // ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
 	}
 	else
 	{
@@ -68,7 +64,7 @@ void ASagaInGamePlayerController::RideNPCCallFunction()
 	UE_LOG(LogTemp, Warning, TEXT("TriggerRideNPC"));
 	if (ControlledCharacter)
 	{
-		ControlledCharacter->RideNPC();  // ½ÇÁ¦ Ä³¸¯ÅÍÀÇ ÇÔ¼ö È£Ãâ
+		ControlledCharacter->RideNPC();  // ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
 	}
 	else
 	{
@@ -208,10 +204,11 @@ ASagaInGamePlayerController::BeginPlay()
 	if (nullptr != system and system->GetLocalUserId() != -1)
 	{
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
+		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		UE_LOG(LogSagaGame, Error, TEXT("Network subsystem is not ready."));
 	}
 }
 
@@ -224,7 +221,78 @@ ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 void
-ASagaInGamePlayerController::OnGameStarted()
+ASagaInGamePlayerController::Tick(float delta_time)
 {
-	GetWorldTimerManager().SetTimer(tranformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 1.00f, true, 5.0f);
+	Super::Tick(delta_time);
+
+	// Update animation's factor value
+	auto pawn = GetPawn();
+	if (nullptr == pawn)
+	{
+		return;
+	}
+
+	auto character = Cast<ASagaCharacterPlayer>(pawn);
+	if (not IsValid(character))
+	{
+		return;
+	}
+
+	const auto& walk_dir = character->walkDirection;
+
+	mMoveDir = walk_dir.X * 90.f;
+	if (walk_dir.Y > 0.f)
+	{
+		if (walk_dir.X < 0.f)
+		{
+			mMoveDir = -45.f;
+		}
+		else if (walk_dir.X > 0.f)
+		{
+			mMoveDir = 45.f;
+		}
+	}
+	else if (walk_dir.Y < 0.f)
+	{
+		if (walk_dir.X < 0.f)
+		{
+			mMoveDir = -135.f;
+		}
+		else if (walk_dir.X > 0.f)
+		{
+			mMoveDir = 135.f;
+		}
+		else
+		{
+			mMoveDir = 180.f;
+		}
+	}
+}
+
+void
+ASagaInGamePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+	ensure(Input);
+
+	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
+
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
+
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
+
+	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
+
+	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
+	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRotate);
+
+	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
+
+	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRide);
 }
