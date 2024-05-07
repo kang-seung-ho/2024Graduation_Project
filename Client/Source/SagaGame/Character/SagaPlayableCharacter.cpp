@@ -67,6 +67,20 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	myClientHP -= DamageAmount;
+
+	if (myClientHP <= 0.0f)
+	{
+		//사망애니메이션 실행
+
+
+		//리스폰 함수 실행
+	}
+	return DamageAmount;
+}
+
 
 void
 ASagaPlayableCharacter::Tick(float DeltaTime)
@@ -78,7 +92,7 @@ void
 ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
-
+	myTEAM = EUserTeam::Red; //Code For Client Test
 	if (mWeaponType == EPlayerWeapon::LightSabor)
 	{
 		//공격과 충돌되는 물체 여부 판단
@@ -93,11 +107,13 @@ ASagaPlayableCharacter::Attack()
 		bool Collision;
 		if (myTEAM == EUserTeam::Red)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Using Red Team Collision - LightSaber"))
 			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 		}
 		else if (myTEAM == EUserTeam::Blue)
 		{
-			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel5, FCollisionShape::MakeSphere(50.f), param);
+			UE_LOG(LogTemp, Warning, TEXT("Using Blue Team Collision - LightSaber"))
+			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
 		}
 		else
 		{
@@ -131,34 +147,55 @@ ASagaPlayableCharacter::Attack()
 	}
 	else if (mWeaponType == EPlayerWeapon::WaterGun)
 	{
-		FHitResult Hit;
+		FHitResult Result;
 
-		// We set up a line trace from our current location to a point 1000cm ahead of us
 		FVector TraceStart = GetActorLocation();
-		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1000.0f;
+		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1500.0f;
 
-		// You can use FCollisionQueryParams to further configure the query
-		// Here we add ourselves to the ignored list so we won't block the trace
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
+		bool Collision;
+		if (myTEAM == EUserTeam::Red)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Using Red Team Collision - WaterGun"))
+			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
+		}
+		else if (myTEAM == EUserTeam::Blue)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Using Blue Team Collision - WaterGun"))
+			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
+		}
+		
 
-		// To run the query, you need a pointer to the current level, which you can get from an Actor with GetWorld()
-		// UWorld()->LineTraceSingleByChannel runs a line trace and returns the first actor hit over the provided collision channel.
-		GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
-
-		// You can use DrawDebug helpers and the log to help visualize and debug your trace queries.
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Result.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
 		UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
 
-		// If the trace hit something, bBlockingHit will be true,
-		// and its fields will be filled with detailed info about what was hit
-		if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
+		if (Result.bBlockingHit && IsValid(Result.GetActor()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
 		}
 		else {
 			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
 		}
+
+		if (Collision)
+		{
+			FDamageEvent DamageEvent;
+			Result.GetActor()->TakeDamage(20.f, DamageEvent, GetController(), this);
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
+			if (Effect)
+			{
+				Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
+				Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
+			}
+			
+		}
+
 	}
 	else if (mWeaponType == EPlayerWeapon::Hammer)
 	{

@@ -9,7 +9,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
 	}
 
-	GetCapsuleComponent()->SetCapsuleSize(42.0f, 96.0f);
+	GetCapsuleComponent()->SetCapsuleSize(90.0f, 96.0f);
 	SetRootComponent(GetCapsuleComponent());
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

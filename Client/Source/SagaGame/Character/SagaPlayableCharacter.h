@@ -49,6 +49,7 @@ public:
 
 protected:
 	EItemType mItemType;
+	float myClientHP = 100.0f;
 
 protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
@@ -59,6 +60,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
+
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> Weapon;
@@ -66,6 +68,10 @@ protected:
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character");
 	bool isRiding = false;
+
+public:
+	// 데미지 처리를 위해 오버라이드
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 //public:
 //	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
