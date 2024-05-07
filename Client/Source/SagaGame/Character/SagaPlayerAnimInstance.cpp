@@ -94,7 +94,7 @@ void USagaPlayerAnimInstance::AnimNotify_Attack()
 	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
 	if (IsValid(PlayerCharacter))
 	{
-		PlayerCharacter->SwordAttack();
+		PlayerCharacter->Attack();
 	}
 }
 

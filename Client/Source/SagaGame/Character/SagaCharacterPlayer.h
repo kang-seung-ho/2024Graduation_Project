@@ -27,7 +27,7 @@ public:
 
 	FVector walkDirection;
 
-	void SetTeamColorAndCollision(int16 Team); //1�̸� ����, 2�̸� ����
+	void SetTeamColorAndCollision(int32 Team); //1 - red, 2 - blue
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
@@ -48,7 +48,7 @@ protected:
 
 
 public:
-	virtual void SwordAttack();
+	virtual void Attack();
 
 
 

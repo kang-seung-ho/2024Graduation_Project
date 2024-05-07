@@ -41,10 +41,10 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red")); //임시 설정
 }
 
-void ASagaCharacterPlayer::SetTeamColorAndCollision(int16 Team)
+void ASagaCharacterPlayer::SetTeamColorAndCollision(int32 Team)
 {
 	teamColor = Team;
 	if (teamColor == 1)
@@ -69,6 +69,9 @@ void ASagaCharacterPlayer::BeginPlay()
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	mWeaponType = system->GetWeaponType();
 	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
+
+	//int team = system->GetTeam();
+	SetTeamColorAndCollision(1); //NetworkSubsystem에서 받아온 팀 색깔로 설정
 }
 
 void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -76,7 +79,7 @@ void ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ASagaCharacterPlayer::SwordAttack()
+void ASagaCharacterPlayer::Attack()
 {
 
 }

@@ -24,11 +24,17 @@ ASagaCharacterSelectController::ASagaCharacterSelectController()
 	{
 		mSelectWidgetClass = WidgetClass.Class;
 	}
+
 }
+
+
 
 void ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaCharacterSelectController::CountDown, 1.0f, true, 0.0);
+
 
 	if (IsValid(mSelectWidgetClass))
 	{
@@ -47,6 +53,29 @@ void ASagaCharacterSelectController::BeginPlay()
 
 	const USagaCharacterSelectInputSystem* InputSystem = GetDefault<USagaCharacterSelectInputSystem>();
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
+
+}
+
+void ASagaCharacterSelectController::CountDown()
+{
+	if (Seconds != 0)
+	{
+		Seconds = Seconds - 1;
+	}
+	else
+	{
+		if (Minutes == 0 && Seconds == 0)
+		{
+			// 게임 시작(레벨전환) + 서버에게 게임 시작을 알림
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
+			UE_LOG(LogTemp, Warning, TEXT("Game Start"));
+		}
+		else
+		{
+			Minutes = Minutes - 1;
+			Seconds = 59;
+		}
+	}
 }
 
 void ASagaCharacterSelectController::SetupInputComponent()

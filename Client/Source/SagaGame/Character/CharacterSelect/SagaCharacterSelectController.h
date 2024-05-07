@@ -17,6 +17,14 @@ class SAGAGAME_API ASagaCharacterSelectController : public APlayerController
 public:
 	ASagaCharacterSelectController();
 
+public:
+	bool isStartButtonClicked = false;
+
+	bool getStartButtonStatus()
+	{
+		return isStartButtonClicked;
+	}
+
 protected:
 	AActor* mUnderCursorActor;
 	AActor* mSelectActor;
@@ -29,6 +37,14 @@ public:
 	{
 		return mSelectActor;
 	}
+
+public:
+	void CountDown();
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 Minutes = 0;
+	UPROPERTY(BlueprintReadOnly)
+	int32 Seconds = 30;
 	
 protected:
 	// Called when the game starts or when spawned

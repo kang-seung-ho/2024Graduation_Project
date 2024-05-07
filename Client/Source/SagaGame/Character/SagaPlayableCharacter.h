@@ -39,7 +39,7 @@ public:
 
 	constexpr EPlayerWeapon GetWeaponType() const noexcept { return mWeaponType; }
 
-	virtual void SwordAttack();
+	virtual void Attack();
 
 protected:
 	EItemType mItemType;

@@ -12,6 +12,8 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
 public:
 	ASagaGummyBearPlayer();
 
+	virtual void Attack();
+
 protected:
 	// 오버랩 박스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

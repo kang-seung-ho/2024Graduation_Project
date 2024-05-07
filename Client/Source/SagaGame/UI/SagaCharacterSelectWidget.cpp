@@ -2,6 +2,7 @@
 
 
 #include "SagaCharacterSelectWidget.h"
+#include "Character/CharacterSelect/SagaCharacterSelectController.h"
 
 void USagaCharacterSelectWidget::NativeConstruct()
 {
@@ -20,8 +21,6 @@ void USagaCharacterSelectWidget::StartButtonClick()
 {
 
 	//서버로 보내는 함수 추가
-
-
 
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
 }
