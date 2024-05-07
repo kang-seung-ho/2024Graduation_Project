@@ -1,10 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SagaCharacterSelectWidget.h"
 #include "Character/CharacterSelect/SagaCharacterSelectController.h"
 
-void USagaCharacterSelectWidget::NativeConstruct()
+void
+USagaCharacterSelectWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
@@ -12,20 +10,22 @@ void USagaCharacterSelectWidget::NativeConstruct()
 	mStartButton->OnClicked.AddDynamic(this, &USagaCharacterSelectWidget::StartButtonClick);
 }
 
-void USagaCharacterSelectWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void
+USagaCharacterSelectWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void USagaCharacterSelectWidget::StartButtonClick()
+void
+USagaCharacterSelectWidget::StartButtonClick()
 {
-
-	//¼­¹ö·Î º¸³»´Â ÇÔ¼ö Ãß°¡
+	//ì„œë²„ë¡œ ë³´ë‚´ëŠ” í•¨ìˆ˜ ì¶”ê°€
 
 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
 }
 
-void USagaCharacterSelectWidget::StartButtonEnable(bool bEnable)
+void 
+SagaCharacterSelectWidget::StartButtonEnable(bool bEnable)
 {
 	mStartButton->SetIsEnabled(bEnable);
 }

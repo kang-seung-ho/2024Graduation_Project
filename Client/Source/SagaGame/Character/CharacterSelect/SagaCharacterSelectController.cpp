@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SagaCharacterSelectController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -27,9 +24,8 @@ ASagaCharacterSelectController::ASagaCharacterSelectController()
 
 }
 
-
-
-void ASagaCharacterSelectController::BeginPlay()
+void
+ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
 	FTimerHandle TimerHandle;
@@ -56,7 +52,8 @@ void ASagaCharacterSelectController::BeginPlay()
 
 }
 
-void ASagaCharacterSelectController::CountDown()
+void
+ASagaCharacterSelectController::CountDown()
 {
 	if (Seconds != 0)
 	{
@@ -66,7 +63,7 @@ void ASagaCharacterSelectController::CountDown()
 	{
 		if (Minutes == 0 && Seconds == 0)
 		{
-			// °ÔÀÓ ½ÃÀÛ(·¹º§ÀüÈ¯) + ¼­¹ö¿¡°Ô °ÔÀÓ ½ÃÀÛÀ» ¾Ë¸²
+			// ê²Œì„ ì‹œì‘(ë ˆë²¨ì „í™˜) + ì„œë²„ì—ê²Œ ê²Œì„ ì‹œì‘ì„ ì•Œë¦¼
 			UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
 			UE_LOG(LogTemp, Warning, TEXT("Game Start"));
 		}
@@ -78,7 +75,8 @@ void ASagaCharacterSelectController::CountDown()
 	}
 }
 
-void ASagaCharacterSelectController::SetupInputComponent()
+void
+ASagaCharacterSelectController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
@@ -90,7 +88,8 @@ void ASagaCharacterSelectController::SetupInputComponent()
 	Input->BindAction(InputSystem->Click, ETriggerEvent::Completed, this, &ASagaCharacterSelectController::OnClick);
 }
 
-void ASagaCharacterSelectController::Tick(float DeltaTime)
+void
+ASagaCharacterSelectController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -121,7 +120,7 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 			mSelectWidget->StartButtonEnable(true);
 
-			// ¹«±â À¯Çü¿¡ µû¶ó ¼­¹öÀü¼Û Ã³¸®¸¦ ¼öÇà
+			// ë¬´ê¸° ìœ í˜•ì— ë”°ë¼ ì„œë²„ì „ì†¡ ì²˜ë¦¬ë¥¼ ìˆ˜í–‰
 			FString WeaponName = TEXT("Unknown");
 			auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 			switch (WeaponType)

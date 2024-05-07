@@ -68,7 +68,7 @@ protected:
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
 
 public:
-	// µ¥¹ÌÁö Ã³¸®¸¦ À§ÇØ ¿À¹ö¶óÀÌµå
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 //public:
