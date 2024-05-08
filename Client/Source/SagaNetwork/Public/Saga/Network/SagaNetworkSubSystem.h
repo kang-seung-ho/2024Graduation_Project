@@ -307,6 +307,36 @@ public:
 		return CurrentMode;
 	}
 
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 RedTeamScore = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 BlueTeamScore = 0;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetRedTeamScore() const
+	{
+		return RedTeamScore;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetBlueTeamScore() const
+	{
+		return BlueTeamScore;
+	}
+
+	void AddScore(EUserTeam team, int32 score)
+	{
+		if (team == EUserTeam::Red)
+		{
+			RedTeamScore += score;
+		}
+		else
+		{
+			BlueTeamScore += score;
+		}
+	}
+
 private:
 	/* Internal Functions */
 #pragma region =========================

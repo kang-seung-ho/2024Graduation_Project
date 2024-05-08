@@ -32,6 +32,10 @@ public:
 	FOnRideNPCDelegate OnRideNPC;
 
 protected:
+	TSubclassOf<UUserWidget> mTeamScoreBoardClass;
+	class UUserWidget* mTeamScoreBoard;
+
+protected:
 	/* State Machines */
 #pragma region =========================
 	virtual void BeginPlay() override;

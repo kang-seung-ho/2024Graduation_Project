@@ -7,6 +7,7 @@
 #include "SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "Blueprint/UserWidget.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
@@ -16,7 +17,16 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	, tranformUpdateTimer()
 	, mMoveDir()
 	, OnRideNPC()
-{}
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
+
+	if (WidgetClass.Succeeded())
+	{
+		mTeamScoreBoardClass = WidgetClass.Class;
+	}
+
+
+}
 
 void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 {
@@ -89,6 +99,17 @@ ASagaInGamePlayerController::BeginPlay()
 	else
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("Network subsystem is not ready."));
+	}
+
+
+	if (IsValid(mTeamScoreBoardClass))
+	{
+		mTeamScoreBoard = CreateWidget<UUserWidget>(GetWorld(), mTeamScoreBoardClass);
+
+		if (IsValid(mTeamScoreBoard))
+		{
+			mTeamScoreBoard->AddToViewport();
+		}
 	}
 }
 
