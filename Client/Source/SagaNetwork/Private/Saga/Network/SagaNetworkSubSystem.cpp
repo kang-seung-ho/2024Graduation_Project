@@ -374,6 +374,13 @@ USagaNetworkSubSystem::UpdateRoomList()
 }
 
 bool
+USagaNetworkSubSystem::IsOfflineMode()
+noexcept
+{
+	return saga::IsOfflineMode;
+}
+
+bool
 USagaNetworkSubSystem::IsSocketAvailable()
 const noexcept
 {

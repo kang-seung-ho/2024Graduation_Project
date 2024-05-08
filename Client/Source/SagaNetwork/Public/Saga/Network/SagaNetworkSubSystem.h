@@ -171,6 +171,9 @@ public:
 	const TArray<FSagaVirtualUser>& UpdatePlayerList();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
 	const TArray<FSagaVirtualRoom>& UpdateRoomList();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network", CallInEditor)
+	static bool IsOfflineMode() noexcept;
 #pragma endregion
 
 	/* Packet Senders */
@@ -303,8 +306,6 @@ public:
 		{
 		return CurrentMode;
 	}
-
-
 
 private:
 	/* Internal Functions */
