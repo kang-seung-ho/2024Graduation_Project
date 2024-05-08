@@ -25,7 +25,7 @@ USagaCharacterSelectWidget::StartButtonClick()
 }
 
 void 
-SagaCharacterSelectWidget::StartButtonEnable(bool bEnable)
+USagaCharacterSelectWidget::StartButtonEnable(bool bEnable)
 {
 	mStartButton->SetIsEnabled(bEnable);
 }

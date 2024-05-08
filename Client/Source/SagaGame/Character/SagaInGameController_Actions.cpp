@@ -16,6 +16,8 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Walking Straight"));
 
+	auto dir = input.Get<FVector>();
+
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
@@ -24,6 +26,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -43,7 +46,8 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->TerminateStraightWalk();
+		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -63,6 +67,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
+		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
 		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
@@ -83,7 +88,8 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->TerminateStraightWalk();
+		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{

@@ -82,6 +82,8 @@ ASagaInGamePlayerController::BeginPlay()
 	{
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
+
+		system->SendGameIsLoadedPacket();
 	}
 	else
 	{

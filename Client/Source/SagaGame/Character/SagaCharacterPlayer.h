@@ -16,9 +16,6 @@ public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
 
-	//1 - red, 2 - blue
-	void SetTeamColorAndCollision(int32 Team);
-
 	virtual void Attack();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
