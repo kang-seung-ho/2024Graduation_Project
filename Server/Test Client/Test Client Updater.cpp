@@ -36,7 +36,7 @@ test::Update()
 					// CS_GAME_START
 					if (auto sr = SendGameStartPacket(); not sr.has_value())
 					{
-						std::println("`SendGameStartPacket` error: {}", sr.error());
+						std::println("`SendGameStartPacket` error: {}", static_cast<int>(sr.error()));
 						return 4;
 					}
 				}
@@ -45,7 +45,7 @@ test::Update()
 					// CS_GAME_LOADED
 					if (auto sr = SendGameIsLoadedPacket(); not sr.has_value())
 					{
-						std::println("`SendGameIsLoadedPacket` error: {}", sr.error());
+						std::println("`SendGameIsLoadedPacket` error: {}", static_cast<int>(sr.error()));
 						return 4;
 					}
 				}
@@ -53,7 +53,7 @@ test::Update()
 				{
 					if (auto sr = SendRequestVersionPacket(); not sr.has_value())
 					{
-						std::println("`SendRequestVersionPacket` error: {}", sr.error());
+						std::println("`SendRequestVersionPacket` error: {}", static_cast<int>(sr.error()));
 						return 5;
 					}
 				}
@@ -61,7 +61,7 @@ test::Update()
 				{
 					if (auto sr = SendRequestRoomsPacket(); not sr.has_value())
 					{
-						std::println("`SendRequestRoomsPacket` error: {}", sr.error());
+						std::println("`SendRequestRoomsPacket` error: {}", static_cast<int>(sr.error()));
 						return 5;
 					}
 				}
@@ -69,7 +69,7 @@ test::Update()
 				{
 					if (auto sr = SendRequestMembersPacket(); not sr.has_value())
 					{
-						std::println("`SendRequestMembersPacket` error: {}", sr.error());
+						std::println("`SendRequestMembersPacket` error: {}", static_cast<int>(sr.error()));
 						return 5;
 					}
 				}
@@ -77,7 +77,7 @@ test::Update()
 				{
 					if (auto sr = SendCreateRoomPacket(L"Test Room"); not sr.has_value())
 					{
-						std::println("`SendCreateRoomPacket` error: {}", sr.error());
+						std::println("`SendCreateRoomPacket` error: {}", static_cast<int>(sr.error()));
 						return 3;
 					}
 				}
@@ -85,7 +85,7 @@ test::Update()
 				{
 					if (auto sr = SendJoinRoomPacket(test_room_id); not sr.has_value())
 					{
-						std::println("`SendJoinRoomPacket` error: {}", sr.error());
+						std::println("`SendJoinRoomPacket` error: {}", static_cast<int>(sr.error()));
 						return 3;
 					}
 				}
@@ -93,7 +93,7 @@ test::Update()
 				{
 					if (auto sr = SendLeaveRoomPacket(); not sr.has_value())
 					{
-						std::println("`SendLeaveRoomPacket` error: {}", sr.error());
+						std::println("`SendLeaveRoomPacket` error: {}", static_cast<int>(sr.error()));
 						return 3;
 					}
 				}

@@ -1,20 +1,15 @@
-module;
-#include <type_traits>
-#include <utility>
-
 export module Iconer.Utility.MovableAtomic;
 import Iconer.Utility.Constraints;
 import :Trivial;
-import :NonTrivial;
+//import :NonTrivial;
 
 export namespace iconer::util
 {
-	template<typename T>
-	class MovableAtomic final
-		: public conditional_t<trivials<T>, MovableAtomicImplTrivial<T>, MovableAtomicImplNonTrivial<T>>
+	template<trivials T>
+	class MovableAtomic final : public MovableAtomicImplTrivial<T>
 	{
 	public:
-		using Super = conditional_t<trivials<T>, MovableAtomicImplTrivial<T>, MovableAtomicImplNonTrivial<T>>;
+		using Super = MovableAtomicImplTrivial<T>;
 		using value_type = Super::value_type;
 
 		using Super::Super;

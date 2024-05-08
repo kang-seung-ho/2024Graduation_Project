@@ -1,7 +1,6 @@
 export module Iconer.Net.ErrorCode;
 import <cstdint>;
 import <string>;
-import <format>;
 
 export namespace iconer::net
 {
@@ -336,37 +335,3 @@ export namespace std
 		}
 	}
 }
-
-export template<>
-struct std::formatter<iconer::net::ErrorCode, char>
-{
-	static constexpr
-		format_parse_context::iterator
-		parse(format_parse_context& context)
-	{
-		return context.begin();
-	}
-
-	static format_context::iterator
-		format(iconer::net::ErrorCode code, format_context& context)
-	{
-		return std::format_to(context.out(), "{}", to_string(code));
-	}
-};
-
-export template<>
-struct std::formatter<iconer::net::ErrorCode, wchar_t>
-{
-	static constexpr
-		wformat_parse_context::iterator
-		parse(wformat_parse_context& context)
-	{
-		return context.begin();
-	}
-
-	static wformat_context::iterator
-		format(iconer::net::ErrorCode code, wformat_context& context)
-	{
-		return std::format_to(context.out(), L"{}", to_wstring(code));
-	}
-};

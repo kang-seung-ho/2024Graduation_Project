@@ -12,6 +12,7 @@ import <cstdint>;
 import <expected>;
 import <optional>;
 import <utility>;
+import <memory>;
 import <span>;
 
 export namespace iconer::net

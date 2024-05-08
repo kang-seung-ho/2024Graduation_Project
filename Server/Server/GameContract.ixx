@@ -1,9 +1,10 @@
+module;
+#include <cstdint>
+#include <string>
+#include <string_view>
+
 export module Iconer.Application.GameContract;
 import Iconer.Utility.Constraints;
-import <cstdint>;
-import <string>;
-import <string_view>;
-import <format>;
 
 export namespace iconer::app
 {
@@ -60,59 +61,3 @@ export namespace std
 		}
 	}
 }
-
-export template<>
-struct std::formatter<iconer::app::GameContract, char>
-{
-	static constexpr format_parse_context::iterator
-		parse(format_parse_context& context)
-	{
-		return context.begin();
-	}
-
-	static format_context::iterator
-		format(iconer::app::GameContract ctr, format_context& context)
-	{
-		using enum iconer::app::GameContract;
-		switch (ctr)
-		{
-			case Unknown: return std::format_to(context.out(), "{}", "Unknown");
-			case NotInRoom: return std::format_to(context.out(), "{}", "The client is not in a room");
-			case ClientIsBusy: return std::format_to(context.out(), "{}", "The client's state is unavailable");
-			case LackOfMember: return std::format_to(context.out(), "{}", "The room's number of member is lack of starting a game");
-			case InvalidRoom: return std::format_to(context.out(), "{}", "The room is unavailable");
-			case InvalidOperation: return std::format_to(context.out(), "{}", "The start task is invalid");
-			case UnstableRoom: return std::format_to(context.out(), "{}", "Room is unstable");
-			case ServerError: return std::format_to(context.out(), "{}", "Internal server error");
-			default: return std::format_to(context.out(), "{}", "Unknown");
-		}
-	}
-};
-
-export template<>
-struct std::formatter<iconer::app::GameContract, wchar_t>
-{
-	static constexpr wformat_parse_context::iterator
-		parse(wformat_parse_context& context)
-	{
-		return context.begin();
-	}
-
-	static wformat_context::iterator
-		format(iconer::app::GameContract ctr, wformat_context& context)
-	{
-		using enum iconer::app::GameContract;
-		switch (ctr)
-		{
-			case Unknown: return std::format_to(context.out(), L"{}", L"Unknown");
-			case NotInRoom: return std::format_to(context.out(), L"{}", L"The client is not in a room");
-			case ClientIsBusy: return std::format_to(context.out(), L"{}", L"The client's state is unavailable");
-			case LackOfMember: return std::format_to(context.out(), L"{}", L"The room's number of member is lack of starting a game");
-			case InvalidRoom: return std::format_to(context.out(), L"{}", L"The room is unavailable");
-			case InvalidOperation: return std::format_to(context.out(), L"{}", L"The start task is invalid");
-			case UnstableRoom: return std::format_to(context.out(), L"{}", L"Room is unstable");
-			case ServerError: return std::format_to(context.out(), L"{}", L"Internal server error");
-			default: return std::format_to(context.out(), L"{}", L"Unknown");
-		}
-	}
-};

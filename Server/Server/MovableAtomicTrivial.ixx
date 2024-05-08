@@ -1,12 +1,9 @@
-module;
-#include <compare>
-#include <memory>
-#include <utility>
-
 export module Iconer.Utility.MovableAtomic:Trivial;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.Atomic;
 import :Storage;
+import <compare>;
+import <utility>;
 
 namespace iconer::util
 {

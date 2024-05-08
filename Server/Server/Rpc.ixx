@@ -1,6 +1,7 @@
 export module Iconer.Application.Rpc;
 import <cstddef>;
 import <cstdint>;
+import <type_traits>;
 import Iconer.Application.IContext;
 
 #define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name

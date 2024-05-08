@@ -1,6 +1,5 @@
 module;
 #include <WinSock2.h>
-
 module Iconer.Net.ErrorCode;
 
 iconer::net::ErrorCode

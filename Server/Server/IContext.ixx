@@ -1,5 +1,4 @@
 export module Iconer.Application.IContext;
-import Iconer.Utility.Constraints;
 import Iconer.Net.IoContext;
 export import Iconer.Application.AsyncOperation;
 

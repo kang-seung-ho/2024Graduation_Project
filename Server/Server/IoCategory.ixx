@@ -1,7 +1,6 @@
 export module Iconer.Net.IoCategory;
 import <cstdint>;
 import <string>;
-import <format>;
 
 export namespace iconer::net
 {
@@ -62,79 +61,3 @@ export namespace std
 		}
 	}
 }
-
-/// <summary>
-/// {i} : format to int32_t
-/// </summary>
-export template<>
-struct std::formatter<iconer::net::IoCategory, char>
-{
-	static constexpr format_parse_context::iterator
-		parse(format_parse_context& context)
-	{
-		auto it = context.begin();
-		const auto end = context.end();
-		if (it == end or *it != '{')
-		{
-			throw std::format_error{ "Invalid format string." };
-		}
-
-		++it;
-		if (it != end and *it != '}')
-		{
-			throw std::format_error{ "Missing '}' in format string." };
-		}
-
-		return it;
-	}
-
-	static format_context::iterator
-		format(const iconer::net::IoCategory& category, format_context& context)
-	{
-		return std::format_to(context.out(), "Io Category<{}>", to_string(category));
-	}
-
-	static format_context::iterator
-		format(iconer::net::IoCategory&& category, format_context& context)
-	{
-		return std::format_to(context.out(), "Io Category<{}>", to_string(std::move(category)));
-	}
-};
-
-/// <summary>
-/// {i} : format to int32_t
-/// </summary>
-export template<>
-struct std::formatter<iconer::net::IoCategory, wchar_t>
-{
-	static constexpr wformat_parse_context::iterator
-		parse(wformat_parse_context& context)
-	{
-		auto it = context.begin();
-		const auto end = context.end();
-		if (it == end or *it != L'{')
-		{
-			throw std::format_error{ "Invalid format string." };
-		}
-
-		++it;
-		if (it != end and *it != L'}')
-		{
-			throw std::format_error{ "Missing '}' in format string." };
-		}
-
-		return it;
-	}
-
-	static wformat_context::iterator
-		format(const iconer::net::IoCategory& category, wformat_context& context)
-	{
-		return std::format_to(context.out(), L"Io Category<{}>", to_wstring(category));
-	}
-
-	static wformat_context::iterator
-		format(iconer::net::IoCategory&& category, wformat_context& context)
-	{
-		return std::format_to(context.out(), L"Io Category<{}>", to_wstring(std::move(category)));
-	}
-};

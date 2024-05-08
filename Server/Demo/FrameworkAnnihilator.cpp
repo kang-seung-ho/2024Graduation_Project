@@ -4,6 +4,7 @@ module;
 
 module Demo.Framework;
 import Iconer.Net;
+import Iconer.Application.IContext;
 
 class FrameworkTaskContext : public iconer::app::IContext
 {
@@ -43,7 +44,7 @@ demo::Framework::Cleanup()
 #if _DEBUG
 	if (cleanup_err)
 	{
-		myLogger.LogError(L"An error {} is occured when cleaning up", cleanup_err.value());
+		myLogger.LogError(L"An error {} is occured when cleaning up", std::to_wstring(cleanup_err.value()));
 	}
 #endif // _DEBUG
 	

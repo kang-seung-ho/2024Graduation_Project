@@ -26,7 +26,7 @@ test::Receiver()
 
 		if (not recv_result.has_value())
 		{
-			std::println("Receive error: {}", recv_result.error());
+			std::println("Receive error: {}", std::to_string(recv_result.error()));
 			break;
 		}
 		else
@@ -84,7 +84,7 @@ test::Receiver()
 						{
 							iconer::app::RoomContract error{};
 							auto offset = ReceiveRoomCreationFailedPacket(recv_space, error);
-							std::println("Could not create a room due to {}", error);
+							std::println("Could not create a room due to {}", static_cast<int>(error));
 
 							PullReceiveBuffer(offset);
 						}
@@ -114,7 +114,7 @@ test::Receiver()
 						{
 							iconer::app::RoomContract error{};
 							auto offset = ReceiveRoomJoinFailedPacket(recv_space, error);
-							std::println("Failed to join to a room due to {}", error);
+							std::println("Failed to join to a room due to {}", static_cast<int>(error));
 
 							PullReceiveBuffer(offset);
 						}

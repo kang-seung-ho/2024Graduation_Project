@@ -1,10 +1,12 @@
+module;
+#include <string>
+#include <string_view>
+#include <format>
+#include <filesystem>
+
 export module Iconer.Utility.Logger;
 import Iconer.Utility.Handler;
 import Iconer.Utility.File;
-export import <string>;
-export import <string_view>;
-import <format>;
-import <filesystem>;
 
 export namespace iconer::util
 {

@@ -1,6 +1,7 @@
 module;
 #include <string>
 #include <string_view>
+#include <format>
 
 #define RETURN_BACK_SENDER(ctx) \
 { \
@@ -11,6 +12,8 @@ module;
 module Demo.Framework;
 import Iconer.Application.IContext;
 import Iconer.Application.BlobSendContext;
+import Iconer.Application.RoomContract;
+import Iconer.Application.GameContract;
 
 using namespace iconer::app;
 
@@ -39,7 +42,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto error = OnReserveAccept(user); error.has_value())
 		{
-			myLogger.LogError(L"\tReserving an acceptance has failed on user {} due to {}\n", id, error.value());
+			myLogger.LogError(L"\tReserving an acceptance has failed on user {} due to {}\n", id, std::to_wstring(error.value()));
 			OnFailedReservingAccept();
 		}
 		else
@@ -63,7 +66,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto result = OnUserConnected(user); not result.has_value())
 		{
-			myLogger.LogError(L"\tUser {} is connected, but acceptance has failed due to {}\n", id, result.error());
+			myLogger.LogError(L"\tUser {} is connected, but acceptance has failed due to {}\n", id, std::to_wstring(result.error()));
 			OnFailedUserConnect(user);
 		}
 		else
@@ -92,7 +95,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto result = OnUserSignedIn(*user, io_bytes); not result.has_value())
 		{
-			myLogger.LogError(L"\tSigning In has failed on user {} due to {}\n", id, result.error());
+			myLogger.LogError(L"\tSigning In has failed on user {} due to {}\n", id, std::to_wstring(result.error()));
 			OnFailedUserSignIn(*user);
 		}
 		else
@@ -117,7 +120,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		else if (auto result = OnNotifyUserId(*user); not result.has_value())
 		{
 			myLogger.Log(L"\tThe Id is notified to user {}", id);
-			myLogger.LogError(L", but cannot start receiving due to {}\n", result.error());
+			myLogger.LogError(L", but cannot start receiving due to {}\n", std::to_wstring(result.error()));
 			OnFailedNotifyId(*user);
 		}
 		else
@@ -145,7 +148,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto error = OnReceived(*user, io_bytes); not error.has_value())
 		{
-			myLogger.LogError(L"\tReceving has failed on user {} due to {}\n", id, error.error());
+			myLogger.LogError(L"\tReceving has failed on user {} due to {}\n", id, std::to_wstring(error.error()));
 			OnFailedReceive(*user);
 		}
 		else
@@ -195,7 +198,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto error = OnUserDisconnected(*user); error.has_value())
 		{
-			myLogger.LogError(L"\tUser {} would not be disconnected due to {}\n", id, error.value());
+			myLogger.LogError(L"\tUser {} would not be disconnected due to {}\n", id, std::to_wstring(error.value()));
 		}
 		else
 		{
@@ -348,7 +351,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto error = OnNotifyMemberOfRoom(*user); not error.has_value())
 		{
-			myLogger.LogError(L"\tUser {} has failed to notify members in the room, due to {}\n", user_id, error.error());
+			myLogger.LogError(L"\tUser {} has failed to notify members in the room, due to {}\n", user_id, std::to_wstring(error.error()));
 		}
 		else
 		{
@@ -369,7 +372,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto error = OnNotifyRoomsList(*user); not error.has_value())
 		{
-			myLogger.LogError(L"\tUser {} has failed to send a list of rooms due to {}\n", user_id, error.error());
+			myLogger.LogError(L"\tUser {} has failed to send a list of rooms due to {}\n", user_id, std::to_wstring(error.error()));
 		}
 		else
 		{
@@ -511,7 +514,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (not OnStartGame(*room))
 		{
-			myLogger.Log(L"\tCannot start a game at room {}\n", room->GetID());
+			myLogger.LogError(L"\tCannot start a game at room {}\n", room->GetID());
 
 			OnFailedToStartGame(*room);
 		}
@@ -554,7 +557,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (not OnCreatingCharacters(*room))
 		{
-			myLogger.Log(L"\tRoom {} cannot create characters\n", room->GetID());
+			myLogger.LogError(L"\tRoom {} cannot create characters\n", room->GetID());
 
 			OnFailedToCreateCharacters(*room);
 		}
@@ -578,7 +581,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (not OnUpdatingRoom(*room))
 		{
-			myLogger.Log(L"\tCannot update the room {}\n", room->GetID());
+			myLogger.LogError(L"\tCannot update the room {}\n", room->GetID());
 
 			OnFailedToUpdateRoom(*room);
 		}
@@ -659,3 +662,119 @@ demo::Framework::RouteEvent(bool is_succeed
 
 	return true;
 }
+
+template<>
+struct std::formatter<iconer::app::RoomContract, char>
+{
+	constexpr format_parse_context::iterator parse(format_parse_context& context) const
+	{
+		return context.begin();
+	}
+
+	format_context::iterator format(const iconer::app::RoomContract& ctr, format_context& context) const
+	{
+		using namespace std::string_view_literals;
+		using enum iconer::app::RoomContract;
+
+		switch (ctr)
+		{
+		case Success: return std::format_to(context.out(), "{}"sv, "Success");
+		case CannotLocateEmptyRoom: return std::format_to(context.out(), "{}"sv, "Cannot locate empty room");
+		case NoRoomFoundWithId: return std::format_to(context.out(), "{}"sv, "Cannot find any room with a specific id");
+		case RoomIsFull: return std::format_to(context.out(), "{}"sv, "Full of members");
+		case RoomIsBusy: return std::format_to(context.out(), "{}"sv, "Room mismatching");
+		case AnotherRoomIsAlreadyAssigned: return std::format_to(context.out(), "{}"sv, "The client already have a room");
+		case NoRoom: return std::format_to(context.out(), "{}"sv, "No room found");
+		case InvalidOperation: return std::format_to(context.out(), "{}"sv, "The room task is invalid");
+		case UnstableRoom: return std::format_to(context.out(), "{}"sv, "Room is unstable");
+		case ServerError: return std::format_to(context.out(), "{}"sv, "Internal server error");
+		default: return std::format_to(context.out(), "{}"sv, "Unknown");
+		}
+	}
+};
+
+template<>
+struct std::formatter<iconer::app::RoomContract, wchar_t>
+{
+	constexpr wformat_parse_context::iterator parse(wformat_parse_context& context) const
+	{
+		return context.begin();
+	}
+
+	wformat_context::iterator format(const iconer::app::RoomContract& ctr, wformat_context& context) const
+	{
+		using namespace std::string_view_literals;
+		using enum iconer::app::RoomContract;
+
+		switch (std::move(ctr))
+		{
+		case Success: return std::format_to(context.out(), L"{}"sv, L"Success");
+		case CannotLocateEmptyRoom: return std::format_to(context.out(), L"{}"sv, L"Cannot locate empty room");
+		case NoRoomFoundWithId: return std::format_to(context.out(), L"{}"sv, L"Cannot find any room with a specific id");
+		case RoomIsFull: return std::format_to(context.out(), L"{}"sv, L"Full of members");
+		case RoomIsBusy: return std::format_to(context.out(), L"{}"sv, L"Room mismatching");
+		case AnotherRoomIsAlreadyAssigned: return std::format_to(context.out(), L"{}"sv, L"The client already have a room");
+		case NoRoom: return std::format_to(context.out(), L"{}"sv, L"No room found");
+		case InvalidOperation: return std::format_to(context.out(), L"{}"sv, L"The room task is invalid");
+		case UnstableRoom: return std::format_to(context.out(), L"{}"sv, L"Room is unstable");
+		case ServerError: return std::format_to(context.out(), L"{}"sv, L"Internal server error");
+		default: return std::format_to(context.out(), L"{}"sv, L"Unknown");
+		}
+	}
+};
+
+template<>
+struct std::formatter<iconer::app::GameContract, char>
+{
+	constexpr format_parse_context::iterator parse(format_parse_context& context) const
+	{
+		return context.begin();
+	}
+
+	format_context::iterator format(iconer::app::GameContract ctr, format_context& context) const
+	{
+		using namespace std::string_view_literals;
+		using enum iconer::app::GameContract;
+
+		switch (ctr)
+		{
+		case Unknown: return std::format_to(context.out(), "{}"sv, "Unknown");
+		case NotInRoom: return std::format_to(context.out(), "{}"sv, "The client is not in a room");
+		case ClientIsBusy: return std::format_to(context.out(), "{}"sv, "The client's state is unavailable");
+		case LackOfMember: return std::format_to(context.out(), "{}"sv, "The room's number of member is lack of starting a game");
+		case InvalidRoom: return std::format_to(context.out(), "{}"sv, "The room is unavailable");
+		case InvalidOperation: return std::format_to(context.out(), "{}"sv, "The start task is invalid");
+		case UnstableRoom: return std::format_to(context.out(), "{}"sv, "Room is unstable");
+		case ServerError: return std::format_to(context.out(), "{}"sv, "Internal server error");
+		default: return std::format_to(context.out(), "{}"sv, "Unknown");
+		}
+	}
+};
+
+template<>
+struct std::formatter<iconer::app::GameContract, wchar_t>
+{
+	constexpr wformat_parse_context::iterator parse(wformat_parse_context& context) const
+	{
+		return context.begin();
+	}
+
+	wformat_context::iterator format(iconer::app::GameContract ctr, wformat_context& context) const
+	{
+		using namespace std::string_view_literals;
+		using enum iconer::app::GameContract;
+
+		switch (ctr)
+		{
+		case Unknown: return std::format_to(context.out(), L"{}"sv, L"Unknown");
+		case NotInRoom: return std::format_to(context.out(), L"{}"sv, L"The client is not in a room");
+		case ClientIsBusy: return std::format_to(context.out(), L"{}"sv, L"The client's state is unavailable");
+		case LackOfMember: return std::format_to(context.out(), L"{}"sv, L"The room's number of member is lack of starting a game");
+		case InvalidRoom: return std::format_to(context.out(), L"{}"sv, L"The room is unavailable");
+		case InvalidOperation: return std::format_to(context.out(), L"{}"sv, L"The start task is invalid");
+		case UnstableRoom: return std::format_to(context.out(), L"{}"sv, L"Room is unstable");
+		case ServerError: return std::format_to(context.out(), L"{}"sv, L"Internal server error");
+		default: return std::format_to(context.out(), L"{}"sv, L"Unknown");
+		}
+	}
+};

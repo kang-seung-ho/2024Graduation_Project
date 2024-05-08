@@ -86,7 +86,7 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRoomCreationFailedPacket(iconer::app::RoomContract reason)
+iconer::app::User::SendRoomCreationFailedPacket(const iconer::app::RoomContract& reason)
 const
 {
 	const iconer::app::packets::SC_RoomCreationFailedPacket pk{ reason };
@@ -108,7 +108,7 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendRoomJoinFailedPacket(iconer::app::RoomContract reason)
+iconer::app::User::SendRoomJoinFailedPacket(const iconer::app::RoomContract& reason)
 const
 {
 	const iconer::app::packets::SC_RoomJoinFailedPacket pk{ reason };
@@ -135,7 +135,7 @@ const
 }
 
 iconer::app::User::BorrowedIoResult
-iconer::app::User::SendCannotStartGamePacket(GameContract reason)
+iconer::app::User::SendCannotStartGamePacket(const GameContract& reason)
 const
 {
 	const iconer::app::packets::SC_FailedGameStartingPacket pk{ static_cast<int>(reason) };

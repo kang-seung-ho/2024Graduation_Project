@@ -378,6 +378,15 @@
     <ClCompile Include="Private\UserSenders.cpp">
       <Filter>Application\Implementain</Filter>
     </ClCompile>
+    <ClCompile Include="Private\AsyncOperation.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\RoomContract.cpp">
+      <Filter>Application\Implementain</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\InternetProtocol.cpp">
+      <Filter>Network\Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\Server.natvis" />

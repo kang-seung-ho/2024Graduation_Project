@@ -1,6 +1,10 @@
 module;
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <string_view>
+#include <format>
+#include <filesystem>
 #include <mutex>
 
 module Iconer.Utility.Logger;

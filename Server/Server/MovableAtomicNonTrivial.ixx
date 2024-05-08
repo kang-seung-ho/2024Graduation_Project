@@ -1,14 +1,11 @@
-module;
-#include <compare>
-#include <type_traits>
-#include <bit>
-#include <memory>
-#include <utility>
-
 export module Iconer.Utility.MovableAtomic:NonTrivial;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.Atomic;
 import :Storage;
+import <compare>;
+import <bit>;
+import <utility>;
+import <memory>;
 
 namespace iconer::util
 {

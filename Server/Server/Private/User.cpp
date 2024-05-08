@@ -1,4 +1,3 @@
-module;
 module Iconer.Application.User;
 import Iconer.Application.BasicPacket;
 import Iconer.Application.Packet;

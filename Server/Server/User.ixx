@@ -1,32 +1,30 @@
 module;
 #include <cstdint>
+#include <string>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
 import Iconer.Utility.MovableAtomic;
 import Iconer.Net.Socket;
-import Iconer.Application.IContext;
 import Iconer.Application.ISession;
-import Iconer.Application.RoomContract;
-import Iconer.Application.GameContract;
 import Iconer.Application.BlobSendContext;
 import Iconer.Application.BorrowedSendContext;
 import Iconer.Application.TransformUnit;
+import Iconer.Application.RoomContract;
+import Iconer.Application.GameContract;
 import Iconer.Application.Rpc;
 import <tuple>;
-import <string>;
-import <string_view>;
 import <span>;
-export import <memory>;
+import <memory>;
 
-export namespace iconer::app
+namespace iconer::app
 {
-	enum class Team
+	export enum class Team
 	{
 		Unknown = 0, Red = 1, Blue = 2
 	};
 
-	enum class [[nodiscard]] UserStates
+	export enum class [[nodiscard]] UserStates
 	{
 		None
 		, Reserved
@@ -36,7 +34,7 @@ export namespace iconer::app
 		, Dead
 	};
 
-	class [[nodiscard]] User : public ISession<UserStates>, public TransformUnit
+	export class [[nodiscard]] User : public ISession<UserStates>, public TransformUnit
 	{
 	public:
 		using Super = ISession<UserStates>;
@@ -103,13 +101,13 @@ export namespace iconer::app
 		BorrowedIoResult SendRespondRoomsPacket(std::span<const std::byte> buffer) const;
 		BorrowedIoResult SendRespondMembersPacket(std::span<const std::byte> buffer) const;
 		IoResult SendRoomCreatedPacket(IContext* room, IdType room_id) const;
-		BorrowedIoResult SendRoomCreationFailedPacket(RoomContract reason) const;
+		BorrowedIoResult SendRoomCreationFailedPacket(const RoomContract& reason) const;
 		/// <param name="who">- Not only local client</param>
 		BorrowedIoResult SendRoomJoinedPacket(IdType room_id, const User& newbie) const;
-		BorrowedIoResult SendRoomJoinFailedPacket(RoomContract reason) const;
+		BorrowedIoResult SendRoomJoinFailedPacket(const RoomContract& reason) const;
 		/// <param name="who">- Not only local client</param>
 		BorrowedIoResult SendRoomLeftPacket(IdType who, bool is_self) const;
-		BorrowedIoResult SendCannotStartGamePacket(GameContract reason) const;
+		BorrowedIoResult SendCannotStartGamePacket(const GameContract& reason) const;
 		BorrowedIoResult SendChangeTeamPacket(IdType user_id, bool is_red_team) const;
 		BorrowedIoResult SendMakeGameReadyPacket() const;
 		BorrowedIoResult SendGameJustStartedPacket() const;

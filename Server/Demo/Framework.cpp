@@ -1,7 +1,4 @@
 module;
-#include <string_view>
-#include <atomic>
-
 module Demo.Framework;
 import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
@@ -202,4 +199,75 @@ demo::Framework::UnlockPhase()
 noexcept
 {
 	std::atomic_thread_fence(std::memory_order_release);
+}
+
+iconer::app::User*
+demo::Framework::FindUser(const std::int32_t& id) const noexcept
+{
+	return userManager->operator[](id);
+}
+
+iconer::app::Room*
+demo::Framework::FindRoom(const std::int32_t& id) const noexcept
+{
+	for (auto&& room : everyRoom)
+	{
+		if (room->GetID() == id)
+		{
+			return room;
+		}
+	}
+
+	return nullptr;
+}
+
+std::span<std::byte, demo::Framework::userRecvSize>
+demo::Framework::GetBuffer(const std::int32_t& id) const noexcept
+{
+	std::byte* buf = this->recvSpace.get();
+	auto* data = buf + static_cast<ptrdiff_t>(MakeUidToIndex(id)) * userRecvSize;
+
+	return std::span<std::byte, userRecvSize>{ data, userRecvSize };
+}
+
+bool
+demo::Framework::Schedule(iconer::net::IoContext& context, const std::int32_t id, unsigned long info_bytes)
+noexcept
+{
+	return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
+}
+
+bool
+demo::Framework::Schedule(iconer::net::IoContext* const context, const std::int32_t id, unsigned long info_bytes)
+noexcept
+{
+	return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
+}
+
+bool
+demo::Framework::Schedule(volatile iconer::net::IoContext& context, const std::int32_t id, unsigned long info_bytes)
+noexcept
+{
+	return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
+}
+
+bool
+demo::Framework::Schedule(volatile iconer::net::IoContext* const context, const std::int32_t id, unsigned long info_bytes)
+noexcept
+{
+	return ioCompletionPort.Schedule(context, static_cast<std::uintptr_t>(id), std::move(info_bytes));
+}
+
+iconer::net::IoEvent
+demo::Framework::WaitForIoResult()
+noexcept
+{
+	return ioCompletionPort.WaitForIoResult();
+}
+
+bool
+demo::Framework::IsWorkerCancelled()
+const noexcept
+{
+	return workerCanceller.stop_requested();
 }

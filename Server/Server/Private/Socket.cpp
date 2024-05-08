@@ -2,6 +2,7 @@ module;
 #include <WinSock2.h>
 #include <MSWSock.h>
 #include <WS2tcpip.h>
+#include <future>
 
 module Iconer.Net.Socket;
 import Iconer.Net.EndPoint;

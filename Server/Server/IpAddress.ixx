@@ -1,10 +1,9 @@
 export module Iconer.Net.IpAddress;
 import Iconer.Utility.Constraints;
 export import Iconer.Net.IpAddressFamily;
+import <utility>;
 import <string>;
 import <string_view>;
-import <format>;
-import <utility>;
 
 export namespace iconer::net
 {
@@ -59,40 +58,3 @@ export namespace iconer::net
 		std::string addressString;
 	};
 }
-
-export namespace std
-{
-	[[nodiscard]]
-	string to_string(const iconer::net::IpAddress& ip_address)
-	{
-		return ip_address.GetAddressString();
-	}
-
-	[[nodiscard]]
-	string to_string(iconer::net::IpAddress&& ip_address)
-	{
-		return std::move(ip_address).GetAddressString();
-	}
-}
-
-export template<>
-struct std::formatter<iconer::net::IpAddress, char> : public std::formatter<std::string, char>
-{
-	using super = formatter<std::string, char>;
-
-	using super::parse;
-
-	format_context::iterator
-		format(const iconer::net::IpAddress& ip_address, format_context& context)
-		const
-	{
-		return super::format(ip_address.GetAddressString(), context);
-	}
-
-	format_context::iterator
-		format(iconer::net::IpAddress&& ip_address, format_context& context)
-		const
-	{
-		return super::format(std::move(ip_address).GetAddressString(), context);
-	}
-};

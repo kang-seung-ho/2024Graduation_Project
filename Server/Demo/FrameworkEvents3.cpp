@@ -1,6 +1,8 @@
 module;
 #include <string_view>
+
 module Demo.Framework;
+import Iconer.Application.RoomContract;
 
 bool RemoveRoomMember(demo::Framework& framework, iconer::app::Room& room, const iconer::app::User::IdType user_id) noexcept;
 

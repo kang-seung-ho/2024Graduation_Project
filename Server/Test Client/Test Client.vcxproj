@@ -109,7 +109,6 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <StringPooling>true</StringPooling>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>5057</DisableSpecificWarnings>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
@@ -131,7 +130,6 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <StringPooling>true</StringPooling>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>5057</DisableSpecificWarnings>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
@@ -153,7 +151,6 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <StringPooling>true</StringPooling>
-      <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>5057</DisableSpecificWarnings>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
@@ -175,7 +172,6 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <StringPooling>true</StringPooling>
-      <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>5057</DisableSpecificWarnings>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>

@@ -1,0 +1,1 @@
+module Iconer.Application.RoomContract;

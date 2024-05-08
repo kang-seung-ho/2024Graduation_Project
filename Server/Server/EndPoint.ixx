@@ -2,9 +2,7 @@ export module Iconer.Net.EndPoint;
 export import Iconer.Net.IpAddressFamily;
 export import Iconer.Net.IpAddress;
 import <cstdint>;
-import <string>;
 import <string_view>;
-import <format>;
 
 export namespace iconer::net
 {
@@ -71,53 +69,3 @@ export namespace iconer::net
 		std::uint16_t myPort;
 	};
 }
-
-export namespace std
-{
-	[[nodiscard]]
-	string to_string(const iconer::net::EndPoint& ep)
-	{
-		return std::format("({}) {}:{}", ep.AddressFamily(), ep.IpAddress(), ep.Port());
-	}
-
-	[[nodiscard]]
-	string to_string(iconer::net::EndPoint&& ep)
-	{
-		return std::format("({}) {}:{}", std::move(ep).AddressFamily(), std::move(ep).IpAddress(), std::move(ep).Port());
-	}
-}
-
-export template<>
-struct std::formatter<iconer::net::EndPoint, char>
-{
-	static constexpr format_parse_context::iterator
-		parse(format_parse_context& context)
-	{
-		auto it = context.begin();
-		const auto end = context.end();
-		if (it == end or *it != '{')
-		{
-			throw std::format_error{ "Invalid format string." };
-		}
-
-		++it;
-		if (it != end and *it != '}')
-		{
-			throw std::format_error{ "Missing '}' in format string." };
-		}
-
-		return it;
-	}
-
-	static format_context::iterator
-		format(const iconer::net::EndPoint& ep, format_context& context)
-	{
-		return std::format_to(context.out(), "({}) {}:{}", ep.AddressFamily(), ep.IpAddress(), ep.Port());
-	}
-
-	static format_context::iterator
-		format(iconer::net::EndPoint&& ep, format_context& context)
-	{
-		return std::format_to(context.out(), "({}) {}:{}", std::move(ep).AddressFamily(), std::move(ep).IpAddress(), std::move(ep).Port());
-	}
-};
