@@ -83,6 +83,7 @@ ASagaInGamePlayerController::BeginPlay()
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 
+		UE_LOG(LogSagaGame, Warning, TEXT("[Network] SendGameIsLoadedPacket"));
 		system->SendGameIsLoadedPacket();
 	}
 	else

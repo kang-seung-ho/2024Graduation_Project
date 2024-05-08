@@ -34,7 +34,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			return;
 		}
 
-		UE_LOG(LogSagaGame, Error, TEXT("[RPC] This is user %d's rpc message."), id);
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
 
 		is_remote = true;
 		character = user.remoteCharacter;

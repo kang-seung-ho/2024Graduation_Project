@@ -100,7 +100,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginRun()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] Begin Running"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Running"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -117,7 +117,7 @@ ASagaInGamePlayerController::BeginRun()
 void
 ASagaInGamePlayerController::EndRun()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] End Running"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Running"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -134,7 +134,7 @@ ASagaInGamePlayerController::EndRun()
 void
 ASagaInGamePlayerController::BeginJump()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] Begin Jumping"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Jumping"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -151,7 +151,7 @@ ASagaInGamePlayerController::BeginJump()
 void
 ASagaInGamePlayerController::EndJump()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[Local][Character] End Jumping"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Jumping"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
