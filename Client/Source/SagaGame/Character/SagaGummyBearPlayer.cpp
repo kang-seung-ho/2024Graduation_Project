@@ -1,5 +1,7 @@
 #include "SagaGummyBearPlayer.h"
 #include "../Effect/SagaSwordEffect.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
+#include "SagaGame/Player/SagaUserTeam.h"
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 {
@@ -90,5 +92,42 @@ void
 ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
+}
+
+void ASagaGummyBearPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	BearHp -= DamageAmount;
+
+
+	if(BearHp <= 0.0f)
+	{
+		//파티클 이펙트 실행
+
+		//Destroy();
+
+		//사망애니메이션 실행
+
+
+		//리스폰 함수 실행
+
+		//상대 팀 점수 증가 실행
+
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		if (system)
+		{
+			system->AddScore(myTEAM == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+		}
+	}
+
+
+	return 0.0f;
 }
 

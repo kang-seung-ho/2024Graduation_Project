@@ -89,7 +89,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;
 
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	EUserTeam myTEAM;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	EPlayerWeapon mWeaponType;

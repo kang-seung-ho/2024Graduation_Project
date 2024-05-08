@@ -1,6 +1,7 @@
 #include "SagaPlayableCharacter.h"
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 {
@@ -69,6 +70,7 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	myClientHP -= DamageAmount;
 
 	if (myClientHP <= 0.0f)
@@ -77,6 +79,14 @@ float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const&
 
 
 		//리스폰 함수 실행
+		Destroy();
+
+		//상대 팀 점수 증가 실행
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		if (system)
+		{
+			system->AddScore(myTEAM == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+		}
 	}
 	return DamageAmount;
 }
