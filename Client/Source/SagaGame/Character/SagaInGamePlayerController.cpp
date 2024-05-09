@@ -14,9 +14,10 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	, wasMoved(), wasTilted()
 	, isRiding()
 	, walkDirection()
-	, tranformUpdateTimer()
 	, mMoveDir()
+	, tranformUpdateTimer()
 	, OnRideNPC()
+	, mTeamScoreBoardClass(), mTeamScoreBoard()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
 
