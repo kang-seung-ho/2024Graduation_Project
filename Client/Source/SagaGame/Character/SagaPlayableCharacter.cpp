@@ -38,8 +38,23 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 
 	//Weapon
-	//Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	//Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+
+	//Load Weapon Meshes
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_low.Lightsaber_low'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/WaterGun_low.WaterGun_low'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_low.Hammer_low'"));
+
+	if (LightSaborMesh.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMesh.Object);
+	}
+	if (WaterGunMesh.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMesh.Object);
+	}
+	if (HammerMesh.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMesh.Object);
+	}
 }
 
 void
@@ -62,6 +77,35 @@ void
 ASagaPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//mWeaponType = EPlayerWeapon::LightSabor;
+	UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay"));
+	//Set Weapon Mesh due to Weapon Type
+	if (WeaponMeshes.Contains(mWeaponType)) {
+		Weapon->SetStaticMesh(WeaponMeshes[mWeaponType]);
+		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), mWeaponType);
+
+		if (mWeaponType == EPlayerWeapon::LightSabor)
+		{
+			Weapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			Weapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			Weapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+		}
+		else if (mWeaponType == EPlayerWeapon::WaterGun)
+		{
+			Weapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			Weapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			Weapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+		else if (mWeaponType == EPlayerWeapon::Hammer)
+		{
+			Weapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			Weapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			Weapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No weapon mesh found for the selected Weapon."));
+	}
 }
 
 void

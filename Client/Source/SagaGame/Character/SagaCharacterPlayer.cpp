@@ -83,9 +83,7 @@ ASagaCharacterPlayer::BeginPlay()
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	mWeaponType = system->GetWeaponType();
 	UE_LOG(LogSagaGame, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
-
 	system->GetLocalUserTeam(myTEAM);
-
 	SetTeamColorAndCollision(); //NetworkSubsystem에서 받아온 팀 색깔로 설정
 }
 

@@ -55,6 +55,11 @@ private:
 	FTimerHandle RespawnTimerHandle;
 
 protected:
+	// For saving Weapon Meshes
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;
+
+protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
 	virtual void Acquire_Gum(class USagaWeaponData* WeaponData);
 	virtual void Acquire_smokebomb(class USagaWeaponData* WeaponData);
