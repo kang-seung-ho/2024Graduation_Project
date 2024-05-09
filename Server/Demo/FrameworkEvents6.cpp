@@ -127,6 +127,12 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 					SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, 0);
 				}
 			);
+
+			myLogger.Log(L"\tUser {} changed weapon to {}", user_id, arg0);
+		}
+		else
+		{
+			myLogger.LogWarning(L"\tUser {} alerady have a weapon {}", user_id, user->myWeaponId.Load());
 		}
 	}
 	break;
@@ -136,6 +142,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
+			myLogger.LogError(L"\tUser {} tells wroing Guardian {}", user_id, arg0);
 			break;
 		}
 
@@ -143,14 +150,34 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		if (guardian.CanRide())
 		{
-
+			myLogger.Log(L"\tUser {} would ride the Guardian {}", user_id, arg0);
+		}
+		else
+		{
+			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}", user_id, arg0);
 		}
 	}
 	break;
 
 	case RPC_END_RIDE:
 	{
+		// arg0: index of guardian
+		if (arg0 < 0 or 3 <= arg0)
+		{
+			myLogger.LogError(L"\tUser {} tells wroing Guardian {}", user_id, arg0);
+			break;
+		}
 
+		auto& guardian = room->sagaGuardians[arg0];
+
+		if (guardian.CanRide())
+		{
+			myLogger.Log(L"\tUser {} would ride the Guardian {}", user_id, arg0);
+		}
+		else
+		{
+			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}", user_id, arg0);
+		}
 	}
 	break;
 
