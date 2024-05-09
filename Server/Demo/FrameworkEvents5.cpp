@@ -1,12 +1,6 @@
 module;
 #include <string_view>
 
-module Demo.Framework;
-import Iconer.Application.RoomContract;
-import Iconer.Application.GameContract;
-
-using namespace iconer::app;
-
 #define SEND(user_var, method, ...) \
 auto [io, ctx] = ((user_var).method)(__VA_ARGS__); \
 if (not io) \
@@ -14,8 +8,15 @@ if (not io) \
 	ctx.Complete(); \
 }
 
+module Demo.Framework;
+import Iconer.Application.RoomContract;
+import Iconer.Application.GameContract;
+
+using namespace iconer::app;
+using namespace demo;
+
 bool
-demo::Framework::OnGameIsLoaded(User& user)
+Framework::OnGameIsLoaded(User& user)
 {
 	using enum AsyncOperations;
 
@@ -189,7 +190,7 @@ demo::Framework::OnGameIsLoaded(User& user)
 }
 
 void
-demo::Framework::OnFailedToLoadGame(User& user) noexcept
+Framework::OnFailedToLoadGame(User& user) noexcept
 {
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
