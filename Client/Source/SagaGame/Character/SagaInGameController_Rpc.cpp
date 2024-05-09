@@ -37,7 +37,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
 
 		is_remote = true;
-		character = user.remoteCharacter;
+		character = user.GetCharacterHandle();
 #pragma endregion
 	}
 
@@ -123,18 +123,26 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Ride"));
 
-			FActorSpawnParameters SpawnParams;
+			FActorSpawnParameters SpawnParams{};
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
-			
-			UWorld* World = GetWorld();
-			auto BearCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), user.remoteCharacter->GetActorLocation(), user.remoteCharacter->GetActorRotation(), SpawnParams));
 
-			if (IsValid(user.remoteCharacter))
+			auto old_character = user.GetCharacterHandle();
+
+			UWorld* World = GetWorld();
+			FVector location;
+			FRotator rotation;
+
+			if (IsValid(old_character))
 			{
-				user.remoteCharacter->Destroy();
+				location = old_character->GetActorLocation();
+				rotation = old_character->GetActorRotation();
+				old_character->Destroy();
 			}
 
-			user.remoteCharacter = BearCharacter;
+			auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
+			// 곰에 속성 전달
+
+			user.SetCharacterHandle(bear);
 		}
 
 		//character->ExecuteRide();

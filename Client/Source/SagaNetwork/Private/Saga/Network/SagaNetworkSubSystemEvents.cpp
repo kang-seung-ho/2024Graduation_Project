@@ -150,13 +150,14 @@ USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float 
 			return;
 		}
 
-		auto& character = user.remoteCharacter;
+		auto character = user.GetCharacterHandle();
 		if (not IsValid(character))
 		{
 			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnUpdatePosition] Cannot find a character of remote player %d'."), id);
 			return;
 		}
 
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][OnUpdatePosition] Moving remote player %d by (%f,%f,%f)."), id, x, y, z);
 		character->SetActorLocation(FVector{ x, y, z });
 	}
 }
@@ -177,13 +178,14 @@ USagaNetworkSubSystem::OnUpdateRotation_Implementation(int32 id, float p, float 
 			return;
 		}
 
-		auto& character = user.remoteCharacter;
+		auto character = user.GetCharacterHandle();
 		if (not IsValid(character))
 		{
 			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnUpdateRotation] Cannot find a character of remote player %d'."), id);
 			return;
 		}
 
+		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][OnUpdatePosition] Rotating remote player %d by (%f,%f,%f)."), id, p, y, r);
 		character->SetActorRotation(FRotator{ p, y, r });
 	}
 }
