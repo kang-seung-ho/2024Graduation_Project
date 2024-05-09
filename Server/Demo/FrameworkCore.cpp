@@ -221,7 +221,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto result = OnReservingRoom(*room, *user); RoomContract::Success != result)
 		{
-			myLogger.LogError(L"\tUser {} could not reserve room {} due to {}\n", user_id, room_id, result);
+			myLogger.LogError(L"\tUser {} could not reserve room {} due to {}\n", user_id, room_id, std::to_wstring(result));
 			OnFailedToReserveRoom(*room, *user, result);
 		}
 		else
@@ -246,7 +246,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto result = OnCreatingRoom(*room, *user); RoomContract::Success != result)
 		{
-			myLogger.LogWarning(L"\tUser {} could not create room at {} due to {}\n", user_id, room_id, result);
+			myLogger.LogWarning(L"\tUser {} could not create room at {} due to {}\n", user_id, room_id, std::to_wstring(result));
 			OnFailedToCreateRoom(*room, *user, result);
 		}
 		else
@@ -272,7 +272,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else if (auto result = OnJoiningRoom(*room, *user); RoomContract::Success != result)
 		{
-			myLogger.LogWarning(L"\tUser {} could not enter to room {} due to {}\n", user_id, room_id, result);
+			myLogger.LogWarning(L"\tUser {} could not enter to room {} due to {}\n", user_id, room_id, std::to_wstring(result));
 
 			OnFailedToJoinRoom(*room, *user, result);
 		}
