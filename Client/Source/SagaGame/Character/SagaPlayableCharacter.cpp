@@ -106,10 +106,19 @@ void ASagaPlayableCharacter::RespawnCharacter()
 	FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
+	isForwardWalking = false;
+	isStrafeWalking = false;
+	isRunning = false;
+
+
 	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 
-	//Collision 활성화
-	SetTeamColorAndCollision(myTEAM);
+	//Collision Enable Codes
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	system->GetLocalUserTeam(myTEAM); //re-save team color from system
+	SetTeamColorAndCollision();	//re-set team collision
+	GetCharacterMovement()->StopActiveMovement();
 
 	
 

@@ -121,6 +121,10 @@ ASagaInGamePlayerController::BeginPlay()
 		UE_LOG(LogSagaGame, Error, TEXT("Network subsystem is not ready."));
 	}
 
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0);
+
+
 
 	if (IsValid(mTeamScoreBoardClass))
 	{
@@ -129,6 +133,27 @@ ASagaInGamePlayerController::BeginPlay()
 		if (IsValid(mTeamScoreBoard))
 		{
 			mTeamScoreBoard->AddToViewport();
+		}
+	}
+}
+
+void ASagaInGamePlayerController::CountDown()
+{
+	if (Seconds != 0)
+	{
+		Seconds = Seconds - 1;
+	}
+	else
+	{
+		if (Minutes == 0 && Seconds == 0)
+		{
+			//UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
+			UE_LOG(LogTemp, Warning, TEXT("Game End"));
+		}
+		else
+		{
+			Minutes = Minutes - 1;
+			Seconds = 59;
 		}
 	}
 }

@@ -94,6 +94,14 @@ public:
 	{
 		return mMoveDir;
 	}
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	int32 Minutes = 5;
+	UPROPERTY(BlueprintReadOnly)
+	int32 Seconds = 30;
+
+	void CountDown();
 #pragma endregion
 
 	/*UPROPERTY(VisibleAnywhere)
