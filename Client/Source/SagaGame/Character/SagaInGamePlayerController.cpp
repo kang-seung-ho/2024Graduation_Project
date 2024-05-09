@@ -24,11 +24,28 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	{
 		mTeamScoreBoardClass = WidgetClass.Class;
 	}
-
-
 }
 
-void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
+AActor*
+ASagaInGamePlayerController::CreatePlayableCharacter(UClass* type, const FTransform& transform)
+const
+{
+	if (type != nullptr)
+	{
+		FActorSpawnParameters setting{};
+		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		UE_LOG(LogSagaGame, Log, TEXT("[SagaGame] Creating a playable character"));
+		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+void
+ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 {
 	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
 	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
@@ -43,7 +60,8 @@ void ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 	}
 }
 
-void ASagaInGamePlayerController::RideNPCCallFunction()
+void
+ASagaInGamePlayerController::RideNPCCallFunction()
 {
 	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
 
@@ -91,6 +109,7 @@ ASagaInGamePlayerController::BeginPlay()
 	if (nullptr != system and system->GetLocalUserId() != -1)
 	{
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
+		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 
 		UE_LOG(LogSagaGame, Warning, TEXT("[Network] SendGameIsLoadedPacket"));

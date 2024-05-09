@@ -65,7 +65,7 @@ ASagaCharacterSelectController::CountDown()
 		{
 			// 게임 시작(레벨전환) + 서버에게 게임 시작을 알림
 			UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
-			UE_LOG(LogTemp, Warning, TEXT("Game Start"));
+			UE_LOG(LogSagaGame, Warning, TEXT("Game Start"));
 		}
 		else
 		{
@@ -98,7 +98,7 @@ ASagaCharacterSelectController::Tick(float DeltaTime)
 
 	if (Hit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mouse On"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Mouse On"));
 		mUnderCursorActor = result.GetActor();
 	}
 	else
@@ -136,7 +136,7 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
 				break;
@@ -151,7 +151,7 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
 				break;
@@ -166,12 +166,12 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Network subsystem is not ready."));
+						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
 				break;
 			}
-			UE_LOG(LogTemp, Warning, TEXT("Selected weapon: %s"), *WeaponName);
+			UE_LOG(LogSagaGame, Warning, TEXT("Selected weapon: %s"), *WeaponName);
 		}
 		else
 		{

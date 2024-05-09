@@ -66,7 +66,7 @@ void USagaGummyBearAnimInstance::PlayAttackMontage()
 
 	mAttackEnable = false;
 
-	UE_LOG(LogTemp, Warning, TEXT("PlayAttackMontage"));
+	UE_LOG(LogSagaGame, Warning, TEXT("PlayAttackMontage"));
 
 	if (!Montage_IsPlaying(mAttackMontageArray[mAttackIndex]))
 	{

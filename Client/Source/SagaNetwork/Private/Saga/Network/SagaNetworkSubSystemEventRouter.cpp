@@ -252,7 +252,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	case EPacketProtocol::SC_FAILED_GAME_START:
 	{
 		saga::SC_FailedGameStartingPacket pk{};
-		auto offset = pk.Read(alt_buffer);
+		pk.Read(alt_buffer);
 
 		const ESagaGameContract cause = static_cast<ESagaGameContract>(static_cast<uint8>(pk.errCause));
 		auto str = UEnum::GetValueAsString(cause);
@@ -266,7 +266,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	case EPacketProtocol::SC_GAME_GETTING_READY:
 	{
 		//SC_ReadyForGamePacket pk{};
-		//auto offset = pk.Read(alt_buffer);
+		//pk.Read(alt_buffer);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start loading game..."));
 
@@ -324,17 +324,9 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, remote_character_class);
 
-						FTransform transform{};
-						transform.TransformPosition({ 0, 0, 100 });
-
-						auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(remote_character_class, transform));
-						if (character)
+						if (remote_character_class)
 						{
-							//character->mWeaponType = sdasdaddas;
-							member.remoteCharacter = character;
-
-
-							UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
+							UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` would create a playable character"), member.ID());
 						}
 						else
 						{
@@ -350,7 +342,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	case EPacketProtocol::SC_REMOVE_PLAYER:
 	{
 		saga::SC_DestroyPlayerPacket pk{};
-		auto offset = pk.Read(alt_buffer);
+		pk.Read(alt_buffer);
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] A client %d is destroyed(disconnected)"), pk.clientId);
 

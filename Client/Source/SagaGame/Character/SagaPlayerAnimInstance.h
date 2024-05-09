@@ -1,8 +1,9 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "CharacterSelect/SagaSelectCharacter.h"
 
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"
+#include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")
@@ -57,7 +58,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool	mIsGround = true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mAttackMontageArray;
 

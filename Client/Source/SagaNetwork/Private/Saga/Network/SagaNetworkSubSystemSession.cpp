@@ -58,21 +58,118 @@ const noexcept
 	return everyUsers.ContainsByPredicate(FSagaSessionIdComparator{ id });
 }
 
+void
+USagaNetworkSubSystem::SetCharacterHandle(int32 user_id, ASagaCharacterPlayer* character)
+noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			user.remoteCharacter = character;
+		}
+	}
+}
+
+void
+USagaNetworkSubSystem::SetTeam(int32 user_id, const EUserTeam& team)
+noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			user.myTeam = team;
+		}
+	}
+}
+
+void
+USagaNetworkSubSystem::SetWeapon(int32 user_id, EPlayerWeapon weapon)
+noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			user.myWeapon = weapon;
+		}
+	}
+}
+
+void
+USagaNetworkSubSystem::SetHealth(int32 user_id, const float hp)
+noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			user.myHealth = hp;
+		}
+	}
+}
+
+ASagaCharacterPlayer*
+USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
+const noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			return user.remoteCharacter;
+		}
+	}
+
+	return nullptr;
+}
+
 bool
 USagaNetworkSubSystem::GetTeam(int32 user_id, EUserTeam& outpin)
 const noexcept
 {
-	FSagaVirtualUser user{};
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			outpin = user.myTeam;
+			return true;
+		}
+	}
 
-	if (FindUser(user_id, user))
+	return false;
+}
+
+bool
+USagaNetworkSubSystem::GetWeapon(int32 user_id, EPlayerWeapon& outpin)
+const noexcept
+{
+	for (auto& user : everyUsers)
 	{
-		outpin = user.myTeam;
-		return true;
+		if (user.MyID == user_id)
+		{
+			outpin = user.myWeapon;
+			return true;
+		}
 	}
-	else
+
+	return false;
+}
+
+float
+USagaNetworkSubSystem::GetHealth(int32 user_id)
+const noexcept
+{
+	for (auto& user : everyUsers)
 	{
-		return false;
+		if (user.MyID == user_id)
+		{
+			return user.myHealth;
+		}
 	}
+
+	return -0.0f;
 }
 
 void

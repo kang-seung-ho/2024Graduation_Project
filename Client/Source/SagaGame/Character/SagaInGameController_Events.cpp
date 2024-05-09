@@ -6,6 +6,33 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 
 void
+ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class)
+{
+	FTransform transform{};
+	transform.TransformPosition({ 0, 0, 100 });
+
+	auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class, transform));
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (nullptr != system and system->GetLocalUserId() != -1)
+	{
+		if (nullptr != character)
+		{
+			system->SetCharacterHandle(user_id, character);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("User %d could not create a character!"), user_id);
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+	}
+}
+
+void
 ASagaInGamePlayerController::OnAttack(const FInputActionValue& input)
 {
 	auto pawn = GetPawn<ASagaCharacterPlayer>();

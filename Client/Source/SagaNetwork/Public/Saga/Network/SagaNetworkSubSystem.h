@@ -9,10 +9,11 @@
 #include "Saga/Network/SagaVirtualRoom.h"
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaRpcProtocol.h"
-#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
-#include "SagaGame/Player/SagaUserTeam.h"
 
+#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "SagaGame/Character/SagaPlayableCharacter.h"
+#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 
 #include "SagaNetworkSubSystem.generated.h"
 
@@ -97,8 +98,24 @@ public:
 	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	bool HasUser(int32 id) const noexcept;
+
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetTeam(int32 id, EUserTeam& outpin) const noexcept;
+	void SetCharacterHandle(int32 user_id, class ASagaCharacterPlayer* character) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetTeam(int32 user_id, const EUserTeam& team) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetWeapon(int32 user_id, EPlayerWeapon weapon) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetHealth(int32 user_id, const float hp) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	class ASagaCharacterPlayer* GetCharacterHandle(int32 user_id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetTeam(int32 user_id, EUserTeam& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetWeapon(int32 user_id, EPlayerWeapon& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	float GetHealth(int32 user_id) const noexcept;
 #pragma endregion
 
 	/* Overall Rooms Methods */
@@ -288,9 +305,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
 	UClass* GetPlayableCharacterClass(const int32& user_id) const;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
-	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

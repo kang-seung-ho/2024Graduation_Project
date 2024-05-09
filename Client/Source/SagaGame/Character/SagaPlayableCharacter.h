@@ -1,11 +1,12 @@
 #pragma once
 #include "SagaGame.h"
+#include "Misc/OutputDeviceNull.h"
 #include "SagaCharacterPlayer.h"
 
 #include "../Item/SagaWeaponData.h"
 #include "../Interface/SagaCharacterItemInterface.h"
+#include "Player/SagaPlayerWeaponTypes.h"
 #include "CharacterSelect/SagaSelectCharacter.h"
-#include "Misc/OutputDeviceNull.h"
 #include "SagaPlayableCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class USagaWeaponData*);

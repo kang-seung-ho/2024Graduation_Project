@@ -19,7 +19,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	{
 		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
 	}
-	
+
 	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
@@ -42,17 +42,19 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	//Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 }
 
-void ASagaPlayableCharacter::RideNPC()
+void
+ASagaPlayableCharacter::RideNPC()
 {
-	UE_LOG(LogTemp, Warning, TEXT("RideNPC Called"))
-	FOutputDeviceNull Ar;
+	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
+		FOutputDeviceNull Ar;
 	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
 	if (ret == true)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RidingFunction Called"))
+		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Called"))
 	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("RidingFunction Not Found"))
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Not Found"))
 	}
 }
 
@@ -68,7 +70,8 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float
+ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	myClientHP -= DamageAmount;
@@ -140,17 +143,17 @@ ASagaPlayableCharacter::Attack()
 		bool Collision;
 		if (myTEAM == EUserTeam::Red)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Using Red Team Collision - LightSaber"))
-			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - LightSaber"))
+				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 		}
 		else if (myTEAM == EUserTeam::Blue)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Using Blue Team Collision - LightSaber"))
-			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - LightSaber"))
+				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Not Found Team"));
+			UE_LOG(LogSagaGame, Warning, TEXT("Not Found Team"));
 			return;
 		}
 
@@ -187,28 +190,33 @@ ASagaPlayableCharacter::Attack()
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
-		bool Collision;
+
+		bool Collision{};
+
 		if (myTEAM == EUserTeam::Red)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Using Red Team Collision - WaterGun"))
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
+
 			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
 		}
 		else if (myTEAM == EUserTeam::Blue)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Using Blue Team Collision - WaterGun"))
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
+
 			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
 		}
-		
+
 
 		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Result.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-		UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+		UE_LOG(LogSagaGame, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
 
 		if (Result.bBlockingHit && IsValid(Result.GetActor()))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
+			UE_LOG(LogSagaGame, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
 		}
-		else {
-			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+		else
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
 		}
 
 		if (Collision)
@@ -226,7 +234,7 @@ ASagaPlayableCharacter::Attack()
 				Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
 				Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 			}
-			
+
 		}
 
 	}
@@ -236,7 +244,7 @@ ASagaPlayableCharacter::Attack()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Not Found Weapon"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
 	}
 
 }

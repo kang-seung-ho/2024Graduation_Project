@@ -82,7 +82,7 @@ ASagaCharacterPlayer::BeginPlay()
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	mWeaponType = system->GetWeaponType();
-	UE_LOG(LogTemp, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
+	UE_LOG(LogSagaGame, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
 
 	system->GetLocalUserTeam(myTEAM);
 
@@ -148,22 +148,22 @@ ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 void
 ASagaCharacterPlayer::PlayAttackAnimation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entered PlayAttackAnimation"));
+	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	int32 CharacterMode = system->GetCurrentMode();
-	UE_LOG(LogTemp, Warning, TEXT("Character Mode : %d"), CharacterMode);
+	UE_LOG(LogSagaGame, Warning, TEXT("Character Mode : %d"), CharacterMode);
 
 	if (CharacterMode == 1)
 	{
 		if (mAnimInst != nullptr)
 		{
 			mAnimInst->PlayAttackMontage();
-			UE_LOG(LogTemp, Warning, TEXT("This character is a SagaPlayableCharacter"));
+			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaPlayableCharacter"));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("mAnimInst is null"));
+			UE_LOG(LogSagaGame, Error, TEXT("mAnimInst is null"));
 		}
 	}
 	else if (CharacterMode == 2)
@@ -171,16 +171,16 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 		if (mBearAnimInst != nullptr)
 		{
 			mBearAnimInst->PlayAttackMontage();
-			UE_LOG(LogTemp, Warning, TEXT("This character is a SagaBear"));
+			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaBear"));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("mBearAnimInst is null"));
+			UE_LOG(LogSagaGame, Error, TEXT("mBearAnimInst is null"));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid Character Mode"));
+		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode"));
 	}
 }
 

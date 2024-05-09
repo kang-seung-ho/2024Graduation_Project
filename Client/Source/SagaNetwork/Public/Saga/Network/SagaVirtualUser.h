@@ -1,7 +1,7 @@
 #pragma once
 #include "Saga/Network/SagaVirtualSession.h"
 #include "SagaGame/Player/SagaUserTeam.h"
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 
 #include "SagaVirtualUser.generated.h"
 
@@ -18,6 +18,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "CandyLandSaga|Network|Session")
 	EUserTeam myTeam;
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "CandyLandSaga|Network|Session")
+	EPlayerWeapon myWeapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Network|Session")
 	float myHealth;
 };

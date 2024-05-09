@@ -1,16 +1,9 @@
 #pragma once
 #include "../../SagaGameInfo.h"
 #include "GameFramework/Actor.h"
+
+#include "Player/SagaPlayerWeaponTypes.h"
 #include "SagaSelectCharacter.generated.h"
-
-UENUM(BlueprintType)
-enum class EPlayerWeapon : uint8
-{
-	LightSabor,
-	WaterGun,
-	Hammer
-};
-
 
 UCLASS()
 class SAGAGAME_API ASagaSelectCharacter : public AActor

@@ -75,6 +75,9 @@ public:
 	FVector walkDirection;
 
 protected:
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	FVector preferedDirection;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isForwardWalking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
@@ -85,9 +88,6 @@ protected:
 	bool wasMoved; // 이동했는지 여부
 	UPROPERTY()
 	bool wasTilted; // 회전했는지 여부
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	FVector preferedDirection;
 
 	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;

@@ -45,6 +45,8 @@ protected:
 
 	/* Methods */
 #pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
+	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 	UFUNCTION()
 	void TriggerRideNPC(const FInputActionValue& Value);
 	UFUNCTION()
@@ -61,6 +63,8 @@ protected:
 	void OnUpdateTransform();
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
+	UFUNCTION()
+	void OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class);
 #pragma endregion
 
 	/* Actions */
