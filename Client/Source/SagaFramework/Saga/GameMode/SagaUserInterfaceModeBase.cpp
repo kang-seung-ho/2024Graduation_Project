@@ -4,5 +4,7 @@
 ASagaUserInterfaceModeBase::ASagaUserInterfaceModeBase()
 	: ASagaGameModeBase()
 {
+	DefaultPawnClass = nullptr;
+	GameStateClass = nullptr;
 	PlayerControllerClass = ASagaInterfaceController::StaticClass();
 }
