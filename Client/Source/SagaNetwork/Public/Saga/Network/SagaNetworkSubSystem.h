@@ -38,8 +38,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnStartGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdatePosition, int32, id, float, x, float, y, float, z);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdateRotation, int32, id, float, r, float, y, float, p);
 
-class ASagaCharacterPlayer;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, EUserTeam, team, ASagaCharacterPlayer*, character);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, EUserTeam, team, UClass*, character_class);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
@@ -262,14 +261,13 @@ public:
 	FSagaEventOnGetPreparedGame OnGetPreparedGame;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnStartGame OnStartGame;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnCreatingCharacter OnCreatingCharacter;
 
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnUpdatePosition OnUpdatePosition;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnUpdateRotation OnUpdateRotation;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnCreatingCharacter OnCreatingCharacter;
-
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnRpc OnRpc;
 #pragma endregion
@@ -288,7 +286,10 @@ public:
 		CurrentPlayerWeapon = Type;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
+	UClass* GetPlayableCharacterClass(const int32& user_id) const;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
 	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 
 public:
@@ -385,7 +386,6 @@ private:
 	void OnUpdateRotation_Implementation(int32 id, float p, float y, float r);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
-
 #pragma endregion
 
 	/* Event Broadcasting Methods */
@@ -427,7 +427,7 @@ private:
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
-	void BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, class ASagaCharacterPlayer* character) const;
+	void BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion
@@ -453,31 +453,8 @@ private:
 	/// <remarks>로컬 플레이어도 포함</remarks>
 	UPROPERTY()
 	TArray<FSagaVirtualUser> everyUsers;
-
-	void ChangeRemoteCharacter()
-	{
-		for (auto x : everyUsers)
-		{
-			if (x.MyID == GetLocalUserId())
-			{
-				delete x.StaticStruct();
-				new FSagaVirtualUser;
-
-			}
-		}
-	}
-	
 	UPROPERTY()
 	TArray<FSagaVirtualRoom> everyRooms;
 	TAtomic<bool> wasUsersUpdated;
 	TAtomic<bool> wasRoomsUpdated;
-
-	UPROPERTY()
-	TSoftClassPtr<class ASagaCharacterPlayer> localPlayerClassReference;
-	UPROPERTY()
-	TSoftClassPtr<class ASagaCharacterPlayer> dummyPlayerClassReference;
-	UPROPERTY()
-	TObjectPtr<APlayerController> localPlayerController;
-	UPROPERTY()
-	TObjectPtr<APawn> localPlayerCharacter;
 };

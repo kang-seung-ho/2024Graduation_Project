@@ -313,16 +313,16 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, ASagaCharacterPlayer* character)
+USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class)
 const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnCreatingCharacter`"));
 
 	if (OnCreatingCharacter.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, team, character]()
+		CallPureFunctionOnGameThread([this, user_id, team, character_class]()
 			{
-				OnCreatingCharacter.Broadcast(user_id, team, character);
+				OnCreatingCharacter.Broadcast(user_id, team, character_class);
 			}
 		);
 	}

@@ -123,17 +123,14 @@ USagaNetworkSubSystem::OnStartGame_Implementation()
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnStartGame] Cannot find the local player's controller."));
 		return;
 	}
-	localPlayerController = controller;
 
-	auto my_pawn = controller->GetPawn();
-	if (nullptr == my_pawn)
+	if (nullptr == controller->GetPawn())
 	{
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame][OnStartGame] Cannot find a pawn of the local player."));
 		return;
 	}
 
 	UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][OnStartGame] System found the character of local player."));
-	localPlayerCharacter = my_pawn;
 }
 
 void
@@ -141,8 +138,7 @@ USagaNetworkSubSystem::OnUpdatePosition_Implementation(int32 id, float x, float 
 {
 	if (id == GetLocalUserId()) // 로컬 클라이언트
 	{
-		//auto movement = localPlayerCharacter->GetMovementComponent();
-		//localPlayerCharacter->SetActorLocation(FVector{ x, y, z });
+
 	}
 	else // 원격 클라이언트
 	{

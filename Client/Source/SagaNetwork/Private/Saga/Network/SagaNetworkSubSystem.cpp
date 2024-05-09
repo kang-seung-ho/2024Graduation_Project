@@ -18,26 +18,25 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, OnRoomCreated(), OnJoinedRoom(), OnOtherJoinedRoom(), OnLeftRoomBySelf(), OnLeftRoom()
 	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
 	, OnTeamChanged()
-	, OnGetPreparedGame(), OnStartGame()
-	, OnUpdatePosition(), OnUpdateRotation(), OnCreatingCharacter()
+	, OnGetPreparedGame(), OnStartGame(), OnCreatingCharacter()
+	, OnUpdatePosition(), OnUpdateRotation(), OnRpc()
 	, clientSocket(), netWorker(), taskWorker()
 	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
 	, receivedDataLock()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
-	, localPlayerCharacter(), localPlayerController()
-	, localPlayerClassReference(), dummyPlayerClassReference()
 {
 	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
+
 	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
 	{
-		localPlayerClassReference = character_class_seek1.Class;
+		//localPlayerClassReference = character_class_seek1.Class;
 	}
 	else
 	{
 		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
 	}
 
-	dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
+	//dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
 }
 
 bool
@@ -399,6 +398,22 @@ const noexcept
 	{
 		return false;
 	}
+}
+
+UClass*
+USagaNetworkSubSystem::GetPlayableCharacterClass(const int32& user_id)
+const
+{
+	FSagaVirtualUser user{};
+
+	if (not FindUser(user_id, user))
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[GetPlayableCharacterClass] Cannot find a character class for player %d."), user_id);
+		return nullptr;
+	}
+
+
+	return ASagaPlayableCharacter::StaticClass();
 }
 
 AActor*

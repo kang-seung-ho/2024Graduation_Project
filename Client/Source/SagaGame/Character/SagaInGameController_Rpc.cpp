@@ -128,7 +128,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			
 			UWorld* World = GetWorld();
 			auto BearCharacter = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), user.remoteCharacter->GetActorLocation(), user.remoteCharacter->GetActorRotation(), SpawnParams));
-			
 
 			if (IsValid(user.remoteCharacter))
 			{

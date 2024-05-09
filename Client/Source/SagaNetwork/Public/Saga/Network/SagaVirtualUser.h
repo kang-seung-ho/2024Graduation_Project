@@ -1,9 +1,9 @@
 #pragma once
 #include "Saga/Network/SagaVirtualSession.h"
+#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaUserTeam.h"
 
 #include "SagaVirtualUser.generated.h"
-
-enum class EUserTeam : uint8;
 
 USTRUCT(BlueprintType, Atomic, Category = "CandyLandSaga|Level|UI|Element")
 struct SAGANETWORK_API FSagaVirtualUser : public FSagaVirtualSession

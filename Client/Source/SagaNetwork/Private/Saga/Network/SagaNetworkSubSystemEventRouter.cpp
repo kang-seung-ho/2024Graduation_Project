@@ -286,7 +286,6 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] %d Characters would be created"), everyUsers.Num());
 
-
 		const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
 		if (nullptr == player)
 		{
@@ -308,33 +307,32 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 			return;
 		}
 
-		// 여기서 로컬 캐릭터 할당
-		auto my_pawn = controller->GetPawn();
-		localPlayerCharacter = my_pawn;
-
-		CallFunctionOnGameThread([this, my_pawn]()
+		CallFunctionOnGameThread([this, controller]()
 			{
-				auto remote_character_class = dummyPlayerClassReference.LoadSynchronous();
-
 				for (auto& member : everyUsers)
 				{
 					if (member.ID() == GetLocalUserId())
 					{
 						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Local client `%d` doesn't need to create a character."), member.ID());
 
-						member.remoteCharacter = Cast<ASagaCharacterPlayer>(Cast<ACharacter>(my_pawn));
+						// 여기서 로컬 캐릭터 할당
+						member.remoteCharacter = controller->GetPawn<ASagaCharacterPlayer>();
 					}
 					else
 					{
+						auto remote_character_class = ASagaPlayableCharacter::StaticClass();
+
+						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, remote_character_class);
+
 						FTransform transform{};
 						transform.TransformPosition({ 0, 0, 100 });
 
 						auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(remote_character_class, transform));
 						if (character)
 						{
+							//character->mWeaponType = sdasdaddas;
 							member.remoteCharacter = character;
 
-							BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.remoteCharacter);
 
 							UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` created a playable character"), member.ID());
 						}
