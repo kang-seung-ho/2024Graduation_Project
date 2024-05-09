@@ -48,14 +48,18 @@ public:
 	/* Actions */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
-	void BeginForwardWalk(const FInputActionValue& Value);
+	void BeginForwardWalk(const FInputActionValue& input);
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
-	void EndForwardWalk(const FInputActionValue& Value);
+	void MidForwardWalk(const FInputActionValue& input);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndForwardWalk(const FInputActionValue& input);
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
-	void BeginStrafeWalk(const FInputActionValue& Value);
+	void BeginStrafeWalk(const FInputActionValue& input);
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
-	void EndStrafeWalk(const FInputActionValue& Value);
+	void MidStrafeWalk(const FInputActionValue& input);
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	void EndStrafeWalk(const FInputActionValue& input);
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
 	void BeginRun();

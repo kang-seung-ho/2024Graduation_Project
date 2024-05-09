@@ -35,6 +35,15 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 }
 
 void
+ASagaInGamePlayerController::MidForwardWalk(const FInputActionValue& input)
+{
+	if (walkDirection.Y != input.Get<FVector>().Y)
+	{
+		BeginForwardWalk(input);
+	}
+}
+
+void
 ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Walking Straight"));
@@ -73,6 +82,15 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	else
 	{
 		SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+	}
+}
+
+void
+ASagaInGamePlayerController::MidStrafeWalk(const FInputActionValue& input)
+{
+	if (walkDirection.X != input.Get<FVector>().X)
+	{
+		BeginStrafeWalk(input);
 	}
 }
 
