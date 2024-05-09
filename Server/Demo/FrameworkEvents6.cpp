@@ -187,7 +187,19 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	}
 	break;
 
-	case RPC_END_ATTACK_0:
+	case RPC_DMG_PLYER:
+	{
+
+	}
+	break;
+
+	case RPC_DMG_GUARDIAN:
+	{
+
+	}
+	break;
+
+	case RPC_DMG_GUARDIANS_PART:
 	{
 
 	}
