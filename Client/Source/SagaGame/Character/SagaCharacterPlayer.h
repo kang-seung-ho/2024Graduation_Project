@@ -32,6 +32,9 @@ public:
 	UFUNCTION()
 	void SetTeamColorAndCollision();
 
+
+	void SetTeamColorAndCollision(EUserTeam myTeam);
+
 	virtual void Tick(float delta_time) override;
 
 protected:

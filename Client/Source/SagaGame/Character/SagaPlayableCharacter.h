@@ -50,6 +50,8 @@ public:
 protected:
 	EItemType mItemType;
 	float myClientHP = 100.0f;
+private:
+	FTimerHandle RespawnTimerHandle;
 
 protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
@@ -70,6 +72,8 @@ protected:
 public:
 	// ������ ó���� ���� �������̵�
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	void RespawnCharacter();
 
 //public:
 //	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))

@@ -75,11 +75,15 @@ float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const&
 
 	if (myClientHP <= 0.0f)
 	{
+		//잠시 Collision 해제
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 		//사망애니메이션 실행
 
-
+		
 		//리스폰 함수 실행
-		Destroy();
+		// RespawnCharacter 함수 3초 뒤	실행
+		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
 
 		//상대 팀 점수 증가 실행
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
@@ -90,6 +94,25 @@ float ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const&
 	}
 	return DamageAmount;
 }
+
+void ASagaPlayableCharacter::RespawnCharacter()
+{
+	
+	myClientHP = 100.0f;
+
+	FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
+	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+
+	//Collision 활성화
+	SetTeamColorAndCollision(myTEAM);
+
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("Character respawned at Location: %s"), *SpawnLocation.ToString());
+}
+
 
 
 void

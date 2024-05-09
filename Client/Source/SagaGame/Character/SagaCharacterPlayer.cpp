@@ -59,6 +59,19 @@ ASagaCharacterPlayer::SetTeamColorAndCollision()
 }
 
 void
+ASagaCharacterPlayer::SetTeamColorAndCollision(EUserTeam myTeam)
+{
+	if (myTEAM == EUserTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (myTEAM == EUserTeam::Blue)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
+void
 ASagaCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
