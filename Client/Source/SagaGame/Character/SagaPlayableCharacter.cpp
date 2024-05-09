@@ -38,8 +38,11 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 
 	//Weapon
-	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	MyWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	MyWeapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	// WeaponMesh Collision Disable
+	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	//Load Weapon Meshes
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_low.Lightsaber_low'"));
@@ -81,26 +84,26 @@ ASagaPlayableCharacter::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay"));
 	//Set Weapon Mesh due to Weapon Type
 	if (WeaponMeshes.Contains(mWeaponType)) {
-		Weapon->SetStaticMesh(WeaponMeshes[mWeaponType]);
+		MyWeapon->SetStaticMesh(WeaponMeshes[mWeaponType]);
 		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), mWeaponType);
 
 		if (mWeaponType == EPlayerWeapon::LightSabor)
 		{
-			Weapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-			Weapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
-			Weapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
 		}
 		else if (mWeaponType == EPlayerWeapon::WaterGun)
 		{
-			Weapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
-			Weapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
-			Weapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
 		else if (mWeaponType == EPlayerWeapon::Hammer)
 		{
-			Weapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
-			Weapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
-			Weapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
 	}
 	else {
@@ -293,7 +296,45 @@ ASagaPlayableCharacter::Attack()
 	}
 	else if (mWeaponType == EPlayerWeapon::Hammer)
 	{
+		FHitResult Result;
 
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+
+		FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
+		param.AddIgnoredActor(this);
+
+		bool Collision;
+		if (myTEAM == EUserTeam::Red)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - Hammer"))
+				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
+		}
+		else if (myTEAM == EUserTeam::Blue)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - Hammer"))
+				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Not Found Team"));
+			return;
+		}
+
+		if (Collision)
+		{
+			FDamageEvent DamageEvent;
+			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
+
+			Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
+			Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
+		}
 	}
 	else
 	{
@@ -302,14 +343,20 @@ ASagaPlayableCharacter::Attack()
 
 }
 
+void ASagaPlayableCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
+}
+
 void
 ASagaPlayableCharacter::Acquire_Drink(USagaWeaponData* ItemData)
 {
 	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
 	if (AcquiredItemData)
 	{
-		//HP 회복 전송 코드 or 아이템 획득 전송 코드
-		//로컬 인벤토리에 저장
+		//Send HP adding code or Item Acquiring code to server
+		//And Save to Local Inventory
 	}
 
 	mItemType = AcquiredItemData->ItemType;
@@ -321,8 +368,8 @@ ASagaPlayableCharacter::Acquire_Gum(USagaWeaponData* ItemData)
 	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
 	if (AcquiredItemData)
 	{
-		//아이템 획득 전송 코드
-		//로컬 인벤토리에 저장
+		//Item Acquiring code to server
+		//And Save to Local Inventory
 	}
 
 	mItemType = AcquiredItemData->ItemType;
@@ -334,8 +381,8 @@ ASagaPlayableCharacter::Acquire_smokebomb(USagaWeaponData* ItemData)
 	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
 	if (AcquiredItemData)
 	{
-		//아이템 획득 전송 코드
-		//로컬 인벤토리에 저장
+		//Item Acquiring code to server
+		//And Save to Local Inventory
 	}
 	mItemType = AcquiredItemData->ItemType;
 }

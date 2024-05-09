@@ -49,6 +49,9 @@ public:
 	virtual void Attack();
 
 protected:
+	virtual void PostInitializeComponents() override;
+
+protected:
 	EItemType mItemType;
 	float myClientHP = 100.0f;
 private:
@@ -71,7 +74,7 @@ protected:
 
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TObjectPtr<class UStaticMeshComponent> Weapon;
+	TObjectPtr<class UStaticMeshComponent> MyWeapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
 

@@ -85,6 +85,13 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 			mAttackIndex = (mAttackIndex + 1) % mGunAttackMontageArray.Num();
 		}
+		else if (mWeaponTypes == EPlayerWeapon::Hammer) {
+			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
+
+			Montage_Play(mAttackMontageArray[mAttackIndex]);
+
+			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
+		}
 		
 	}
 }
