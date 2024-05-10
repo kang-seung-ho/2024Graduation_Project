@@ -100,10 +100,11 @@ ASagaInGamePlayerController::BeginPlay()
 	//	mArm->AttachToComponent(GetPawn()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//	mCamera->AttachToComponent(mArm, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//}
+	//
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (nullptr != system and system->GetLocalUserId() != -1)
+	if (nullptr != system)
 	{
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
@@ -118,9 +119,7 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 
 	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0);
-
-
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaInGamePlayerController::CountDown, 0.015f, true, 0.0);
 
 	if (IsValid(mTeamScoreBoardClass))
 	{

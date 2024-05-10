@@ -53,12 +53,10 @@ ASagaInGamePlayerController::OnUpdateTransform()
 		{
 			const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-			if (pawn->wasMoved)
+			if (pawn->wasMoved or not pawn->CanJump())
 			{
 				const auto loc = pawn->K2_GetActorLocation();
 				system->SendPositionPacket(loc.X, loc.Y, loc.Z);
-
-				pawn->wasMoved = false;
 			}
 
 			if (wasTilted)

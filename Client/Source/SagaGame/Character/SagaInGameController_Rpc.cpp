@@ -113,6 +113,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{}
 
 		character->ExecuteJump();
+		character->MarkMoved();
 	}
 	break;
 
@@ -125,6 +126,9 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 			FActorSpawnParameters SpawnParams{};
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
+
+			auto guardian_id = arg0;
+			auto guardian_info = arg1;
 
 			auto old_character = user.GetCharacterHandle();
 
@@ -140,7 +144,9 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			}
 
 			auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
+
 			// 곰에 속성 전달
+			bear->MarkMoved();
 
 			user.SetCharacterHandle(bear);
 		}
@@ -156,6 +162,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateRide();
 		}
+
+		character->MarkMoved();
 	}
 	break;
 
@@ -165,6 +173,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->ExecuteAttack();
 		}
+
+		character->MarkMoved();
 	}
 	break;
 
@@ -174,6 +184,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateAttack();
 		}
+
+		character->MarkMoved();
 	}
 	break;
 
@@ -183,6 +195,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->ExecuteAttack();
 		}
+
+		character->MarkMoved();
 	}
 	break;
 
@@ -192,6 +206,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateAttack();
 		}
+
+		character->MarkMoved();
 	}
 	break;
 

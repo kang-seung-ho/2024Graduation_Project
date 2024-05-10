@@ -31,7 +31,8 @@ public:
 	void RotationCameraArm(float Scale);
 	UFUNCTION()
 	void SetTeamColorAndCollision();
-
+	UFUNCTION()
+	void MarkMoved() noexcept;
 
 	void SetTeamColorAndCollision(EUserTeam myTeam);
 
@@ -86,6 +87,8 @@ protected:
 	bool isStrafeWalking;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
+	UPROPERTY()
+	bool movingFlag;
 	UPROPERTY()
 	bool wasMoved; // 이동했는지 여부
 	UPROPERTY()

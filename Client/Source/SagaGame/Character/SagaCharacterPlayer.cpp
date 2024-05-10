@@ -13,7 +13,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	, walkDirection(), preferedDirection()
 	, isForwardWalking(), isStrafeWalking()
 	, isRunning()
-	, wasMoved(), wasTilted()
+	, movingFlag(), wasMoved(), wasTilted()
 	, tranformUpdateTimer()
 
 {
@@ -56,6 +56,14 @@ ASagaCharacterPlayer::SetTeamColorAndCollision()
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
 	}
+}
+
+void
+ASagaCharacterPlayer::MarkMoved()
+noexcept
+{
+	movingFlag = true;
+	wasMoved = true;
 }
 
 void
@@ -112,7 +120,15 @@ ASagaCharacterPlayer::Tick(float delta_time)
 		dir_delta.Normalize();
 
 		walkDirection += dir_delta * FMath::Min(dir_delta_size, scalar_delta * delta_time);
-		wasMoved = true;
+		MarkMoved();
+	}
+	else if (movingFlag)
+	{
+		movingFlag = false;
+	}
+	else
+	{
+		wasMoved = false;
 	}
 
 	// Do walk
