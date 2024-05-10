@@ -74,6 +74,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
 
+	friend class ASagaInGamePlayerController;
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	FVector preferedDirection;

@@ -112,6 +112,7 @@ ASagaCharacterPlayer::Tick(float delta_time)
 		dir_delta.Normalize();
 
 		walkDirection += dir_delta * FMath::Min(dir_delta_size, scalar_delta * delta_time);
+		wasMoved = true;
 	}
 
 	// Do walk

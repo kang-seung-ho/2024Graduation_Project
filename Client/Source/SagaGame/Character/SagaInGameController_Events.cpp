@@ -9,7 +9,7 @@ void
 ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class)
 {
 	FTransform transform{};
-	transform.TransformPosition({ 0, 0, 100 });
+	transform.TransformPosition({ 0, 0, 300 });
 
 	auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class, transform));
 
@@ -51,12 +51,14 @@ ASagaInGamePlayerController::OnUpdateTransform()
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
 		{
-			const auto pawn = GetPawn();
+			const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-			if (wasMoved)
+			if (pawn->wasMoved)
 			{
 				const auto loc = pawn->K2_GetActorLocation();
 				system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+
+				pawn->wasMoved = false;
 			}
 
 			if (wasTilted)
