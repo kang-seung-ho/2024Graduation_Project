@@ -352,6 +352,41 @@ public:
 		}
 	}
 
+	UFUNCTION(BlueprintCallable)
+	FString GetWhoWon()
+	{
+		EUserTeam team;
+		GetLocalUserTeam(team);
+
+		if (RedTeamScore > BlueTeamScore)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return "승리!"; // I'm Red Team And My team Win
+			}
+			else
+			{
+				return "패배"; // I'm Blue Team And My team Lose
+			}
+		}
+		else if (RedTeamScore < BlueTeamScore)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return "패배"; // I'm Red Team And My team Lose
+			}
+			else
+			{
+				return "승리!"; // I'm Blue Team And My team Win
+			}
+		}
+		else
+		{
+			return "무승부"; // Draw
+		}
+	}
+
+
 private:
 	/* Internal Functions */
 #pragma region =========================
