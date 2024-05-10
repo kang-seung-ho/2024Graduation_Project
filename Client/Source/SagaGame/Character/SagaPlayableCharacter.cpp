@@ -45,9 +45,9 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	//Load Weapon Meshes
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_low.Lightsaber_low'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/WaterGun_low.WaterGun_low'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_low.Hammer_low'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
 
 	if (LightSaborMesh.Succeeded()) {
 		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMesh.Object);
