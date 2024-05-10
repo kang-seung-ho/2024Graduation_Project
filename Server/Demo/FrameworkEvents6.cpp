@@ -128,11 +128,11 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 				}
 			);
 
-			myLogger.Log(L"\tUser {} changed weapon to {}", user_id, arg0);
+			myLogger.Log(L"\tUser {} changed weapon to {}\n", user_id, arg0);
 		}
 		else
 		{
-			myLogger.LogWarning(L"\tUser {} alerady have a weapon {}", user_id, user->myWeaponId.Load());
+			myLogger.LogWarning(L"\tUser {} alerady have a weapon {}\n", user_id, user->myWeaponId.Load());
 		}
 	}
 	break;
@@ -142,7 +142,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
-			myLogger.LogError(L"\tUser {} tells wroing Guardian {}", user_id, arg0);
+			myLogger.LogError(L"\tUser {} tells wroing Guardian {}\n", user_id, arg0);
 			break;
 		}
 
@@ -150,11 +150,11 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		if (guardian.CanRide())
 		{
-			myLogger.Log(L"\tUser {} would ride the Guardian {}", user_id, arg0);
+			myLogger.Log(L"\tUser {} would ride the Guardian {}\n", user_id, arg0);
 		}
 		else
 		{
-			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}", user_id, arg0);
+			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}\n", user_id, arg0);
 		}
 	}
 	break;
@@ -164,7 +164,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
-			myLogger.LogError(L"\tUser {} tells wroing Guardian {}", user_id, arg0);
+			myLogger.LogError(L"\tUser {} tells wroing Guardian {}\n", user_id, arg0);
 			break;
 		}
 
@@ -172,11 +172,11 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		if (guardian.CanRide())
 		{
-			myLogger.Log(L"\tUser {} would ride the Guardian {}", user_id, arg0);
+			myLogger.Log(L"\tUser {} would ride the Guardian {}\n", user_id, arg0);
 		}
 		else
 		{
-			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}", user_id, arg0);
+			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}\n", user_id, arg0);
 		}
 	}
 	break;
