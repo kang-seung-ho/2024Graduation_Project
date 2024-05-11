@@ -479,8 +479,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		const IdType user_id = static_cast<IdType>(io_id);
 		auto user = FindUser(user_id);
 
-		ctx->SetOperation(OpSendBorrowed);
-
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\tUser {}'s operation of preparing the game has failed\n", user_id);
@@ -495,8 +493,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		{
 			myLogger.Log(L"\tUser {} prepared the game\n", user_id);
 		}
-
-		RETURN_BACK_SENDER(ctx);
 	}
 	break;
 
