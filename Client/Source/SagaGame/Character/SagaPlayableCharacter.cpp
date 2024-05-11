@@ -162,7 +162,7 @@ ASagaPlayableCharacter::RespawnCharacter()
 	//Collision Enable Codes
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	system->GetLocalUserTeam(myTeam); //re-save team color from system
-	SetTeamColorAndCollision();	//re-set team collision
+	SetTeamColorAndCollision(myTeam);	//re-set team collision
 
 	UE_LOG(LogTemp, Warning, TEXT("Character respawned at Location: %s"), *SpawnLocation.ToString());
 }
