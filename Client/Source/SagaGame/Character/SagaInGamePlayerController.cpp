@@ -119,9 +119,6 @@ ASagaInGamePlayerController::BeginPlay()
 	FTimerHandle CountdownTimerHandle{};
 	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0);
 
-	FTimerHandle StartingTimerHandle{};
-	GetWorldTimerManager().SetTimer(StartingTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 0.0f, false, 1.0);
-
 	if (IsValid(mTeamScoreBoardClass))
 	{
 		mTeamScoreBoard = CreateWidget<UUserWidget>(GetWorld(), mTeamScoreBoardClass);
@@ -131,6 +128,8 @@ ASagaInGamePlayerController::BeginPlay()
 			mTeamScoreBoard->AddToViewport();
 		}
 	}
+
+	OnLevelReady();
 }
 
 void ASagaInGamePlayerController::CountDown()
