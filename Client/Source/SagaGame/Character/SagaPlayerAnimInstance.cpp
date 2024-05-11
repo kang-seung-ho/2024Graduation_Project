@@ -1,8 +1,8 @@
 #include "SagaPlayerAnimInstance.h"
 #include "SagaPlayableCharacter.h"
-#include "SagaInGamePlayerController.h"
 
-void USagaPlayerAnimInstance::NativeInitializeAnimation()
+void
+USagaPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -10,59 +10,53 @@ void USagaPlayerAnimInstance::NativeInitializeAnimation()
 	mMoveDir = 0.f;
 }
 
-void USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void
+USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	ASagaCharacterPlayer* character = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
 
-	if (IsValid(PlayerCharacter))
+	if (IsValid(character))
 	{
-		ASagaPlayableCharacter* WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(PlayerCharacter);
+		ASagaPlayableCharacter* WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(character);
+
 		if (IsValid(WeaponHoldingCharacter))
 		{
 			mWeaponTypes = WeaponHoldingCharacter->GetWeaponType();
 		}
 
-		UCharacterMovementComponent* Movement = PlayerCharacter->GetCharacterMovement();
-		if (IsValid(Movement))
-		{
-			//구해준 이동속도를 최대속도로 나누어 비율구함
-			mMoveSpeed = Movement->Velocity.Length();
-			mMoveSpeed /= Movement->MaxWalkSpeed;
-		}
-
-		ASagaInGamePlayerController* Controller = PlayerCharacter->GetController<ASagaInGamePlayerController>();
-		if (IsValid(Controller))
-		{
-			mMoveDir = Controller->GetMoveDir();
-		}
-
-		
+		mMoveSpeed = character->GetMoveAnimationSpeed();
+		mMoveDir = character->GetMoveAnimationAngle();
 	}
 }
 
-void USagaPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+void
+USagaPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 }
 
-void USagaPlayerAnimInstance::NativePostEvaluateAnimation()
+void
+USagaPlayerAnimInstance::NativePostEvaluateAnimation()
 {
 	Super::NativePostEvaluateAnimation();
 }
 
-void USagaPlayerAnimInstance::NativeUninitializeAnimation()
+void
+USagaPlayerAnimInstance::NativeUninitializeAnimation()
 {
 	Super::NativeUninitializeAnimation();
 }
 
-void USagaPlayerAnimInstance::NativeBeginPlay()
+void
+USagaPlayerAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 }
 
-void USagaPlayerAnimInstance::PlayAttackMontage()
+void
+USagaPlayerAnimInstance::PlayAttackMontage()
 {
 	if (!mAttackEnable)
 		return;
@@ -71,32 +65,35 @@ void USagaPlayerAnimInstance::PlayAttackMontage()
 
 	if (!Montage_IsPlaying(mAttackMontageArray[mAttackIndex]))
 	{
-		if (mWeaponTypes == EPlayerWeapon::LightSabor) {
+		if (mWeaponTypes == EPlayerWeapon::LightSabor)
+		{
 			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mAttackMontageArray[mAttackIndex]);
 
 			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
 		}
-		else if (mWeaponTypes == EPlayerWeapon::WaterGun) {
+		else if (mWeaponTypes == EPlayerWeapon::WaterGun)
+		{
 			Montage_SetPosition(mGunAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mGunAttackMontageArray[mAttackIndex]);
 
 			mAttackIndex = (mAttackIndex + 1) % mGunAttackMontageArray.Num();
 		}
-		else if (mWeaponTypes == EPlayerWeapon::Hammer) {
+		else if (mWeaponTypes == EPlayerWeapon::Hammer)
+		{
 			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
 
 			Montage_Play(mAttackMontageArray[mAttackIndex]);
 
 			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
 		}
-		
 	}
 }
 
-void USagaPlayerAnimInstance::AnimNotify_Attack()
+void
+USagaPlayerAnimInstance::AnimNotify_Attack()
 {
 	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
 	if (IsValid(PlayerCharacter))
@@ -105,12 +102,14 @@ void USagaPlayerAnimInstance::AnimNotify_Attack()
 	}
 }
 
-void USagaPlayerAnimInstance::AnimNotify_AttackEnable()
+void
+USagaPlayerAnimInstance::AnimNotify_AttackEnable()
 {
 	mAttackEnable = true;
 }
 
-void USagaPlayerAnimInstance::AnimNotify_AttackEnd()
-{	
+void
+USagaPlayerAnimInstance::AnimNotify_AttackEnd()
+{
 	mAttackIndex = 0;
 }

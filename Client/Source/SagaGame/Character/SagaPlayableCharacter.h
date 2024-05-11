@@ -58,6 +58,9 @@ private:
 	FTimerHandle RespawnTimerHandle;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
+
 	// For saving Weapon Meshes
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;

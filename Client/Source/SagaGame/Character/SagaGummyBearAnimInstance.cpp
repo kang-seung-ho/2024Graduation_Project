@@ -1,11 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SagaGummyBearAnimInstance.h"
 #include "SagaGummyBearPlayer.h"
-#include "SagaInGamePlayerController.h"
 
-void USagaGummyBearAnimInstance::NativeInitializeAnimation()
+void
+USagaGummyBearAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -13,53 +10,46 @@ void USagaGummyBearAnimInstance::NativeInitializeAnimation()
 	mMoveDir = 0.f;
 }
 
-void USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void
+USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	ASagaGummyBearPlayer* BearCharacter = Cast<ASagaGummyBearPlayer>(TryGetPawnOwner());
+	ASagaGummyBearPlayer* character = Cast<ASagaGummyBearPlayer>(TryGetPawnOwner());
 
-	if (IsValid(BearCharacter))
+	if (IsValid(character))
 	{
-		UCharacterMovementComponent* Movement = BearCharacter->GetCharacterMovement();
-		if (IsValid(Movement))
-		{
-			//구해준 이동속도를 최대속도로 나누어 비율구함
-			mMoveSpeed = Movement->Velocity.Length();
-			mMoveSpeed /= Movement->MaxWalkSpeed;
-		}
-
-		ASagaInGamePlayerController* Controller = BearCharacter->GetController<ASagaInGamePlayerController>();
-		if (IsValid(Controller))
-		{
-			mMoveDir = Controller->GetMoveDir();
-		}
-
-
+		mMoveSpeed = character->GetMoveAnimationSpeed();
+		mMoveDir = character->GetMoveAnimationAngle();
 	}
 }
 
-void USagaGummyBearAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+void
+USagaGummyBearAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 }
 
-void USagaGummyBearAnimInstance::NativePostEvaluateAnimation()
+void
+USagaGummyBearAnimInstance::NativePostEvaluateAnimation()
 {
 	Super::NativePostEvaluateAnimation();
 }
 
-void USagaGummyBearAnimInstance::NativeUninitializeAnimation()
+void
+USagaGummyBearAnimInstance::NativeUninitializeAnimation()
 {
 	Super::NativeUninitializeAnimation();
 }
 
-void USagaGummyBearAnimInstance::NativeBeginPlay()
+void
+USagaGummyBearAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 }
 
-void USagaGummyBearAnimInstance::PlayAttackMontage()
+void
+USagaGummyBearAnimInstance::PlayAttackMontage()
 {
 	if (!mAttackEnable)
 		return;
@@ -78,17 +68,20 @@ void USagaGummyBearAnimInstance::PlayAttackMontage()
 	}
 }
 
-void USagaGummyBearAnimInstance::AnimNotify_Attack()
+void
+USagaGummyBearAnimInstance::AnimNotify_Attack()
 {
 
 }
 
-void USagaGummyBearAnimInstance::AnimNotify_AttackEnable()
+void
+USagaGummyBearAnimInstance::AnimNotify_AttackEnable()
 {
 	mAttackEnable = true;
 }
 
-void USagaGummyBearAnimInstance::AnimNotify_AttackEnd()
+void
+USagaGummyBearAnimInstance::AnimNotify_AttackEnd()
 {
 	mAttackIndex = 0;
 }

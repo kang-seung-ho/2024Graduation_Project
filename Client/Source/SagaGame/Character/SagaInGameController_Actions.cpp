@@ -1,6 +1,7 @@
 #include "SagaInGamePlayerController.h"
 
 #include "SagaCharacterPlayer.h"
+#include "Saga/Serializer.h"
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 
@@ -8,13 +9,13 @@ void
 PrintVector(const FVector& vector)
 {
 	const FString str = vector.ToString();
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Movement Vector: (%s)"), *str);
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Movement Vector: (%s)"), *str);
 }
 
 void
 ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Walking Straight"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Straight"));
 
 	auto dir = input.Get<FVector>();
 
@@ -25,7 +26,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
@@ -46,7 +47,7 @@ ASagaInGamePlayerController::MidForwardWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] End Walking Straight"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Straight"));
 
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
@@ -55,7 +56,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
@@ -67,7 +68,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Walking Strafe"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Strafe"));
 
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
@@ -76,7 +77,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
@@ -97,7 +98,7 @@ ASagaInGamePlayerController::MidStrafeWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Walking Strafe"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Strafe"));
 
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
@@ -106,7 +107,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessForwardWalk(static_cast<int>(walkDirection.Y));
+		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
@@ -118,7 +119,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginRun()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Running"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -135,7 +136,7 @@ ASagaInGamePlayerController::BeginRun()
 void
 ASagaInGamePlayerController::EndRun()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Running"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -152,7 +153,7 @@ ASagaInGamePlayerController::EndRun()
 void
 ASagaInGamePlayerController::BeginJump()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] Begin Jumping"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -169,7 +170,7 @@ ASagaInGamePlayerController::BeginJump()
 void
 ASagaInGamePlayerController::EndJump()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Jumping"));
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
 
 	if constexpr (saga::IsOfflineMode)
 	{
@@ -186,8 +187,6 @@ ASagaInGamePlayerController::EndJump()
 void
 ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 {
-	wasTilted = true;
-
 	const FVector InputValue = input.Get<FVector>();
 
 	AddYawInput(InputValue.X);
@@ -197,14 +196,6 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 	{
 		ControlledPawn->RotationCameraArm(InputValue.Y);
 	}
-}
-
-void
-ASagaInGamePlayerController::EndRotate(const FInputActionValue& input)
-{
-	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Character] End Rotating"));
-
-	wasTilted = false;
 }
 
 void

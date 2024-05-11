@@ -17,7 +17,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/PlayerAssets/Animation/AB_SagaPlayer.AB_SagaPlayer_C'"));
 	if (AnimAsset.Succeeded())
 	{
-		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
+		humanCharacterAnimation = AnimAsset.Class;
 	}
 
 	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
@@ -145,29 +145,25 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return DamageAmount;
 }
 
-void ASagaPlayableCharacter::RespawnCharacter()
+void
+ASagaPlayableCharacter::RespawnCharacter()
 {
-	
 	myClientHP = 100.0f;
 
 	FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
-	isForwardWalking = false;
-	isStrafeWalking = false;
-	isRunning = false;
-
-
 	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+	TerminateStraightWalk();
+	TerminateStrafeWalk();
+	isRunning = false;
+	GetCharacterMovement()->StopActiveMovement();
+
 
 	//Collision Enable Codes
-
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	system->GetLocalUserTeam(myTEAM); //re-save team color from system
 	SetTeamColorAndCollision();	//re-set team collision
-	GetCharacterMovement()->StopActiveMovement();
-
-	
 
 	UE_LOG(LogTemp, Warning, TEXT("Character respawned at Location: %s"), *SpawnLocation.ToString());
 }
@@ -346,6 +342,9 @@ ASagaPlayableCharacter::Attack()
 void ASagaPlayableCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	GetMesh()->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
+
 	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
 }
 

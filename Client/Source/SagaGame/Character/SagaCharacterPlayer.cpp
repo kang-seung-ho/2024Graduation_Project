@@ -1,155 +1,53 @@
 #include "SagaCharacterPlayer.h"
 #include "SagaPlayerAnimInstance.h"
 #include "SagaGummyBearAnimInstance.h"
-#include "SagaPlayableCharacter.h"
-#include "SagaGummyBearPlayer.h"
 #include "../Item/SagaWeaponData.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-// Sets default values
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: myId(-1)
-	, walkDirection(), preferedDirection()
-	, isForwardWalking(), isStrafeWalking()
+	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, movingFlag(), wasMoved(), wasTilted()
-	, tranformUpdateTimer()
-
+	, myTEAM(EUserTeam::Unknown), mWeaponType(EPlayerWeapon::LightSabor)
+	, animationMoveSpeed(), animationMoveAngle()
+	, mAnimInst(nullptr), mBearAnimInst(nullptr)
+	, mCamera(), mArm()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Creating UCharacterMovementComponent
+	bReplicates = true;
+	SetReplicateMovement(true);
+
+	const auto mesh = GetMesh();
+	ensure(mesh != nullptr);
+
+	mesh->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
+	mesh->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+	mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
 	if (MeshAsset.Succeeded())
 	{
-		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
+		mesh->SetSkeletalMesh(MeshAsset.Object);
 	}
-
-	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
-	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 
 	mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
-	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-
-	mArm->SetupAttachment(GetMesh());
-
-	mCamera->SetupAttachment(mArm);
-
+	mArm->SetupAttachment(mesh);
 	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
-
 	mArm->TargetArmLength = 150.f;
 
-
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	mCamera->SetupAttachment(mArm);
 }
 
-void
-ASagaCharacterPlayer::SetTeamColorAndCollision()
-{
-	if (myTEAM == EUserTeam::Red)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else if (myTEAM == EUserTeam::Blue)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
-	}
-}
-
-void
-ASagaCharacterPlayer::MarkMoved()
-noexcept
-{
-	movingFlag = true;
-	wasMoved = true;
-}
-
-void
-ASagaCharacterPlayer::SetTeamColorAndCollision(EUserTeam myTeam)
-{
-	if (myTEAM == EUserTeam::Red)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else if (myTEAM == EUserTeam::Blue)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
-	}
-}
-
-void
-ASagaCharacterPlayer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	//이 함수 호출되기 전에 SkeletalMeshComponent에 지정된 AnimInstance 클래스 이용하여 사용하기 위한 객체 만들어놨음.
-	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	mWeaponType = system->GetWeaponType();
-	UE_LOG(LogSagaGame, Warning, TEXT("Weapon Type : %d"), (int)mWeaponType);
-	system->GetLocalUserTeam(myTEAM);
-	SetTeamColorAndCollision(); //NetworkSubsystem에서 받아온 팀 색깔로 설정
-}
-
-void
-ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-void
-ASagaCharacterPlayer::Tick(float delta_time)
-{
-	Super::Tick(delta_time);
-
-	// Accelerate toward to prefered direction
-	if (preferedDirection != walkDirection)
-	{
-		// Acceleration delta
-		constexpr double scalar_delta = 100;
-
-		// Accelerate toward to the prefered direction
-		auto dir_delta = preferedDirection - walkDirection;
-		const auto dir_delta_size = dir_delta.Length();
-
-		// Make it unit vector
-		dir_delta.Normalize();
-
-		walkDirection += dir_delta * FMath::Min(dir_delta_size, scalar_delta * delta_time);
-		MarkMoved();
-	}
-	else if (movingFlag)
-	{
-		movingFlag = false;
-	}
-	else
-	{
-		wasMoved = false;
-	}
-
-	// Do walk
-	if (isForwardWalking || isStrafeWalking)
-	{
-		ExecuteWalk();
-	}
-}
-
-// Called to bind functionality to input
 void
 ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void
-ASagaCharacterPlayer::Attack()
-{
-
 }
 
 float
@@ -200,113 +98,34 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 }
 
 void
-ASagaCharacterPlayer::ExecuteWalk()
+ASagaCharacterPlayer::SetTeamColorAndCollision()
 {
-	const FRotator rotation = K2_GetActorRotation();
-	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
-	const FVector forward_dir = yaw.Vector();
-	const FVector right_dir = FRotationMatrix(yaw).GetScaledAxis(EAxis::Y);
-
-	AddMovementInput(forward_dir, walkDirection.Y);
-	AddMovementInput(right_dir, walkDirection.X);
-}
-
-void
-ASagaCharacterPlayer::TerminateStraightWalk()
-{
-	isForwardWalking = false;
-	walkDirection.Y = 0;
-}
-
-void
-ASagaCharacterPlayer::TerminateStrafeWalk()
-{
-	isStrafeWalking = false;
-	walkDirection.X = 0;
-}
-
-void
-ASagaCharacterPlayer::ExecuteRun()
-{
-	// 달리기 시작할 때 속도를 높임
-	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-}
-
-void
-ASagaCharacterPlayer::TerminateRun()
-{
-	// 달리기를 멈췄을 때 속도를 원래대로 복원
-	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-}
-
-void
-ASagaCharacterPlayer::ExecuteJump_Implementation()
-{
-	if (CanJump())
+	if (myTEAM == EUserTeam::Red)
 	{
-		Jump();
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (myTEAM == EUserTeam::Blue)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
 	}
 }
 
 void
-ASagaCharacterPlayer::TerminateJump_Implementation()
+ASagaCharacterPlayer::SetTeamColorAndCollision(EUserTeam myTeam)
+{
+	if (myTEAM == EUserTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (myTEAM == EUserTeam::Blue)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
+void
+ASagaCharacterPlayer::Attack()
 {}
-
-void
-ASagaCharacterPlayer::ExecuteAttack_Implementation()
-{
-	/*PlayAttackAnimation();*/
-}
-
-void
-ASagaCharacterPlayer::TerminateAttack_Implementation()
-{
-
-}
-
-void
-ASagaCharacterPlayer::ExecuteRide_Implementation()
-{
-
-}
-
-void
-ASagaCharacterPlayer::TerminateRide_Implementation()
-{
-
-}
-
-void
-ASagaCharacterPlayer::ProcessForwardWalk(const int& direction)
-noexcept
-{
-	if (direction != 0)
-	{
-		isForwardWalking = true;
-	}
-	else
-	{
-		isForwardWalking = false;
-	}
-
-	preferedDirection.Y = static_cast<double>(direction);
-}
-
-void
-ASagaCharacterPlayer::ProcessStrafeWalk(const int& direction)
-noexcept
-{
-	if (direction != 0)
-	{
-		isStrafeWalking = true;
-	}
-	else
-	{
-		isStrafeWalking = false;
-	}
-
-	preferedDirection.X = static_cast<double>(direction);
-}
 
 void
 ASagaCharacterPlayer::RotationCameraArm(float Scale)

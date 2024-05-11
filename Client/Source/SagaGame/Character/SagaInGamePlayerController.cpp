@@ -11,9 +11,10 @@
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
-	, wasTilted(), walkDirection(), mMoveDir(), tranformUpdateTimer()
+	, walkDirection()
 	, isRiding(), OnRideNPC()
 	, mTeamScoreBoardClass(), mTeamScoreBoard()
+	, lastCharacterPosition(), lastCharacterRotation(), tranformUpdateTimer()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
 
@@ -109,17 +110,17 @@ ASagaInGamePlayerController::BeginPlay()
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("[Network] SendGameIsLoadedPacket"));
-		system->SendGameIsLoadedPacket();
 	}
 	else
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("Network subsystem is not ready."));
 	}
 
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaInGamePlayerController::CountDown, 0.015f, true, 0.0);
+	FTimerHandle CountdownTimerHandle{};
+	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0);
+
+	FTimerHandle StartingTimerHandle{};
+	GetWorldTimerManager().SetTimer(StartingTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 0.0f, false, 1.0);
 
 	if (IsValid(mTeamScoreBoardClass))
 	{
@@ -178,36 +179,6 @@ ASagaInGamePlayerController::Tick(float delta_time)
 	{
 		return;
 	}
-
-	const auto& walk_dir = character->walkDirection;
-
-	mMoveDir = walk_dir.X * 90.f;
-	if (walk_dir.Y > 0.f)
-	{
-		if (walk_dir.X < 0.f)
-		{
-			mMoveDir = -45.f;
-		}
-		else if (walk_dir.X > 0.f)
-		{
-			mMoveDir = 45.f;
-		}
-	}
-	else if (walk_dir.Y < 0.f)
-	{
-		if (walk_dir.X < 0.f)
-		{
-			mMoveDir = -135.f;
-		}
-		else if (walk_dir.X > 0.f)
-		{
-			mMoveDir = 135.f;
-		}
-		else
-		{
-			mMoveDir = 180.f;
-		}
-	}
 }
 
 void
@@ -234,7 +205,6 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
 
 	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
-	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRotate);
 
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnAttack);
 

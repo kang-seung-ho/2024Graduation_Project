@@ -57,33 +57,39 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_WALK:
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
-
 		if (is_remote)
 		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
 		const auto ydir = static_cast<int>(arg1);
 
 		character->ProcessStrafeWalk(xdir);
-		character->ProcessForwardWalk(ydir);
+		character->ProcessStraightWalk(ydir);
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_END_WALK:
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
-
 		if (is_remote)
 		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
 		const auto ydir = static_cast<int>(arg1);
 
 		character->ProcessStrafeWalk(xdir);
-		character->ProcessForwardWalk(ydir);
+		character->ProcessStraightWalk(ydir);
 	}
 	break;
 
@@ -91,6 +97,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
+
 		}
 
 		character->ExecuteRun();
@@ -101,6 +108,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
+
 		}
 
 		character->TerminateRun();
@@ -110,10 +118,10 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	case ESagaRpcProtocol::RPC_BEG_JUMP:
 	{
 		if (is_remote)
-		{}
+		{
+		}
 
 		character->ExecuteJump();
-		character->MarkMoved();
 	}
 	break;
 
@@ -146,8 +154,9 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
 
 			// 곰에 속성 전달
-			bear->MarkMoved();
 
+			// 혹시 character를 쓸 일이 있으면 대입해줘야 함
+			character = bear;
 			user.SetCharacterHandle(bear);
 		}
 
@@ -162,8 +171,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateRide();
 		}
-
-		character->MarkMoved();
 	}
 	break;
 
@@ -173,8 +180,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->ExecuteAttack();
 		}
-
-		character->MarkMoved();
 	}
 	break;
 
@@ -184,8 +189,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateAttack();
 		}
-
-		character->MarkMoved();
 	}
 	break;
 
@@ -195,8 +198,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->ExecuteAttack();
 		}
-
-		character->MarkMoved();
 	}
 	break;
 
@@ -206,8 +207,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		{
 			//character->TerminateAttack();
 		}
-
-		character->MarkMoved();
 	}
 	break;
 

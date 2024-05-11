@@ -36,6 +36,8 @@ public:
 	UFUNCTION()
 	void OnAttack(const FInputActionValue& Value);
 	UFUNCTION()
+	void OnLevelReady();
+	UFUNCTION()
 	void OnGameStarted();
 	UFUNCTION()
 	void OnUpdateTransform();
@@ -73,8 +75,6 @@ public:
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
 	void BeginRotate(const FInputActionValue& input);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
-	void EndRotate(const FInputActionValue& input);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	void BeginAttack();
@@ -89,19 +89,18 @@ public:
 
 	/* Getters */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character")
-	float GetMoveDir() const noexcept
-	{
-		return mMoveDir;
-	}
+#pragma endregion
 
 public:
+	/* Getters */
+#pragma region =========================
+	UFUNCTION()
+	void CountDown();
+
 	UPROPERTY(BlueprintReadOnly)
 	int32 Minutes = 5;
 	UPROPERTY(BlueprintReadOnly)
 	int32 Seconds = 30;
-
-	void CountDown();
 #pragma endregion
 
 	/*UPROPERTY(VisibleAnywhere)
@@ -128,12 +127,11 @@ protected:
 #pragma endregion
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool wasTilted;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	float mMoveDir;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
+	FVector lastCharacterPosition;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
+	FRotator lastCharacterRotation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	FTimerHandle tranformUpdateTimer;
-
 };

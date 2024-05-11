@@ -8,6 +8,8 @@
 void
 ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class)
 {
+	// TODO: 스폰 지점 설정 #1
+
 	FTransform transform{};
 	transform.TransformPosition({ 0, 0, 300 });
 
@@ -20,6 +22,7 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 		if (nullptr != character)
 		{
 			system->SetCharacterHandle(user_id, character);
+			character->myId = user_id;
 		}
 		else
 		{
@@ -53,16 +56,18 @@ ASagaInGamePlayerController::OnUpdateTransform()
 		{
 			const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-			if (pawn->wasMoved or not pawn->CanJump())
+			const auto loc = pawn->K2_GetActorLocation();
+			if (lastCharacterPosition != loc)
 			{
-				const auto loc = pawn->K2_GetActorLocation();
 				system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				lastCharacterPosition = loc;
 			}
 
-			if (wasTilted)
+			const auto rot = pawn->K2_GetActorRotation();
+			if (lastCharacterRotation != rot)
 			{
-				const auto rot = pawn->K2_GetActorRotation();
 				system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				lastCharacterRotation = rot;
 			}
 		}
 		else
@@ -73,7 +78,51 @@ ASagaInGamePlayerController::OnUpdateTransform()
 }
 
 void
+ASagaInGamePlayerController::OnLevelReady()
+{
+	UE_LOG(LogSagaGame, Log, TEXT("[Network] Game controller would send a loaded packet"));
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (nullptr != system and system->GetLocalUserId() != -1)
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[Network] Sending GameIsLoadedPacket..."));
+			system->SendGameIsLoadedPacket();
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+}
+
+void
 ASagaInGamePlayerController::OnGameStarted()
 {
+	UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Starting a periodic transformer timer"));
+
+	if constexpr (not saga::IsOfflineMode)
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		if (nullptr != system)
+		{
+			const auto pawn = GetPawn<ASagaCharacterPlayer>();
+
+			// TODO: 스폰 지점 설정 #2
+
+			// 버그 있으므로 하면 안됨
+			//const auto loc = pawn->K2_GetActorLocation();
+			//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+			//const auto rot = pawn->K2_GetActorRotation();
+			//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		}
+	}
+
 	GetWorldTimerManager().SetTimer(tranformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 0.2f, true, 2.0f);
 }

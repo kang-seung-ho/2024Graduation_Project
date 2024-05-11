@@ -16,33 +16,103 @@ public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
 
-	virtual void Attack();
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float delta_time) override;
+	// Called to bind functionality to input
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION()
+	virtual void Attack();
+	UFUNCTION()
 	void PlayAttackAnimation();
 	UFUNCTION()
-	virtual void ProcessForwardWalk(const int& direction) noexcept;
+	void SetTeamColorAndCollision();
+	void SetTeamColorAndCollision(EUserTeam myTeam);
+	UFUNCTION()
+	virtual void ProcessStraightWalk(const int& direction) noexcept;
 	UFUNCTION()
 	virtual void ProcessStrafeWalk(const int& direction) noexcept;
 	UFUNCTION()
 	void RotationCameraArm(float Scale);
-	UFUNCTION()
-	void SetTeamColorAndCollision();
-	UFUNCTION()
-	void MarkMoved() noexcept;
 
-	void SetTeamColorAndCollision(EUserTeam myTeam);
+	/*
+		Speed: 속도 (스칼라)
+		Velocity: 속력 (벡터)
+		Angle: 각도 - double
+		Direction: 방향 - double, FVector
+	*/
 
-	virtual void Tick(float delta_time) override;
+	UFUNCTION(BlueprintPure)
+	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
+	{
+		return is_running ? 700 : 400;
+	}
+
+	UFUNCTION(BlueprintPure)
+	virtual float GetHorizontalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 100 : 50;
+	}
+
+	UFUNCTION(BlueprintPure)
+	virtual float GetVerticalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 300 : 200;
+	}
+
+	UFUNCTION(BlueprintPure)
+	virtual double GetAnimationDirectionDelta() const noexcept
+	{
+		return isRunning ? 200 : 100;
+	}
+
+	UFUNCTION(BlueprintPure)
+	float GetMoveAnimationSpeed() const noexcept
+	{
+		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
+	}
+
+	UFUNCTION(BlueprintPure)
+	float GetMoveAnimationAngle() const noexcept
+	{
+		return animationMoveAngle;
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int32 myId;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	int straightMoveDirection;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	int strafeMoveDirection;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRunning;
+
+	friend class ASagaInGamePlayerController;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	EUserTeam myTEAM;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	EPlayerWeapon mWeaponType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	float animationMoveSpeed; // 애니메이션 전용
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (BlueprintGetter = GetMoveAnimationAngle))
+	float animationMoveAngle; // 애니메이션 전용
+	class USagaPlayerAnimInstance* mAnimInst;
+	class USagaGummyBearAnimInstance* mBearAnimInst;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UCameraComponent* mCamera;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	USpringArmComponent* mArm;
+
+protected:
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void ExecuteWalk();
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
@@ -55,59 +125,18 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	virtual void TerminateRun();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void ExecuteJump();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void TerminateJump();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteJump();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateJump();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void ExecuteAttack();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void TerminateAttack();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteAttack();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateAttack();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void ExecuteRide();
-	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void TerminateRide();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	int32 myId;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	FVector walkDirection;
-
-	friend class ASagaInGamePlayerController;
-
-protected:
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	FVector preferedDirection;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isForwardWalking;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isStrafeWalking;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRunning;
-	UPROPERTY()
-	bool movingFlag;
-	UPROPERTY()
-	bool wasMoved; // 이동했는지 여부
-	UPROPERTY()
-	bool wasTilted; // 회전했는지 여부
-
-	UPROPERTY(VisibleAnywhere, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	FTimerHandle tranformUpdateTimer;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	EUserTeam myTEAM;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	EPlayerWeapon mWeaponType;
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	UCameraComponent* mCamera;
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	USpringArmComponent* mArm;
-
-	class USagaPlayerAnimInstance* mAnimInst;
-	class USagaGummyBearAnimInstance* mBearAnimInst;
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void ExecuteRide();
+	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	virtual void TerminateRide();
 };
