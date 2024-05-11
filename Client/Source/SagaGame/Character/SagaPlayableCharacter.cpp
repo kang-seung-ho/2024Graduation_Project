@@ -179,7 +179,10 @@ void
 ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
-	myTeam = EUserTeam::Red; //Code For Client Test
+
+	// TODO: ASagaPlayableCharacter::Attack()
+	//myTeam = EUserTeam::Red; //Code For Client Test
+
 	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
 		//공격과 충돌되는 물체 여부 판단

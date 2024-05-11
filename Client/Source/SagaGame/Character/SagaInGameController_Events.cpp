@@ -3,49 +3,114 @@
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Saga/Network/SagaRpcProtocol.h"
 
 void
-ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class)
+ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
 {
 	// TODO: 스폰 지점 설정 #1
 
 	FTransform transform{};
 	transform.TransformPosition({ 0, 0, 300 });
 
-	auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class, transform));
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (nullptr != system and system->GetLocalUserId() != -1)
+	if constexpr (not saga::IsOfflineMode)
 	{
-		if (nullptr != character)
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto character_class = ASagaPlayableCharacter::StaticClass();
+
+		if (nullptr != system)
 		{
-			system->SetCharacterHandle(user_id, character);
-			system->SetTeam(user_id, team);
-
-			character->SetUserId(user_id);
-			character->SetTeamColorAndCollision(team);
-
-			// The weapon was stored on the CharacterSelectLevel
-			EPlayerWeapon weapon{};
-			if (system->GetWeapon(user_id, weapon))
+			const auto local_id = system->GetLocalUserId();
+			if (-1 == local_id)
 			{
-				character->SetWeapon(weapon);
+				UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Local user could not create a playable character."));
+				return;
+			}
+
+			if (local_id == user_id)
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
+
+				// NOTICE: 여기서 로컬 캐릭터 할당
+				system->SetCharacterHandle(local_id, GetPawn<ASagaCharacterPlayer>());
 			}
 			else
 			{
-				character->SetWeapon(EPlayerWeapon::LightSabor);
+				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] User `%d` would create a playable character."), user_id);
+
+				auto character = Cast<ASagaCharacterPlayer>(CreatePlayableCharacter(character_class, transform));
+
+				if (nullptr != character)
+				{
+					system->SetCharacterHandle(user_id, character);
+
+					// The id was stored on the LobbyLevel
+					character->SetUserId(user_id);
+					// The team was stored on the RoomSessionLevel
+					character->SetTeamColorAndCollision(team);
+					// The weapon was stored on the CharacterSelectLevel
+					character->SetWeapon(weapon);
+				}
+				else
+				{
+					UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] User %d could not create a character!"), user_id);
+				}
 			}
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Error, TEXT("User %d could not create a character!"), user_id);
+			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Network subsystem is not ready."));
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
+
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		system->SetCharacterHandle(user_id, GetPawn<ASagaCharacterPlayer>());
+	}
+}
+
+void
+ASagaInGamePlayerController::OnUpdatePosition(int32 user_id, float x, float y, float z)
+{
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (user_id == system->GetLocalUserId()) // 로컬 클라이언트
+	{
+	}
+	else // 원격 클라이언트
+	{
+		auto character = system->GetCharacterHandle(user_id);
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[OnUpdatePosition] Cannot find a character of remote player %d'."), user_id);
+			return;
+		}
+
+		UE_LOG(LogSagaGame, Log, TEXT("[OnUpdatePosition] Rotating remote player %d by (%f,%f,%f)."), user_id, x, y, z);
+		character->SetActorLocation(FVector{ x, y, z });
+	}
+}
+
+void
+ASagaInGamePlayerController::OnUpdateRotation(int32 user_id, float p, float y, float r)
+{
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (user_id == system->GetLocalUserId()) // 로컬 클라이언트
+	{
+	}
+	else // 원격 클라이언트
+	{
+		auto character = system->GetCharacterHandle(user_id);
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[OnUpdateRotation] Cannot find a character of remote player %d'."), user_id);
+			return;
+		}
+
+		UE_LOG(LogSagaGame, Log, TEXT("[OnUpdateRotation] Rotating remote player %d by (%f,%f,%f)."), user_id, p, y, r);
+		character->SetActorRotation(FRotator{ p, y, r });
 	}
 }
 

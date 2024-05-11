@@ -5,8 +5,6 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
-#include "SagaGame/Character/SagaCharacterPlayer.h"
-#include "SagaGame/Character/SagaPlayableCharacter.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset
@@ -210,6 +208,9 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 				{
 					const auto team_id = user.team_id == 1 ? EUserTeam::Red : EUserTeam::Blue;
 
+					auto str = UEnum::GetValueAsString(team_id);
+					UE_LOG(LogSagaNetwork, Log, TEXT("Client (%d): %s in team '%s'"), user.id, user.nickname, *str);
+
 					AddUser(FSagaVirtualUser
 						{
 							user.id,
@@ -217,10 +218,8 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 							nullptr,
 							team_id,
 							EPlayerWeapon::LightSabor
-						});
-
-					auto str = UEnum::GetValueAsString(team_id);
-					UE_LOG(LogSagaNetwork, Log, TEXT("User (%d): %s in team '%s'"), user.id, user.nickname, *str);
+						}
+					);
 				}
 
 				BroadcastOnUpdateMembers(everyUsers);
@@ -287,53 +286,11 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] %d Characters would be created"), everyUsers.Num());
 
-		const auto player = GEngine->FindFirstLocalPlayerFromControllerId(0);
-		if (nullptr == player)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find a handle of the local player."));
-			return;
-		}
-
-		const auto world = player->GetWorld();
-		if (nullptr == world)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] The handle of world is null."));
-			return;
-		}
-
-		auto controller = player->GetPlayerController(world);
-		if (nullptr == controller)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Cannot find the local player's controller."));
-			return;
-		}
-
-		CallFunctionOnGameThread([this, controller]()
+		CallFunctionOnGameThread([this]()
 			{
 				for (auto& member : everyUsers)
 				{
-					if (member.ID() == GetLocalUserId())
-					{
-						UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] Local client `%d` doesn't need to create a character."), member.ID());
-
-						// NOTICE: 여기서 로컬 캐릭터 할당
-						member.SetCharacterHandle(controller->GetPawn<ASagaCharacterPlayer>());
-					}
-					else
-					{
-						auto remote_character_class = ASagaPlayableCharacter::StaticClass();
-
-						BroadcastOnCreatingCharacter(member.ID(), member.myTeam, remote_character_class);
-
-						if (remote_character_class)
-						{
-							UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] User `%d` would create a playable character"), member.ID());
-						}
-						else
-						{
-							UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] User `%d` could not create a playable character"), member.ID());
-						}
-					}
+					BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.myWeapon);
 				}
 			}
 		);

@@ -31,7 +31,7 @@ public:
 	bool SendRpc(ESagaRpcProtocol rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
 #pragma endregion
 
-	/* Events */
+	/* 게임 내 이벤트 (타이머, 입력 반응, 언리얼 이벤트, ...) */
 #pragma region =========================
 	UFUNCTION()
 	void OnLevelReady();
@@ -39,10 +39,18 @@ public:
 	void OnGameStarted();
 	UFUNCTION()
 	void OnUpdateTransform();
+#pragma endregion
+
+	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
+#pragma region =========================
+	UFUNCTION()
+	void OnUpdatePosition(int32 user_id, float x, float y, float z);
+	UFUNCTION()
+	void OnUpdateRotation(int32 user_id, float p, float y, float r);
+	UFUNCTION()
+	void OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
-	UFUNCTION()
-	void OnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class);
 #pragma endregion
 
 	/* Actions */

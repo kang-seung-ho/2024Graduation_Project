@@ -9,22 +9,14 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	OnNetworkInitialized.AddDynamic(this, &USagaNetworkSubSystem::OnNetworkInitialized_Implementation);
-	OnConnected.AddDynamic(this, &USagaNetworkSubSystem::OnConnected_Implementation);
 	OnFailedToConnect.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToConnect_Implementation);
 	OnDisconnected.AddDynamic(this, &USagaNetworkSubSystem::OnDisconnected_Implementation);
 	OnRoomCreated.AddDynamic(this, &USagaNetworkSubSystem::OnRoomCreated_Implementation);
-	OnJoinedRoom.AddDynamic(this, &USagaNetworkSubSystem::OnJoinedRoom_Implementation);
 	OnLeftRoomBySelf.AddDynamic(this, &USagaNetworkSubSystem::OnLeftRoomBySelf_Implementation);
 	OnLeftRoom.AddDynamic(this, &USagaNetworkSubSystem::OnLeftRoom_Implementation);
 	OnRespondVersion.AddDynamic(this, &USagaNetworkSubSystem::OnRespondVersion_Implementation);
-	OnUpdateRoomList.AddDynamic(this, &USagaNetworkSubSystem::OnUpdateRoomList_Implementation);
-	OnUpdateMembers.AddDynamic(this, &USagaNetworkSubSystem::OnUpdateMembers_Implementation);
 	OnTeamChanged.AddDynamic(this, &USagaNetworkSubSystem::OnTeamChanged_Implementation);
 	OnFailedToStartGame.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToStartGame_Implementation);
-	OnGetPreparedGame.AddDynamic(this, &USagaNetworkSubSystem::OnGetPreparedGame_Implementation);
-	OnStartGame.AddDynamic(this, &USagaNetworkSubSystem::OnStartGame_Implementation);
-	OnUpdatePosition.AddDynamic(this, &USagaNetworkSubSystem::OnUpdatePosition_Implementation);
-	OnUpdateRotation.AddDynamic(this, &USagaNetworkSubSystem::OnUpdateRotation_Implementation);
 	OnRpc.AddDynamic(this, &USagaNetworkSubSystem::OnRpc_Implementation);
 
 	everyUsers.Reserve(100);

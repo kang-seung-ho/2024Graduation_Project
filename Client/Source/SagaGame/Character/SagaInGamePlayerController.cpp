@@ -108,7 +108,12 @@ ASagaInGamePlayerController::BeginPlay()
 	if (nullptr != system)
 	{
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
+
 		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
+
+		system->OnUpdatePosition.AddDynamic(this, &ASagaInGamePlayerController::OnUpdatePosition);
+		system->OnUpdateRotation.AddDynamic(this, &ASagaInGamePlayerController::OnUpdateRotation);
+
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
 	else

@@ -39,7 +39,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnStartGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdatePosition, int32, id, float, x, float, y, float, z);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdateRotation, int32, id, float, r, float, y, float, p);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, EUserTeam, team, UClass*, character_class);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, EUserTeam, team, EPlayerWeapon, weapon);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
@@ -402,15 +402,11 @@ private:
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnConnected_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToConnect_Implementation(ESagaConnectionContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnDisconnected_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRoomCreated_Implementation(int32 id);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnJoinedRoom_Implementation(int32 id);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnLeftRoomBySelf_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
@@ -418,21 +414,9 @@ private:
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRespondVersion_Implementation(const FString& version_string);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnUpdateRoomList_Implementation(UPARAM(ref) const TArray<FSagaVirtualRoom>& list);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnUpdateMembers_Implementation(UPARAM(ref) const TArray<FSagaVirtualUser>& list);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnTeamChanged_Implementation(int32 user_id, bool is_red_team);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnGetPreparedGame_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnStartGame_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnUpdatePosition_Implementation(int32 id, float x, float y, float z);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnUpdateRotation_Implementation(int32 id, float p, float y, float r);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 #pragma endregion
@@ -476,7 +460,7 @@ private:
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
-	void BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, UClass* character_class) const;
+	void BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion
