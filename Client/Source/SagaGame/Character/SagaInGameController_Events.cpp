@@ -22,7 +22,21 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 		if (nullptr != character)
 		{
 			system->SetCharacterHandle(user_id, character);
-			character->myId = user_id;
+			system->SetTeam(user_id, team);
+
+			character->SetUserId(user_id);
+			character->SetTeamColorAndCollision(team);
+
+			// The weapon was stored on the CharacterSelectLevel
+			EPlayerWeapon weapon{};
+			if (system->GetWeapon(user_id, weapon))
+			{
+				character->SetWeapon(weapon);
+			}
+			else
+			{
+				character->SetWeapon(EPlayerWeapon::LightSabor);
+			}
 		}
 		else
 		{

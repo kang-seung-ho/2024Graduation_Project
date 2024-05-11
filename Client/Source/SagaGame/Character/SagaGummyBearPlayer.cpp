@@ -123,7 +123,7 @@ float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEv
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		if (system)
 		{
-			system->AddScore(myTEAM == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
 		}
 	}
 

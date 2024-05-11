@@ -69,8 +69,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		const auto xdir = static_cast<int>(arg0);
 		const auto ydir = static_cast<int>(arg1);
 
-		character->ProcessStrafeWalk(xdir);
-		character->ProcessStraightWalk(ydir);
+		character->ExecuteStrafeWalk(xdir);
+		character->ExecuteStraightWalk(ydir);
 	}
 	break;
 
@@ -88,8 +88,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		const auto xdir = static_cast<int>(arg0);
 		const auto ydir = static_cast<int>(arg1);
 
-		character->ProcessStrafeWalk(xdir);
-		character->ProcessStraightWalk(ydir);
+		character->ExecuteStrafeWalk(xdir);
+		character->ExecuteStraightWalk(ydir);
 	}
 	break;
 
@@ -256,6 +256,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
 	{}
+	break;
+
+	case ESagaRpcProtocol::RPC_MAIN_WEAPON:
+	{
+		system->SetWeapon(id, static_cast<EPlayerWeapon>(arg0));
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_DEAD:

@@ -6,10 +6,9 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
-	: myId(-1)
+	: myId(-1), myTeam(EUserTeam::Unknown), myWeaponType(EPlayerWeapon::LightSabor)
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, myTEAM(EUserTeam::Unknown), mWeaponType(EPlayerWeapon::LightSabor)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
@@ -93,33 +92,68 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode"));
+		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
 	}
 }
 
 void
-ASagaCharacterPlayer::SetTeamColorAndCollision()
+ASagaCharacterPlayer::SetUserId(const int32& id)
+noexcept
 {
-	if (myTEAM == EUserTeam::Red)
+	myId = id;
+}
+
+void
+ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
+noexcept
+{
+	myTeam = team;
+
+	if (team == EUserTeam::Red)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 	}
-	else if (myTEAM == EUserTeam::Blue)
+	else if (team == EUserTeam::Blue)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
 	}
 }
 
 void
-ASagaCharacterPlayer::SetTeamColorAndCollision(EUserTeam myTeam)
+ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
+noexcept
 {
-	if (myTEAM == EUserTeam::Red)
+	myWeaponType = weapon;
+}
+
+int32
+ASagaCharacterPlayer::GetUserId()
+const noexcept
+{
+	return myId;
+}
+
+EUserTeam
+ASagaCharacterPlayer::GetTeamColorAndCollision()
+const noexcept
+{
+	return myTeam;
+}
+
+EPlayerWeapon
+ASagaCharacterPlayer::GetWeapon() const noexcept
+{
+	return myWeaponType;
+}
+
+void
+ASagaCharacterPlayer::TranslateProperties(ASagaCharacterPlayer* other)
+const
+{
+	if (other == this)
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else if (myTEAM == EUserTeam::Blue)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Transitioning."));
+		return;
 	}
 }
 
@@ -128,9 +162,9 @@ ASagaCharacterPlayer::Attack()
 {}
 
 void
-ASagaCharacterPlayer::RotationCameraArm(float Scale)
+ASagaCharacterPlayer::RotateCameraArm(const float pitch)
 {
-	mArm->AddRelativeRotation(FRotator(Scale, 0.0, 0.0));
+	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
 
 	FRotator Rot = mArm->GetRelativeRotation();
 
@@ -139,4 +173,109 @@ ASagaCharacterPlayer::RotationCameraArm(float Scale)
 
 	else if (Rot.Pitch > 60.0)
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+}
+
+void
+ASagaCharacterPlayer::ProcessMovement()
+{
+	const FRotator rotation = K2_GetActorRotation();
+	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
+	const FVector forward_dir = yaw.Vector();
+	const FVector right_dir = FRotationMatrix(yaw).GetScaledAxis(EAxis::Y);
+
+	AddMovementInput(forward_dir, straightMoveDirection * GetVerticalMoveAcceleration());
+	AddMovementInput(right_dir, strafeMoveDirection * GetHorizontalMoveAcceleration());
+}
+
+void
+ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
+{
+	UE::Math::TVector2<float> move_direction{ float(strafeMoveDirection), float(straightMoveDirection) };
+	move_direction.Normalize();
+
+	// Stores animation-integrated values
+	const float target_animation_speed{ move_direction.Length() * GetMaxMoveSpeed(isRunning) };
+
+	// Accelerate toward to target direction
+	if (target_animation_speed != animationMoveSpeed)
+	{
+		float speed_delta = 500.0f * delta_time;
+		if (straightMoveDirection == 0 and strafeMoveDirection == 0)
+		{
+			speed_delta *= 10;
+		}
+
+		const float speed_gap = target_animation_speed - animationMoveSpeed;
+
+		if (FMath::Abs(speed_gap) < speed_delta)
+		{
+			animationMoveSpeed = target_animation_speed;
+		}
+		else
+		{
+			animationMoveSpeed += FMath::Sign(speed_gap) * speed_delta;
+		}
+	}
+
+	float target_animation_angle{};
+	if (0 < straightMoveDirection) // Going forward
+	{
+		if (strafeMoveDirection < 0) // To left
+		{
+			target_animation_angle = -45.f;
+		}
+		else if (0 < strafeMoveDirection) // To right
+		{
+			target_animation_angle = 45.f;
+		}
+		else // To straight
+		{
+			target_animation_angle = 0.0f;
+		}
+	}
+	else if (straightMoveDirection < 0) // Going backward
+	{
+		if (strafeMoveDirection < 0)// To left
+		{
+			target_animation_angle = -135.f;
+		}
+		else if (0 < strafeMoveDirection) // To right
+		{
+			target_animation_angle = 135.f;
+		}
+		else // To straight
+		{
+			target_animation_angle = 180.f;
+		}
+	}
+	else
+	{
+		target_animation_angle = strafeMoveDirection * 90.f;
+	}
+
+	if (target_animation_angle != animationMoveAngle)
+	{
+		const auto delta = GetMoveAnimationDirectionDelta() * delta_time;
+		const auto gap = target_animation_angle - animationMoveAngle;
+		auto angle = animationMoveAngle;
+
+		if (gap > 180)
+		{
+			angle += 360;
+		}
+		else if (gap < -180)
+		{
+			angle -= 360;
+		}
+
+		const auto interpolated_gap = target_animation_angle - angle;
+		if (FMath::Abs(gap) < delta)
+		{
+			animationMoveAngle = target_animation_angle;
+		}
+		else
+		{
+			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
+		}
+	}
 }

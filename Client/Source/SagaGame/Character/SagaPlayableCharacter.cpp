@@ -80,26 +80,26 @@ void
 ASagaPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//mWeaponType = EPlayerWeapon::LightSabor;
+	//myWeaponType = EPlayerWeapon::LightSabor;
 	UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay"));
 	//Set Weapon Mesh due to Weapon Type
-	if (WeaponMeshes.Contains(mWeaponType)) {
-		MyWeapon->SetStaticMesh(WeaponMeshes[mWeaponType]);
-		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), mWeaponType);
+	if (WeaponMeshes.Contains(myWeaponType)) {
+		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
+		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), myWeaponType);
 
-		if (mWeaponType == EPlayerWeapon::LightSabor)
+		if (myWeaponType == EPlayerWeapon::LightSabor)
 		{
 			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
 			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
 			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
 		}
-		else if (mWeaponType == EPlayerWeapon::WaterGun)
+		else if (myWeaponType == EPlayerWeapon::WaterGun)
 		{
 			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
 			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
 			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
-		else if (mWeaponType == EPlayerWeapon::Hammer)
+		else if (myWeaponType == EPlayerWeapon::Hammer)
 		{
 			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
 			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
@@ -139,7 +139,7 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		if (system)
 		{
-			system->AddScore(myTEAM == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
 		}
 	}
 	return DamageAmount;
@@ -162,7 +162,7 @@ ASagaPlayableCharacter::RespawnCharacter()
 
 	//Collision Enable Codes
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	system->GetLocalUserTeam(myTEAM); //re-save team color from system
+	system->GetLocalUserTeam(myTeam); //re-save team color from system
 	SetTeamColorAndCollision();	//re-set team collision
 
 	UE_LOG(LogTemp, Warning, TEXT("Character respawned at Location: %s"), *SpawnLocation.ToString());
@@ -180,8 +180,8 @@ void
 ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
-	myTEAM = EUserTeam::Red; //Code For Client Test
-	if (mWeaponType == EPlayerWeapon::LightSabor)
+	myTeam = EUserTeam::Red; //Code For Client Test
+	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
 		//공격과 충돌되는 물체 여부 판단
 		FHitResult Result;
@@ -193,12 +193,12 @@ ASagaPlayableCharacter::Attack()
 		param.AddIgnoredActor(this);
 
 		bool Collision;
-		if (myTEAM == EUserTeam::Red)
+		if (myTeam == EUserTeam::Red)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - LightSaber"))
 				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 		}
-		else if (myTEAM == EUserTeam::Blue)
+		else if (myTeam == EUserTeam::Blue)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - LightSaber"))
 				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
@@ -233,7 +233,7 @@ ASagaPlayableCharacter::Attack()
 		}
 
 	}
-	else if (mWeaponType == EPlayerWeapon::WaterGun)
+	else if (myWeaponType == EPlayerWeapon::WaterGun)
 	{
 		FHitResult Result;
 
@@ -245,13 +245,13 @@ ASagaPlayableCharacter::Attack()
 
 		bool Collision{};
 
-		if (myTEAM == EUserTeam::Red)
+		if (myTeam == EUserTeam::Red)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
 
 			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
 		}
-		else if (myTEAM == EUserTeam::Blue)
+		else if (myTeam == EUserTeam::Blue)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
 
@@ -290,7 +290,7 @@ ASagaPlayableCharacter::Attack()
 		}
 
 	}
-	else if (mWeaponType == EPlayerWeapon::Hammer)
+	else if (myWeaponType == EPlayerWeapon::Hammer)
 	{
 		FHitResult Result;
 
@@ -301,12 +301,12 @@ ASagaPlayableCharacter::Attack()
 		param.AddIgnoredActor(this);
 
 		bool Collision;
-		if (myTEAM == EUserTeam::Red)
+		if (myTeam == EUserTeam::Red)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - Hammer"))
 				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 		}
-		else if (myTEAM == EUserTeam::Blue)
+		else if (myTeam == EUserTeam::Blue)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - Hammer"))
 				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);

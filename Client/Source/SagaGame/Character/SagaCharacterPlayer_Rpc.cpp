@@ -1,15 +1,21 @@
 #include "SagaCharacterPlayer.h"
 
 void
-ASagaCharacterPlayer::ExecuteWalk()
+ASagaCharacterPlayer::ExecuteStraightWalk(const int& direction)
+noexcept
 {
-	const FRotator rotation = K2_GetActorRotation();
-	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
-	const FVector forward_dir = yaw.Vector();
-	const FVector right_dir = FRotationMatrix(yaw).GetScaledAxis(EAxis::Y);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
 
-	AddMovementInput(forward_dir, straightMoveDirection * GetVerticalMoveAcceleration());
-	AddMovementInput(right_dir, strafeMoveDirection * GetHorizontalMoveAcceleration());
+	straightMoveDirection = direction;
+}
+
+void
+ASagaCharacterPlayer::ExecuteStrafeWalk(const int& direction)
+noexcept
+{
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
+
+	strafeMoveDirection = direction;
 }
 
 void
@@ -73,22 +79,4 @@ void
 ASagaCharacterPlayer::TerminateRide()
 {
 
-}
-
-void
-ASagaCharacterPlayer::ProcessStraightWalk(const int& direction)
-noexcept
-{
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ProcessStraightWalk (%d)"), direction);
-
-	straightMoveDirection = direction;
-}
-
-void
-ASagaCharacterPlayer::ProcessStrafeWalk(const int& direction)
-noexcept
-{
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ProcessStrafeWalk (%d)"), direction);
-
-	strafeMoveDirection = direction;
 }

@@ -44,7 +44,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	constexpr EPlayerWeapon GetWeaponType() const noexcept { return mWeaponType; }
+	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
 	virtual void Attack();
 

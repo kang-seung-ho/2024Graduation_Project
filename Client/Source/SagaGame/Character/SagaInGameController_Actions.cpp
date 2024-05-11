@@ -26,8 +26,8 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
-		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
+		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
+		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -56,8 +56,8 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
-		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
+		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
+		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -77,8 +77,8 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
-		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
+		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
+		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -107,8 +107,8 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		character->ProcessStraightWalk(static_cast<int>(walkDirection.Y));
-		character->ProcessStrafeWalk(static_cast<int>(walkDirection.X));
+		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
+		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
 	}
 	else
 	{
@@ -194,7 +194,7 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
 	if (ControlledPawn != nullptr)
 	{
-		ControlledPawn->RotationCameraArm(InputValue.Y);
+		ControlledPawn->RotateCameraArm(InputValue.Y);
 	}
 }
 
