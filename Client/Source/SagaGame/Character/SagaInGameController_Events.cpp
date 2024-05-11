@@ -168,7 +168,7 @@ ASagaInGamePlayerController::OnUpdateTransform()
 void
 ASagaInGamePlayerController::OnLevelReady()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Network] Game controller would send a loaded packet"));
+	UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Game controller would send a loaded packet"));
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -176,12 +176,14 @@ ASagaInGamePlayerController::OnLevelReady()
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[Network] Sending GameIsLoadedPacket..."));
+			UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Sending GameIsLoadedPacket..."));
 			system->SendGameIsLoadedPacket();
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
+			UE_LOG(LogSagaGame, Warning, TEXT("[OnLevelReady] Network subsystem is not ready, so give player default properties."));
+
+			OnCreatingCharacter(0, EUserTeam::Red, EPlayerWeapon::LightSabor);
 		}
 	}
 	else
