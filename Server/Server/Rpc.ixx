@@ -35,7 +35,10 @@ export namespace iconer::app::inline rpc
 		RPC_DMG_PLYER,
 		RPC_DMG_GUARDIAN,
 		RPC_DMG_GUARDIANS_PART,
+		RPC_DMG_BASE,
 		RPC_DEAD,
+		RPC_CHECK_GAME_VICTORY,
+		RPC_UPDATE_HEALTH,
 	};
 
 	class RpcContext : public IContext
