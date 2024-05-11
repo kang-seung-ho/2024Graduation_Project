@@ -278,6 +278,17 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start game..."));
 
+		CallFunctionOnGameThread([this]()
+			{
+				everyUsers.Sort(
+					[](const FSagaVirtualUser& lhs, const FSagaVirtualUser& rhs) noexcept -> bool
+					{
+						return lhs.MyID < rhs.MyID;
+					}
+				);
+			}
+		);
+
 		BroadcastOnStartGame();
 	}
 	break;
@@ -290,7 +301,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 			{
 				for (auto& member : everyUsers)
 				{
-					BroadcastOnCreatingCharacter(member.ID(), member.myTeam, member.myWeapon);
+					BroadcastOnCreatingCharacter(member.MyID, member.myTeam, member.myWeapon);
 				}
 			}
 		);
