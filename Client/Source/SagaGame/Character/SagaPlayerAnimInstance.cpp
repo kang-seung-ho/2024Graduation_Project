@@ -15,11 +15,11 @@ USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	ASagaCharacterPlayer* character = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	auto character = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
 
 	if (IsValid(character))
 	{
-		ASagaPlayableCharacter* WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(character);
+		auto WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(character);
 
 		if (IsValid(WeaponHoldingCharacter))
 		{

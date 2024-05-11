@@ -141,8 +141,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			auto old_character = user.GetCharacterHandle();
 
 			UWorld* World = GetWorld();
-			FVector location;
-			FRotator rotation;
+			FVector location{};
+			FRotator rotation{};
 
 			if (IsValid(old_character))
 			{
@@ -154,10 +154,24 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
 
 			// 곰에 속성 전달
+			if (IsValid(old_character))
+			{
+				/*
+					old_character의 속성은 ASagaInGamePlayerController::OnCreatingCharacter에서
+					이미 가져왔으므로 서브시스템에 있는 FSagaVirtualUser는 수정할 필요없음
+				*/
+				old_character->TranslateProperties(bear);
+			}
 
 			// 혹시 character를 쓸 일이 있으면 대입해줘야 함
 			character = bear;
+
 			user.SetCharacterHandle(bear);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
+
 		}
 
 		//character->ExecuteRide();

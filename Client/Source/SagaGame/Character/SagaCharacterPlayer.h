@@ -21,7 +21,8 @@ public:
 	// Called to bind functionality to input
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	UFUNCTION()
+	/* 게임 속성 메서드 */
+#pragma region =========================
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
 	void SetTeamColorAndCollision(const EUserTeam& myTeam) noexcept;
@@ -33,16 +34,14 @@ public:
 	EUserTeam GetTeamColorAndCollision() const noexcept;
 	UFUNCTION(BlueprintPure)
 	EPlayerWeapon GetWeapon() const noexcept;
+	UFUNCTION()
+	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
+#pragma endregion
 
 	UFUNCTION()
 	virtual void Attack();
 	UFUNCTION()
 	void PlayAttackAnimation();
-	UFUNCTION()
-	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
-
-	UFUNCTION()
-	void RotateCameraArm(const float pitch);
 
 	/*
 		Speed: 속도 (스칼라)
@@ -63,25 +62,30 @@ public:
 		return animationMoveAngle;
 	}
 
+	UFUNCTION()
+	void RotateCameraArm(const float pitch);
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int strafeMoveDirection;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
-
-	friend class ASagaInGamePlayerController;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
+	/* 실시간 처리 메서드 (Tick) */
+#pragma region =========================
 	UFUNCTION()
 	virtual void ProcessMovement();
 	UFUNCTION()
 	virtual void ProcessAnimation(const float& delta_time);
+#pragma endregion
 
+	/* 이동 속성 메서드 */
+#pragma region =========================
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{
@@ -99,6 +103,7 @@ protected:
 	{
 		return isRunning ? 300 : 200;
 	}
+#pragma endregion
 
 	UFUNCTION(BlueprintPure)
 	virtual float GetMoveAnimationDirectionDelta() const noexcept
@@ -106,19 +111,25 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
+	/* 게임 속성 필드 */
+#pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	int32 myId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EUserTeam myTeam;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	EPlayerWeapon myWeaponType;
+#pragma endregion
 
+	/* 애니메이션 관련 필드 */
+#pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	float animationMoveSpeed; // 애니메이션 전용
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (BlueprintGetter = GetMoveAnimationAngle))
 	float animationMoveAngle; // 애니메이션 전용
 	class USagaPlayerAnimInstance* mAnimInst;
 	class USagaGummyBearAnimInstance* mBearAnimInst;
+#pragma endregion
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	UCameraComponent* mCamera;
@@ -126,6 +137,8 @@ protected:
 	USpringArmComponent* mArm;
 
 protected:
+	/* RPC 필드 */
+#pragma region =========================
 	UFUNCTION()
 	virtual void ExecuteStraightWalk(const int& direction) noexcept;
 	UFUNCTION()
@@ -154,4 +167,5 @@ protected:
 	virtual void ExecuteRide();
 	UFUNCTION()
 	virtual void TerminateRide();
+#pragma endregion
 };
