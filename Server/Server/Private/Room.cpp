@@ -1,5 +1,6 @@
 module;
 #include <utility>
+#include <chrono>
 #include <vector>
 #include <span>
 #include <ranges>
@@ -120,6 +121,16 @@ volatile noexcept
 	isMemberUpdated = true;
 	proceedMemberCount = 0;
 
+	for (auto& team : sagaTeams)
+	{
+		team.Cleanup();
+	}
+
+	for (auto& sum_zone : sagaSummons)
+	{
+		sum_zone.Cleanup();
+	}
+
 	for (auto& guardian : sagaGuardians)
 	{
 		ClearGuardian(guardian);
@@ -127,7 +138,6 @@ volatile noexcept
 
 	isGameReadyFailed = false;
 }
-
 
 bool
 iconer::app::Room::TryAddMember(iconer::app::User& user)

@@ -39,6 +39,8 @@ public:
 	void OnGameStarted();
 	UFUNCTION()
 	void OnUpdateTransform();
+	UFUNCTION()
+	void CountDown();
 #pragma endregion
 
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
@@ -98,27 +100,18 @@ public:
 #pragma endregion
 
 public:
-	/* Getters */
+	/* Game */
 #pragma region =========================
-	UFUNCTION()
-	void CountDown();
-
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Minutes = 5;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Seconds = 30;
-#pragma endregion
-
-	/*UPROPERTY(VisibleAnywhere)
-	UCameraComponent* mCamera;
-
-	UPROPERTY(VisibleAnywhere)
-	USpringArmComponent* mArm;*/
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRiding;
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
+#pragma endregion
+
 	UPROPERTY()
 	TSubclassOf<UUserWidget> mTeamScoreBoardClass;
 	UPROPERTY()

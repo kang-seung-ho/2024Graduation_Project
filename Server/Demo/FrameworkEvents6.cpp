@@ -57,6 +57,10 @@ demo::Framework::OnCreatingCharacters(Room& room)
 #else
 	if (0 < cnt_ref)
 	{
+		//auto target_time = std::chrono::system_clock::now() + std::chrono::minutes{ 3 };
+
+		//room.gameTimer = std::chrono::system_clock::to_time_t(target_time);
+
 		return true;
 	}
 #endif
@@ -165,7 +169,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		auto& guardian = room->sagaGuardians[arg0];
 
-		if (guardian.CanRide())
+		if (0 < user->myHealth and guardian.CanRide())
 		{
 			myLogger.Log(L"\tUser {} would ride the Guardian {}\n", user_id, arg0);
 		}
@@ -178,7 +182,16 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_ATTACK_0:
 	{
-
+		if (0 < user->myHealth)
+		{
+			room->ForEach
+			(
+				[rpc_ctx, user_id](User& member)
+				{
+					SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, rpc_ctx->secondArgument);
+				}
+			);
+		}
 	}
 	break;
 

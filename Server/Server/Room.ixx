@@ -1,7 +1,7 @@
 module;
+#include <ctime>
 #include <initializer_list>
 #include <memory>
-#include <vector>
 #include <span>
 
 export module Iconer.Application.Room;
@@ -54,6 +54,7 @@ export namespace iconer::app
 			, isGameReadyFailed()
 			, exclusivePermission()
 			, myTimer()
+			, gameTimer()
 			, sagaTeams()
 			, sagaSummons{ game::SagaSummonPoint{ 0 }, game::SagaSummonPoint{ 1 }, game::SagaSummonPoint{ 2 } }
 			, sagaGuardians()
@@ -195,6 +196,7 @@ export namespace iconer::app
 		iconer::util::MovableAtomic<bool> exclusivePermission;
 		NativeTimer myTimer;
 
+		std::time_t gameTimer;
 		game::SagaTeamStatus sagaTeams[2];
 		game::SagaSummonPoint sagaSummons[3];
 		game::SagaGuardian sagaGuardians[3];

@@ -34,7 +34,7 @@ const
 		FActorSpawnParameters setting{};
 		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		UE_LOG(LogSagaGame, Log, TEXT("[SagaGame] Creating a playable character"));
+		UE_LOG(LogSagaGame, Log, TEXT("Creating a playable character"));
 		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
 	}
 	else
@@ -119,7 +119,7 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Network subsystem is not ready."));
+		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 	}
 
 	FTimerHandle CountdownTimerHandle{};

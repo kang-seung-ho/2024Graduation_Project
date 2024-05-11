@@ -18,6 +18,12 @@ export namespace iconer::app::game
 			isSummoning = false;
 			isAvailable = true;
 		}
+		
+		void Cleanup() volatile noexcept
+		{
+			isSummoning = false;
+			isAvailable = true;
+		}
 
 		const int myId;
 		float x, y, z;
@@ -33,6 +39,11 @@ export namespace iconer::app::game
 		{
 			myHp = maxHp;
 		}
+		
+		constexpr void Cleanup() volatile noexcept
+		{
+			myHp = maxHp;
+		}
 
 		float x, y, z;
 		float myHp;
@@ -41,6 +52,16 @@ export namespace iconer::app::game
 	struct SagaTeamStatus
 	{
 		constexpr void Cleanup() noexcept
+		{
+			myScore = 0;
+
+			for (auto& ptr : myMembers)
+			{
+				ptr = nullptr;
+			}
+		}
+
+		constexpr void Cleanup() volatile noexcept
 		{
 			myScore = 0;
 
@@ -74,6 +95,14 @@ export namespace iconer::app::game
 		}
 
 		void Cleanup() noexcept
+		{
+			myStatus = SagaGuardianState::Statue;
+			myHp = maxHp;
+			riderId = -1;
+			isRidingByAnyone = false;
+		}
+		
+		void Cleanup() volatile noexcept
 		{
 			myStatus = SagaGuardianState::Statue;
 			myHp = maxHp;
