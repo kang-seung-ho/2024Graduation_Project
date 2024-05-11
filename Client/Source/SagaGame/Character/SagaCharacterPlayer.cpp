@@ -4,6 +4,8 @@
 #include "../Item/SagaWeaponData.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "UI/SagaWidgetComponent.h"
+#include "UI/SagaHpBarWidget.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: straightMoveDirection(), strafeMoveDirection()
@@ -41,6 +43,28 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	mCamera->SetupAttachment(mArm);
+
+	Stat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
+	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
+	HpBar->SetupAttachment(GetMesh());
+	
+	HpBar->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
+	if (HpBarWidgetRef.Succeeded())
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(150, 20));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void ASagaCharacterPlayer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	Stat->OnHpZero.AddUObject(this, &ASagaCharacterPlayer::SetDead);
 }
 
 void
@@ -53,6 +77,10 @@ float
 ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogSagaGame, Warning, TEXT("Called TakeDamage"));
+
+	UE_LOG(LogSagaGame, Warning, TEXT("Current Damage : %f"), DamageAmount);
 
 	return DamageAmount;
 }
@@ -278,4 +306,20 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
 		}
 	}
+}
+
+void ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
+{
+	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
+	}
+}
+
+void ASagaCharacterPlayer::SetDead()
+{
+	HpBar->SetHiddenInGame(true);
 }

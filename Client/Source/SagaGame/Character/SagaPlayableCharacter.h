@@ -65,6 +65,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UStaticMesh* WaterGunMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UStaticMesh* LightSaborMesh;
+
 protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
 	virtual void Acquire_Gum(class USagaWeaponData* WeaponData);

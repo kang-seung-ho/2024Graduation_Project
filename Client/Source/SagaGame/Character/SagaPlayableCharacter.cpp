@@ -45,18 +45,18 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	//Load Weapon Meshes
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
 
-	if (LightSaborMesh.Succeeded()) {
-		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMesh.Object);
+	if (LightSaborMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMeshRef.Object);
 	}
-	if (WaterGunMesh.Succeeded()) {
-		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMesh.Object);
+	if (WaterGunMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMeshRef.Object);
 	}
-	if (HammerMesh.Succeeded()) {
-		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMesh.Object);
+	if (HammerMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
 }
 
@@ -122,7 +122,7 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	myClientHP -= DamageAmount;
-
+	Stat->ApplyDamage(DamageAmount);
 	if (myClientHP <= 0.0f)
 	{
 		//잠시 Collision 해제

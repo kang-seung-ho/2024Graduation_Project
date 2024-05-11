@@ -105,7 +105,8 @@ float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEv
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	BearHp -= DamageAmount;
-
+	Stat->ApplyDamage(DamageAmount);
+	UE_LOG(LogTemp, Log, TEXT("BearHp : %f"), BearHp);
 
 	if(BearHp <= 0.0f)
 	{

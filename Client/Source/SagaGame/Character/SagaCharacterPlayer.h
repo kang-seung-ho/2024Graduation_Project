@@ -5,16 +5,20 @@
 #include "SagaGameInfo.h"
 #include "Player/SagaUserTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
+#include "Component/SagaCharacterStatComponent.h"
+#include "Interface/SagaCharacterWidgetInterface.h"
 #include "SagaCharacterPlayer.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaCharacterPlayer : public ACharacter
+class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharacterWidgetInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
+
+	virtual void PostInitializeComponents() override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float delta_time) override;
@@ -169,4 +173,13 @@ protected:
 	USpringArmComponent* mArm;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterStat", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USagaCharacterStatComponent> Stat;
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widget", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USagaWidgetComponent> HpBar;
+
+	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
+
+	void SetDead();
 };
