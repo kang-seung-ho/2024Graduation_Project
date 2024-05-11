@@ -31,7 +31,15 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
 
 				// NOTICE: 여기서 로컬 캐릭터 할당
-				system->SetCharacterHandle(local_id, GetPawn<ASagaCharacterPlayer>());
+				auto character = GetPawn<ASagaCharacterPlayer>();
+				system->SetCharacterHandle(local_id, character);
+
+				// The id was stored on the LobbyLevel
+				character->SetUserId(user_id);
+				// The team was stored on the RoomSessionLevel
+				character->SetTeamColorAndCollision(team);
+				// The weapon was stored on the CharacterSelectLevel
+				character->SetWeapon(weapon);
 			}
 			else
 			{
@@ -63,10 +71,19 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
+		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character. (Offline Mode)"), user_id);
 
 		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-		system->SetCharacterHandle(user_id, GetPawn<ASagaCharacterPlayer>());
+
+		auto character = GetPawn<ASagaCharacterPlayer>();
+		system->SetCharacterHandle(user_id, character);
+
+		// The id was stored on the LobbyLevel
+		character->SetUserId(user_id);
+		// The team was stored on the RoomSessionLevel
+		character->SetTeamColorAndCollision(team);
+		// The weapon was stored on the CharacterSelectLevel
+		character->SetWeapon(weapon);
 	}
 }
 
@@ -166,6 +183,10 @@ ASagaInGamePlayerController::OnLevelReady()
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 		}
+	}
+	else
+	{
+		OnCreatingCharacter(0, EUserTeam::Red, EPlayerWeapon::LightSabor);
 	}
 }
 
