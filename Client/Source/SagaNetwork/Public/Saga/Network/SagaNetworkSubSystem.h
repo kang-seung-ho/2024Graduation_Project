@@ -362,27 +362,27 @@ public:
 		{
 			if (team == EUserTeam::Red)
 			{
-				return "승리!"; // I'm Red Team And My team Win
+				return TEXT("Victory!"); // I'm Red Team And My team Win
 			}
 			else
 			{
-				return "패배"; // I'm Blue Team And My team Lose
+				return TEXT("Lose"); // I'm Blue Team And My team Lose
 			}
 		}
 		else if (RedTeamScore < BlueTeamScore)
 		{
 			if (team == EUserTeam::Red)
 			{
-				return "패배"; // I'm Red Team And My team Lose
+				return TEXT("Lose"); // I'm Red Team And My team Lose
 			}
 			else
 			{
-				return "승리!"; // I'm Blue Team And My team Win
+				return TEXT("Victory!"); // I'm Blue Team And My team Win
 			}
 		}
 		else
 		{
-			return "무승부"; // Draw
+			return TEXT("Draw"); // Draw
 		}
 	}
 
