@@ -1,4 +1,5 @@
 #include "SagaInGamePlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 
@@ -6,8 +7,8 @@
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
 
+#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Blueprint/UserWidget.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
@@ -122,7 +123,10 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 
 	FTimerHandle CountdownTimerHandle{};
-	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0);
+	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0f);
+	
+	FTimerHandle ReadyTimerHandle{};
+	GetWorldTimerManager().SetTimer(ReadyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false, 0.0f);
 
 	if (IsValid(mTeamScoreBoardClass))
 	{
@@ -133,8 +137,6 @@ ASagaInGamePlayerController::BeginPlay()
 			mTeamScoreBoard->AddToViewport();
 		}
 	}
-
-	OnLevelReady();
 }
 
 void ASagaInGamePlayerController::CountDown()
