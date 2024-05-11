@@ -28,13 +28,11 @@ public:
 	UFUNCTION()
 	void RideNPCCallFunction();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	bool SendRpc(const ESagaRpcProtocol& rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
+	bool SendRpc(ESagaRpcProtocol rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
 #pragma endregion
 
 	/* Events */
 #pragma region =========================
-	UFUNCTION()
-	void OnAttack(const FInputActionValue& Value);
 	UFUNCTION()
 	void OnLevelReady();
 	UFUNCTION()
@@ -77,7 +75,7 @@ public:
 	void BeginRotate(const FInputActionValue& input);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void BeginAttack();
+	void BeginAttack(const FInputActionValue& Value);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	void EndAttack();
 

@@ -50,14 +50,6 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 }
 
 void
-ASagaInGamePlayerController::OnAttack(const FInputActionValue& input)
-{
-	auto pawn = GetPawn<ASagaCharacterPlayer>();
-
-	pawn->PlayAttackAnimation();
-}
-
-void
 ASagaInGamePlayerController::OnUpdateTransform()
 {
 	if constexpr (not saga::IsOfflineMode)

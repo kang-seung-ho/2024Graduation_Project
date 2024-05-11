@@ -288,7 +288,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 }
 
 bool
-ASagaInGamePlayerController::SendRpc(const ESagaRpcProtocol& rpc, const int64 arg0, const int32 arg1)
+ASagaInGamePlayerController::SendRpc(ESagaRpcProtocol rpc, const int64 arg0, const int32 arg1)
 const
 {
 	if constexpr (not saga::IsOfflineMode)

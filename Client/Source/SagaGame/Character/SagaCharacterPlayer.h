@@ -65,6 +65,38 @@ public:
 	UFUNCTION()
 	void RotateCameraArm(const float pitch);
 
+	/* 액션 메서드 */
+#pragma region =========================
+	UFUNCTION()
+	virtual void ExecuteStraightWalk(const int& direction) noexcept;
+	UFUNCTION()
+	virtual void TerminateStraightWalk();
+	UFUNCTION()
+	virtual void ExecuteStrafeWalk(const int& direction) noexcept;
+	UFUNCTION()
+	virtual void TerminateStrafeWalk();
+
+	UFUNCTION()
+	virtual void ExecuteRun();
+	UFUNCTION()
+	virtual void TerminateRun();
+
+	UFUNCTION()
+	virtual void ExecuteJump();
+	UFUNCTION()
+	virtual void TerminateJump();
+
+	UFUNCTION()
+	virtual void ExecuteAttack();
+	UFUNCTION()
+	virtual void TerminateAttack();
+
+	UFUNCTION()
+	virtual void ExecuteRide();
+	UFUNCTION()
+	virtual void TerminateRide();
+#pragma endregion
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
@@ -74,7 +106,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/* 실시간 처리 메서드 (Tick) */
 #pragma region =========================
@@ -111,7 +143,7 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
-	/* 게임 속성 필드 */
+	/* 게임 속성 필드 (ID, 팀, 무기) */
 #pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	int32 myId;
@@ -121,7 +153,7 @@ protected:
 	EPlayerWeapon myWeaponType;
 #pragma endregion
 
-	/* 애니메이션 관련 필드 */
+	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
 #pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	float animationMoveSpeed; // 애니메이션 전용
@@ -137,35 +169,4 @@ protected:
 	USpringArmComponent* mArm;
 
 protected:
-	/* RPC 필드 */
-#pragma region =========================
-	UFUNCTION()
-	virtual void ExecuteStraightWalk(const int& direction) noexcept;
-	UFUNCTION()
-	virtual void TerminateStraightWalk();
-	UFUNCTION()
-	virtual void ExecuteStrafeWalk(const int& direction) noexcept;
-	UFUNCTION()
-	virtual void TerminateStrafeWalk();
-
-	UFUNCTION()
-	virtual void ExecuteRun();
-	UFUNCTION()
-	virtual void TerminateRun();
-
-	UFUNCTION()
-	virtual void ExecuteJump();
-	UFUNCTION()
-	virtual void TerminateJump();
-
-	UFUNCTION()
-	virtual void ExecuteAttack();
-	UFUNCTION()
-	virtual void TerminateAttack();
-
-	UFUNCTION()
-	virtual void ExecuteRide();
-	UFUNCTION()
-	virtual void TerminateRide();
-#pragma endregion
 };

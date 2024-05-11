@@ -174,9 +174,9 @@ ASagaInGamePlayerController::EndJump()
 
 	if constexpr (saga::IsOfflineMode)
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-		character->TerminateJump();
+		pawn->TerminateJump();
 	}
 	else
 	{
@@ -191,22 +191,28 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 
 	AddYawInput(InputValue.X);
 
-	ASagaCharacterPlayer* ControlledPawn = GetPawn<ASagaCharacterPlayer>();
-	if (ControlledPawn != nullptr)
+	auto pawn = GetPawn<ASagaCharacterPlayer>();
+	if (pawn != nullptr)
 	{
-		ControlledPawn->RotateCameraArm(InputValue.Y);
+		pawn->RotateCameraArm(InputValue.Y);
 	}
 }
 
 void
-ASagaInGamePlayerController::BeginAttack()
+ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
 	if constexpr (saga::IsOfflineMode)
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		auto pawn = GetPawn<ASagaCharacterPlayer>();
+
+		pawn->PlayAttackAnimation();
 	}
 	else
 	{
+		auto pawn = GetPawn<ASagaCharacterPlayer>();
+
+		pawn->PlayAttackAnimation();
+
 		SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
 	}
 }

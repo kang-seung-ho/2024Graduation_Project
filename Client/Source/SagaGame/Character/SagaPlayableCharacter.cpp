@@ -129,7 +129,6 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		//사망애니메이션 실행
-
 		
 		//리스폰 함수 실행
 		// RespawnCharacter 함수 3초 뒤	실행
