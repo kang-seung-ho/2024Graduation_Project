@@ -6,9 +6,9 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
-	: myId(-1), myTeam(EUserTeam::Unknown), myWeaponType(EPlayerWeapon::LightSabor)
-	, straightMoveDirection(), strafeMoveDirection()
+	: straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
+	, myId(-1), myTeam(EUserTeam::Unknown), myWeaponType(EPlayerWeapon::LightSabor)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()

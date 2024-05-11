@@ -274,7 +274,14 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_MAIN_WEAPON:
 	{
-		system->SetWeapon(id, static_cast<EPlayerWeapon>(arg0));
+		const auto new_weapon = static_cast<EPlayerWeapon>(arg0);
+		system->SetWeapon(id, new_weapon);
+
+		EPlayerWeapon test{};
+		system->GetWeapon(id, test);
+		ensure(new_weapon == test);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[RPC] %d's weapon is %d"), id, static_cast<int>(test));
 	}
 	break;
 

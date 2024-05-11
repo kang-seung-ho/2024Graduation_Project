@@ -116,24 +116,19 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// 0: lightsaber
 		// 1: watergun
 		// 2: hammer
-		if (user->myWeaponId.CompareAndSet(0, static_cast<std::uint8_t>(arg0)))
-		{
-			// broadcast his weapon
-			room->ForEach
-			(
-				[&](User& member)
-				{
-					// NOTICE: RPC_MAIN_WEAPON(arg0, 0)
-					SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, rpc_ctx->firstArgument, 0);
-				}
-			);
+		user->myWeaponId.Store(static_cast<std::uint8_t>(arg0));
 
-			myLogger.Log(L"\tUser {} changed weapon to {}\n", user_id, arg0);
-		}
-		else
-		{
-			myLogger.LogWarning(L"\tUser {} alerady have a weapon {}\n", user_id, user->myWeaponId.Load());
-		}
+		// broadcast his weapon
+		room->ForEach
+		(
+			[&](User& member)
+			{
+				// NOTICE: RPC_MAIN_WEAPON(arg0, 0)
+				SEND(member, SendRpcPacket, user_id, rpc_ctx->rpcCategory, arg0, 0);
+			}
+		);
+
+		myLogger.Log(L"\tUser {} changed weapon to {}\n", user_id, arg0);
 	}
 	break;
 
@@ -142,7 +137,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
-			myLogger.LogError(L"\tUser {} tells wroing Guardian {}\n", user_id, arg0);
+			myLogger.LogError(L"\tUser {} tells wrong Guardian {}\n", user_id, arg0);
 			break;
 		}
 
