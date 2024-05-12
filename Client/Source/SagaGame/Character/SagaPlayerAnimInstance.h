@@ -31,6 +31,8 @@ public:
 
 public:
 	void PlayAttackMontage();
+	void Death();
+	void Hit();
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -58,6 +60,14 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool	mIsGround = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool	mIsDead = false;
+
+	float mHitRecovery = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UAnimMontage* mHitMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mAttackMontageArray;

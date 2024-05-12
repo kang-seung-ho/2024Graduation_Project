@@ -31,12 +31,12 @@ ASagaItemBox::ASagaItemBox()
 	Mesh->SetRelativeLocation(FVector(0.f, -3.5f, -30.0f));
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> EffectRef(TEXT(""));
+	/*static ConstructorHelpers::FObjectFinder<UParticleSystem> EffectRef(TEXT(""));
 	if (EffectRef.Object)
 	{
 		Effect->SetTemplate(EffectRef.Object);
 		Effect->bAutoActivate = false;
-	}
+	}*/
 
 	Trigger->SetCollisionProfileName(TEXT("Item"));
 

@@ -92,6 +92,23 @@ USagaPlayerAnimInstance::PlayAttackMontage()
 	}
 }
 
+void USagaPlayerAnimInstance::Death()
+{
+	mIsDead = true;
+}
+
+void USagaPlayerAnimInstance::Hit()
+{
+	mHitRecovery = 1.f;
+
+	if (!Montage_IsPlaying(mHitMontage))
+	{
+		Montage_SetPosition(mHitMontage, 0.f);
+
+		Montage_Play(mHitMontage);
+	}
+}
+
 void
 USagaPlayerAnimInstance::AnimNotify_Attack()
 {

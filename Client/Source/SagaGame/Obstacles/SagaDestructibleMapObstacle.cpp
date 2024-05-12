@@ -9,7 +9,7 @@ ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
 	HealthComponent = CreateDefaultSubobject<UObstacleHPComponent>(TEXT("HealthComponent"));
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ObstacleMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/Map/MapObstacles/Tree/cartoon_lowpoly_trees_fbx_Tree_2.cartoon_lowpoly_trees_fbx_Tree_2'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ObstacleMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/Terrains/Modelings/SagaLolipop1HeadModel.SagaLolipop1HeadModel'"));
 	if (ObstacleMeshRef.Object)
 	{
 		MeshComponent->SetStaticMesh(ObstacleMeshRef.Object);

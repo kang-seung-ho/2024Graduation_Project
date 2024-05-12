@@ -41,6 +41,9 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 	mArm->TargetArmLength = 150.f;
 
+	mArm->bEnableCameraLag = true;
+	mArm->bEnableCameraRotationLag = true;
+
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	mCamera->SetupAttachment(mArm);
 
@@ -110,6 +113,7 @@ ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 void
 ASagaCharacterPlayer::PlayAttackAnimation()
 {
+	myTeam = EUserTeam::Red;
 	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
@@ -198,6 +202,7 @@ ASagaCharacterPlayer::GetWeapon() const noexcept
 
 void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AttachWeapon - WeaponType %d"), WeaponType);
 	//Set Weapon Mesh due to Weapon Type
 	if (WeaponMeshes.Contains(myWeaponType)) {
 		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);

@@ -79,8 +79,12 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	myClientHP -= DamageAmount;
 	Stat->ApplyDamage(DamageAmount);
+
+	mAnimInst->Hit();
+
 	if (myClientHP <= 0.0f)
 	{
+		mAnimInst->Death();
 		//잠시 Collision 해제
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -284,10 +288,10 @@ ASagaPlayableCharacter::Attack()
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 
-			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
+			//ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
 
-			Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-			Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
+			//Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
+			//Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 		}
 	}
 	else
