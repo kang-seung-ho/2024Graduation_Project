@@ -18,6 +18,13 @@ ASagaSelectCharacter::ASagaSelectCharacter()
 
 	mMesh->SetupAttachment(mBody);
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/PlayerAssets/Animation/AB_SagaPlayer.AB_SagaPlayer_C'"));
+	if (AnimAsset.Succeeded())
+	{
+		humanCharacterAnimation = AnimAsset.Class;
+	}
+
+
 }
 
 // Called when the game starts or when spawned

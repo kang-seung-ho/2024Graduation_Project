@@ -21,8 +21,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* mMesh;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPlayerWeapon mWeapon = EPlayerWeapon::LightSabor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
 public:
 	EPlayerWeapon GetWeapon() const

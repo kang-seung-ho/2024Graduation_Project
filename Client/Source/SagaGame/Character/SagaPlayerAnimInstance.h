@@ -49,6 +49,9 @@ public:
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
 
+	UFUNCTION()
+	void AnimNotify_HitRecovery();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mMoveSpeed;
@@ -65,6 +68,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool	mIsDead = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mHitRecovery = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

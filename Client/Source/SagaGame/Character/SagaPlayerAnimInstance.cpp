@@ -99,11 +99,13 @@ void USagaPlayerAnimInstance::Death()
 
 void USagaPlayerAnimInstance::Hit()
 {
+	mAttackEnable = true;
+
 	mHitRecovery = 1.f;
 
 	if (!Montage_IsPlaying(mHitMontage))
 	{
-		Montage_SetPosition(mHitMontage, 0.f);
+		//Montage_SetPosition(mHitMontage, 0.f);
 
 		Montage_Play(mHitMontage);
 	}
@@ -135,4 +137,9 @@ void
 USagaPlayerAnimInstance::AnimNotify_AttackEnd()
 {
 	mAttackIndex = 0;
+}
+
+void USagaPlayerAnimInstance::AnimNotify_HitRecovery()
+{
+	mHitRecovery = 0.f;
 }
