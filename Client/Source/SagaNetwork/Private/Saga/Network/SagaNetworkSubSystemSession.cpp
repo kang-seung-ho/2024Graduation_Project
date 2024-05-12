@@ -110,6 +110,21 @@ noexcept
 	}
 }
 
+void
+USagaNetworkSubSystem::StorePosition(int32 user_id, const double& x, const double& y, const double& z)
+noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			user.myX = x;
+			user.myY = y;
+			user.myZ = z;
+		}
+	}
+}
+
 ASagaCharacterPlayer*
 USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
 const noexcept
@@ -170,6 +185,21 @@ const noexcept
 	}
 
 	return -0.0f;
+}
+
+FVector
+USagaNetworkSubSystem::GetStoredPosition(int32 user_id)
+const noexcept
+{
+	for (auto& user : everyUsers)
+	{
+		if (user.MyID == user_id)
+		{
+			return FVector{ user.myX, user.myY, user.myZ };
+		}
+	}
+
+	return FVector{};
 }
 
 void

@@ -41,12 +41,6 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 #pragma endregion
 	}
 
-	if (not IsValid(character))
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[RPC] Cannot find a character of user %d'."), id);
-		return;
-	}
-
 	switch (cat)
 	{
 	case ESagaRpcProtocol::RPC_UNKNOWN:
@@ -57,6 +51,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_WALK:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_WALK] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		if (is_remote)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
@@ -76,6 +76,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_END_WALK:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][END_WALK] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		if (is_remote)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
@@ -95,6 +101,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_RUN:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_RUN] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		if (is_remote)
 		{
 
@@ -106,6 +118,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_END_RUN:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][END_RUN] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		if (is_remote)
 		{
 
@@ -117,6 +135,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_JUMP:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_JUMP] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		if (is_remote)
 		{
 		}
@@ -128,6 +152,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	// 수호자 탑승
 	case ESagaRpcProtocol::RPC_BEG_RIDE:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_RIDE] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
 		if (is_remote)
 		{
@@ -181,6 +211,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	// 수호자 하차
 	case ESagaRpcProtocol::RPC_END_RIDE:
 	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][END_RIDE] Cannot find a character of user %d'."), id);
+			return;
+		}
+
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Take off guardian"));
 
 		if (is_remote)
@@ -192,7 +228,21 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	
 	case ESagaRpcProtocol::RPC_POSITION:
 	{
-		if (is_remote)
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC][POSITION] Cannot find a character of user %d'."), id);
+
+			float x{};
+			float y{};
+			float z{};
+
+			std::memcpy(&x, &arg0, 4);
+			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
+			std::memcpy(&z, &arg1, 4);
+
+			system->StorePosition(id, x, y, z);
+		}
+		else if (is_remote)
 		{
 			float x{};
 			float y{};

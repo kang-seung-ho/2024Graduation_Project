@@ -35,13 +35,15 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				auto character = GetPawn<ASagaCharacterPlayer>();
 				system->SetCharacterHandle(local_id, character);
 
-				// The id was stored on the LobbyLevel
+				// The id was stored on LobbyLevel
 				character->SetUserId(user_id);
-				// The team was stored on the RoomSessionLevel
+				// The team was stored on RoomSessionLevel
 				character->SetTeamColorAndCollision(team);
-				// The weapon was stored on the CharacterSelectLevel
+				// The weapon was stored on CharacterSelectLevel
 				character->SetWeapon(weapon);
 				character->AttachWeapon(weapon);
+				// The position was backed up on CharacterSelectLevel or SagaGameLevel from another client
+				character->SetActorLocation(system->GetStoredPosition(user_id));
 			}
 			else
 			{
@@ -53,13 +55,15 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				{
 					system->SetCharacterHandle(user_id, character);
 
-					// The id was stored on the LobbyLevel
+					// The id was stored on LobbyLevel
 					character->SetUserId(user_id);
-					// The team was stored on the RoomSessionLevel
+					// The team was stored on RoomSessionLevel
 					character->SetTeamColorAndCollision(team);
-					// The weapon was stored on the CharacterSelectLevel
+					// The weapon was stored on CharacterSelectLevel
 					character->SetWeapon(weapon);
 					character->AttachWeapon(weapon);
+					// The position was backed up on CharacterSelectLevel or SagaGameLevel from another client 
+					character->SetActorLocation(system->GetStoredPosition(user_id));
 				}
 				else
 				{
@@ -81,11 +85,8 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 		auto character = GetPawn<ASagaCharacterPlayer>();
 		system->SetCharacterHandle(user_id, character);
 
-		// The id was stored on the LobbyLevel
 		character->SetUserId(user_id);
-		// The team was stored on the RoomSessionLevel
 		character->SetTeamColorAndCollision(team);
-		// The weapon was stored on the CharacterSelectLevel
 		character->SetWeapon(weapon);
 		character->AttachWeapon(weapon);
 	}

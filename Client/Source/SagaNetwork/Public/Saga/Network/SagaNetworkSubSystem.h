@@ -107,6 +107,8 @@ public:
 	void SetWeapon(int32 user_id, EPlayerWeapon weapon) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetHealth(int32 user_id, const float hp) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void StorePosition(int32 user_id, const double& x, const double& y, const double& z) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	class ASagaCharacterPlayer* GetCharacterHandle(int32 user_id) const noexcept;
@@ -116,6 +118,8 @@ public:
 	bool GetWeapon(int32 user_id, EPlayerWeapon& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	float GetHealth(int32 user_id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	FVector GetStoredPosition(int32 user_id) const noexcept;
 #pragma endregion
 
 	/* Overall Rooms Methods */
