@@ -106,13 +106,13 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
 
-	BearHp -= dmg;
+	myHealth -= dmg;
 	Stat->ApplyDamage(dmg);
 
-	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), BearHp);
+	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), myHealth);
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (BearHp <= 0.0f)
+	if (myHealth <= 0.0f)
 	{
 		// 사망 애니메이션 실행
 		mBearAnimInst->Death();
@@ -129,7 +129,8 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 
 			if constexpr (not saga::IsOfflineMode)
 			{
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, BearHp, 1);
+				// arg1이 1이면 곰 캐릭터
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
 			}
 			else
 			{
@@ -145,7 +146,8 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		{
 			if constexpr (not saga::IsOfflineMode)
 			{
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, BearHp, 1);
+				// arg1이 1이면 곰 캐릭터
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
 			}
 			else
 			{
@@ -161,4 +163,10 @@ void
 ASagaGummyBearPlayer::ExecuteDeath()
 {
 	Super::ExecuteDeath();
+}
+
+float
+ASagaGummyBearPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

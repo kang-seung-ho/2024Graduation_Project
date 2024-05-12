@@ -93,10 +93,13 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		// RespawnCharacter 함수 3초 뒤	실행
 		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
 
-		//상대 팀 점수 증가 실행
 		if (system)
 		{
+			// 상대 팀 점수 증가 실행
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+
+			// arg1이 0이면 사람 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
 		}
 	}
 	else
@@ -107,7 +110,8 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		{
 			if constexpr (not saga::IsOfflineMode)
 			{
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+				// arg1이 0이면 사람 캐릭터
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
 			}
 			else
 			{
@@ -127,36 +131,17 @@ ASagaPlayableCharacter::ExecuteDeath()
 	Super::ExecuteDeath();
 }
 
+float
+ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void
 ASagaPlayableCharacter::RespawnCharacter()
 {
-	// Reset game states
-	myHealth = 100.0f;
-	Stat->SetHp(100.0f);
-
-	// Reset the position
-	if constexpr (saga::IsOfflineMode)
-	{
-		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
-		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
-
-		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
-	}
-	else
-	{
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (system)
-		{
-			const auto spawn_point = system->GetStoredPosition(myId);
-
-			SetActorLocationAndRotation(spawn_point, FRotator{});
-
-			UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
-		}
-	}
+	//
+	Super::RespawnCharacter();
 
 	// Animate
 	mAnimInst->Revive();

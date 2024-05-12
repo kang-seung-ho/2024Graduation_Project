@@ -3,9 +3,11 @@
 #include "SagaGummyBearAnimInstance.h"
 #include "../Item/SagaWeaponData.h"
 
-#include "Saga/Network/SagaNetworkSubSystem.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
+
+#include "Saga/Network/SagaNetworkSettings.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: straightMoveDirection(), strafeMoveDirection()
@@ -148,7 +150,8 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 	}
 }
 
-void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
+void
+ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AttachWeapon - WeaponType %d"), WeaponType);
 
@@ -184,13 +187,14 @@ void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 }
 
 void
-ASagaCharacterPlayer::TranslateProperties(ASagaCharacterPlayer* other)
-const
+ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 {
-	if (other == this)
+	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Transitioning."));
-		return;
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 
@@ -212,20 +216,55 @@ ASagaCharacterPlayer::RotateCameraArm(const float pitch)
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
 }
 
-void ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
-{
-	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
-	if (HpBarWidget)
-	{
-		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
-		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
-	}
-}
-
 void ASagaCharacterPlayer::SetDead()
 {
 	HpBar->SetHiddenInGame(true);
+}
+
+void
+ASagaCharacterPlayer::RespawnCharacter()
+{
+	// Reset game states
+	myHealth = 100.0f;
+	Stat->SetHp(100.0f);
+
+	// Unhide the hp bar
+	HpBar->SetHiddenInGame(false);
+
+	// Reset the position
+	if constexpr (saga::IsOfflineMode)
+	{
+		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
+		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
+	}
+	else
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (system)
+		{
+			const auto spawn_point = system->GetStoredPosition(myId);
+
+			SetActorLocationAndRotation(spawn_point, FRotator{});
+
+			UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
+		}
+	}
+}
+
+void
+ASagaCharacterPlayer::TranslateProperties(ASagaCharacterPlayer* other)
+const
+{
+	if (other == this)
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Transitioning."));
+		return;
+	}
 }
 
 void

@@ -14,6 +14,11 @@ public:
 
 	virtual void Attack();
 
+	virtual float ExecuteHurt(const float dmg) override;
+	virtual void ExecuteDeath() override;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 protected:
 	// 오버랩 박스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -26,11 +31,4 @@ protected:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	virtual void BeginPlay() override;
-
-	virtual float ExecuteHurt(const float dmg) override;
-	virtual void ExecuteDeath() override;
-
-private:
-	UPROPERTY()
-	float BearHp = 200.0f;
 };

@@ -15,15 +15,6 @@ class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharact
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	ASagaCharacterPlayer();
-
-	virtual void PostInitializeComponents() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void Tick(float delta_time) override;
-	// Called to bind functionality to input
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
 	/* 게임 속성 메서드 */
 #pragma region =========================
 	void SetUserId(const int32& id) noexcept;
@@ -41,6 +32,8 @@ public:
 	EPlayerWeapon GetWeapon() const noexcept;
 	UFUNCTION(BlueprintPure)
 	float GetHealth() const noexcept;
+
+	// 다른 사가 캐릭터에게 속성 전달
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
 #pragma endregion
@@ -48,11 +41,16 @@ public:
 	UFUNCTION()
 	virtual void Attack();
 	UFUNCTION()
-	void PlayAttackAnimation();
+	virtual void PlayAttackAnimation();
 	UFUNCTION()
 	void AttachWeapon(EPlayerWeapon WeaponType);
 	UFUNCTION()
-	void SetDead();
+	virtual void SetDead();
+	UFUNCTION()
+	virtual void RespawnCharacter();
+
+	// Called to bind functionality to input
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	/*
 		Speed: 속도 (스칼라)
@@ -63,17 +61,6 @@ public:
 
 	UFUNCTION()
 	void RotateCameraArm(const float pitch);
-
-	UFUNCTION(BlueprintPure)
-	float GetMoveAnimationSpeed() const noexcept
-	{
-		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
-	}
-	UFUNCTION(BlueprintPure)
-	float GetMoveAnimationAngle() const noexcept
-	{
-		return animationMoveAngle;
-	}
 
 	/* 액션 메서드 */
 #pragma region =========================
@@ -112,12 +99,30 @@ public:
 	virtual void ExecuteDeath();
 #pragma endregion
 
+	UFUNCTION(BlueprintPure)
+	float GetMoveAnimationSpeed() const noexcept
+	{
+		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
+	}
+	UFUNCTION(BlueprintPure)
+	float GetMoveAnimationAngle() const noexcept
+	{
+		return animationMoveAngle;
+	}
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int strafeMoveDirection;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
+
+public:
+	ASagaCharacterPlayer();
+
+	virtual void PostInitializeComponents() override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float delta_time) override;
 
 protected:
 	virtual void BeginPlay() override;
