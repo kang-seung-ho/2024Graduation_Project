@@ -1,4 +1,5 @@
 #include "SagaGummyBearPlayer.h"
+#include "SagaGummyBearAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
 
 #include "SagaGame/Player/SagaUserTeam.h"
@@ -8,6 +9,8 @@
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 {
+	myHealth = 500.0f;
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear1.Bear1'"));
 	if (MeshAsset.Succeeded())
 	{
@@ -30,16 +33,13 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 
 	mArm->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
 	mArm->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));
-
 	mArm->TargetArmLength = 400.f;
-
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	InteractionBox->SetupAttachment(RootComponent);
 	InteractionBox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	InteractionBox->SetWorldScale3D(FVector(4.5f, 5.75f, 2.25f));
 	InteractionBox->SetRelativeLocation(FVector(70.0f, 0.0f, 40.0f));
-
 
 	// 오버랩 이벤트 바인드
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
@@ -49,10 +49,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 void
 ASagaGummyBearPlayer::Attack()
 {
-	Super::Attack();
-
 	//공격과 충돌되는 물체 여부 판단
-	FHitResult Result;
+	FHitResult Result{};
 
 	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 	FVector End = Start + GetActorForwardVector() * 150.f;
@@ -63,13 +61,12 @@ ASagaGummyBearPlayer::Attack()
 	bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 
 #if ENABLE_DRAW_DEBUG
-
 	//충돌시 빨강 아니면 녹색
 	FColor Color = Collision ? FColor::Red : FColor::Green;
 
 	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
-
 #endif
+
 	if (Collision)
 	{
 		FDamageEvent DamageEvent;
@@ -105,26 +102,27 @@ ASagaGummyBearPlayer::BeginPlay()
 }
 
 float
-ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
-	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
 
-	BearHp -= DamageAmount;
-	Stat->ApplyDamage(DamageAmount);
-	UE_LOG(LogTemp, Log, TEXT("BearHp : %f"), BearHp);
+	BearHp -= dmg;
+	Stat->ApplyDamage(dmg);
+
+	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), BearHp);
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	if (BearHp <= 0.0f)
 	{
-		//파티클 이펙트 실행
-
-		//사망애니메이션 실행
+		// 사망 애니메이션 실행
 		mBearAnimInst->Death();
 
-		//리스폰 함수 실행
+		// 사망 처리 (이동 정리, 충돌 해제)
+		ExecuteDeath();
+
+		// 파티클 이펙트 실행
 
 		//상대 팀 점수 증가 실행
-
 		if (system)
 		{
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
@@ -156,6 +154,11 @@ ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEvent& D
 		}
 	}
 
-	return 0.0f;
+	return dmg;
 }
 
+void
+ASagaGummyBearPlayer::ExecuteDeath()
+{
+	Super::ExecuteDeath();
+}

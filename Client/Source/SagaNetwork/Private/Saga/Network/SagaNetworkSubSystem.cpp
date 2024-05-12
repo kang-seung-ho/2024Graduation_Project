@@ -13,7 +13,7 @@
 
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
-	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle()
+	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle(), currentHandledWeapon()
 	, OnNetworkInitialized(), OnConnected(), OnFailedToConnect(), OnDisconnected()
 	, OnRoomCreated(), OnJoinedRoom(), OnOtherJoinedRoom(), OnLeftRoomBySelf(), OnLeftRoom()
 	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
@@ -24,20 +24,7 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
 	, receivedDataLock()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
-{
-	static ConstructorHelpers::FClassFinder<AActor> character_class_seek1(TEXT("/Script/CoreUObject.Class'/Script/SagaGame.SagaPlayableCharacter'"));
-
-	if (character_class_seek1.Succeeded() and character_class_seek1.Class)
-	{
-		//localPlayerClassReference = character_class_seek1.Class;
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[SagaGame] Could not find class of the playable character"));
-	}
-
-	//dummyPlayerClassReference = ASagaPlayableCharacter::StaticClass();
-}
+{}
 
 bool
 USagaNetworkSubSystem::ConnectToServer(const FString& nickname)

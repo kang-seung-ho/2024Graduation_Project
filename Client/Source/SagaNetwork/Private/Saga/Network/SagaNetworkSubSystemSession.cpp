@@ -335,3 +335,17 @@ const
 {
 	return currentRoomTitle;
 }
+
+void
+USagaNetworkSubSystem::SetOfflineWeapon(EPlayerWeapon weapon)
+noexcept
+{
+	currentHandledWeapon = weapon;
+}
+
+EPlayerWeapon
+USagaNetworkSubSystem::GetOfflineWeapon()
+const noexcept
+{
+	return currentHandledWeapon;
+}

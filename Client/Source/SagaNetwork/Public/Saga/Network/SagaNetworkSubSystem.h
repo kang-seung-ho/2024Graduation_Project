@@ -127,7 +127,7 @@ public:
 	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void AddRoom(const FSagaVirtualRoom& room);
 	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	bool RemoveRoom(int32 id) noexcept;
+	bool RemoveRoom(int32 room_id) noexcept;
 	UFUNCTION(Category = "CandyLandSaga|Network|Session")
 	void ClearRoomList() noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
@@ -135,15 +135,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool FindRoom(int32 id, FSagaVirtualRoom& outpin) const noexcept;
+	bool FindRoom(int32 room_id, FSagaVirtualRoom& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool HasRoom(int32 user_id) const noexcept;
+	bool HasRoom(int32 room_id) const noexcept;
 #pragma endregion
 
 	/* Local Client Methods */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetLocalUserId(int32 id) noexcept;
+	void SetLocalUserId(int32 user_id) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	int32 GetLocalUserId() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -153,13 +153,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool GetLocalUserTeam(EUserTeam& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCurrentRoomId(int32 id) noexcept;
+	void SetCurrentRoomId(int32 room_id) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	int32 GetCurrentRoomId() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetCurrentRoomTitle(const FString& title);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	FString GetCurrentRoomTitle() const;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetOfflineWeapon(EPlayerWeapon weapon) noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	EPlayerWeapon GetOfflineWeapon() const noexcept;
 #pragma endregion
 
 	/* Getters */
@@ -228,37 +233,26 @@ public:
 	int32 SendRoomUpdaterPacket();
 #pragma endregion
 
+	/* Local Session's Properties */
+#pragma region =========================
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	int32 localUserId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	FString localUserName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	int32 currentRoomId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	FString currentRoomTitle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	EPlayerWeapon currentHandledWeapon;
+#pragma endregion
+
 	/* Offline */
 #pragma region =========================
-	UFUNCTION()
-	void SetOfflineWeapon(EPlayerWeapon Type) noexcept
-	{
-		CurrentPlayerWeapon = Type;
-	}
-
-	UFUNCTION()
-	EPlayerWeapon GetOfflineWeapon() const noexcept
-	{
-		return CurrentPlayerWeapon;
-	}
-
-	EPlayerWeapon CurrentPlayerWeapon;
 #pragma endregion
 
 	/* Public Properties */
 #pragma region =========================
-#pragma endregion
-
-	/* Local Session's Properties */
-#pragma region =========================
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	int32 localUserId;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString localUserName;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	int32 currentRoomId;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString currentRoomTitle;
 #pragma endregion
 
 	/* Events */
@@ -413,7 +407,7 @@ private:
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnDisconnected_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnRoomCreated_Implementation(int32 id);
+	void OnRoomCreated_Implementation(int32 room_id);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnLeftRoomBySelf_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
@@ -421,11 +415,9 @@ private:
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRespondVersion_Implementation(const FString& version_string);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnTeamChanged_Implementation(int32 user_id, bool is_red_team);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
+	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1);
 #pragma endregion
 
 	/* Event Broadcasting Methods */

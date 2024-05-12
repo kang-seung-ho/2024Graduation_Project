@@ -60,18 +60,6 @@ USagaNetworkSubSystem::OnRespondVersion_Implementation(const FString& version_st
 }
 
 void
-USagaNetworkSubSystem::OnTeamChanged_Implementation(int32 user_id, bool is_red_team)
-{
-	for (auto& user : everyUsers)
-	{
-		if (user.MyID == user_id)
-		{
-			user.myTeam = is_red_team ? EUserTeam::Red : EUserTeam::Blue;
-		}
-	}
-}
-
-void
 USagaNetworkSubSystem::OnFailedToStartGame_Implementation(ESagaGameContract reason)
 {
 	auto name = UEnum::GetValueAsString(reason);

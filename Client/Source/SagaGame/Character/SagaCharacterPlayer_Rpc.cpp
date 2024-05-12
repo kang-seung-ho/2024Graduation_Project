@@ -87,4 +87,11 @@ ASagaCharacterPlayer::ExecuteHurt(const float dmg)
 
 void
 ASagaCharacterPlayer::ExecuteDeath()
-{}
+{
+	isRunning = false;
+	TerminateStraightWalk();
+	TerminateStrafeWalk();
+
+	GetCharacterMovement()->StopActiveMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}

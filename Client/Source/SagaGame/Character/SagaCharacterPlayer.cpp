@@ -104,12 +104,9 @@ ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 float
 ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] Called TakeDamage"));
 
-	UE_LOG(LogSagaGame, Warning, TEXT("Called TakeDamage"));
-	UE_LOG(LogSagaGame, Warning, TEXT("Current Damage : %f"), DamageAmount);
-
-	return DamageAmount;
+	return ExecuteHurt(DamageAmount);
 }
 
 void

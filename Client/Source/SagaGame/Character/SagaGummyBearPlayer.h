@@ -27,7 +27,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	virtual float TakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float ExecuteHurt(const float dmg) override;
+	virtual void ExecuteDeath() override;
 
 private:
 	UPROPERTY()

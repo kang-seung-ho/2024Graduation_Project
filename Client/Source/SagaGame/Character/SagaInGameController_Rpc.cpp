@@ -154,20 +154,20 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (not IsValid(character))
 		{
-			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_RIDE] Cannot find a character of user %d'."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC][BEG_RIDE] Cannot find a character of user %'d'."), id);
 			return;
 		}
+
+		const auto guardian_id = arg0;
+		const auto guardian_info = arg1;
 
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Ride guardian"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] user '%d' Begin ride guardian '%d'"), id, guardian_id);
 
 			FActorSpawnParameters SpawnParams{};
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
-
-			auto guardian_id = arg0;
-			auto guardian_info = arg1;
 
 			auto old_character = user.GetCharacterHandle();
 
@@ -252,7 +252,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
 			std::memcpy(&z, &arg1, 4);
 
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Positioning remote player %d to (%f,%f,%f)."), id, x, y, z);
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Positioning remote player %d to (%f,%f,%f)."), id, x, y, z);
 			character->SetActorLocation(FVector{ x, y, z });
 		}
 	}
@@ -270,7 +270,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
 			std::memcpy(&r, &arg1, 4);
 
-			UE_LOG(LogSagaGame, Log, TEXT("Rotating remote player %d by (%f,%f,%f)."), id, p, y, r);
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Rotating remote player %d by (%f,%f,%f)."), id, p, y, r);
 			character->SetActorRotation(FRotator{ p, y, r });
 		}
 	}

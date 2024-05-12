@@ -38,8 +38,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
-
-
 }
 
 void
@@ -47,6 +45,7 @@ ASagaPlayableCharacter::RideNPC()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
 		FOutputDeviceNull Ar;
+
 	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
 	if (ret == true)
 	{
@@ -63,11 +62,8 @@ ASagaPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	//myWeaponType = EPlayerWeapon::LightSabor;
-	UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay"));
-
-
+	UE_LOG(LogSagaGame, Warning, TEXT("Playable Character BeginPlay"));
 }
-
 
 void
 ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -76,35 +72,28 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 float
-ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	return ExecuteHurt(DamageAmount);
-}
-
-float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
+
 	Stat->ApplyDamage(dmg);
-	myClientHP -= dmg;
+	myHealth -= dmg;
 
-	mAnimInst->Hit();
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (myClientHP <= 0.0f)
+	if (myHealth <= 0.0f)
 	{
+		// 사망 애니메이션 실행
 		mAnimInst->Death();
-		//잠시 Collision 해제
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		//사망애니메이션 실행
+		// 사망 처리 (이동 정리, 충돌 해제)
+		ExecuteDeath();
 
-		//리스폰 함수 실행
+		// 리스폰 함수 실행
 		// RespawnCharacter 함수 3초 뒤	실행
 		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
 
 		//상대 팀 점수 증가 실행
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		if (system)
 		{
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
@@ -112,40 +101,69 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	}
 	else
 	{
+		mAnimInst->Hit();
 
+		if (system)
+		{
+			if constexpr (not saga::IsOfflineMode)
+			{
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+			}
+			else
+			{
+
+			}
+		}
 	}
 
 	return dmg;
 }
 
-void ASagaPlayableCharacter::ExecuteDeath()
-{}
+void
+ASagaPlayableCharacter::ExecuteDeath()
+{
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteDeath"));
+
+	Super::ExecuteDeath();
+}
 
 void
 ASagaPlayableCharacter::RespawnCharacter()
 {
-	myClientHP = 100.0f;
+	// Reset game states
+	myHealth = 100.0f;
 	Stat->SetHp(100.0f);
-	FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
-	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
-	SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
-	TerminateStraightWalk();
-	TerminateStrafeWalk();
-	isRunning = false;
-	GetCharacterMovement()->StopActiveMovement();
+	// Reset the position
+	if constexpr (saga::IsOfflineMode)
+	{
+		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
+		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
+		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
+	}
+	else
+	{
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (system)
+		{
+			const auto spawn_point = system->GetStoredPosition(myId);
+
+			SetActorLocationAndRotation(spawn_point, FRotator{});
+
+			UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
+		}
+	}
+
+	// Animate
 	mAnimInst->Revive();
 
-	//Collision Enable Codes
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	system->GetLocalUserTeam(myTeam); //re-save team color from system
-	SetTeamColorAndCollision(myTeam);	//re-set team collision
-
-	UE_LOG(LogTemp, Warning, TEXT("Character respawned at Location: %s"), *SpawnLocation.ToString());
+	// Retrive collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
-
-
 
 void
 ASagaPlayableCharacter::Tick(float DeltaTime)
