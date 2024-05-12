@@ -24,4 +24,5 @@ ASagaInGamePlayerController::DeserializePosition(const int64& arg0, const int32&
 	std::memcpy(&y, reinterpret_cast<const char*>(&arg0) + 4, 4);
 	std::memcpy(&z, &arg1, 4);
 
+	return FVector{ x, y, z };
 }
