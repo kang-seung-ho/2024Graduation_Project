@@ -3,6 +3,7 @@
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "SagaPlayableCharacter.h"
 
 void
 ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
@@ -40,6 +41,7 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				character->SetTeamColorAndCollision(team);
 				// The weapon was stored on the CharacterSelectLevel
 				character->SetWeapon(weapon);
+				character->AttachWeapon(weapon);
 			}
 			else
 			{

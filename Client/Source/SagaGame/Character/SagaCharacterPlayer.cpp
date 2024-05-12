@@ -10,7 +10,7 @@
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, myId(-1), myTeam(EUserTeam::Unknown), myWeaponType(EPlayerWeapon::LightSabor)
+	, myId(-1), myTeam(EUserTeam::Unknown)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
@@ -57,6 +57,28 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
 		HpBar->SetDrawSize(FVector2D(150, 20));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	//Weapon
+	MyWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	MyWeapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	// WeaponMesh Collision Disable
+	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	//Load Weapon Meshes
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
+
+	if (LightSaborMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMeshRef.Object);
+	}
+	if (WaterGunMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMeshRef.Object);
+	}
+	if (HammerMeshRef.Succeeded()) {
+		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
 }
 
@@ -172,6 +194,37 @@ EPlayerWeapon
 ASagaCharacterPlayer::GetWeapon() const noexcept
 {
 	return myWeaponType;
+}
+
+void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
+{
+	//Set Weapon Mesh due to Weapon Type
+	if (WeaponMeshes.Contains(myWeaponType)) {
+		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
+		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), myWeaponType);
+
+		if (myWeaponType == EPlayerWeapon::LightSabor)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+		}
+		else if (myWeaponType == EPlayerWeapon::WaterGun)
+		{
+			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+		else if (myWeaponType == EPlayerWeapon::Hammer)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No weapon mesh found for the selected Weapon."));
+	}
 }
 
 void

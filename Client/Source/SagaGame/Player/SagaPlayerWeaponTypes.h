@@ -8,5 +8,6 @@ enum class EPlayerWeapon : uint8
 {
 	LightSabor,
 	WaterGun,
-	Hammer
+	Hammer,
+	None
 };

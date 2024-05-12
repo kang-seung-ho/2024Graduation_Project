@@ -17,6 +17,7 @@ class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharact
 public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
+	void AttachWeapon(EPlayerWeapon WeaponType);
 
 	virtual void PostInitializeComponents() override;
 
@@ -182,4 +183,13 @@ protected:
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
 	void SetDead();
+
+protected:
+	// For saving Weapon Meshes
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class UStaticMeshComponent> MyWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;
 };

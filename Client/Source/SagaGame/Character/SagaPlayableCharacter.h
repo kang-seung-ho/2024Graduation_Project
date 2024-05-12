@@ -61,15 +61,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
-	// For saving Weapon Meshes
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	UStaticMesh* WaterGunMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	UStaticMesh* LightSaborMesh;
 
 protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
@@ -80,10 +72,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TObjectPtr<class UStaticMeshComponent> MyWeapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
 
