@@ -68,6 +68,12 @@ USagaGummyBearAnimInstance::PlayAttackMontage()
 	}
 }
 
+void USagaGummyBearAnimInstance::Death()
+{
+	mIsDead = true;
+}
+
+
 void
 USagaGummyBearAnimInstance::AnimNotify_Attack()
 {

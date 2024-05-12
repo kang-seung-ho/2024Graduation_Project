@@ -30,7 +30,7 @@ public:
 
 public:
 	void PlayAttackMontage();
-
+	void Death();
 public:
 	UFUNCTION()
 	void AnimNotify_Attack();
@@ -53,6 +53,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool	mIsGround = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool	mIsDead = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mAttackMontageArray;

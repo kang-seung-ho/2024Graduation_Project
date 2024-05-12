@@ -108,7 +108,7 @@ void
 ASagaPlayableCharacter::RespawnCharacter()
 {
 	myClientHP = 100.0f;
-
+	Stat->SetHp(100.0f);
 	FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
 	FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 

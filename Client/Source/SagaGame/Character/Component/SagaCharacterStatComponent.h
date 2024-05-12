@@ -31,9 +31,10 @@ public:
 	FORCEINLINE float GetCurrentHp() const { return CurrentHp; }
 	float ApplyDamage(float Damage);
 
-protected:
+public:
 	void SetHp(float NewHp);
 
+protected:
 	UPROPERTY(VisibleInstanceOnly, Category = "Character Stat")
 	float MaxHp;
 

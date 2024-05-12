@@ -115,7 +115,7 @@ float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEv
 		//Destroy();
 
 		//사망애니메이션 실행
-
+		mBearAnimInst->Death();
 
 		//리스폰 함수 실행
 
