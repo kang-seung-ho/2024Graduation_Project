@@ -2,6 +2,8 @@
 #include "SagaCharacterPlayer.h"
 #include "SagaPlayableCharacter.h"
 
+#include "Character/SagaCharacterSpawner.h"
+
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -10,6 +12,12 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 {
 	FTransform transform{};
 	transform.TransformPosition({ 0, 0, 300 });
+
+	const auto handle = playerSpawners.Find(team);
+	ensure(handle != nullptr);
+
+	const auto spawner = *handle;
+	ensure(spawner != nullptr);
 
 	if constexpr (not saga::IsOfflineMode)
 	{
@@ -44,9 +52,20 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 
 				// TODO: 스폰 지점 설정 #1
 				// Making a spawn point
+				const auto pos = spawner->GetInitialSpawnPoint();
 
+				// store the initial spawn point (local)
+				system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
 
-				character->SetActorLocation(system->GetStoredPosition(user_id));
+				int64 arg0{};
+				int32 arg1{};
+				SerializePosition(pos, arg0, arg1);
+
+				// let others know this
+				SendRpc(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+
+				//character->SetActorLocation(system->GetStoredPosition(user_id));
+				character->SetActorLocation(pos);
 			}
 			else
 			{
@@ -96,32 +115,6 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 }
 
 void
-ASagaInGamePlayerController::OnUpdatePosition(int32 user_id, float x, float y, float z)
-{
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (user_id == system->GetLocalUserId()) // 로컬 클라이언트
-	{
-	}
-	else // 원격 클라이언트
-	{
-	}
-}
-
-void
-ASagaInGamePlayerController::OnUpdateRotation(int32 user_id, float p, float y, float r)
-{
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (user_id == system->GetLocalUserId()) // 로컬 클라이언트
-	{
-	}
-	else // 원격 클라이언트
-	{
-	}
-}
-
-void
 ASagaInGamePlayerController::OnUpdateTransform()
 {
 	if constexpr (not saga::IsOfflineMode)
@@ -137,16 +130,10 @@ ASagaInGamePlayerController::OnUpdateTransform()
 			const auto loc = pawn->K2_GetActorLocation();
 			if (lastCharacterPosition != loc)
 			{
-				const auto x = float(loc.X);
-				const auto y = float(loc.Y);
-				const auto z = float(loc.Z);
-
 				int64 arg0{};
 				int32 arg1{};
 
-				memcpy((char*)(&arg0), &x, 4);
-				memcpy((char*)(&arg0) + 4, &y, 4);
-				memcpy((char*)(&arg1), &z, 4);
+				SerializePosition(loc, arg0, arg1);
 
 				//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
 				SendRpc(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
@@ -157,16 +144,10 @@ ASagaInGamePlayerController::OnUpdateTransform()
 			const auto rot = pawn->K2_GetActorRotation();
 			if (lastCharacterRotation != rot)
 			{
-				const auto x = float(rot.Pitch);
-				const auto y = float(rot.Yaw);
-				const auto z = float(rot.Roll);
-
 				int64 arg0{};
 				int32 arg1{};
 
-				memcpy((char*)(&arg0), (char*)(&x), 4);
-				memcpy((char*)(&arg0) + 4, (char*)(&y), 4);
-				memcpy((char*)(&arg1), (char*)(&z), 4);
+				SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
 
 				//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
 				SendRpc(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);

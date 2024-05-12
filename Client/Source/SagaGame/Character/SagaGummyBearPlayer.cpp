@@ -1,7 +1,10 @@
 #include "SagaGummyBearPlayer.h"
 #include "../Effect/SagaSwordEffect.h"
-#include "Saga/Network/SagaNetworkSubSystem.h"
+
 #include "SagaGame/Player/SagaUserTeam.h"
+
+#include "Saga/Network/SagaNetworkSettings.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 {
@@ -43,7 +46,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
 }
 
-void ASagaGummyBearPlayer::Attack()
+void
+ASagaGummyBearPlayer::Attack()
 {
 	Super::Attack();
 
@@ -94,13 +98,14 @@ ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 
 }
 
-void ASagaGummyBearPlayer::BeginPlay()
+void
+ASagaGummyBearPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float
+ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
@@ -108,11 +113,10 @@ float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEv
 	Stat->ApplyDamage(DamageAmount);
 	UE_LOG(LogTemp, Log, TEXT("BearHp : %f"), BearHp);
 
-	if(BearHp <= 0.0f)
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (BearHp <= 0.0f)
 	{
 		//파티클 이펙트 실행
-
-		//Destroy();
 
 		//사망애니메이션 실행
 		mBearAnimInst->Death();
@@ -121,13 +125,36 @@ float ASagaGummyBearPlayer::TakeDamage(const float DamageAmount, const FDamageEv
 
 		//상대 팀 점수 증가 실행
 
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		if (system)
 		{
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+
+			if constexpr (not saga::IsOfflineMode)
+			{
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, BearHp, 1);
+			}
+			else
+			{
+
+			}
+		}
+
+		//Destroy();
+	}
+	else
+	{
+		if (system)
+		{
+			if constexpr (not saga::IsOfflineMode)
+			{
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, BearHp, 1);
+			}
+			else
+			{
+
+			}
 		}
 	}
-
 
 	return 0.0f;
 }

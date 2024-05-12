@@ -46,10 +46,6 @@ public:
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
 #pragma region =========================
 	UFUNCTION()
-	void OnUpdatePosition(int32 user_id, float x, float y, float z);
-	UFUNCTION()
-	void OnUpdateRotation(int32 user_id, float p, float y, float r);
-	UFUNCTION()
 	void OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
@@ -110,7 +106,6 @@ public:
 	bool isRiding;
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
-#pragma endregion
 
 	UPROPERTY()
 	TSubclassOf<UUserWidget> mTeamScoreBoardClass;
@@ -118,7 +113,8 @@ public:
 	class UUserWidget* mTeamScoreBoard;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TMap<EUserTeam, class ASagaCharacterSpawner*> spawnPoints;
+	TMap<EUserTeam, class ASagaCharacterSpawner*> playerSpawners;
+#pragma endregion
 
 protected:
 	/* State Machines */
@@ -139,4 +135,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isAttacking;
+
+private:
+	// 좌표 쓰기
+	UFUNCTION()
+	static void SerializePosition(const FVector& vector, int64& arg0, int32& arg1);
+	// 좌표 읽기
+	UFUNCTION()
+	static FVector DeserializePosition(const int64& arg0, const int32& arg1);
 };

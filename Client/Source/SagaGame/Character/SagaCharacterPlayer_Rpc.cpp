@@ -60,14 +60,12 @@ ASagaCharacterPlayer::TerminateJump()
 void
 ASagaCharacterPlayer::ExecuteAttack()
 {
-	/*PlayAttackAnimation();*/
+	PlayAttackAnimation();
 }
 
 void
 ASagaCharacterPlayer::TerminateAttack()
-{
-
-}
+{}
 
 void
 ASagaCharacterPlayer::ExecuteRide()
@@ -80,3 +78,13 @@ ASagaCharacterPlayer::TerminateRide()
 {
 
 }
+
+float
+ASagaCharacterPlayer::ExecuteHurt(const float dmg)
+{
+	return 0.0f;
+}
+
+void
+ASagaCharacterPlayer::ExecuteDeath()
+{}

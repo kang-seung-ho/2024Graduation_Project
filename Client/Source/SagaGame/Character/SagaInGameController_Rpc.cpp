@@ -225,7 +225,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		}
 	}
 	break;
-	
+
 	case ESagaRpcProtocol::RPC_POSITION:
 	{
 		if (not IsValid(character))
@@ -257,7 +257,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		}
 	}
 	break;
-	
+
 	case ESagaRpcProtocol::RPC_ROTATION:
 	{
 		if (is_remote)
@@ -373,6 +373,42 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		ensure(new_weapon == test);
 
 		UE_LOG(LogSagaGame, Warning, TEXT("[RPC] %d's weapon is %d"), id, static_cast<int>(test));
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_DMG_PLYER:
+	{
+		if (is_remote)
+		{
+
+		}
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_DMG_GUARDIAN:
+	{
+		if (is_remote)
+		{
+
+		}
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART:
+	{
+		if (is_remote)
+		{
+
+		}
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_DMG_BASE:
+	{
+		if (is_remote)
+		{
+
+		}
 	}
 	break;
 

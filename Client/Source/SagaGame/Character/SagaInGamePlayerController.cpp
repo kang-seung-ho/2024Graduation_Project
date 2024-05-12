@@ -16,7 +16,7 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	: APlayerController(ObjectInitializer)
 	, isRiding(), OnRideNPC()
 	, mTeamScoreBoardClass(), mTeamScoreBoard()
-	, spawnPoints()
+	, playerSpawners()
 	, walkDirection()
 	, lastCharacterPosition(), lastCharacterRotation(), tranformUpdateTimer()
 	, isAttacking()
@@ -123,27 +123,36 @@ ASagaInGamePlayerController::BeginPlay()
 			const auto spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
 			ensure(spawner != nullptr);
 
-			spawnPoints.Add(EUserTeam::Unknown, spawner);
-			spawnPoints.Add(EUserTeam::Red, spawner);
-			spawnPoints.Add(EUserTeam::Blue, spawner);
+			playerSpawners.Add(EUserTeam::Unknown, spawner);
+			playerSpawners.Add(EUserTeam::Red, spawner);
+			playerSpawners.Add(EUserTeam::Blue, spawner);
 		}
 		else
 		{
 			const auto red_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
 			ensure(red_spawner != nullptr);
 
-			spawnPoints.Add(EUserTeam::Unknown, red_spawner);
-			spawnPoints.Add(EUserTeam::Red, red_spawner);
+			playerSpawners.Add(EUserTeam::Unknown, red_spawner);
+			playerSpawners.Add(EUserTeam::Red, red_spawner);
 
 			const auto blue_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[1]);
 			ensure(blue_spawner != nullptr);
 
-			spawnPoints.Add(EUserTeam::Blue, blue_spawner);
+			playerSpawners.Add(EUserTeam::Blue, blue_spawner);
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("No spawner has found."));
+		UE_LOG(LogSagaGame, Warning, TEXT("Any spawner does not exist."));
+
+		FVector center{};
+		auto automatic_spawner = world->SpawnActor<ASagaCharacterSpawner>(center, {});
+		ensure(automatic_spawner != nullptr);
+
+		UE_LOG(LogSagaGame, Log, TEXT("An automatic spawner is spawned."));
+		playerSpawners.Add(EUserTeam::Unknown, automatic_spawner);
+		playerSpawners.Add(EUserTeam::Red, automatic_spawner);
+		playerSpawners.Add(EUserTeam::Blue, automatic_spawner);
 	}
 
 	if (nullptr != system)
@@ -151,9 +160,6 @@ ASagaInGamePlayerController::BeginPlay()
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 
 		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
-
-		system->OnUpdatePosition.AddDynamic(this, &ASagaInGamePlayerController::OnUpdatePosition);
-		system->OnUpdateRotation.AddDynamic(this, &ASagaInGamePlayerController::OnUpdateRotation);
 
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
@@ -179,7 +185,8 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 }
 
-void ASagaInGamePlayerController::CountDown()
+void
+ASagaInGamePlayerController::CountDown()
 {
 	if (Seconds != 0)
 	{

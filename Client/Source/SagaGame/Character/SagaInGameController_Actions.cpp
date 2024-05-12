@@ -201,38 +201,39 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
-	if constexpr (saga::IsOfflineMode)
+	if (not isAttacking)
 	{
-		auto pawn = GetPawn<ASagaCharacterPlayer>();
-
-		pawn->PlayAttackAnimation();
-	}
-	else
-	{
-		if (not isAttacking)
+		if constexpr (saga::IsOfflineMode)
 		{
-			isAttacking = true;
+			auto pawn = GetPawn<ASagaCharacterPlayer>();
 
+			pawn->PlayAttackAnimation();
+		}
+		else
+		{
 			SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
 		}
+
+		isAttacking = true;
 	}
 }
 
 void
 ASagaInGamePlayerController::EndAttack()
 {
-	if constexpr (saga::IsOfflineMode)
+	if (isAttacking)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
-	}
-	else
-	{
-		if (isAttacking)
+
+		if constexpr (saga::IsOfflineMode)
+		{
+		}
+		else
 		{
 			SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
-
-			isAttacking = false;
 		}
+
+		isAttacking = false;
 	}
 }
 

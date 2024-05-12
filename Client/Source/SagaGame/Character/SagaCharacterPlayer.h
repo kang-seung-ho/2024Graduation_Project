@@ -17,10 +17,8 @@ class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharact
 public:
 	// Sets default values for this character's properties
 	ASagaCharacterPlayer();
-	void AttachWeapon(EPlayerWeapon WeaponType);
 
 	virtual void PostInitializeComponents() override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float delta_time) override;
 	// Called to bind functionality to input
@@ -33,12 +31,16 @@ public:
 	void SetTeamColorAndCollision(const EUserTeam& myTeam) noexcept;
 	UFUNCTION()
 	void SetWeapon(const EPlayerWeapon& weapon) noexcept;
+	UFUNCTION()
+	void SetHealth(const float hp) noexcept;
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
 	UFUNCTION(BlueprintPure)
 	EUserTeam GetTeamColorAndCollision() const noexcept;
 	UFUNCTION(BlueprintPure)
 	EPlayerWeapon GetWeapon() const noexcept;
+	UFUNCTION(BlueprintPure)
+	float GetHealth() const noexcept;
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
 #pragma endregion
@@ -47,6 +49,10 @@ public:
 	virtual void Attack();
 	UFUNCTION()
 	void PlayAttackAnimation();
+	UFUNCTION()
+	void AttachWeapon(EPlayerWeapon WeaponType);
+	UFUNCTION()
+	void SetDead();
 
 	/*
 		Speed: 속도 (스칼라)
@@ -55,20 +61,19 @@ public:
 		Direction: 방향 - double, FVector
 	*/
 
+	UFUNCTION()
+	void RotateCameraArm(const float pitch);
+
 	UFUNCTION(BlueprintPure)
 	float GetMoveAnimationSpeed() const noexcept
 	{
 		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
 	}
-
 	UFUNCTION(BlueprintPure)
 	float GetMoveAnimationAngle() const noexcept
 	{
 		return animationMoveAngle;
 	}
-
-	UFUNCTION()
-	void RotateCameraArm(const float pitch);
 
 	/* 액션 메서드 */
 #pragma region =========================
@@ -100,6 +105,11 @@ public:
 	virtual void ExecuteRide();
 	UFUNCTION()
 	virtual void TerminateRide();
+	
+	UFUNCTION()
+	virtual float ExecuteHurt(const float dmg);
+	UFUNCTION()
+	virtual void ExecuteDeath();
 #pragma endregion
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
@@ -156,6 +166,8 @@ protected:
 	EUserTeam myTeam;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	EPlayerWeapon myWeaponType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	float myHealth;
 #pragma endregion
 
 	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
@@ -176,17 +188,14 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterStat", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaCharacterStatComponent> Stat;
-protected:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widget", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaWidgetComponent> HpBar;
 
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
-	void SetDead();
-
 protected:
 	// For saving Weapon Meshes
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class UStaticMeshComponent> MyWeapon;
 

@@ -35,80 +35,40 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public 
 	
 public:
 	ASagaPlayableCharacter();
-	void RideNPC();
 
-public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	void RespawnCharacter();
+
+	virtual void Attack();
+	void RideNPC();
 	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
 	//void RidingFunction();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual float ExecuteHurt(const float dmg) override;
+	virtual void ExecuteDeath() override;
 
 	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
-	virtual void Attack();
-
 protected:
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-protected:
-	EItemType mItemType;
-	float myClientHP = 100.0f;
-private:
-	FTimerHandle RespawnTimerHandle;
-
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
-
-
-
-protected:
 	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
 	virtual void Acquire_Gum(class USagaWeaponData* WeaponData);
 	virtual void Acquire_smokebomb(class USagaWeaponData* WeaponData);
 	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
 
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	EItemType mItemType;
+	float myClientHP = 100.0f;
+
+	FTimerHandle RespawnTimerHandle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
-
-public:
-	// ������ ó���� ���� �������̵�
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	void RespawnCharacter();
-
-//public:
-//	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteRide() override;
-//	UFUNCTION(BlueprintNativeEvent, Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateRide() override;
-//
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteAttack() override;
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateAttack() override;
-//
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteRotation() override;
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateRotation() override;
-//
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteJump() override;
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateJump() override;
-//
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteRun() override;
-//	UFUNCTION(Category = "CandyLandSaga|Game|RPC", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateRun() override;
-//
-//	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-//	virtual void ExecuteWalk(const float& delta_time) override;
-//	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-//	virtual void TerminateWalk(const float& delta_time) override;
 };

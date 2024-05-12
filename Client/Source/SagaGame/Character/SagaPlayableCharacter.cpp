@@ -1,6 +1,8 @@
 #include "SagaPlayableCharacter.h"
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
+
+#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
@@ -37,7 +39,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 
-	
+
 }
 
 void
@@ -62,8 +64,8 @@ ASagaPlayableCharacter::BeginPlay()
 	Super::BeginPlay();
 	//myWeaponType = EPlayerWeapon::LightSabor;
 	UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay"));
-	
-	
+
+
 }
 
 
@@ -77,8 +79,15 @@ float
 ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	myClientHP -= DamageAmount;
-	Stat->ApplyDamage(DamageAmount);
+
+	return ExecuteHurt(DamageAmount);
+}
+
+float
+ASagaPlayableCharacter::ExecuteHurt(const float dmg)
+{
+	Stat->ApplyDamage(dmg);
+	myClientHP -= dmg;
 
 	mAnimInst->Hit();
 
@@ -89,7 +98,7 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		//사망애니메이션 실행
-		
+
 		//리스폰 함수 실행
 		// RespawnCharacter 함수 3초 뒤	실행
 		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
@@ -101,8 +110,16 @@ ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
 		}
 	}
-	return DamageAmount;
+	else
+	{
+
+	}
+
+	return dmg;
 }
+
+void ASagaPlayableCharacter::ExecuteDeath()
+{}
 
 void
 ASagaPlayableCharacter::RespawnCharacter()
@@ -258,6 +275,7 @@ ASagaPlayableCharacter::Attack()
 
 		if (Collision)
 		{
+			// TODO: RPC
 			FDamageEvent DamageEvent;
 			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
 

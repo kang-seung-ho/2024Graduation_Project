@@ -10,7 +10,7 @@
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, myId(-1), myTeam(EUserTeam::Unknown)
+	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
@@ -50,7 +50,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	Stat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
 	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
 	HpBar->SetupAttachment(GetMesh());
-	
+
 	HpBar->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
@@ -74,13 +74,16 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
 
-	if (LightSaborMeshRef.Succeeded()) {
+	if (LightSaborMeshRef.Succeeded())
+	{
 		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMeshRef.Object);
 	}
-	if (WaterGunMeshRef.Succeeded()) {
+	if (WaterGunMeshRef.Succeeded())
+	{
 		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMeshRef.Object);
 	}
-	if (HammerMeshRef.Succeeded()) {
+	if (HammerMeshRef.Succeeded())
+	{
 		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
 }
@@ -88,7 +91,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 void ASagaCharacterPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+
 	Stat->OnHpZero.AddUObject(this, &ASagaCharacterPlayer::SetDead);
 }
 
@@ -104,7 +107,6 @@ ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	UE_LOG(LogSagaGame, Warning, TEXT("Called TakeDamage"));
-
 	UE_LOG(LogSagaGame, Warning, TEXT("Current Damage : %f"), DamageAmount);
 
 	return DamageAmount;
@@ -149,61 +151,13 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 	}
 }
 
-void
-ASagaCharacterPlayer::SetUserId(const int32& id)
-noexcept
-{
-	myId = id;
-}
-
-void
-ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
-noexcept
-{
-	myTeam = team;
-
-	if (team == EUserTeam::Red)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else if (team == EUserTeam::Blue)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
-	}
-}
-
-void
-ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
-noexcept
-{
-	myWeaponType = weapon;
-}
-
-int32
-ASagaCharacterPlayer::GetUserId()
-const noexcept
-{
-	return myId;
-}
-
-EUserTeam
-ASagaCharacterPlayer::GetTeamColorAndCollision()
-const noexcept
-{
-	return myTeam;
-}
-
-EPlayerWeapon
-ASagaCharacterPlayer::GetWeapon() const noexcept
-{
-	return myWeaponType;
-}
-
 void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AttachWeapon - WeaponType %d"), WeaponType);
+
 	//Set Weapon Mesh due to Weapon Type
-	if (WeaponMeshes.Contains(myWeaponType)) {
+	if (WeaponMeshes.Contains(myWeaponType))
+	{
 		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
 		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), myWeaponType);
 
@@ -226,7 +180,8 @@ void ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
 	}
-	else {
+	else
+	{
 		UE_LOG(LogTemp, Warning, TEXT("No weapon mesh found for the selected Weapon."));
 	}
 }
@@ -258,6 +213,86 @@ ASagaCharacterPlayer::RotateCameraArm(const float pitch)
 
 	else if (Rot.Pitch > 60.0)
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+}
+
+void ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
+{
+	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
+	}
+}
+
+void ASagaCharacterPlayer::SetDead()
+{
+	HpBar->SetHiddenInGame(true);
+}
+
+void
+ASagaCharacterPlayer::SetUserId(const int32& id)
+noexcept
+{
+	myId = id;
+}
+
+void
+ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
+noexcept
+{
+	myTeam = team;
+
+	if (team == EUserTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (team == EUserTeam::Blue)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
+void
+ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
+noexcept
+{
+	myWeaponType = weapon;
+}
+
+void
+ASagaCharacterPlayer::SetHealth(const float hp)
+noexcept
+{
+	myHealth = hp;
+}
+
+int32
+ASagaCharacterPlayer::GetUserId()
+const noexcept
+{
+	return myId;
+}
+
+EUserTeam
+ASagaCharacterPlayer::GetTeamColorAndCollision()
+const noexcept
+{
+	return myTeam;
+}
+
+EPlayerWeapon
+ASagaCharacterPlayer::GetWeapon() const noexcept
+{
+	return myWeaponType;
+}
+
+float
+ASagaCharacterPlayer::GetHealth()
+const noexcept
+{
+	return myHealth;
 }
 
 void
@@ -363,20 +398,4 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
 		}
 	}
-}
-
-void ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
-{
-	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
-	if (HpBarWidget)
-	{
-		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
-		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
-	}
-}
-
-void ASagaCharacterPlayer::SetDead()
-{
-	HpBar->SetHiddenInGame(true);
 }

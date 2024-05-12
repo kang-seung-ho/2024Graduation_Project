@@ -1,10 +1,10 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-#include "Saga/Network/SagaPacketProcessor.h"
-#include "Saga/Network/SagaGameContract.h"
-#include "Saga/Network/SagaVirtualUser.h"
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
+#include "Saga/Network/SagaGameContract.h"
+#include "Saga/Network/SagaVirtualUser.h"
+#include "Saga/Network/SagaPacketProcessor.h"
 
 void
 USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset
