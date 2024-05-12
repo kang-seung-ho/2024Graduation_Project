@@ -372,7 +372,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 		auto name = UEnum::GetValueAsString(category);
 
-		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
+		//UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
 		BroadcastOnRpc(category, user_id, argument0, argument1);
 	}

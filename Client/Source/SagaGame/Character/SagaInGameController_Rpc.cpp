@@ -19,7 +19,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	if (id == system->GetLocalUserId()) // 로컬 클라이언트
 	{
 #pragma region RPC from Local Client
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is my rpc message."));
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is my rpc message."));
 
 		character = GetPawn<ASagaCharacterPlayer>();
 #pragma endregion
@@ -34,7 +34,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			return;
 		}
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
 
 		is_remote = true;
 		character = user.GetCharacterHandle();
