@@ -3,10 +3,11 @@
 #include "Components/Button.h"
 #include "Blueprint/UserWidget.h"
 
+#include "Saga/Interface/SagaUserWidget.h"
 #include "SagaCharacterSelectWidget.generated.h"
 
-UCLASS()
-class SAGAGAME_API USagaCharacterSelectWidget : public UUserWidget
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI")
+class SAGAGAME_API USagaCharacterSelectWidget : public USagaUserWidget
 {
 	GENERATED_BODY()
 
@@ -19,7 +20,5 @@ protected:
 
 public:
 	UFUNCTION()
-	void StartButtonClick();
-
 	void StartButtonEnable(bool bEnable);
 };

@@ -15,6 +15,9 @@ public:
 public:
 	bool isStartButtonClicked = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool isGameStartable;
+
 	bool getStartButtonStatus()
 	{
 		return isStartButtonClicked;

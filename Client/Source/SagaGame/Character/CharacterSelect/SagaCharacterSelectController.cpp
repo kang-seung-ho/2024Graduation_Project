@@ -22,25 +22,16 @@ ASagaCharacterSelectController::ASagaCharacterSelectController()
 		mSelectWidgetClass = WidgetClass.Class;
 	}
 
+	isGameStartable = false;
 }
 
 void
 ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
-	FTimerHandle TimerHandle;
+
+	FTimerHandle TimerHandle{};
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaCharacterSelectController::CountDown, 1.0f, true, 0.0);
-
-
-	if (IsValid(mSelectWidgetClass))
-	{
-		mSelectWidget = CreateWidget<USagaCharacterSelectWidget>(GetWorld(), mSelectWidgetClass);
-
-		if (IsValid(mSelectWidget))
-		{
-			mSelectWidget->AddToViewport();
-		}
-	}
 
 	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
@@ -49,7 +40,6 @@ ASagaCharacterSelectController::BeginPlay()
 
 	const USagaCharacterSelectInputSystem* InputSystem = GetDefault<USagaCharacterSelectInputSystem>();
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
-
 }
 
 void
@@ -107,7 +97,8 @@ ASagaCharacterSelectController::Tick(float DeltaTime)
 	}
 }
 
-void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
+void
+ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 {
 	mSelectActor = mUnderCursorActor;
 
@@ -118,7 +109,7 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 		{
 			EPlayerWeapon WeaponType = SelectedCharacter->GetWeapon();
 
-			mSelectWidget->StartButtonEnable(true);
+			isGameStartable = true;
 
 			// 무기 유형에 따라 서버전송 처리를 수행
 			FString WeaponName = TEXT("Unknown");
@@ -126,7 +117,7 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			switch (WeaponType)
 			{
 			case EPlayerWeapon::LightSabor:
-				WeaponName = TEXT("Light Sabor");				
+				WeaponName = TEXT("Light Sabor");
 				system->SetWeaponType(EPlayerWeapon::LightSabor);
 				if constexpr (not saga::IsOfflineMode)
 				{
@@ -175,11 +166,11 @@ void ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 		}
 		else
 		{
-			mSelectWidget->StartButtonEnable(false);
+			isGameStartable = false;
 		}
 	}
 	else
 	{
-		mSelectWidget->StartButtonEnable(false);
+		isGameStartable = false;
 	}
 }
