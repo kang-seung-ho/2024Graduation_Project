@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "../SagaGameInfo.h"
 #include "GameFramework/Actor.h"
 #include "ObjectComponents/ObstacleHPComponent.h"
 #include "SagaDestructibleMapObstacle.generated.h"
@@ -20,6 +20,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	TSoftClassPtr<UAnimInstance> ObjectAnimation;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -29,7 +31,13 @@ public:
 	UObstacleHPComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	UStaticMeshComponent* MeshComponent;
+	USkeletalMeshComponent* MeshComponent;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	//USkeletalMeshComponent* SKMeshComponent;
+
+	UPROPERTY()
+	UAnimSequence* DeathAnimation;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 

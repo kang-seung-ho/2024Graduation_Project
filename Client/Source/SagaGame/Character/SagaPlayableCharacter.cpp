@@ -146,55 +146,31 @@ ASagaPlayableCharacter::Attack()
 
 	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
-		//공격과 충돌되는 물체 여부 판단
 		FHitResult Result;
 
-		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		FVector End = Start + GetActorForwardVector() * 150.f;
+		// 카메라의 회전을 가져옴
+		FRotator CameraRotation = GetControlRotation();
+		FVector ForwardVector = CameraRotation.Vector();
 
-		FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
-		param.AddIgnoredActor(this);
+		// 카메라의 Pitch를 고려하여 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + ForwardVector * 50.f;
+		FVector End = Start + ForwardVector * 150.f;
 
-		bool Collision;
-		if (myTeam == EUserTeam::Red)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - LightSaber"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else if (myTeam == EUserTeam::Blue)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - LightSaber"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Not Found Team"));
-			return;
-		}
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
 
 #if ENABLE_DRAW_DEBUG
-
-		//충돌시 빨강 아니면 녹색
 		FColor Color = Collision ? FColor::Red : FColor::Green;
-
-		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
-
+		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 75.f, 25.f, FRotationMatrix::MakeFromZ(ForwardVector).ToQuat(), Color, false, 3.f);
 #endif
+
 		if (Collision)
 		{
 			FDamageEvent DamageEvent;
 			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
-
-			Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-			Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 		}
-
 	}
 	else if (myWeaponType == EPlayerWeapon::WaterGun)
 	{

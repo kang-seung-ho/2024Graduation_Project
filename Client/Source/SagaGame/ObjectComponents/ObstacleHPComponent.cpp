@@ -56,10 +56,10 @@ void UObstacleHPComponent::CheckDeath()
 		if (ThisObestacleActor)
 		{
 			ThisObestacleActor->SetActorEnableCollision(false);
-			ThisObestacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+			//ThisObestacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
 
-			// 타이머 설정
-			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
+			//// 타이머 설정
+			//GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
 		}
 	}
 }

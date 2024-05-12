@@ -1,63 +1,75 @@
 #include "Obstacles/SagaDestructibleMapObstacle.h"
-
+#include "Components/SkeletalMeshComponent.h"
 
 ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
 {
- 	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
-	// Initialize components
-	HealthComponent = CreateDefaultSubobject<UObstacleHPComponent>(TEXT("HealthComponent"));
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+    // Initialize components
+    HealthComponent = CreateDefaultSubobject<UObstacleHPComponent>(TEXT("HealthComponent"));
+    MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ObstacleMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/Terrains/Modelings/SagaLolipop1HeadModel.SagaLolipop1HeadModel'"));
-	if (ObstacleMeshRef.Object)
-	{
-		MeshComponent->SetStaticMesh(ObstacleMeshRef.Object);
-	}
+    HealthComponent->SetObjectHealth(100.0f);
 
-	// Set up Mesh component as a Root Component
-	RootComponent = MeshComponent;
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> ObstacleMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Obstacle/Pinata2.Pinata2'"));
+    if (ObstacleMeshRef.Succeeded())
+    {
+        MeshComponent->SetSkeletalMesh(ObstacleMeshRef.Object);
+    }
 
-	MeshComponent->SetCollisionProfileName(TEXT("Enemy")); //Collision Enabled for both Red and Blue Teams
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    static ConstructorHelpers::FObjectFinder<UAnimSequence> DeathAnimFinder(TEXT("AnimSequence'/Game/Obstacle/Pinata2_Anim.Pinata2_Anim'"));
+    if (DeathAnimFinder.Succeeded())
+    {
+        DeathAnimation = DeathAnimFinder.Object;
+    }
 
-	//SetActorScale3D(FVector(8.0f, 8.0f, 8.0f));
+    // Set up Mesh component as a Root Component
+    RootComponent = MeshComponent;
+
+    MeshComponent->SetCollisionProfileName(TEXT("Enemy")); // Collision Enabled for both Red and Blue Teams
+    MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+    SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
 }
-
 
 void ASagaDestructibleMapObstacle::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
 }
 
 // Called every frame
 void ASagaDestructibleMapObstacle::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+    Super::Tick(DeltaTime);
 }
 
 float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+    float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (HealthComponent)
-	{
-		HealthComponent->TakeDamage(DamageAmount);
+    if (HealthComponent)
+    {
+        HealthComponent->TakeDamage(DamageAmount);
+        UE_LOG(LogTemp, Warning, TEXT("Obstacle took %f damage, current health: %f"), DamageAmount, HealthComponent->GetCurrentHealth())
 
-		if (HealthComponent->GetCurrentHealth() <= 0)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Obstacle is destroyed, spawning item..."));
-			FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f); //맵 수정 시 높이 수정해줘야 함.
-			FRotator SpawnRotation = FRotator::ZeroRotator;
-			FActorSpawnParameters SpawnParameters;
+        if (HealthComponent->GetCurrentHealth() <= 0)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Obstacle is destroyed, spawning item..."));
+            FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
+            FRotator SpawnRotation = FRotator::ZeroRotator;
+            FActorSpawnParameters SpawnParameters;
 
-			//GetWorld()->SpawnActor<ASagaItemBox>(ASagaItemBox::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
 
-		}
-	}
+            if (DeathAnimation && MeshComponent)
+            {
+                MeshComponent->PlayAnimation(DeathAnimation, false);
+            }
 
-	return DamageApplied;
+
+            // Uncomment or modify this line as necessary to spawn an item
+            // GetWorld()->SpawnActor<ASagaItemBox>(ASagaItemBox::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
+        }
+    }
+
+    return DamageApplied;
 }
-
