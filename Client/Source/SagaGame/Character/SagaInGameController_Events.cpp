@@ -1,21 +1,20 @@
 #include "SagaInGamePlayerController.h"
 #include "SagaCharacterPlayer.h"
+#include "SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "SagaPlayableCharacter.h"
 
 void
 ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
 {
-	// TODO: 스폰 지점 설정 #1
-
 	FTransform transform{};
 	transform.TransformPosition({ 0, 0, 300 });
 
 	if constexpr (not saga::IsOfflineMode)
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto world = GetWorld();
+		const auto system = USagaNetworkSubSystem::GetSubSystem(world);
 		const auto character_class = ASagaPlayableCharacter::StaticClass();
 
 		if (nullptr != system)
@@ -42,7 +41,11 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				// The weapon was stored on CharacterSelectLevel
 				character->SetWeapon(weapon);
 				character->AttachWeapon(weapon);
-				// The position was backed up on CharacterSelectLevel or SagaGameLevel from another client
+
+				// TODO: 스폰 지점 설정 #1
+				// Making a spawn point
+
+
 				character->SetActorLocation(system->GetStoredPosition(user_id));
 			}
 			else
@@ -181,15 +184,13 @@ ASagaInGamePlayerController::OnUpdateTransform()
 void
 ASagaInGamePlayerController::OnLevelReady()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Game controller would send a loaded packet"));
-
 	if constexpr (not saga::IsOfflineMode)
 	{
 		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (nullptr != system and system->GetLocalUserId() != -1)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Sending GameIsLoadedPacket..."));
+			UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Game controller would send a loaded packet"));
 			system->SendGameIsLoadedPacket();
 		}
 		else
@@ -201,7 +202,11 @@ ASagaInGamePlayerController::OnLevelReady()
 	}
 	else
 	{
-		OnCreatingCharacter(0, EUserTeam::Red, EPlayerWeapon::LightSabor);
+		UE_LOG(LogSagaGame, Warning, TEXT("[OnLevelReady] (Offline Mode)"));
+
+		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		OnCreatingCharacter(0, EUserTeam::Red, system->GetOfflineWeapon());
 	}
 }
 

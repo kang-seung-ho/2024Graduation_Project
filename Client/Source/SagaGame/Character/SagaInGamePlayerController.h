@@ -117,6 +117,9 @@ public:
 	UPROPERTY()
 	class UUserWidget* mTeamScoreBoard;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TMap<EUserTeam::Red, class ASagaCharacterSpawner*> spawnPoints;
+
 protected:
 	/* State Machines */
 #pragma region =========================
