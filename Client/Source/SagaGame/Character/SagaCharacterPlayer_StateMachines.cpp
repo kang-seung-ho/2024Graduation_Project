@@ -11,6 +11,12 @@ ASagaCharacterPlayer::BeginPlay()
 	// AnimInstance 클래스를 사용하기 위한 객체 만들어놨음.
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (myId == -1)
+	{
+		SetTeamColorAndCollision(EUserTeam::Blue);
+	}
+	
 }
 
 void

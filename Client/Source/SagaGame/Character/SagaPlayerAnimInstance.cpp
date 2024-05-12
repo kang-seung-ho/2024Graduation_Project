@@ -109,6 +109,12 @@ void USagaPlayerAnimInstance::Hit()
 	}
 }
 
+void USagaPlayerAnimInstance::Revive()
+{
+	mIsDead = false;
+	mHitRecovery = 0.f;
+}
+
 void
 USagaPlayerAnimInstance::AnimNotify_Attack()
 {

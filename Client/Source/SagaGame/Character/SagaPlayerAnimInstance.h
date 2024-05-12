@@ -33,6 +33,7 @@ public:
 	void PlayAttackMontage();
 	void Death();
 	void Hit();
+	void Revive();
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

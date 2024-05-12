@@ -118,6 +118,7 @@ ASagaPlayableCharacter::RespawnCharacter()
 	isRunning = false;
 	GetCharacterMovement()->StopActiveMovement();
 
+	mAnimInst->Revive();
 
 	//Collision Enable Codes
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());

@@ -298,9 +298,10 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
 	{
+		character->ExecuteAttack();
 		if (is_remote)
 		{
-			//character->ExecuteAttack();
+			
 		}
 	}
 	break;
