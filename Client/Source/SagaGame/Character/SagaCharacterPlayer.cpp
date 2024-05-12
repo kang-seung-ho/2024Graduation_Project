@@ -113,7 +113,6 @@ ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 void
 ASagaCharacterPlayer::PlayAttackAnimation()
 {
-	myTeam = EUserTeam::Red;
 	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
