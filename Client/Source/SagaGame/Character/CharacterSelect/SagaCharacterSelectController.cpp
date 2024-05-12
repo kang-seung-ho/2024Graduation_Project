@@ -113,12 +113,14 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 			// 무기 유형에 따라 서버전송 처리를 수행
 			FString WeaponName = TEXT("Unknown");
-			auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+			const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
 			switch (WeaponType)
 			{
 			case EPlayerWeapon::LightSabor:
+			{
 				WeaponName = TEXT("Light Sabor");
-				system->SetWeaponType(EPlayerWeapon::LightSabor);
+
 				if constexpr (not saga::IsOfflineMode)
 				{
 					if (nullptr != system and system->GetLocalUserId() != -1)
@@ -130,10 +132,17 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
-				break;
+				else
+				{
+					system->SetOfflineWeapon(EPlayerWeapon::LightSabor);
+				}
+			}
+			break;
+
 			case EPlayerWeapon::WaterGun:
+			{
 				WeaponName = TEXT("Water Gun");
-				system->SetWeaponType(EPlayerWeapon::WaterGun);
+
 				if constexpr (not saga::IsOfflineMode)
 				{
 					if (nullptr != system and system->GetLocalUserId() != -1)
@@ -145,10 +154,17 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
-				break;
+				else
+				{
+					system->SetOfflineWeapon(EPlayerWeapon::WaterGun);
+				}
+			}
+			break;
+
 			case EPlayerWeapon::Hammer:
+			{
 				WeaponName = TEXT("Hammer");
-				system->SetWeaponType(EPlayerWeapon::Hammer);
+
 				if constexpr (not saga::IsOfflineMode)
 				{
 					if (nullptr != system and system->GetLocalUserId() != -1)
@@ -160,8 +176,14 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 					}
 				}
-				break;
+				else
+				{
+					system->SetOfflineWeapon(EPlayerWeapon::Hammer);
+				}
 			}
+			break;
+			}
+
 			UE_LOG(LogSagaGame, Warning, TEXT("Selected weapon: %s"), *WeaponName);
 		}
 		else

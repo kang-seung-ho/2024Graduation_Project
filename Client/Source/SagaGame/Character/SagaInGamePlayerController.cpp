@@ -1,4 +1,5 @@
 #include "SagaInGamePlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -6,6 +7,7 @@
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
+#include "SagaCharacterSpawner.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -14,6 +16,7 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	: APlayerController(ObjectInitializer)
 	, isRiding(), OnRideNPC()
 	, mTeamScoreBoardClass(), mTeamScoreBoard()
+	, spawnPoints()
 	, walkDirection()
 	, lastCharacterPosition(), lastCharacterRotation(), tranformUpdateTimer()
 	, isAttacking()
@@ -84,7 +87,6 @@ ASagaInGamePlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
-
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
 
 	//if (GetPawn())
@@ -105,7 +107,44 @@ ASagaInGamePlayerController::BeginPlay()
 	//}
 	//
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto world = GetWorld();
+	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+
+	TArray<AActor*> spawner_found_result{};
+	UGameplayStatics::GetAllActorsOfClass(world, ASagaCharacterSpawner::StaticClass(), spawner_found_result);
+
+	const auto spawners_number = spawner_found_result.Num();
+	if (0 < spawners_number)
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("%d spawner(s) has found."));
+
+		if (1 == spawners_number)
+		{
+			const auto spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
+			ensure(spawner != nullptr);
+
+			spawnPoints.Add(EUserTeam::Unknown, spawner);
+			spawnPoints.Add(EUserTeam::Red, spawner);
+			spawnPoints.Add(EUserTeam::Blue, spawner);
+		}
+		else
+		{
+			const auto red_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
+			ensure(red_spawner != nullptr);
+
+			spawnPoints.Add(EUserTeam::Unknown, red_spawner);
+			spawnPoints.Add(EUserTeam::Red, red_spawner);
+
+			const auto blue_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[1]);
+			ensure(blue_spawner != nullptr);
+
+			spawnPoints.Add(EUserTeam::Blue, blue_spawner);
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("No spawner has found."));
+	}
 
 	if (nullptr != system)
 	{

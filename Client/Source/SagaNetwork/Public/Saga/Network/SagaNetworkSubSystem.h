@@ -228,6 +228,23 @@ public:
 	int32 SendRoomUpdaterPacket();
 #pragma endregion
 
+	/* Offline */
+#pragma region =========================
+	UFUNCTION()
+	void SetOfflineWeapon(EPlayerWeapon Type) noexcept
+	{
+		CurrentPlayerWeapon = Type;
+	}
+
+	UFUNCTION()
+	EPlayerWeapon GetOfflineWeapon() const noexcept
+	{
+		return CurrentPlayerWeapon;
+	}
+
+	EPlayerWeapon CurrentPlayerWeapon;
+#pragma endregion
+
 	/* Public Properties */
 #pragma region =========================
 #pragma endregion
@@ -292,20 +309,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnRpc OnRpc;
 #pragma endregion
-
-public:
-	EPlayerWeapon CurrentPlayerWeapon;
-
-public:
-	EPlayerWeapon GetWeaponType() const
-	{
-		return CurrentPlayerWeapon;
-	}
-
-	void SetWeaponType(EPlayerWeapon Type)
-	{
-		CurrentPlayerWeapon = Type;
-	}
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
 	UClass* GetPlayableCharacterClass(const int32& user_id) const;
