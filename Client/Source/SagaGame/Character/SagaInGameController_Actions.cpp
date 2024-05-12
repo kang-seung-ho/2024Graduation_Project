@@ -209,11 +209,12 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 	}
 	else
 	{
-		auto pawn = GetPawn<ASagaCharacterPlayer>();
+		if (not isAttacking)
+		{
+			isAttacking = true;
 
-		pawn->PlayAttackAnimation();
-
-		SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+		}
 	}
 }
 
@@ -226,7 +227,12 @@ ASagaInGamePlayerController::EndAttack()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
+		if (isAttacking)
+		{
+			SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
+
+			isAttacking = false;
+		}
 	}
 }
 

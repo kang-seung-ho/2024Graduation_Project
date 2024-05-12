@@ -81,18 +81,24 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	auto rpc_ctx = std::launder(static_cast<RpcContext*>(ctx));
 	if (nullptr == rpc_ctx)
 	{
+		delete rpc_ctx;
+
 		return false;
 	}
 
 	const IdType room_id = rpc_ctx->roomId;
 	if (room_id <= -1)
 	{
+		delete rpc_ctx;
+
 		return false;
 	}
 
 	auto room = FindRoom(room_id);
 	if (nullptr == room)
 	{
+		delete rpc_ctx;
+
 		return false;
 	}
 
@@ -104,6 +110,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	auto user = FindUser(user_id);
 	if (nullptr == user)
 	{
+		delete rpc_ctx;
+
 		return false;
 	}
 
@@ -226,8 +234,9 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	break;
 	}
 
-	rpc_ctx->lastOperation = AsyncOperations::OpCleanRpc;
-	(void)Schedule(rpc_ctx, 0);
+	//rpc_ctx->lastOperation = AsyncOperations::OpCleanRpc;
+	//(void)Schedule(rpc_ctx, 0);
+	delete rpc_ctx;
 
 	return true;
 }

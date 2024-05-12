@@ -19,6 +19,8 @@ export namespace iconer::app::inline rpc
 		ICONER_RPC_ENUM_ITEM(ATTACK_2), // Normal attack #3
 		ICONER_RPC_ENUM_ITEM(ATTACK_3), // Normal attack #4
 		ICONER_RPC_ENUM_ITEM(RIDE),
+		RPC_POSITION,
+		RPC_ROTATION,
 		RPC_SKILL_0 = 100, // Ability #1
 		RPC_SKILL_1, // Ability #2
 		RPC_SKILL_2, // Ability #3
@@ -32,6 +34,20 @@ export namespace iconer::app::inline rpc
 		RPC_GRAB_ITEM,
 		RPC_MAIN_WEAPON,
 		RPC_CHANGE_HAND_ITEM,
+		/// <summary>
+		/// 클라에서 준비를 하면 서버에서 준비된 플레이어의 수를 보냄
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// </summary>
+		/// <param name="arg0">- 준비된 플레이어의 수</param>
+		/// <param name="arg1">- 없음</param>
+		RPC_NOTIFY_READY_COUNTER,
+		/// <summary>
+		/// 클라에서 카운트 다운을 요청하면, 서버에서 남은 시간을 보냄
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// </summary>
+		/// <param name="arg0">- 준비된 플레이어의 수</param>
+		/// <param name="arg1">- 없음</param>
+		RPC_NOTIFY_GAME_COUNTDOWN,
 		RPC_DMG_PLYER,
 		RPC_DMG_GUARDIAN,
 		RPC_DMG_GUARDIANS_PART,

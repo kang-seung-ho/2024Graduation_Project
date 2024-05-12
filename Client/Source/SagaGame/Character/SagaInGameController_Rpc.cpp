@@ -128,9 +128,10 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	// 수호자 탑승
 	case ESagaRpcProtocol::RPC_BEG_RIDE:
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Ride"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Ride guardian"));
 
 			FActorSpawnParameters SpawnParams{};
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
@@ -170,8 +171,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
-
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] Ride guardian"));
 		}
 
 		//character->ExecuteRide();
@@ -181,9 +181,47 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	// 수호자 하차
 	case ESagaRpcProtocol::RPC_END_RIDE:
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Take off guardian"));
+
 		if (is_remote)
 		{
 			//character->TerminateRide();
+		}
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_POSITION:
+	{
+		if (is_remote)
+		{
+			float x{};
+			float y{};
+			float z{};
+
+			std::memcpy(&x, &arg0, 4);
+			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
+			std::memcpy(&z, &arg1, 4);
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Positioning remote player %d to (%f,%f,%f)."), id, x, y, z);
+			character->SetActorLocation(FVector{ x, y, z });
+		}
+	}
+	break;
+	
+	case ESagaRpcProtocol::RPC_ROTATION:
+	{
+		if (is_remote)
+		{
+			float p{};
+			float y{};
+			float r{};
+
+			std::memcpy(&p, &arg0, 4);
+			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
+			std::memcpy(&r, &arg1, 4);
+
+			UE_LOG(LogSagaGame, Log, TEXT("Rotating remote player %d by (%f,%f,%f)."), id, p, y, r);
+			character->SetActorRotation(FRotator{ p, y, r });
 		}
 	}
 	break;
@@ -192,8 +230,9 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
-			//character->ExecuteAttack();
 		}
+
+		character->ExecuteAttack();
 	}
 	break;
 
@@ -201,8 +240,9 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
-			//character->TerminateAttack();
 		}
+
+		character->TerminateAttack();
 	}
 	break;
 

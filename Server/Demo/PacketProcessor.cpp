@@ -276,7 +276,6 @@ demo::OnReceiveRotation(Framework& framework, User& user, float pitch, float yaw
 void
 demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_t arg0, std::int32_t arg1)
 {
-	RpcContext* rpc_ctx = nullptr;
 
 	Framework::IdType room_id = -1;
 
@@ -285,7 +284,7 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 		return;
 	}
 
-	while (true)
+	//while (true)
 	{
 		room_id = user.myRoomId.Load();
 		if (room_id == -1)
@@ -293,34 +292,43 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 			return;
 		}
 
-		for (auto& stored_ctx : framework.everyRpcContexts)
+		if (Room* room = framework.FindRoom(room_id); nullptr != room)
 		{
-			auto ptr = stored_ctx.load();
+			auto ctx = new iconer::app::rpc::RpcContext{ cat, room_id, arg0, arg1 };
+			if (ctx == nullptr) return;
 
-			if (stored_ctx.compare_exchange_strong(ptr, nullptr))
-			{
-				if (Room* room = framework.FindRoom(room_id); nullptr != room)
-				{
-					if (ptr == nullptr) return;
-
-					rpc_ctx = ptr;
-					rpc_ctx->rpcCategory = cat;
-					rpc_ctx->roomId = room_id;
-					rpc_ctx->firstArgument = arg0;
-					rpc_ctx->secondArgument = arg1;
-
-					(void)framework.Schedule(rpc_ctx, user.GetID());
-
-					return;
-				}
-				else
-				{
-					// rollback
-					// rpc_ctx is nullptr
-					stored_ctx.compare_exchange_strong(rpc_ctx, ptr);
-				}
-			}
+			(void)framework.Schedule(ctx, user.GetID());
 		}
+
+		RpcContext* rpc_ctx = nullptr;
+		//for (auto& stored_ctx : framework.everyRpcContexts)
+		//{
+		//	auto ptr = stored_ctx.load();
+
+		//	if (stored_ctx.compare_exchange_strong(ptr, nullptr))
+		//	{
+		//		if (Room* room = framework.FindRoom(room_id); nullptr != room)
+		//		{
+		//			if (ptr == nullptr) return;
+
+		//			rpc_ctx = ptr;
+		//			rpc_ctx->rpcCategory = cat;
+		//			rpc_ctx->roomId = room_id;
+		//			rpc_ctx->firstArgument = arg0;
+		//			rpc_ctx->secondArgument = arg1;
+
+		//			(void)framework.Schedule(rpc_ctx, user.GetID());
+
+		//			return;
+		//		}
+		//		else
+		//		{
+		//			// rollback
+		//			// rpc_ctx is nullptr
+		//			stored_ctx.compare_exchange_strong(rpc_ctx, ptr);
+		//		}
+		//	}
+		//}
 	}
 }
 

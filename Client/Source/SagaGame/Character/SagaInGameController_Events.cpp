@@ -59,6 +59,7 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 					character->SetTeamColorAndCollision(team);
 					// The weapon was stored on the CharacterSelectLevel
 					character->SetWeapon(weapon);
+					character->AttachWeapon(weapon);
 				}
 				else
 				{
@@ -86,6 +87,7 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 		character->SetTeamColorAndCollision(team);
 		// The weapon was stored on the CharacterSelectLevel
 		character->SetWeapon(weapon);
+		character->AttachWeapon(weapon);
 	}
 }
 
@@ -99,15 +101,6 @@ ASagaInGamePlayerController::OnUpdatePosition(int32 user_id, float x, float y, f
 	}
 	else // 원격 클라이언트
 	{
-		auto character = system->GetCharacterHandle(user_id);
-		if (not IsValid(character))
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[OnUpdatePosition] Cannot find a character of remote player %d'."), user_id);
-			return;
-		}
-
-		UE_LOG(LogSagaGame, Log, TEXT("[OnUpdatePosition] Rotating remote player %d by (%f,%f,%f)."), user_id, x, y, z);
-		character->SetActorLocation(FVector{ x, y, z });
 	}
 }
 
@@ -121,15 +114,6 @@ ASagaInGamePlayerController::OnUpdateRotation(int32 user_id, float p, float y, f
 	}
 	else // 원격 클라이언트
 	{
-		auto character = system->GetCharacterHandle(user_id);
-		if (not IsValid(character))
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[OnUpdateRotation] Cannot find a character of remote player %d'."), user_id);
-			return;
-		}
-
-		UE_LOG(LogSagaGame, Log, TEXT("[OnUpdateRotation] Rotating remote player %d by (%f,%f,%f)."), user_id, p, y, r);
-		character->SetActorRotation(FRotator{ p, y, r });
 	}
 }
 
@@ -149,14 +133,40 @@ ASagaInGamePlayerController::OnUpdateTransform()
 			const auto loc = pawn->K2_GetActorLocation();
 			if (lastCharacterPosition != loc)
 			{
-				system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				const auto x = float(loc.X);
+				const auto y = float(loc.Y);
+				const auto z = float(loc.Z);
+
+				int64 arg0{};
+				int32 arg1{};
+
+				memcpy((char*)(&arg0), &x, 4);
+				memcpy((char*)(&arg0) + 4, &y, 4);
+				memcpy((char*)(&arg1), &z, 4);
+
+				//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				SendRpc(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+
 				lastCharacterPosition = loc;
 			}
 
 			const auto rot = pawn->K2_GetActorRotation();
 			if (lastCharacterRotation != rot)
 			{
-				system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				const auto x = float(rot.Pitch);
+				const auto y = float(rot.Yaw);
+				const auto z = float(rot.Roll);
+
+				int64 arg0{};
+				int32 arg1{};
+
+				memcpy((char*)(&arg0), (char*)(&x), 4);
+				memcpy((char*)(&arg0) + 4, (char*)(&y), 4);
+				memcpy((char*)(&arg1), (char*)(&z), 4);
+
+				//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				SendRpc(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
+
 				lastCharacterRotation = rot;
 			}
 		}
