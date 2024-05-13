@@ -171,7 +171,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
-			myLogger.LogError(L"\tUser {} tells wroing Guardian {}\n", user_id, arg0);
+			myLogger.LogError(L"\tUser {} tells wrong Guardian {}\n", user_id, arg0);
 			break;
 		}
 

@@ -104,7 +104,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	}
 	else
 	{
-		mAnimInst->Hit();
+		//mAnimInst->Hit();
 
 		if (system)
 		{

@@ -153,13 +153,14 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 void
 ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AttachWeapon - WeaponType %d"), WeaponType);
+	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), WeaponType);
 
-	//Set Weapon Mesh due to Weapon Type
+	// Set Weapon Mesh with Weapon Type
 	if (WeaponMeshes.Contains(myWeaponType))
 	{
 		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
-		UE_LOG(LogTemp, Warning, TEXT("Playable Character BeginPlay - MeshType %d"), myWeaponType);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
 
 		if (myWeaponType == EPlayerWeapon::LightSabor)
 		{
@@ -182,7 +183,7 @@ ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No weapon mesh found for the selected Weapon."));
+		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected Weapon."));
 	}
 }
 
@@ -252,6 +253,10 @@ ASagaCharacterPlayer::RespawnCharacter()
 			SetActorLocationAndRotation(spawn_point, FRotator{});
 
 			UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RespawnCharacter] Network subsystem is not ready."));
 		}
 	}
 }

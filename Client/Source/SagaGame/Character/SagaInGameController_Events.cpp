@@ -50,12 +50,13 @@ ASagaInGamePlayerController::OnCreatingCharacter(int32 user_id, EUserTeam team, 
 				character->SetWeapon(weapon);
 				character->AttachWeapon(weapon);
 
-				// TODO: 스폰 지점 설정 #1
 				// Making a spawn point
 				const auto pos = spawner->GetInitialSpawnPoint();
 
 				// store the initial spawn point (local)
 				system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
+
+				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` created a spawn point at (%f,%f,%f)"), user_id, pos.X, pos.Y, pos.Z);
 
 				int64 arg0{};
 				int32 arg1{};
