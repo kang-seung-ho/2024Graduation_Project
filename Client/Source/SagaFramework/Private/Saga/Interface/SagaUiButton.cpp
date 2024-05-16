@@ -52,7 +52,6 @@ USagaUiButton::NativeOnInitialized()
 	else
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiButton] '%s' found label in children."), *my_name);
-		myLabel->SetText(buttonCaption);
 	}
 }
 
@@ -72,14 +71,13 @@ USagaUiButton::SetText(FText text)
 noexcept
 {
 	buttonCaption = text;
-	myLabel->SetText(text);
 }
 
 FText
 USagaUiButton::GetText()
 const noexcept
 {
-	return myLabel->GetText();
+	return buttonCaption;
 }
 
 void
