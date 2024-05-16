@@ -23,6 +23,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
 	TObjectPtr<UEditableTextBox> myEditableTextBlock;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetHintText, BlueprintGetter = GetHintText, Category = "CandyLandSaga|UI|Content")
+	FText hintText;
+
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI|Event")
 	FSagaOnEditableInputChangedEvent OnTextChanged;
 
@@ -31,10 +34,7 @@ public:
 
 	USagaUiEditableTextBox(const FObjectInitializer& initializer);
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "SetText (Saga Text Input Box)"))
-	void SetText(FText InText) noexcept;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "GetText (Saga Text Input Box)"))
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "Get Text (Saga Text Input Box)"))
 	FText GetText() const noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "SetIsReadOnly (Saga Text Input Box)"))
@@ -46,7 +46,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "Set Hint Text (Saga Text Input Box)"))
 	void SetHintText(FText text) noexcept;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "GetText (Saga Text Input Box)"))
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "Get Hint Text (Saga Text Input Box)"))
 	FText GetHintText() const noexcept;
 
 	UFUNCTION(BlueprintSetter, Category = "CandyLandSaga|UI|Appearance")
@@ -63,6 +63,7 @@ public:
 
 protected:
 	virtual void NativeOnInitialized() override;
+	virtual void NativePreConstruct() override;
 
 	UFUNCTION()
 	void HandleOnTextChanged(const FText& text);

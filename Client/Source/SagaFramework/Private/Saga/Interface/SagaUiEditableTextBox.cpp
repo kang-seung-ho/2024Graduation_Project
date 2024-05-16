@@ -12,15 +12,9 @@
 USagaUiEditableTextBox::USagaUiEditableTextBox(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, myEditableTextBlock()
+	, hintText()
 	, OnTextChanged(), OnTextCommitted()
 {}
-
-void
-USagaUiEditableTextBox::SetText(FText text)
-noexcept
-{
-	myEditableTextBlock->SetText(text);
-}
 
 FText
 USagaUiEditableTextBox::GetText()
@@ -47,14 +41,19 @@ void
 USagaUiEditableTextBox::SetHintText(FText text)
 noexcept
 {
-	myEditableTextBlock->SetHintText(text);
+	hintText = text;
+
+	if (nullptr != myEditableTextBlock)
+	{
+		myEditableTextBlock->SetHintText(text);
+	}
 }
 
 FText
 USagaUiEditableTextBox::GetHintText()
 const noexcept
 {
-	return myEditableTextBlock->GetHintText();
+	return hintText;
 }
 
 void
@@ -105,7 +104,6 @@ USagaUiEditableTextBox::NativeOnInitialized()
 	if (nullptr == myEditableTextBlock)
 	{
 		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiEditableTextBox] '%s' found no text box in children."), *my_name);
-
 	}
 	else
 	{
@@ -117,15 +115,22 @@ USagaUiEditableTextBox::NativeOnInitialized()
 }
 
 void
+USagaUiEditableTextBox::NativePreConstruct()
+{
+	if (nullptr != myEditableTextBlock)
+	{
+		myEditableTextBlock->SetHintText(hintText);
+	}
+}
+
+void
 USagaUiEditableTextBox::HandleOnTextChanged(const FText& text)
 {
-	SetText(text);
 	OnTextChanged.Broadcast(text);
 }
 
 void
 USagaUiEditableTextBox::HandleOnTextCommitted(const FText& text, ETextCommit::Type method)
 {
-	SetText(text);
 	OnTextCommitted.Broadcast(text, method);
 }
