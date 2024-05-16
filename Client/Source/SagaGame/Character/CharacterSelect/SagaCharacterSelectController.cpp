@@ -1,9 +1,12 @@
 #include "SagaCharacterSelectController.h"
+#include <InputActionValue.h>
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "../../Input/SagaInputSystem.h"
-#include "../../UI/SagaCharacterSelectWidget.h"
+
+#include "SagaGameInfo.h"
 #include "SagaSelectCharacter.h"
+#include "Input/SagaInputSystem.h"
+#include "UI/SagaCharacterSelectWidget.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"

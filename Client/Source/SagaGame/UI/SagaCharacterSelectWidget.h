@@ -1,7 +1,7 @@
 #pragma once
-#include "../SagaGameInfo.h"
+#include "SagaGameInfo.h"
 #include "Components/Button.h"
-#include "Blueprint/UserWidget.h"
+#include <Blueprint/UserWidget.h>
 
 #include "Saga/Interface/SagaUserWidget.h"
 #include "SagaCharacterSelectWidget.generated.h"

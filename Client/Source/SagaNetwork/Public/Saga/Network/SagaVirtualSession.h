@@ -3,48 +3,12 @@
 
 #include "SagaVirtualSession.generated.h"
 
-USTRUCT(BlueprintType, Atomic, Category = "CandyLandSaga|Level|UI|Element")
+USTRUCT(BlueprintType, Atomic, Category = "CandyLandSaga|Network|Session")
 struct SAGANETWORK_API FSagaVirtualSession
 {
 	GENERATED_BODY()
 
 public:
-	void Name(const FString& name)
-	{
-		if (name.Len() == 0)
-		{
-			MyName.Reset();
-		}
-		else
-		{
-			MyName = name;
-		}
-	}
-	
-	void Name(FStringView name)
-	{
-		if (name.Len() == 0)
-		{
-			MyName.Reset();
-		}
-		else
-		{
-			MyName = name;
-		}
-	}
-
-	[[nodiscard]]
-	constexpr int32 ID() const noexcept
-	{
-		return MyID;
-	}
-
-	[[nodiscard]]
-	const FString& Name() const noexcept
-	{
-		return MyName;
-	}
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network|Session", meta = (NoResetToDefault, NoSpinbox = true, ClampMin = 0, UIMin = 0, ClampMax = 21, UIMax = 21))
 	int32 MyID = -1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network|Session")

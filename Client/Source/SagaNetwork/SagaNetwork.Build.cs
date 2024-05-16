@@ -9,18 +9,21 @@ public class SagaNetwork : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicIncludePaths.AddRange(new string[] { "SagaNetwork" });
-	
+
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Networking", "Sockets" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "SagaUtility" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"SagaUtility",
+			"SagaGame",
+			"SagaFramework"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"SagaUtility",
-			"SagaFramework",
-			"SagaGame"
+			"SagaUtility"
 		});
 	}
 }

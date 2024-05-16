@@ -1,5 +1,5 @@
 #pragma once
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Animation/AnimInstance.h"
 
 #include "SagaGummyBearAnimInstance.generated.h"

@@ -1,8 +1,10 @@
 #include "SagaCharacterPlayer.h"
+#include <GameFramework/CharacterMovementComponent.h>
+
+#include "SagaGameInfo.h"
 #include "SagaPlayerAnimInstance.h"
 #include "SagaGummyBearAnimInstance.h"
 #include "../Item/SagaWeaponData.h"
-
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 

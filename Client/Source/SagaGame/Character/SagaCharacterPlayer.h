@@ -1,8 +1,10 @@
 #pragma once
 #include "SagaGame.h"
-#include "GameFramework/Character.h"
+#include <GameFramework/Character.h>
+#include <GameFramework/SpringArmComponent.h>
+#include <Components/StaticMeshComponent.h>
+#include <Camera/CameraComponent.h>
 
-#include "SagaGameInfo.h"
 #include "Player/SagaUserTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
@@ -17,6 +19,7 @@ class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharact
 public:
 	/* 게임 속성 메서드 */
 #pragma region =========================
+	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
 	void SetTeamColorAndCollision(const EUserTeam& myTeam) noexcept;
@@ -49,7 +52,6 @@ public:
 	UFUNCTION()
 	virtual void RespawnCharacter();
 
-	// Called to bind functionality to input
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	/*
@@ -181,6 +183,7 @@ protected:
 	float animationMoveSpeed; // 애니메이션 전용
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (BlueprintGetter = GetMoveAnimationAngle))
 	float animationMoveAngle; // 애니메이션 전용
+
 	class USagaPlayerAnimInstance* mAnimInst;
 	class USagaGummyBearAnimInstance* mBearAnimInst;
 #pragma endregion

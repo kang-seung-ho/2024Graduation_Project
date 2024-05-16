@@ -1,6 +1,6 @@
 #pragma once
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include <CoreMinimal.h>
+#include <GameFramework/Actor.h>
 
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaCharacterSpawner.generated.h"

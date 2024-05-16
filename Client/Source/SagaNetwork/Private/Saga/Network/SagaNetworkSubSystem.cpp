@@ -348,7 +348,6 @@ const TArray<FSagaVirtualUser>&
 USagaNetworkSubSystem::UpdatePlayerList()
 {
 	// TODO: UpdatePlayerList
-	//TAtomic<bool> a;
 	return everyUsers;
 }
 
@@ -361,9 +360,45 @@ USagaNetworkSubSystem::UpdateRoomList()
 
 bool
 USagaNetworkSubSystem::IsOfflineMode()
-noexcept
+const noexcept
 {
-	return saga::IsOfflineMode;
+	if constexpr (saga::IsOfflineMode)
+	{
+		// 정적인 비연결 모드 검사
+		return true;
+	}
+	else
+	{
+		return netIsOfflineMode;
+	}
+}
+
+ESagaNetworkConnectionCategory
+USagaNetworkSubSystem::GetConnectionOption()
+const noexcept
+{
+	return netConnectOption;
+}
+
+FString
+USagaNetworkSubSystem::GetRemoteAddress()
+const
+{
+	return netRemoteAddress;
+}
+
+int32
+USagaNetworkSubSystem::GetRemotePort()
+const noexcept
+{
+	return netRemotePort;
+}
+
+int32
+USagaNetworkSubSystem::GetLocalPort()
+const noexcept
+{
+	return netLocalPort;
 }
 
 bool

@@ -1,15 +1,13 @@
 #pragma once
 #include "SagaGame.h"
-#include "GameFramework/PlayerController.h"
+#include <GameFramework/PlayerController.h>
 #include "InputActionValue.h"
 
-#include "../SagaGameInfo.h"
 #include "SagaInGamePlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRideNPCDelegate);
 
-
-UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character")
+UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
 class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()

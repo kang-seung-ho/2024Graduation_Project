@@ -2,7 +2,7 @@
 #ifndef SAGAFRAMEWORK_UTIL_SERIALIZER_H
 #define SAGAFRAMEWORK_UTIL_SERIALIZER_H
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Saga/Constraints.h"
 #include "Saga/Byte.h"
 #include <cmath>

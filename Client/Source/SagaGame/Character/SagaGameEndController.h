@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include <CoreMinimal.h>
+#include <GameFramework/PlayerController.h>
 #include "SagaGameEndController.generated.h"
 
 /**

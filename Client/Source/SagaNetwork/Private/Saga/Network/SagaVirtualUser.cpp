@@ -1,2 +1,5 @@
 #include "Saga/Network/SagaVirtualUser.h"
-#include "Player/SagaUserTeam.h"
+#include <UObject/ObjectPtr.h>
+
+#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"

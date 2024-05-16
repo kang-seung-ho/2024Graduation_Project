@@ -1,5 +1,5 @@
 #pragma once
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Animation/AnimInstance.h"
 
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"

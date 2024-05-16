@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "../SagaGameInfo.h"
-#include "GameFramework/Actor.h"
+#include "SagaGameInfo.h"
+#include <GameFramework/Actor.h>
 #include "SagaSwordEffect.generated.h"
 
 UCLASS()

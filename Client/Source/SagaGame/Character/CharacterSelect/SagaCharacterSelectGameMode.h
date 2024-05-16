@@ -1,6 +1,6 @@
 #pragma once
-#include "../../SagaGameInfo.h"
-#include "GameFramework/GameModeBase.h"
+#include "SagaGame.h"
+#include <GameFramework/GameModeBase.h>
 
 #include "SagaCharacterSelectGameMode.generated.h"
 

@@ -1,8 +1,9 @@
 #pragma once
 #include "SagaNetwork.h"
-#include "Subsystems/GameInstanceSubsystem.h"
-#include "Async/Async.h"
+#include <Subsystems/GameInstanceSubsystem.h>
+#include <Async/Async.h>
 
+#include "Saga/Network/SagaNetworkConnectionCategory.h"
 #include "Saga/Network/SagaPacketProtocol.h"
 #include "Saga/Network/SagaConnectionContract.h"
 #include "Saga/Network/SagaGameContract.h"
@@ -43,7 +44,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, in
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
-UCLASS(Category = "CandyLandSaga|Network")
+UCLASS(Category = "CandyLandSaga|Network", Config = "Game")
 class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
@@ -51,6 +52,8 @@ class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
 public:
 	USagaNetworkSubSystem();
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
 	/* State Machines */
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -167,20 +170,6 @@ public:
 	EPlayerWeapon GetOfflineWeapon() const noexcept;
 #pragma endregion
 
-	/* Getters */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
-#pragma endregion
-
-	/* Observers */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network")
-	bool IsSocketAvailable() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network")
-	bool IsConnected() const noexcept;
-#pragma endregion
-
 	/* Network Methods */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
@@ -196,9 +185,6 @@ public:
 	const TArray<FSagaVirtualUser>& UpdatePlayerList();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
 	const TArray<FSagaVirtualRoom>& UpdateRoomList();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network", CallInEditor)
-	static bool IsOfflineMode() noexcept;
 #pragma endregion
 
 	/* Packet Senders */
@@ -247,70 +233,29 @@ public:
 	EPlayerWeapon currentHandledWeapon;
 #pragma endregion
 
-	/* Offline */
+	/* Observers */
 #pragma region =========================
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsSocketAvailable() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsConnected() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsOfflineMode() const noexcept;
 #pragma endregion
 
-	/* Public Properties */
+	/* Getters */
 #pragma region =========================
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	ESagaNetworkConnectionCategory GetConnectionOption() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	FString GetRemoteAddress() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	int32 GetRemotePort() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	int32 GetLocalPort() const noexcept;
 #pragma endregion
-
-	/* Events */
-#pragma region =========================
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnNetworkInitialized OnNetworkInitialized;
-
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnConnected OnConnected;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnFailedToConnect OnFailedToConnect;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnDisconnected OnDisconnected;
-
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnRoomCreated OnRoomCreated;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnJoinedRoom OnJoinedRoom;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnOtherJoinedRoom OnOtherJoinedRoom;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnLeftRoomBySelf OnLeftRoomBySelf;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnLeftRoom OnLeftRoom;
-
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnRespondVersion OnRespondVersion;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnUpdateRoomList OnUpdateRoomList;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnUpdateUserList OnUpdateMembers;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnTeamChanged OnTeamChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnFailedToStartGame OnFailedToStartGame;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnGetPreparedGame OnGetPreparedGame;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnStartGame OnStartGame;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnCreatingCharacter OnCreatingCharacter;
-
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnUpdatePosition OnUpdatePosition;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnUpdateRotation OnUpdateRotation;
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnRpc OnRpc;
-#pragma endregion
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
-	UClass* GetPlayableCharacterClass(const int32& user_id) const;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 CurrentMode = 1;
-
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentMode(int32 Mode)
 	{
@@ -324,11 +269,6 @@ public:
 	}
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 RedTeamScore = 0;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 BlueTeamScore = 0;
-
 	UFUNCTION(BlueprintCallable)
 	int32 GetRedTeamScore() const
 	{
@@ -387,6 +327,65 @@ public:
 		}
 	}
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CurrentMode = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 RedTeamScore = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 BlueTeamScore = 0;
+
+	/* Public Properties */
+#pragma region =========================
+#pragma endregion
+
+	/* Events */
+#pragma region =========================
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnNetworkInitialized OnNetworkInitialized;
+
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnConnected OnConnected;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnFailedToConnect OnFailedToConnect;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnDisconnected OnDisconnected;
+
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnRoomCreated OnRoomCreated;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnJoinedRoom OnJoinedRoom;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnOtherJoinedRoom OnOtherJoinedRoom;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnLeftRoomBySelf OnLeftRoomBySelf;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnLeftRoom OnLeftRoom;
+
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnRespondVersion OnRespondVersion;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnUpdateRoomList OnUpdateRoomList;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnUpdateUserList OnUpdateMembers;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnTeamChanged OnTeamChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnFailedToStartGame OnFailedToStartGame;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnGetPreparedGame OnGetPreparedGame;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnStartGame OnStartGame;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnCreatingCharacter OnCreatingCharacter;
+
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnUpdatePosition OnUpdatePosition;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnUpdateRotation OnUpdateRotation;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnRpc OnRpc;
+#pragma endregion
 
 private:
 	/* Internal Functions */
@@ -418,6 +417,9 @@ private:
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1);
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
+	UClass* GetPlayableCharacterClass(const int32& user_id) const;
 #pragma endregion
 
 	/* Event Broadcasting Methods */
@@ -469,6 +471,17 @@ private:
 	FSocket* clientSocket;
 	class FSagaNetworkWorker* netWorker;
 	class FSagaTaskWorker* taskWorker;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = IsOfflineMode, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
+	bool netIsOfflineMode;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetConnectionOption, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
+	ESagaNetworkConnectionCategory netConnectOption;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetRemoteAddress, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
+	FString netRemoteAddress;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetRemotePort, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
+	int32 netRemotePort;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetLocalPort, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
+	int32 netLocalPort;
 
 	static inline constexpr int32 recvLimit = 512;
 	UPROPERTY(VisibleInstanceOnly)
