@@ -62,8 +62,7 @@ public:
 	ETextOverflowPolicy GetTextOverflowPolicy() const noexcept;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	UFUNCTION()
 	void HandleOnTextChanged(const FText& text);

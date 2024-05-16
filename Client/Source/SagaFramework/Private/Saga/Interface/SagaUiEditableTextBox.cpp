@@ -86,8 +86,10 @@ const noexcept
 }
 
 void
-USagaUiEditableTextBox::NativePreConstruct()
+USagaUiEditableTextBox::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
 		{
 			if (element == this) return;
@@ -108,13 +110,7 @@ USagaUiEditableTextBox::NativePreConstruct()
 	else
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiEditableTextBox] '%s' found text box in children."), *my_name);
-	}
-}
 
-void USagaUiEditableTextBox::NativeConstruct()
-{
-	if (nullptr != myEditableTextBlock)
-	{
 		myEditableTextBlock->OnTextChanged.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextChanged);
 		myEditableTextBlock->OnTextCommitted.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextCommitted);
 	}
