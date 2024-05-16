@@ -77,7 +77,11 @@ void USagaGummyBearAnimInstance::Death()
 void
 USagaGummyBearAnimInstance::AnimNotify_Attack()
 {
-
+	ASagaGummyBearPlayer* PlayerCharacter = Cast<ASagaGummyBearPlayer>(TryGetPawnOwner());
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->Attack();
+	}
 }
 
 void
