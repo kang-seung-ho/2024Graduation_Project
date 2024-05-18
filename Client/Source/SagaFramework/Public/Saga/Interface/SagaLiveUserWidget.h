@@ -105,7 +105,6 @@ public:
 
 protected:
 	virtual void NativeOnInitialized() override;
-	virtual void NativePreConstruct() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 	virtual void NativeDestruct() override;
 

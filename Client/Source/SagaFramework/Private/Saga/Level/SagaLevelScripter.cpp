@@ -5,55 +5,10 @@
 #include <Kismet/GameplayStatics.h>
 #include <Async/Async.h>
 
-#include "Saga/Network/SagaNetworkSettings.h"
-#include "Saga/Network/SagaNetworkSubSystem.h"
-
 ASagaLevelScripter::ASagaLevelScripter()
 	: Super()
 	, PrevLevelName(), NextLevelName()
 {}
-
-void
-ASagaLevelScripter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (IsValid(system))
-	{
-		const auto my_name = GetName();
-		UE_LOG(LogSagaFramework, Log, TEXT("[BeginPlay] Level '%s' is registering network events..."), *my_name);
-
-		RegisterView(system, this);
-	}
-	else if (system->IsOfflineMode())
-	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[BeginPlay] Network subsystem is not ready. (Offline Mode)"));
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Fatal, TEXT("[BeginPlay] Network subsystem is not ready."));
-	}
-}
-
-void
-ASagaLevelScripter::EndPlay(const EEndPlayReason::Type reason)
-{
-	Super::EndPlay(reason);
-
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (IsValid(system))
-	{
-		const auto my_name = GetName();
-		UE_LOG(LogSagaFramework, Log, TEXT("[BeginPlay] Level '%s' is deregistering network events..."), *my_name);
-
-		DeregisterView(system, this);
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Warning, TEXT("[EndPlay] Network subsystem is not ready."));
-	}
-}
 
 void
 ASagaLevelScripter::GotoPrevLevel_Implementation()
@@ -114,7 +69,7 @@ const
 	}
 	else
 	{
-		UE_LOG(LogLevel, Warning, TEXT("Same level has been translated by `TransitionLevel`."));
+		UE_LOG(LogSagaFramework, Warning, TEXT("Same level has been translated by `TransitionLevel`."));
 	}
 }
 

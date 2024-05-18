@@ -8,7 +8,11 @@ const
 
 	if (OnNetworkInitialized.IsBound())
 	{
-		OnNetworkInitialized.Broadcast(true);
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnNetworkInitialized.Broadcast(true);
+			}
+		);
 	}
 	else
 	{
@@ -24,7 +28,11 @@ const
 
 	if (OnNetworkInitialized.IsBound())
 	{
-		OnNetworkInitialized.Broadcast(false);
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnNetworkInitialized.Broadcast(false);
+			}
+		);
 	}
 	else
 	{
@@ -40,7 +48,11 @@ const
 
 	if (OnConnected.IsBound())
 	{
-		OnConnected.Broadcast();
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnConnected.Broadcast();
+			}
+		);
 	}
 	else
 	{
@@ -56,7 +68,11 @@ const
 
 	if (OnFailedToConnect.IsBound())
 	{
-		OnFailedToConnect.Broadcast(reason);
+		CallPureFunctionOnGameThread([this, reason]()
+			{
+				OnFailedToConnect.Broadcast(reason);
+			}
+		);
 	}
 	else
 	{
@@ -72,11 +88,35 @@ const
 
 	if (OnDisconnected.IsBound())
 	{
-		OnDisconnected.Broadcast();
+		CallPureFunctionOnGameThread([this]()
+			{
+				OnDisconnected.Broadcast();
+			}
+		);
 	}
 	else
 	{
 		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnDisconnected` was not bound"));
+	}
+}
+
+void
+USagaNetworkSubSystem::BroadcastOnSignedIn(int32 my_id, const FName& nickname)
+const
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnSignedIn`"));
+
+	if (OnSignedIn.IsBound())
+	{
+		CallPureFunctionOnGameThread([this, my_id, nickname]()
+			{
+				OnSignedIn.Broadcast(my_id, nickname);
+			}
+		);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnSignedIn` was not bound"));
 	}
 }
 
@@ -88,7 +128,11 @@ const
 
 	if (OnRoomCreated.IsBound())
 	{
-		OnRoomCreated.Broadcast(room_id);
+		CallPureFunctionOnGameThread([this, room_id]()
+			{
+				OnRoomCreated.Broadcast(room_id);
+			}
+		);
 	}
 	else
 	{

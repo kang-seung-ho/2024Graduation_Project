@@ -38,25 +38,25 @@ ISagaNetworkView::RegisterView(USagaNetworkSubSystem* system, TScriptInterface<I
 {
 	const auto actor = target.GetObject();
 
-	system->OnNetworkInitialized.SagaAddDelegate(actor, ISagaNetworkView::OnNetworkInitialized, bool);
-	system->OnConnected.SagaAddDelegate(actor, ISagaNetworkView::OnConnected, void);
-	system->OnFailedToConnect.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToConnect, ESagaConnectionContract);
-	system->OnDisconnected.SagaAddDelegate(actor, ISagaNetworkView::OnDisconnected, void);
+	system->OnNetworkInitialized.SagaAddDelegate(actor, ISagaNetworkView::OnNetworkInitialized_Implementation, bool);
+	system->OnConnected.SagaAddDelegate(actor, ISagaNetworkView::OnConnected_Implementation, void);
+	system->OnFailedToConnect.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToConnect_Implementation, ESagaConnectionContract);
+	system->OnDisconnected.SagaAddDelegate(actor, ISagaNetworkView::OnDisconnected_Implementation, void);
 
-	system->OnRoomCreated.SagaAddDelegate(actor, ISagaNetworkView::OnRoomCreated, int32);
-	system->OnJoinedRoom.SagaAddDelegate(actor, ISagaNetworkView::OnJoinedRoom, int32);
-	system->OnLeftRoomBySelf.SagaAddDelegate(actor, ISagaNetworkView::OnLeftRoomBySelf, void);
-	system->OnLeftRoom.SagaAddDelegate(actor, ISagaNetworkView::OnLeftRoom, int32);
+	system->OnRoomCreated.SagaAddDelegate(actor, ISagaNetworkView::OnRoomCreated_Implementation, int32);
+	system->OnJoinedRoom.SagaAddDelegate(actor, ISagaNetworkView::OnJoinedRoom_Implementation, int32);
+	system->OnLeftRoomBySelf.SagaAddDelegate(actor, ISagaNetworkView::OnLeftRoomBySelf_Implementation, void);
+	system->OnLeftRoom.SagaAddDelegate(actor, ISagaNetworkView::OnLeftRoom_Implementation, int32);
 
-	system->OnRespondVersion.SagaAddDelegate(actor, ISagaNetworkView::OnRespondVersion, const FString&);
-	system->OnUpdateRoomList.SagaAddDelegate(actor, ISagaNetworkView::OnUpdateRoomList, const TArray<FSagaVirtualRoom>&);
-	system->OnUpdateMembers.SagaAddDelegate(actor, ISagaNetworkView::OnUpdateMembers, const TArray<FSagaVirtualUser>&);
-	system->OnTeamChanged.SagaAddDelegate(actor, ISagaNetworkView::OnTeamChanged, int32, bool);
+	system->OnRespondVersion.SagaAddDelegate(actor, ISagaNetworkView::OnRespondVersion_Implementation, const FString&);
+	system->OnUpdateRoomList.SagaAddDelegate(actor, ISagaNetworkView::OnUpdateRoomList_Implementation, const TArray<FSagaVirtualRoom>&);
+	system->OnUpdateMembers.SagaAddDelegate(actor, ISagaNetworkView::OnUpdateMembers_Implementation, const TArray<FSagaVirtualUser>&);
+	system->OnTeamChanged.SagaAddDelegate(actor, ISagaNetworkView::OnTeamChanged_Implementation, int32, bool);
 
-	system->OnFailedToStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToStartGame, ESagaGameContract);
-	system->OnGetPreparedGame.SagaAddDelegate(actor, ISagaNetworkView::OnBeginPrepareGame, void);
-	system->OnStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnGameStarted, void);
-	system->OnCreatingCharacter.SagaAddDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter, int32, EUserTeam, EPlayerWeapon);
+	system->OnFailedToStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToStartGame_Implementation, ESagaGameContract);
+	system->OnGetPreparedGame.SagaAddDelegate(actor, ISagaNetworkView::OnBeginPrepareGame_Implementation, void);
+	system->OnStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation, void);
+	system->OnCreatingCharacter.SagaAddDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation, int32, EUserTeam, EPlayerWeapon);
 
 	system->OnRpc.SagaAddDelegate(actor, ISagaNetworkView::OnRpc, ESagaRpcProtocol, int32, int64, int32);
 }
@@ -68,27 +68,27 @@ ISagaNetworkView::DeregisterView(USagaNetworkSubSystem* system, TScriptInterface
 {
 	const auto actor = target.GetObject();
 
-	system->OnNetworkInitialized.SagaRemoveDelegate(actor, ISagaNetworkView::OnNetworkInitialized);
-	system->OnConnected.SagaRemoveDelegate(actor, ISagaNetworkView::OnConnected);
-	system->OnFailedToConnect.SagaRemoveDelegate(actor, ISagaNetworkView::OnFailedToConnect);
-	system->OnDisconnected.SagaRemoveDelegate(actor, ISagaNetworkView::OnDisconnected);
+	system->OnNetworkInitialized.SagaRemoveDelegate(actor, ISagaNetworkView::OnNetworkInitialized_Implementation);
+	system->OnConnected.SagaRemoveDelegate(actor, ISagaNetworkView::OnConnected_Implementation);
+	system->OnFailedToConnect.SagaRemoveDelegate(actor, ISagaNetworkView::OnFailedToConnect_Implementation);
+	system->OnDisconnected.SagaRemoveDelegate(actor, ISagaNetworkView::OnDisconnected_Implementation);
 
-	system->OnRoomCreated.SagaRemoveDelegate(actor, ISagaNetworkView::OnRoomCreated);
-	system->OnJoinedRoom.SagaRemoveDelegate(actor, ISagaNetworkView::OnJoinedRoom);
-	system->OnLeftRoomBySelf.SagaRemoveDelegate(actor, ISagaNetworkView::OnLeftRoomBySelf);
-	system->OnLeftRoom.SagaRemoveDelegate(actor, ISagaNetworkView::OnLeftRoom);
+	system->OnRoomCreated.SagaRemoveDelegate(actor, ISagaNetworkView::OnRoomCreated_Implementation);
+	system->OnJoinedRoom.SagaRemoveDelegate(actor, ISagaNetworkView::OnJoinedRoom_Implementation);
+	system->OnLeftRoomBySelf.SagaRemoveDelegate(actor, ISagaNetworkView::OnLeftRoomBySelf_Implementation);
+	system->OnLeftRoom.SagaRemoveDelegate(actor, ISagaNetworkView::OnLeftRoom_Implementation);
 
-	system->OnRespondVersion.SagaRemoveDelegate(actor, ISagaNetworkView::OnRespondVersion);
-	system->OnUpdateRoomList.SagaRemoveDelegate(actor, ISagaNetworkView::OnUpdateRoomList);
-	system->OnUpdateMembers.SagaRemoveDelegate(actor, ISagaNetworkView::OnUpdateMembers);
-	system->OnTeamChanged.SagaRemoveDelegate(actor, ISagaNetworkView::OnTeamChanged);
+	system->OnRespondVersion.SagaRemoveDelegate(actor, ISagaNetworkView::OnRespondVersion_Implementation);
+	system->OnUpdateRoomList.SagaRemoveDelegate(actor, ISagaNetworkView::OnUpdateRoomList_Implementation);
+	system->OnUpdateMembers.SagaRemoveDelegate(actor, ISagaNetworkView::OnUpdateMembers_Implementation);
+	system->OnTeamChanged.SagaRemoveDelegate(actor, ISagaNetworkView::OnTeamChanged_Implementation);
 
-	system->OnFailedToStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnFailedToStartGame);
-	system->OnGetPreparedGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnBeginPrepareGame);
-	system->OnStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnGameStarted);
-	system->OnCreatingCharacter.SagaRemoveDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter);
+	system->OnFailedToStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnFailedToStartGame_Implementation);
+	system->OnGetPreparedGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnBeginPrepareGame_Implementation);
+	system->OnStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation);
+	system->OnCreatingCharacter.SagaRemoveDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation);
 
-	system->OnRpc.SagaRemoveDelegate(actor, ISagaNetworkView::OnRpc);
+	system->OnRpc.SagaRemoveDelegate(actor, ISagaNetworkView::OnRpc_Implementation);
 }
 
 bool

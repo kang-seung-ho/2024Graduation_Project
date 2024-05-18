@@ -28,15 +28,6 @@ USagaLiveUserWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	OnJustOpened.AddDynamic(this, &USagaLiveUserWidget::ShowOnOpened);
-	OnClosed.AddDynamic(this, &USagaLiveUserWidget::HideOnClosed);
-}
-
-void
-USagaLiveUserWidget::NativePreConstruct()
-{
-	Super::NativePreConstruct();
-
 	auto& tree = *WidgetTree;
 	tree.ForEachWidget([this](UWidget* const element) -> void
 		{
@@ -59,6 +50,9 @@ USagaLiveUserWidget::NativePreConstruct()
 	}
 	const auto my_name = GetName();
 	UE_LOG(LogSagaFramework, Log, TEXT("[USagaLiveUserWidget] '%s' found %d children."), *my_name, myChildren.Num());
+
+	OnJustOpened.AddDynamic(this, &USagaLiveUserWidget::ShowOnOpened);
+	OnClosed.AddDynamic(this, &USagaLiveUserWidget::HideOnClosed);
 }
 
 void

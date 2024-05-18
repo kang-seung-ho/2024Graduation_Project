@@ -2,13 +2,13 @@
 #include "SagaNetwork.h"
 #include <UObject/Interface.h>
 
+#include "Saga/Network/SagaConnectionContract.h"
+#include "Saga/Network/SagaGameContract.h"
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaNetworkView.generated.h"
 
-enum class [[nodiscard]] ESagaGameContract : uint8;
-enum class [[nodiscard]] ESagaConnectionContract : uint8;
 enum class [[nodiscard]] EUserTeam : uint8;
 enum class [[nodiscard]] EPlayerWeapon : uint8;
-enum class [[nodiscard]] ESagaRpcProtocol : uint8;
 
 UINTERFACE(BlueprintType, Blueprintable, MinimalAPI)
 class USagaNetworkView : public UInterface
@@ -16,17 +16,22 @@ class USagaNetworkView : public UInterface
 	GENERATED_BODY()
 };
 
+#define SagaRegisterView(system, class_name, target)
+
+#define SagaDeregisterView(system, class_name, target)
+
 class SAGANETWORK_API ISagaNetworkView
 {
 	GENERATED_BODY()
 
 public:
 	static void RegisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
+	//static void RegisterView(class USagaNetworkSubSystem* system, const FName& class_name, TScriptInterface<ISagaNetworkView> target);
 	static void DeregisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
 	static bool TryRegisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
 	static bool TryDeregisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "CandyLandSaga|Network|Event")
 	void OnNetworkInitialized(bool succeed);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
@@ -38,6 +43,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
 	void OnDisconnected();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
+	void OnSignedIn(int32 my_id, const FName& nickname);
+	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
 	void OnRoomCreated(int32 room_id);
 

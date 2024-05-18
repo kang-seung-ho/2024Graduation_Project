@@ -1,7 +1,6 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Delegates/Delegate.h"
-
-#include "Saga/Network/SagaNetworkSettings.h"
+#include <Delegates/Delegate.h>
+#include <Subsystems/SubsystemCollection.h>
 
 void
 USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -10,6 +9,7 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	OnNetworkInitialized.AddDynamic(this, &USagaNetworkSubSystem::OnNetworkInitialized_Implementation);
 	OnFailedToConnect.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToConnect_Implementation);
+	OnConnected.AddDynamic(this, &USagaNetworkSubSystem::OnConnected_Implementation);
 	OnDisconnected.AddDynamic(this, &USagaNetworkSubSystem::OnDisconnected_Implementation);
 	OnRoomCreated.AddDynamic(this, &USagaNetworkSubSystem::OnRoomCreated_Implementation);
 	OnLeftRoomBySelf.AddDynamic(this, &USagaNetworkSubSystem::OnLeftRoomBySelf_Implementation);
@@ -24,12 +24,23 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	recvBuffer.Init(0, recvLimit);
 	transitBuffer.Init(0, recvLimit);
 
-	if (InitializeNetwork_Implementation())
+	clientSocket = CreateSocket();
+
+	// NOTICE: 클라는 바인드 금지
+	//auto local_endpoint = saga::MakeEndPoint(FIPv4Address::InternalLoopback, saga::GetLocalPort());
+	//if (not clientSocket->Bind(*local_endpoint))
+	//{
+	//	return false;
+	//}
+
+	if (nullptr != clientSocket)
 	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("The socket is initialized."));
 		BroadcastOnNetworkInitialized();
 	}
 	else
 	{
+		UE_LOG(LogSagaNetwork, Fatal, TEXT("The socket is null."));
 		BroadcastOnFailedToInitializeNetwork();
 	}
 }
@@ -39,7 +50,7 @@ USagaNetworkSubSystem::Deinitialize()
 {
 	Super::Deinitialize();
 
-	if constexpr (not saga::IsOfflineMode)
+	if (not IsOfflineMode())
 	{
 		if (IsSocketAvailable())
 		{
@@ -60,32 +71,5 @@ bool
 USagaNetworkSubSystem::ShouldCreateSubsystem(UObject* Outer)
 const
 {
-	if (Outer)
-	{
-		// https://forums.unrealengine.com/t/solved-getworld-from-static-function-without-pass-an-object/245939
-		//UWorld* world = GEngine->GameViewport->GetWorld();
-		//float TimeSinceCreation = world->GetFirstPlayerController()->GetGameTimeSinceCreation();
-
-		FString name{ 20, TEXT("") };
-		Outer->GetWorld()->GetCurrentLevel()->GetName(name);
-
-		static const FString non_network_levels[] =
-		{
-			TEXT("InitializationLevel")
-		};
-
-		for (auto& non_network_level : non_network_levels)
-		{
-			if (name == non_network_level)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return true;
 }

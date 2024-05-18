@@ -290,12 +290,12 @@ const noexcept
 }
 
 void
-USagaNetworkSubSystem::SetLocalUserName(const FString& nickname)
+USagaNetworkSubSystem::SetLocalUserName(const FName& nickname)
 {
 	localUserName = nickname;
 }
 
-FString
+FName
 USagaNetworkSubSystem::GetLocalUserName()
 const
 {
@@ -324,12 +324,12 @@ const noexcept
 }
 
 void
-USagaNetworkSubSystem::SetCurrentRoomTitle(const FString& title)
+USagaNetworkSubSystem::SetCurrentRoomTitle(const FName& title)
 {
 	currentRoomTitle = title;
 }
 
-FString
+FName
 USagaNetworkSubSystem::GetCurrentRoomTitle()
 const
 {

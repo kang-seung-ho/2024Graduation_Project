@@ -11,7 +11,7 @@ ASagaMainMenuController::ASagaMainMenuController()
 {
 	static ConstructorHelpers::FClassFinder<USagaMainMenuUiWidget> widget_class(TEXT("/Game/UI/Level/SagaMainMenuLevelUI.SagaMainMenuLevelUI_C"));
 
-	if (widget_class.Class)
+	if (widget_class.Succeeded())
 	{
 		levelUiClass = widget_class.Class;
 	}

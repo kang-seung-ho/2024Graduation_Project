@@ -8,11 +8,6 @@ class SAGAFRAMEWORK_API USagaUiPanelWidget : public USagaLiveUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI", meta = (ExposeOnSpawn = "true"))
-	bool showShroud;
-
 public:
 	USagaUiPanelWidget(const FObjectInitializer& initializer) noexcept;
-
 };

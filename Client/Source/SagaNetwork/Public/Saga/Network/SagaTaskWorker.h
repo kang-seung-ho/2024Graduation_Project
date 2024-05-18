@@ -4,11 +4,11 @@
 #include <HAL/Runnable.h>
 #include <HAL/RunnableThread.h>
 
-class SAGANETWORK_API FSagaNetworkWorker final : public FRunnable, public FNoncopyable
+class SAGANETWORK_API FSagaTaskWorker final : public FRunnable, public FNoncopyable
 {
 public:
-	FSagaNetworkWorker(TObjectPtr<class USagaNetworkSubSystem> instance);
-	~FSagaNetworkWorker();
+	FSagaTaskWorker(TObjectPtr<class USagaNetworkSubSystem> instance);
+	~FSagaTaskWorker();
 
 	virtual bool Init() override;
 	virtual uint32 Run() override;

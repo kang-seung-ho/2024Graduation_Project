@@ -13,4 +13,5 @@ enum class [[nodiscard]] ESagaConnectionContract : uint8
 	, ConnectError
 	, WrongAddress
 	, OtherError
+	, SubSystemError
 };

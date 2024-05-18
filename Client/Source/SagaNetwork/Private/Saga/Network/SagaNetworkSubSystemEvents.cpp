@@ -1,5 +1,8 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Sockets.h"
+#include <Sockets.h>
+
+#include "Saga/Network/SagaNetworkWorker.h"
+#include "Saga/Network/SagaTaskWorker.h"
 
 #include "Character/SagaCharacterPlayer.h"
 #include "Player/SagaUserTeam.h"
@@ -9,19 +12,39 @@ USagaNetworkSubSystem::OnNetworkInitialized_Implementation(bool succeed)
 {
 	if (succeed)
 	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("The network subsystem is initialized."));
+		UE_LOG(LogSagaNetwork, Log, TEXT("The network system is initialized."));
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("Cannot initialize the network subsystem."));
+		UE_LOG(LogSagaNetwork, Error, TEXT("Cannot initialize the network system."));
+	}
+}
+
+void
+USagaNetworkSubSystem::OnConnected_Implementation()
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Starting workers of network subsystem..."));
+
+	if (nullptr == (netWorker = new FSagaNetworkWorker{ this }))
+	{
+		UE_LOG(LogSagaNetwork, Fatal, TEXT("Has failed to create the network worker."));
+		return;
+	}
+	else if (nullptr == (taskWorker = new FSagaTaskWorker{ this }))
+	{
+		UE_LOG(LogSagaNetwork, Fatal, TEXT("Has failed to create the task worker."));
+		return;
+	}
+	else
+	{
 	}
 }
 
 void
 USagaNetworkSubSystem::OnFailedToConnect_Implementation(ESagaConnectionContract reason)
 {
-	auto msg = UEnum::GetValueAsString(reason);
-	UE_LOG(LogSagaNetwork, Error, TEXT("Local client can't get an id from server due to %s."), *msg);
+	const auto msg = UEnum::GetValueAsString(reason);
+	UE_LOG(LogSagaNetwork, Error, TEXT("Local client could not connect to the server, due to `%s`"), *msg);
 }
 
 void

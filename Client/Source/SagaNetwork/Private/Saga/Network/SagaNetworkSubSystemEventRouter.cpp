@@ -25,7 +25,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 			{
 				SetLocalUserId(my_id);
 
-				BroadcastOnConnected();
+				BroadcastOnSignedIn(my_id, GetLocalUserName());
 			}
 		);
 	}

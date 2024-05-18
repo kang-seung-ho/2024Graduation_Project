@@ -16,6 +16,16 @@ USagaUiEditableTextBox::USagaUiEditableTextBox(const FObjectInitializer& initial
 	, OnTextChanged(), OnTextCommitted()
 {}
 
+void
+USagaUiEditableTextBox::SetText(FText text)
+noexcept
+{
+	if (nullptr != myEditableTextBlock)
+	{
+		myEditableTextBlock->SetText(text);
+	}
+}
+
 FText
 USagaUiEditableTextBox::GetText()
 const noexcept

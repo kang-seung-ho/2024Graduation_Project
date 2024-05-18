@@ -22,9 +22,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnConnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnFailedToConnect, ESagaConnectionContract, reason);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnDisconnected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSagaEventOnSignedIn, int32, my_id, const FName&, nickname);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnRoomCreated, int32, room_id);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnJoinedRoom, int32, room_id);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FString&, nickname, const EUserTeam&, team);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FName&, nickname, const EUserTeam&, team);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnLeftRoomBySelf);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnLeftRoom, int32, id);
 
@@ -54,6 +55,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
+
 	/* State Machines */
 #pragma region =========================
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -150,9 +152,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	int32 GetLocalUserId() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetLocalUserName(const FString& nickname);
+	void SetLocalUserName(const FName& nickname);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	FString GetLocalUserName() const;
+	FName GetLocalUserName() const;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool GetLocalUserTeam(EUserTeam& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -160,9 +162,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	int32 GetCurrentRoomId() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCurrentRoomTitle(const FString& title);
+	void SetCurrentRoomTitle(const FName& title);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	FString GetCurrentRoomTitle() const;
+	FName GetCurrentRoomTitle() const;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetOfflineWeapon(EPlayerWeapon weapon) noexcept;
@@ -173,10 +175,12 @@ public:
 	/* Network Methods */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool ConnectToServer(const FString& nickname);
+	ESagaConnectionContract ConnectToServer(const FName& nickname);
 
-	UFUNCTION(Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
+	UFUNCTION(Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	bool Receive();
+	UFUNCTION(Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	bool ProcessPackets();
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
 	bool Close();
@@ -190,9 +194,9 @@ public:
 	/* Packet Senders */
 #pragma region =========================
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendSignInPacket(const FString& nickname);
+	int32 SendSignInPacket(const FName& nickname);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendCreateRoomPacket(const FString& title);
+	int32 SendCreateRoomPacket(const FName& title);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
 	int32 SendJoinRoomPacket(int32 room_id);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
@@ -224,11 +228,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
 	int32 localUserId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString localUserName;
+	FName localUserName;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
 	int32 currentRoomId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString currentRoomTitle;
+	FName currentRoomTitle;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
 	EPlayerWeapon currentHandledWeapon;
 #pragma endregion
@@ -264,7 +268,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentMode() const
-		{
+	{
 		return CurrentMode;
 	}
 
@@ -349,6 +353,8 @@ public:
 	FSagaEventOnFailedToConnect OnFailedToConnect;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnDisconnected OnDisconnected;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnSignedIn OnSignedIn;
 
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnRoomCreated OnRoomCreated;
@@ -391,16 +397,21 @@ private:
 	/* Internal Functions */
 #pragma region =========================
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	bool InitializeNetwork_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	ESagaConnectionContract ConnectToServer_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	bool CloseNetwork_Implementation();
+	[[nodiscard]] static FSocket* CreateSocket();
+	[[nodiscard]] static TSharedRef<FInternetAddr> CreateRemoteEndPoint();
+#pragma endregion
 
+	/* Basic Event Implementations */
+#pragma region =========================
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset, EPacketProtocol protocol, int16 packet_size);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	void OnConnected_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToConnect_Implementation(ESagaConnectionContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
@@ -417,12 +428,9 @@ private:
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1);
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
-	UClass* GetPlayableCharacterClass(const int32& user_id) const;
 #pragma endregion
 
-	/* Event Broadcasting Methods */
+	/* Event Broadcaster Methods */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnNetworkInitialized() const;
@@ -434,6 +442,8 @@ private:
 	void BroadcastOnFailedToConnect(ESagaConnectionContract reason) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnDisconnected() const;
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
+	void BroadcastOnSignedIn(int32 my_id, const FName& nickname) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRoomCreated(int32 room_id) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
@@ -468,7 +478,7 @@ private:
 
 	/* Managed Network Properties */
 #pragma region =========================
-	FSocket* clientSocket;
+	FSocket * clientSocket;
 	class FSagaNetworkWorker* netWorker;
 	class FSagaTaskWorker* taskWorker;
 

@@ -34,6 +34,9 @@ public:
 
 	USagaUiEditableTextBox(const FObjectInitializer& initializer);
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "Set Text (Saga Text Input Box)"))
+	void SetText(FText text) noexcept;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Content", meta = (DisplayName = "Get Text (Saga Text Input Box)"))
 	FText GetText() const noexcept;
 

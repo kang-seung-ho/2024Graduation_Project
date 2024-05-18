@@ -2,16 +2,18 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 FSagaNetworkWorker::FSagaNetworkWorker(TObjectPtr<USagaNetworkSubSystem> instance)
-	: SubSystemInstance(MoveTempIfPossible(instance))
+	: SubSystemInstance(instance)
+	, MyThread()
 {
-	MyThread = FRunnableThread::Create(this, TEXT("Worker Thread"));
+	MyThread = FRunnableThread::Create(this, TEXT("Saga Network Worker Thread"), 128, EThreadPriority::TPri_AboveNormal);
 }
 
 FSagaNetworkWorker::~FSagaNetworkWorker()
 {
 	if (MyThread)
 	{
-		// 스레드 종료
+		UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Network worker is destroyed."));
+
 		MyThread->WaitForCompletion();
 		MyThread->Kill();
 		delete MyThread;
@@ -23,27 +25,42 @@ FSagaNetworkWorker::~FSagaNetworkWorker()
 bool
 FSagaNetworkWorker::Init()
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Worker is initialized."));
+	if (MyThread != nullptr)
+	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Network worker is created."));
 
-	return (MyThread != nullptr);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Error, TEXT("[Worker] Network worker was not created."));
+	}
+
+	return true;
 }
 
 uint32
 FSagaNetworkWorker::Run()
 {
-	while (SubSystemInstance->Receive())
+	while (true)
 	{
+		if (not SubSystemInstance->Receive())
+		{
+			break;
+		}
 	}
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Network worker is done."));
 
 	return 0;
 }
 
 void
 FSagaNetworkWorker::Exit()
-{}
+{
+}
 
 void
 FSagaNetworkWorker::Stop()
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Worker is terminated."));
+	UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Network worker is terminated."));
 }

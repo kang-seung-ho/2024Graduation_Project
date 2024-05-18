@@ -3,19 +3,15 @@
 #include <Engine/LevelScriptActor.h>
 #include <Misc/Optional.h>
 
-#include "Saga/Network/SagaNetworkView.h"
 #include "SagaLevelScripter.generated.h"
 
 UCLASS(Blueprintable, BlueprintType, Category = "CandyLandSaga|Framework|Level")
-class SAGAFRAMEWORK_API ASagaLevelScripter : public ALevelScriptActor, public ISagaNetworkView
+class SAGAFRAMEWORK_API ASagaLevelScripter : public ALevelScriptActor
 {
 	GENERATED_BODY()
 
 public:
 	ASagaLevelScripter();
-
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, BlueprintPure = false, Category = "CandyLandSaga|Level")
 	void GotoPrevLevel() const;
