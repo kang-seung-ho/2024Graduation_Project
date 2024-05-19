@@ -15,9 +15,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Level", meta = (WorldContext = "world"))
-	static class USagaMainMenuUiWidget* SpawnUI(UWorld* world, UClass* const uclass);
-
 	UPROPERTY()
 	TSubclassOf<class USagaUserWidget> levelUiClass;
 	UPROPERTY()

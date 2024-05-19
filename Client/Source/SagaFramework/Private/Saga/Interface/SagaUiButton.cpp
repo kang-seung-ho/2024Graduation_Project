@@ -1,11 +1,12 @@
 #include "Saga/Interface/SagaUiButton.h"
+#include <UObject/UObjectGlobals.h>
 #include <Binding/States/WidgetStateRegistration.h>
 #include <Blueprint/WidgetTree.h>
 
 USagaUiButton::USagaUiButton(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, myButton(), myLabel()
-	, buttonCaption(FText::FromString(TEXT("Button")))
+	, buttonCaption(FText::FromString(TEXT("Button"))), buttonCaptionDelegate()
 {}
 
 void

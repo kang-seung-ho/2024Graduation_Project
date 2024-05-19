@@ -10,14 +10,19 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnProgressEnded, ESagaLiveUserWidgetStates, state);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaLiveUserWidgetEvent);
 
-UENUM(BlueprintType, Category = "CandyLandSaga|UI")
+UENUM(BlueprintType, Category = "CandyLandSaga|UI", meta = (Bitflags))
 enum class ESagaLiveUserWidgetTickPolicy : uint8
 {
 	None = 0,
+
 	TickBySelf = 1,
 	FromParent = 2,
+	Both = 3,
+
 	Default = TickBySelf
 };
+
+ENUM_CLASS_FLAGS(ESagaLiveUserWidgetTickPolicy)
 
 UCLASS(BlueprintType, Blueprintable, Abstract, Category = "CandyLandSaga|UI")
 class SAGAFRAMEWORK_API USagaLiveUserWidget : public USagaUserWidget
@@ -39,8 +44,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|UI")
 	float myProgress;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI")
 	ESagaLiveUserWidgetTickPolicy myTickPolicy;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetUserInteractable, BlueprintGetter = IsUserInteractable, Category = "CandyLandSaga|UI", meta = (ExposeOnSpawn = "true"))
 	bool isUserInteractable;
 
@@ -49,7 +56,7 @@ protected:
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI")
 	FSagaLiveUserWidgetEvent OnJustOpened;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI")
-	FSagaLiveUserWidgetEvent OnOpended;
+	FSagaLiveUserWidgetEvent OnOpened;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI")
 	FSagaLiveUserWidgetEvent OnClosed;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI")
@@ -106,7 +113,6 @@ public:
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
-	virtual void NativeDestruct() override;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI")
 	void SetTransitionPeriod(ESagaLiveUserWidgetStates state, const float period) noexcept;
@@ -135,9 +141,11 @@ private:
 	void BroadcastOnIdle();
 
 	UFUNCTION()
-	void ShowOnOpened();
+	virtual void HandleJustOpened();
 	UFUNCTION()
-	void HideOnClosed();
+	virtual void HandleOpened();
+	UFUNCTION()
+	virtual void HandleClosed();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI")
 	float GetInternalProgress() const noexcept;

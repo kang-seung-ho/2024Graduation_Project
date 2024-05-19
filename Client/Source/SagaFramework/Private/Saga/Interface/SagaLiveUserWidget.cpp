@@ -13,12 +13,13 @@ noexcept
 	, myProgress(), myTickPolicy(ESagaLiveUserWidgetTickPolicy::TickBySelf)
 	, isUserInteractable(true)
 	, OnProgressEnded()
-	, OnJustOpened(), OnOpended(), OnClosed(), OnIdle()
+	, OnJustOpened(), OnOpened(), OnClosed(), OnIdle()
 {
 	everyStates.Add(ESagaLiveUserWidgetStates::None).SetProgress(0);
 	everyStates.Add(ESagaLiveUserWidgetStates::Opening).SetProgress(0);
-	everyStates.Add(ESagaLiveUserWidgetStates::Idle).SetProgress(0);
+	everyStates.Add(ESagaLiveUserWidgetStates::Idle).SetProgress(1);
 	everyStates.Add(ESagaLiveUserWidgetStates::Closing).SetProgress(0);
+	everyStates.Add(ESagaLiveUserWidgetStates::Dead).SetProgress(1);
 
 	//auto mBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Body"));
 }
@@ -40,19 +41,12 @@ USagaLiveUserWidget::NativeOnInitialized()
 		}
 	);
 
-	if (0 < myChildren.Num())
-	{
-		// Just let them be opened
-		for (auto& child : myChildren)
-		{
-			child->OpenNow();
-		}
-	}
 	const auto my_name = GetName();
 	UE_LOG(LogSagaFramework, Log, TEXT("[USagaLiveUserWidget] '%s' found %d children."), *my_name, myChildren.Num());
 
-	OnJustOpened.AddDynamic(this, &USagaLiveUserWidget::ShowOnOpened);
-	OnClosed.AddDynamic(this, &USagaLiveUserWidget::HideOnClosed);
+	OnJustOpened.AddDynamic(this, &USagaLiveUserWidget::HandleJustOpened);
+	OnOpened.AddDynamic(this, &USagaLiveUserWidget::HandleOpened);
+	OnClosed.AddDynamic(this, &USagaLiveUserWidget::HandleClosed);
 }
 
 void
@@ -61,11 +55,14 @@ USagaLiveUserWidget::NativeTick(const FGeometry& geometry, float delta_time)
 	auto my_parent = myParent.Get();
 	if (IsParentProgressive() and nullptr != my_parent)
 	{
-		SetProgress(my_parent->GetProgress());
+		myProgress = my_parent->GetProgress();
+
+		SetProgress(myProgress);
 	}
 	else if (IsProgressTickable())
 	{
 		const auto curr_progress = GetInternalProgress();
+
 		if (curr_progress != 1.0f)
 		{
 			auto& status = GetStatus();
@@ -73,15 +70,15 @@ USagaLiveUserWidget::NativeTick(const FGeometry& geometry, float delta_time)
 
 			if (1.0f <= new_prog)
 			{
+				const auto name = GetName();
+
 				OnProgressEnded.Broadcast(myState);
 
 				switch (myState)
 				{
 				case ESagaLiveUserWidgetStates::Opening:
 				{
-					everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(1);
-
-					myState = ESagaLiveUserWidgetStates::Idle;
+					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is opened."), *name);
 
 					BroadcastOnOpened();
 				}
@@ -89,37 +86,38 @@ USagaLiveUserWidget::NativeTick(const FGeometry& geometry, float delta_time)
 
 				case ESagaLiveUserWidgetStates::Idle:
 				{
+					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on idle."), *name);
+
 					BroadcastOnIdle();
 				}
 				break;
 
 				case ESagaLiveUserWidgetStates::Closing:
 				{
-					everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(0);
-
-					myState = ESagaLiveUserWidgetStates::Idle;
+					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is closed."), *name);
 
 					BroadcastOnClosed();
 				}
 				break;
+
+				case ESagaLiveUserWidgetStates::Dead:
+				{
+					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on dead."), *name);
 				}
-			}
-		}
-	}
+				break;
+
+				default:
+				{}
+				break;
+				}
+			} // IF (1.0f <= new_prog)
+
+		} // IF (curr_progress != 1.0f)
+
+		myProgress = curr_progress;
+	} // IF (IsProgressTickable)
 
 	Super::NativeTick(geometry, delta_time);
-}
-
-void
-USagaLiveUserWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	OnProgressEnded.Clear();
-	OnJustOpened.Clear();
-	OnOpended.Clear();
-	OnClosed.Clear();
-	OnIdle.Clear();
 }
 
 void
@@ -137,59 +135,23 @@ noexcept
 }
 
 void
-USagaLiveUserWidget::BroadcastOnJustOpened()
-{
-	OnJustOpened.Broadcast();
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnJustOpened();
-	}
-}
-
-void
-USagaLiveUserWidget::BroadcastOnOpened()
-{
-	OnOpended.Broadcast();
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnOpened();
-	}
-}
-
-void
-USagaLiveUserWidget::BroadcastOnClosed()
-{
-	OnClosed.Broadcast();
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnClosed();
-	}
-}
-
-void
-USagaLiveUserWidget::BroadcastOnIdle()
-{
-	OnIdle.Broadcast();
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnIdle();
-	}
-}
-
-void
-USagaLiveUserWidget::ShowOnOpened()
+USagaLiveUserWidget::HandleJustOpened()
 {
 	SetVisibility(ESlateVisibility::Visible);
 }
 
 void
-USagaLiveUserWidget::HideOnClosed()
+USagaLiveUserWidget::HandleOpened()
+{
+	myState = ESagaLiveUserWidgetStates::Idle;
+}
+
+void
+USagaLiveUserWidget::HandleClosed()
 {
 	SetVisibility(ESlateVisibility::Hidden);
+
+	myState = ESagaLiveUserWidgetStates::Dead;
 }
 
 float
@@ -259,11 +221,11 @@ noexcept
 {
 	if (flag)
 	{
-		myTickPolicy = ESagaLiveUserWidgetTickPolicy::FromParent;
+		myTickPolicy |= ESagaLiveUserWidgetTickPolicy::FromParent;
 	}
 	else
 	{
-		myTickPolicy = ESagaLiveUserWidgetTickPolicy::FromParent;
+		myTickPolicy &= ~ESagaLiveUserWidgetTickPolicy::FromParent;
 	}
 }
 
@@ -271,7 +233,7 @@ bool
 USagaLiveUserWidget::IsParentProgressive()
 const noexcept
 {
-	return myTickPolicy != ESagaLiveUserWidgetTickPolicy::FromParent;
+	return myTickPolicy != ESagaLiveUserWidgetTickPolicy::TickBySelf;
 }
 
 void
@@ -280,11 +242,11 @@ noexcept
 {
 	if (flag)
 	{
-		myTickPolicy = ESagaLiveUserWidgetTickPolicy::TickBySelf;
+		myTickPolicy |= ESagaLiveUserWidgetTickPolicy::TickBySelf;
 	}
 	else
 	{
-		myTickPolicy = ESagaLiveUserWidgetTickPolicy::TickBySelf;
+		myTickPolicy &= ~ESagaLiveUserWidgetTickPolicy::TickBySelf;
 	}
 }
 
@@ -292,7 +254,7 @@ bool
 USagaLiveUserWidget::IsProgressTickable()
 const noexcept
 {
-	return myTickPolicy != ESagaLiveUserWidgetTickPolicy::TickBySelf;
+	return ESagaLiveUserWidgetTickPolicy::None != (myTickPolicy & ESagaLiveUserWidgetTickPolicy::TickBySelf);
 }
 
 void
@@ -312,10 +274,20 @@ const noexcept
 void
 USagaLiveUserWidget::Open(const float begin_progress)
 {
+	const auto name = GetName();
+	UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] Opening '%s'..."), *name);
+
 	everyStates[ESagaLiveUserWidgetStates::Opening].SetProgress(begin_progress);
-	everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(1);
 
 	myState = ESagaLiveUserWidgetStates::Opening;
+
+	if (0 < myChildren.Num())
+	{
+		for (auto& child : myChildren)
+		{
+			child->Open(begin_progress);
+		}
+	}
 
 	BroadcastOnJustOpened();
 }
@@ -323,25 +295,62 @@ USagaLiveUserWidget::Open(const float begin_progress)
 void
 USagaLiveUserWidget::Close(const float begin_progress)
 {
+	const auto name = GetName();
+	UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] Closing '%s'..."), *name);
+
 	everyStates[ESagaLiveUserWidgetStates::Closing].SetProgress(begin_progress);
-	everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(0);
 
 	myState = ESagaLiveUserWidgetStates::Closing;
+
+	if (0 < myChildren.Num())
+	{
+		for (auto& child : myChildren)
+		{
+			child->Close(begin_progress);
+		}
+	}
 }
 
 void
 USagaLiveUserWidget::OpenNow()
 {
-	Open(1);
-	BroadcastOnJustOpened();
-	BroadcastOnOpened();
+	everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(1);
+
+	myState = ESagaLiveUserWidgetStates::Idle;
+
+	if (0 < myChildren.Num())
+	{
+		for (auto& child : myChildren)
+		{
+			child->OpenNow();
+		}
+	}
+
+	if (OnOpened.IsBound())
+	{
+		OnOpened.Broadcast();
+	}
 }
 
 void
 USagaLiveUserWidget::CloseNow()
 {
-	Close(1);
-	BroadcastOnClosed();
+	everyStates[ESagaLiveUserWidgetStates::Dead].SetProgress(1);
+
+	myState = ESagaLiveUserWidgetStates::Dead;
+
+	if (0 < myChildren.Num())
+	{
+		for (auto& child : myChildren)
+		{
+			child->CloseNow();
+		}
+	}
+
+	if (OnClosed.IsBound())
+	{
+		OnClosed.Broadcast();
+	}
 }
 
 float
@@ -355,5 +364,75 @@ float
 USagaLiveUserWidget::GetGraphicalProgress()
 const noexcept
 {
-	return EaseProgress(GetProgress());
+	switch (myState)
+	{
+	case ESagaLiveUserWidgetStates::Closing:
+	case ESagaLiveUserWidgetStates::Dead:
+	{
+		return EaseProgress(1.00000000f - GetProgress());
+	}
+	break;
+
+	default:
+	{
+		return EaseProgress(GetProgress());
+	}
+	break;
+	}
+}
+
+void
+USagaLiveUserWidget::BroadcastOnJustOpened()
+{
+	if (OnJustOpened.IsBound())
+	{
+		OnJustOpened.Broadcast();
+	}
+
+	for (auto& child : myChildren)
+	{
+		child->BroadcastOnJustOpened();
+	}
+}
+
+void
+USagaLiveUserWidget::BroadcastOnOpened()
+{
+	if (OnOpened.IsBound())
+	{
+		OnOpened.Broadcast();
+	}
+
+	for (auto& child : myChildren)
+	{
+		child->BroadcastOnOpened();
+	}
+}
+
+void
+USagaLiveUserWidget::BroadcastOnClosed()
+{
+	if (OnClosed.IsBound())
+	{
+		OnClosed.Broadcast();
+	}
+
+	for (auto& child : myChildren)
+	{
+		child->BroadcastOnClosed();
+	}
+}
+
+void
+USagaLiveUserWidget::BroadcastOnIdle()
+{
+	if (OnIdle.IsBound())
+	{
+		OnIdle.Broadcast();
+	}
+
+	for (auto& child : myChildren)
+	{
+		child->BroadcastOnIdle();
+	}
 }

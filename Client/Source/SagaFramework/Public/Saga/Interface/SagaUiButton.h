@@ -1,5 +1,6 @@
 #pragma once
 #include "Saga/Interface/SagaLiveUserWidget.h"
+#include <Components/Widget.h>
 #include <Components/TextBlock.h>
 #include <Components/Button.h>
 
@@ -19,6 +20,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetText, BlueprintGetter = GetText, Category = "CandyLandSaga|UI|Content")
 	FText buttonCaption;
+
+	UPROPERTY()
+	FGetText buttonCaptionDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI|Button|Event")
 	FOnButtonClickedEvent OnClicked;
@@ -57,4 +61,6 @@ protected:
 	void HandleHovered();
 	UFUNCTION()
 	void HandleUnhovered();
+
+	PROPERTY_BINDING_IMPLEMENTATION(FText, buttonCaption);
 };

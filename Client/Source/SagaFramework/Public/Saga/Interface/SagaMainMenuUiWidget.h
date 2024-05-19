@@ -46,7 +46,4 @@ protected:
 	void HandleInputTextChanged(const FText& nickname);
 	UFUNCTION()
 	void HandleInputCommitted(const FText& nickname, ETextCommit::Type method);
-
-	UFUNCTION()
-	void OnFailedToSignIn();
 };

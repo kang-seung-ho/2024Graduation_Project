@@ -4,7 +4,7 @@
 #include "SagaMainMenuLevel.generated.h"
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|Level")
-class SAGAGAME_API ASagaMainMenuLevel final : public ASagaLevelScripter
+class SAGAFRAMEWORK_API ASagaMainMenuLevel final : public ASagaLevelScripter
 {
 	GENERATED_BODY()
 
@@ -18,4 +18,9 @@ protected:
 	void OnFailedToConnect(ESagaConnectionContract reason);
 	UFUNCTION()
 	void OnSignedIn(int32 my_id, const FName& nickname);
+
+	UPROPERTY()
+	TSubclassOf<class USagaUiPopup> errorPopupWidgetClass;
+	UPROPERTY()
+	TObjectPtr<class USagaUiPopup> errorPopupWidgetInstance;
 };

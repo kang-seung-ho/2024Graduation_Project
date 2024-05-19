@@ -7,7 +7,7 @@ UENUM(BlueprintType, Category = "CandyLandSaga|UI")
 enum class ESagaLiveUserWidgetStates : uint8
 {
 	None = 0,
-	Opening, Idle, Closing,
+	Opening, Idle, Closing, Dead
 };
 
 USTRUCT(BlueprintType, Category = "CandyLandSaga|UI")

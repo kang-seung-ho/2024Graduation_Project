@@ -33,7 +33,7 @@ USagaNetworkSubSystem::ConnectToServer_Implementation()
 			auto err_msg = saga::GetLastErrorContents();
 			UE_LOG(LogSagaNetwork, Error, TEXT("Cannot connect to the server, due to '%s'"), *err_msg);
 
-			return ESagaConnectionContract::OtherError;
+			return ESagaConnectionContract::ConnectError;
 		}
 
 		// 클라는 접속 이후에 닉네임 패킷을 보내야 한다.

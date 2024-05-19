@@ -31,12 +31,6 @@ USagaMainMenuUiWidget::OnFailedToConnect(ESagaConnectionContract reason)
 }
 
 void
-USagaMainMenuUiWidget::OnFailedToSignIn()
-{
-
-}
-
-void
 USagaMainMenuUiWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();

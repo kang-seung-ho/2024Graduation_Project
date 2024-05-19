@@ -29,20 +29,13 @@ ASagaMainMenuController::BeginPlay()
 	FInputModeUIOnly UIOnlyInputMode;
 	SetInputMode(UIOnlyInputMode);
 
-	levelUiInstance = SpawnUI(GetWorld(), levelUiClass);
+	levelUiInstance = CreateWidget<USagaMainMenuUiWidget>(GetWorld(), levelUiClass);
 	if (IsValid(levelUiInstance))
 	{
 		levelUiInstance->AddToViewport(1);
-		//levelUiInstance->isu
 	}
 	else
 	{
 		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaMainMenuController][BeginPlay] Could not create user interface for main menu."));
 	}
-}
-
-USagaMainMenuUiWidget*
-ASagaMainMenuController::SpawnUI(UWorld* world, UClass* const uclass)
-{
-	return CreateWidget<USagaMainMenuUiWidget>(world, uclass);
 }
