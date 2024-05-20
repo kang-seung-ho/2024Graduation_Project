@@ -9,10 +9,10 @@ class SAGAFRAMEWORK_API USagaLobbyLevelUiWidget : public USagaLiveUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI|Lobby Level UI")
 	TObjectPtr<class UListView> myListView;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI|Lobby Level UI")
 	TObjectPtr<class USagaUiInstancedRoomData> selectedRoom;
 
 	USagaLobbyLevelUiWidget(const FObjectInitializer& initializer) noexcept;
@@ -22,13 +22,13 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
 	void HandleQuitButtonClick();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
 	void HandleCreatingRoomClick();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
 	void HandleTryJoinRoom();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
 	void HandleRefreshRoomList();
 
 	UPROPERTY()

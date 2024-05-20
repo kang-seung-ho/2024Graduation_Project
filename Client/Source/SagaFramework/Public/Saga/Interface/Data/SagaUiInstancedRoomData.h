@@ -1,6 +1,5 @@
 #pragma once
 #include "Saga/Interface/Data/SagaUiDataObject.h"
-#include <Delegates/DelegateCombinations.h>
 
 #include "Saga/Network/SagaVirtualRoom.h"
 #include "SagaUiInstancedRoomData.generated.h"
@@ -22,15 +21,15 @@ public:
 
 	USagaUiInstancedRoomData() noexcept;
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Room Instance")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Room Instance", meta = (DisplayName = "Set User Data (Saga Instanced Room)"))
 	void SetRoomData(const FSagaVirtualRoom& virtual_room) noexcept;
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance", meta = (DisplayName = "Get User Data (Saga Instanced Room)"))
 	FSagaVirtualRoom GetRoomData() const noexcept;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance", meta = (DisplayName = "Is Cursor Hovered (Saga Instanced Room)"))
 	bool IsCursorHovered() const noexcept;
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Instance", meta = (DisplayName = "Is Selected (Saga Instanced Room)"))
 	bool IsSelected() const noexcept;
 };

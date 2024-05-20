@@ -7,8 +7,8 @@
 #include "Saga/Interface/SagaLobbyLevelUiWidget.h"
 #include "Saga/Interface/Data/SagaUiInstancedRoomData.h"
 
-#include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaVirtualRoom.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaLobbyLevel::ASagaLobbyLevel()
 noexcept

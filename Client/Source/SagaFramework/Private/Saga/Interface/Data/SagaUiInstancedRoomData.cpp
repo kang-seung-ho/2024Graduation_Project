@@ -1,6 +1,7 @@
 #include "Saga/Interface/Data/SagaUiInstancedRoomData.h"
 
-USagaUiInstancedRoomData::USagaUiInstancedRoomData() noexcept
+USagaUiInstancedRoomData::USagaUiInstancedRoomData()
+noexcept
 	: Super()
 	, virtualRoom()
 	, isCursorHovered(), isSelected()

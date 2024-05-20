@@ -3,7 +3,7 @@
 
 #include "SagaMainMenuLevel.generated.h"
 
-UCLASS(BlueprintType, Category = "CandyLandSaga|Game|Level")
+UCLASS(BlueprintType, Category = "CandyLandSaga|Game|Level", meta = (DisplayName = "Saga Main Menu Level C++ Class"))
 class SAGAFRAMEWORK_API ASagaMainMenuLevel final : public ASagaLevelScripter
 {
 	GENERATED_BODY()

@@ -1,5 +1,5 @@
 #include "Saga/Level/SagaMainMenuLevel.h"
-#include <Internationalization/Internationalization.h>
+#include <Internationalization/Text.h>
 #include <UObject/Object.h>
 #include <UObject/ConstructorHelpers.h>
 #include <Delegates/Delegate.h>
@@ -7,6 +7,7 @@
 #include "Saga/Interface/SagaMainMenuUiWidget.h"
 #include "Saga/Interface/SagaUiPopup.h"
 
+#include "Saga/Network/SagaConnectionContract.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 FText GetDescription(const ESagaConnectionContract& contract);

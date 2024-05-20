@@ -3,7 +3,7 @@
 
 #include "SagaLobbyLevel.generated.h"
 
-UCLASS(BlueprintType, Category = "CandyLandSaga|Game|Level")
+UCLASS(BlueprintType, Category = "CandyLandSaga|Game|Level", meta = (DisplayName = "Saga Lobby Level C++ Class"))
 class SAGAFRAMEWORK_API ASagaLobbyLevel final : public ASagaLevelScripter
 {
 	GENERATED_BODY()
