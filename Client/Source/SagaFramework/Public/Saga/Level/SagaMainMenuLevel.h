@@ -19,6 +19,11 @@ protected:
 	UFUNCTION()
 	void OnSignedIn(int32 my_id, const FName& nickname);
 
+private:
+	UPROPERTY()
+	TSubclassOf<class USagaUserWidget> levelUiClass;
+	UPROPERTY()
+	TObjectPtr<class USagaMainMenuUiWidget> levelUiInstance;
 	UPROPERTY()
 	TSubclassOf<class USagaUiPopup> errorPopupWidgetClass;
 	UPROPERTY()

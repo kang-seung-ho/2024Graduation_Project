@@ -4,7 +4,7 @@
 
 #include "SagaUserWidget.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Abstract, EditInlineNew, Category = "CandyLandSaga|UI")
+UCLASS(BlueprintType, Blueprintable, Abstract, EditInlineNew, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga User Widget C++ Class"))
 class SAGAFRAMEWORK_API USagaUserWidget : public UUserWidget
 {
 	GENERATED_BODY()

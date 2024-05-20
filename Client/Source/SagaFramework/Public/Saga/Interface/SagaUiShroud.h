@@ -4,7 +4,7 @@
 
 #include "SagaUiShroud.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Shroud"))
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Shroud C++ Class"))
 class SAGAFRAMEWORK_API USagaUiShroud : public USagaLiveUserWidget
 {
 	GENERATED_BODY()
@@ -26,6 +26,7 @@ public:
 
 protected:
 	virtual void NativePreConstruct() override;
+	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 
 	PROPERTY_BINDING_IMPLEMENTATION(float, maxOpacity);

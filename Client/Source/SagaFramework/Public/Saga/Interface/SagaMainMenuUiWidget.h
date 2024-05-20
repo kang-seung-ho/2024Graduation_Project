@@ -6,31 +6,31 @@
 
 #include "SagaMainMenuUiWidget.generated.h"
 
-UCLASS(Blueprintable, BlueprintType, Category = "CandyLandSaga|UI")
+UCLASS(Blueprintable, BlueprintType, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Main Menu Level UI Widget C++ Class"))
 class SAGAFRAMEWORK_API USagaMainMenuUiWidget final : public USagaLiveUserWidget
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
+public:
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
 	TObjectPtr<USagaUiEditableTextBox> myInputBox;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
 	TObjectPtr<USagaUiButton> mySigninButton;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
 	TObjectPtr<USagaLiveUserWidget> myPopup;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Contents", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (DisplayName = "Nickname"))
 	FText transientNickname;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI")
 	bool isConnecting;
 
-public:
 	USagaMainMenuUiWidget(const FObjectInitializer& initializer) noexcept;
 
 protected:
+	virtual void NativePreConstruct() override;
 	virtual void NativeOnInitialized() override;
 
 	UFUNCTION()

@@ -59,7 +59,7 @@ USagaNetworkSubSystem::CloseNetwork_Implementation()
 {
 	//clientSocket->Shutdown(ESocketShutdownMode::ReadWrite);
 
-	return std::exchange(clientSocket, nullptr)->Close();
+	return std::exchange(clientSocket, CreateSocket())->Close();
 }
 
 bool

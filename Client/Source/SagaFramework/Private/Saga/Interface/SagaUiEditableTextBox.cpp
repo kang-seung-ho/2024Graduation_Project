@@ -12,9 +12,60 @@
 USagaUiEditableTextBox::USagaUiEditableTextBox(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, myEditableTextBlock()
-	, hintText()
+	, hintText(), hintTextDelegate()
 	, OnTextChanged(), OnTextCommitted()
 {}
+
+void
+USagaUiEditableTextBox::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
+		{
+			if (element == this) return;
+
+			if (auto widget = Cast<UEditableTextBox>(element))
+			{
+				myEditableTextBlock = widget;
+			}
+		}
+	);
+
+	const auto my_name = GetName();
+	if (nullptr == myEditableTextBlock)
+	{
+		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiEditableTextBox] '%s' found no text box in children."), *my_name);
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiEditableTextBox] '%s' found text box in children."), *my_name);
+
+		myEditableTextBlock->SetHintText(hintText);
+
+		// Would be executed multiple times but these are unique
+		myEditableTextBlock->OnTextChanged.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextChanged);
+		myEditableTextBlock->OnTextCommitted.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextCommitted);
+	}
+}
+
+void
+USagaUiEditableTextBox::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+}
+
+void
+USagaUiEditableTextBox::HandleOnTextChanged(const FText& text)
+{
+	OnTextChanged.Broadcast(text);
+}
+
+void
+USagaUiEditableTextBox::HandleOnTextCommitted(const FText& text, ETextCommit::Type method)
+{
+	OnTextCommitted.Broadcast(text, method);
+}
 
 void
 USagaUiEditableTextBox::SetText(FText text)
@@ -70,7 +121,10 @@ void
 USagaUiEditableTextBox::SetJustification(ETextJustify::Type justification)
 noexcept
 {
-	myEditableTextBlock->SetJustification(justification);
+	if (nullptr != myEditableTextBlock)
+	{
+		myEditableTextBlock->SetJustification(justification);
+	}
 }
 
 ETextJustify::Type
@@ -84,7 +138,10 @@ void
 USagaUiEditableTextBox::SetTextOverflowPolicy(ETextOverflowPolicy policy)
 noexcept
 {
-	myEditableTextBlock->SetTextOverflowPolicy(policy);
+	if (nullptr != myEditableTextBlock)
+	{
+		myEditableTextBlock->SetTextOverflowPolicy(policy);
+	}
 }
 
 ETextOverflowPolicy
@@ -92,55 +149,4 @@ USagaUiEditableTextBox::GetTextOverflowPolicy()
 const noexcept
 {
 	return myEditableTextBlock->GetTextOverflowPolicy();
-}
-
-void
-USagaUiEditableTextBox::NativeOnInitialized()
-{
-	Super::NativeOnInitialized();
-
-	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
-		{
-			if (element == this) return;
-
-			if (auto widget = Cast<UEditableTextBox>(element))
-			{
-				myEditableTextBlock = widget;
-			}
-		}
-	);
-
-	const auto my_name = GetName();
-	if (nullptr == myEditableTextBlock)
-	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiEditableTextBox] '%s' found no text box in children."), *my_name);
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiEditableTextBox] '%s' found text box in children."), *my_name);
-
-		myEditableTextBlock->OnTextChanged.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextChanged);
-		myEditableTextBlock->OnTextCommitted.AddUniqueDynamic(this, &USagaUiEditableTextBox::HandleOnTextCommitted);
-	}
-}
-
-void
-USagaUiEditableTextBox::NativePreConstruct()
-{
-	if (nullptr != myEditableTextBlock)
-	{
-		myEditableTextBlock->SetHintText(hintText);
-	}
-}
-
-void
-USagaUiEditableTextBox::HandleOnTextChanged(const FText& text)
-{
-	OnTextChanged.Broadcast(text);
-}
-
-void
-USagaUiEditableTextBox::HandleOnTextCommitted(const FText& text, ETextCommit::Type method)
-{
-	OnTextCommitted.Broadcast(text, method);
 }

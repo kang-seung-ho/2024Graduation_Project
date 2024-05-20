@@ -5,25 +5,28 @@
 
 #include "SagaUiPopup.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Popup"))
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Popup C++ Class"))
 class SAGAFRAMEWORK_API USagaUiPopup : public USagaLiveUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
+	TObjectPtr<class USagaUiPanelWidget> myBody;
+	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
 	TObjectPtr<UTextBlock> myTitle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
 	TObjectPtr<UTextBlock> myText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetTitle, BlueprintGetter = GetTitle, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetTitle, BlueprintGetter = GetTitle, Category = "CandyLandSaga|UI|Content", meta = (ExposeOnSpawn = "true"))
 	FText popupTitle;
 
 	UPROPERTY()
 	FGetText popupTitleDelegate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetText, BlueprintGetter = GetText, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetText, BlueprintGetter = GetText, Category = "CandyLandSaga|UI|Content", meta = (ExposeOnSpawn = "true"))
 	FText popupContentText;
 
 	UPROPERTY()
@@ -76,6 +79,10 @@ public:
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeOnInitialized() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
+
+	UFUNCTION()
+	void HandleOnClosed();
 
 	PROPERTY_BINDING_IMPLEMENTATION(FText, popupTitle);
 	PROPERTY_BINDING_IMPLEMENTATION(FText, popupContentText);

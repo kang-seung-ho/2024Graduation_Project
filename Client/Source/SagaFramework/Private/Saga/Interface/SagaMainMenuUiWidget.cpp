@@ -31,14 +31,9 @@ USagaMainMenuUiWidget::OnFailedToConnect(ESagaConnectionContract reason)
 }
 
 void
-USagaMainMenuUiWidget::NativeOnInitialized()
+USagaMainMenuUiWidget::NativePreConstruct()
 {
-	Super::NativeOnInitialized();
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	//RegisterView(system, this);
-	system->OnConnected.AddDynamic(this, &USagaMainMenuUiWidget::OnConnected);
-	system->OnFailedToConnect.AddDynamic(this, &USagaMainMenuUiWidget::OnFailedToConnect);
+	Super::NativePreConstruct();
 
 	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
 		{
@@ -81,6 +76,17 @@ USagaMainMenuUiWidget::NativeOnInitialized()
 		mySigninButton->OnClicked.AddUniqueDynamic(this, &USagaMainMenuUiWidget::HandleButtonPressed);
 		mySigninButton->SetUserInteractable(false);
 	}
+}
+
+void
+USagaMainMenuUiWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	system->OnConnected.AddDynamic(this, &USagaMainMenuUiWidget::OnConnected);
+	system->OnFailedToConnect.AddDynamic(this, &USagaMainMenuUiWidget::OnFailedToConnect);
 }
 
 void

@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetHintText, BlueprintGetter = GetHintText, Category = "CandyLandSaga|UI|Content")
 	FText hintText;
 
+	UPROPERTY()
+	FGetText hintTextDelegate;
+
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|UI|Event")
 	FSagaOnEditableInputChangedEvent OnTextChanged;
 
@@ -65,11 +68,13 @@ public:
 	ETextOverflowPolicy GetTextOverflowPolicy() const noexcept;
 
 protected:
-	virtual void NativeOnInitialized() override;
 	virtual void NativePreConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	UFUNCTION()
 	void HandleOnTextChanged(const FText& text);
 	UFUNCTION()
 	void HandleOnTextCommitted(const FText& text, ETextCommit::Type method);
+
+	PROPERTY_BINDING_IMPLEMENTATION(FText, hintText);
 };

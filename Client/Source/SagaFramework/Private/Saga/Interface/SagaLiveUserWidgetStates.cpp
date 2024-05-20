@@ -19,14 +19,16 @@ noexcept
 {
 	ensure(0 < value);
 
+	const auto prog = GetProgress();
 	progressPeriod = value;
+	progressTime = value * prog;
 }
 
 void
 FSagaLiveUserWidgetStatus::SetProgress(const float value)
 noexcept
 {
-	progressTime = FMath::Lerp(0, progressPeriod, value);
+	progressTime = FMath::Lerp(0.0f, progressPeriod, value);
 }
 
 float

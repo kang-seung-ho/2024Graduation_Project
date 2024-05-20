@@ -6,7 +6,7 @@
 
 #include "SagaUiButton.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Abstract, Category = "CandyLandSaga|UI")
+UCLASS(BlueprintType, Blueprintable, Abstract, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Button C++ Class"))
 class SAGAFRAMEWORK_API USagaUiButton : public USagaLiveUserWidget
 {
 	GENERATED_BODY()

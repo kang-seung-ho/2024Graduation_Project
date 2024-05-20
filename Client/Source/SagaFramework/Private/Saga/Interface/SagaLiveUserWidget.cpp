@@ -1,8 +1,8 @@
 #include "Saga/Interface/SagaLiveUserWidget.h"
-#include <Kismet/GameplayStatics.h>
-#include <Components/CapsuleComponent.h>
-#include <Blueprint/WidgetTree.h>
 #include <Math/UnrealMathUtility.h>
+#include <Kismet/GameplayStatics.h>
+#include <Widgets/SWidget.h>
+#include <Blueprint/WidgetTree.h>
 
 USagaLiveUserWidget::USagaLiveUserWidget(const FObjectInitializer& initializer)
 noexcept
@@ -10,24 +10,36 @@ noexcept
 	, myState(ESagaLiveUserWidgetStates::None)
 	, myParent(), myChildren()
 	, everyStates()
-	, myProgress(), myTickPolicy(ESagaLiveUserWidgetTickPolicy::TickBySelf)
-	, isUserInteractable(true)
+	, myTickPolicy(ESagaLiveUserWidgetTickPolicy::TickBySelf)
+	, isUserInteractable(true), isUserInteractableDelegate()
 	, OnProgressEnded()
 	, OnJustOpened(), OnOpened(), OnClosed(), OnIdle()
+	, myTicker()
 {
-	everyStates.Add(ESagaLiveUserWidgetStates::None).SetProgress(0);
+	everyStates.Add(ESagaLiveUserWidgetStates::None).SetProgress(1);
 	everyStates.Add(ESagaLiveUserWidgetStates::Opening).SetProgress(0);
 	everyStates.Add(ESagaLiveUserWidgetStates::Idle).SetProgress(1);
 	everyStates.Add(ESagaLiveUserWidgetStates::Closing).SetProgress(0);
-	everyStates.Add(ESagaLiveUserWidgetStates::Dead).SetProgress(1);
+	everyStates.Add(ESagaLiveUserWidgetStates::Dead).SetProgress(0);
+}
 
-	//auto mBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Body"));
+void
+USagaLiveUserWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	if (isUserInteractableDelegate.IsBound())
+	{
+		isUserInteractable = isUserInteractableDelegate.Execute();
+	}
 }
 
 void
 USagaLiveUserWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	UpdateCanTick();
 
 	auto& tree = *WidgetTree;
 	tree.ForEachWidget([this](UWidget* const element) -> void
@@ -53,68 +65,21 @@ void
 USagaLiveUserWidget::NativeTick(const FGeometry& geometry, float delta_time)
 {
 	auto my_parent = myParent.Get();
-	if (IsParentProgressive() and nullptr != my_parent)
+	if (IsProgressTickable())
 	{
-		myProgress = my_parent->GetProgress();
+		const auto curr_progress = GetProgress();
 
-		SetProgress(myProgress);
-	}
-	else if (IsProgressTickable())
-	{
-		const auto curr_progress = GetInternalProgress();
-
-		if (curr_progress != 1.0f)
+		if (curr_progress < 1.0f)
 		{
 			auto& status = GetStatus();
 			const float new_prog = status.Tick(delta_time);
 
 			if (1.0f <= new_prog)
 			{
-				const auto name = GetName();
-
-				OnProgressEnded.Broadcast(myState);
-
-				switch (myState)
-				{
-				case ESagaLiveUserWidgetStates::Opening:
-				{
-					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is opened."), *name);
-
-					BroadcastOnOpened();
-				}
-				break;
-
-				case ESagaLiveUserWidgetStates::Idle:
-				{
-					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on idle."), *name);
-
-					BroadcastOnIdle();
-				}
-				break;
-
-				case ESagaLiveUserWidgetStates::Closing:
-				{
-					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is closed."), *name);
-
-					BroadcastOnClosed();
-				}
-				break;
-
-				case ESagaLiveUserWidgetStates::Dead:
-				{
-					UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on dead."), *name);
-				}
-				break;
-
-				default:
-				{}
-				break;
-				}
+				HandleCompletion();
 			} // IF (1.0f <= new_prog)
 
 		} // IF (curr_progress != 1.0f)
-
-		myProgress = curr_progress;
 	} // IF (IsProgressTickable)
 
 	Super::NativeTick(geometry, delta_time);
@@ -154,11 +119,49 @@ USagaLiveUserWidget::HandleClosed()
 	myState = ESagaLiveUserWidgetStates::Dead;
 }
 
-float
-USagaLiveUserWidget::GetInternalProgress()
-const noexcept
+void
+USagaLiveUserWidget::HandleCompletion()
 {
-	return everyStates[myState].GetProgress();
+	const auto name = GetName();
+
+	OnProgressEnded.Broadcast(myState);
+
+	switch (myState)
+	{
+	case ESagaLiveUserWidgetStates::Opening:
+	{
+		UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is opened."), *name);
+
+		BroadcastOnOpened();
+	}
+	break;
+
+	case ESagaLiveUserWidgetStates::Idle:
+	{
+		UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on idle."), *name);
+
+		BroadcastOnIdle();
+	}
+	break;
+
+	case ESagaLiveUserWidgetStates::Closing:
+	{
+		UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is closed."), *name);
+
+		BroadcastOnClosed();
+	}
+	break;
+
+	case ESagaLiveUserWidgetStates::Dead:
+	{
+		UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] '%s' is on dead."), *name);
+	}
+	break;
+
+	default:
+	{}
+	break;
+	}
 }
 
 float
@@ -272,14 +275,27 @@ const noexcept
 }
 
 void
+USagaLiveUserWidget::SetState(ESagaLiveUserWidgetStates state)
+noexcept
+{
+	myState = state;
+}
+
+ESagaLiveUserWidgetStates
+USagaLiveUserWidget::GetState()
+const noexcept
+{
+	return myState;
+}
+
+void
 USagaLiveUserWidget::Open(const float begin_progress)
 {
 	const auto name = GetName();
 	UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] Opening '%s'..."), *name);
 
-	everyStates[ESagaLiveUserWidgetStates::Opening].SetProgress(begin_progress);
-
-	myState = ESagaLiveUserWidgetStates::Opening;
+	SetState(ESagaLiveUserWidgetStates::Opening);
+	SetProgress(begin_progress);
 
 	if (0 < myChildren.Num())
 	{
@@ -298,9 +314,10 @@ USagaLiveUserWidget::Close(const float begin_progress)
 	const auto name = GetName();
 	UE_LOG(LogSagaFramework, Display, TEXT("[USagaLiveUserWidget] Closing '%s'..."), *name);
 
-	everyStates[ESagaLiveUserWidgetStates::Closing].SetProgress(begin_progress);
+	everyStates[ESagaLiveUserWidgetStates::Dead].SetProgress(0);
 
-	myState = ESagaLiveUserWidgetStates::Closing;
+	SetState(ESagaLiveUserWidgetStates::Closing);
+	SetProgress(begin_progress);
 
 	if (0 < myChildren.Num())
 	{
@@ -314,9 +331,8 @@ USagaLiveUserWidget::Close(const float begin_progress)
 void
 USagaLiveUserWidget::OpenNow()
 {
-	everyStates[ESagaLiveUserWidgetStates::Idle].SetProgress(1);
-
-	myState = ESagaLiveUserWidgetStates::Idle;
+	SetState(ESagaLiveUserWidgetStates::Idle);
+	SetProgress(1);
 
 	if (0 < myChildren.Num())
 	{
@@ -335,6 +351,7 @@ USagaLiveUserWidget::OpenNow()
 void
 USagaLiveUserWidget::CloseNow()
 {
+
 	everyStates[ESagaLiveUserWidgetStates::Dead].SetProgress(1);
 
 	myState = ESagaLiveUserWidgetStates::Dead;
@@ -357,7 +374,7 @@ float
 USagaLiveUserWidget::GetProgress()
 const noexcept
 {
-	return myProgress;
+	return everyStates[myState].GetProgress();
 }
 
 float
@@ -389,9 +406,12 @@ USagaLiveUserWidget::BroadcastOnJustOpened()
 		OnJustOpened.Broadcast();
 	}
 
-	for (auto& child : myChildren)
+	//for (auto& child : myChildren)
 	{
-		child->BroadcastOnJustOpened();
+		//if (child->IsBoundedSagaWidget() and child->IsParentProgressive())
+		{
+			//child->BroadcastOnJustOpened();
+		}
 	}
 }
 
@@ -402,11 +422,6 @@ USagaLiveUserWidget::BroadcastOnOpened()
 	{
 		OnOpened.Broadcast();
 	}
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnOpened();
-	}
 }
 
 void
@@ -416,11 +431,6 @@ USagaLiveUserWidget::BroadcastOnClosed()
 	{
 		OnClosed.Broadcast();
 	}
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnClosed();
-	}
 }
 
 void
@@ -429,10 +439,5 @@ USagaLiveUserWidget::BroadcastOnIdle()
 	if (OnIdle.IsBound())
 	{
 		OnIdle.Broadcast();
-	}
-
-	for (auto& child : myChildren)
-	{
-		child->BroadcastOnIdle();
 	}
 }

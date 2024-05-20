@@ -7,7 +7,9 @@ USagaUiButton::USagaUiButton(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, myButton(), myLabel()
 	, buttonCaption(FText::FromString(TEXT("Button"))), buttonCaptionDelegate()
-{}
+{
+	myTickPolicy = ESagaLiveUserWidgetTickPolicy::Both;
+}
 
 void
 USagaUiButton::NativeOnInitialized()
@@ -33,7 +35,6 @@ USagaUiButton::NativeOnInitialized()
 	if (nullptr == myButton)
 	{
 		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiButton] '%s' found no slate button in children."), *my_name);
-
 	}
 	else
 	{
@@ -63,7 +64,15 @@ USagaUiButton::NativePreConstruct()
 
 	if (nullptr != myLabel)
 	{
-		myLabel->SetText(buttonCaption);
+		if (buttonCaptionDelegate.IsBound())
+		{
+			myLabel->SetText(buttonCaptionDelegate.Execute());
+			myLabel->TextDelegate = buttonCaptionDelegate;
+		}
+		else
+		{
+			myLabel->SetText(buttonCaption);
+		}
 	}
 }
 

@@ -25,8 +25,14 @@ public:
 	float GetProgress() const noexcept;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI")
+	/*
+	*    Current seconds time of progress
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI", meta = (DisplayName = "Time"))
 	float progressTime = 0.0f;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI")
+	/*
+	*    Max seconds time of progress
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI", meta = (DisplayName = "Period"))
 	float progressPeriod = 0.2f;
 };

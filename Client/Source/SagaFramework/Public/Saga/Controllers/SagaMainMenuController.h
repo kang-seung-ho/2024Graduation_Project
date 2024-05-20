@@ -8,15 +8,6 @@ class SAGAFRAMEWORK_API ASagaMainMenuController : public ASagaInterfaceControlle
 {
 	GENERATED_BODY()
 
-public:
-	ASagaMainMenuController();
-
 protected:
 	virtual void BeginPlay() override;
-
-private:
-	UPROPERTY()
-	TSubclassOf<class USagaUserWidget> levelUiClass;
-	UPROPERTY()
-	TObjectPtr<class USagaMainMenuUiWidget> levelUiInstance;
 };

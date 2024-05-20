@@ -1,18 +1,107 @@
 #include "Saga/Interface/SagaUiPopup.h"
+#include <Math/UnrealMathUtility.h>
 #include <Engine/Font.h>
 #include <UObject/UObjectGlobals.h>
 #include <Math/Color.h>
+#include <Slate/WidgetTransform.h>
 #include <Styling/SlateColor.h>
 #include <Blueprint/WidgetTree.h>
 
+#include "Saga/Interface/SagaUiPanelWidget.h"
+
 USagaUiPopup::USagaUiPopup(const FObjectInitializer& initializer)
 	: Super(initializer)
-	, myTitle(), myText()
+	, myBody(), myTitle(), myText()
 	, popupTitle(FText::FromString(TEXT("Title"))), popupTitleDelegate()
 	, popupContentText(FText::FromString(TEXT("-"))), popupContentTextDelegate()
 	, titleColorAndOpacity(FLinearColor{ 0.039216f, 0.101961f, 0.062745 }), titleColorAndOpacityDelegate()
 	, textColorAndOpacity(FLinearColor::Black), textColorAndOpacityDelegate()
-{}
+{
+	SetTransitionPeriod(ESagaLiveUserWidgetStates::Opening, 0.6f);
+	SetTransitionPeriod(ESagaLiveUserWidgetStates::Closing, 1.2f);
+}
+
+void
+USagaUiPopup::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
+		{
+			if (element == this) return;
+
+			if (auto labelwidget = Cast<UTextBlock>(element))
+			{
+				if (labelwidget->GetName() == TEXT("Title"))
+				{
+					myTitle = labelwidget;
+				}
+				else
+				{
+					myText = labelwidget;
+				}
+			}
+			else if (auto panelwidget = Cast<USagaUiPanelWidget>(element))
+			{
+				myBody = panelwidget;
+			}
+		}
+	);
+
+	const auto my_name = GetName();
+	if (nullptr == myBody)
+	{
+		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiPopup] '%s' found no panel widget in children."), *my_name);
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiPopup] '%s' found panel widget in children."), *my_name);
+	}
+
+	if (nullptr == myTitle)
+	{
+		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiPopup] '%s' found no title text in children."), *my_name);
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiPopup] '%s' found the title text in children."), *my_name);
+
+		myTitle->SetText(popupTitle);
+		myTitle->SetColorAndOpacity(titleColorAndOpacity);
+	}
+
+	if (nullptr == myText)
+	{
+		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiPopup] '%s' found no content text in children."), *my_name);
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiPopup] '%s' found the content text in children."), *my_name);
+
+		myText->SetText(popupContentText);
+		myText->SetColorAndOpacity(textColorAndOpacity);
+	}
+}
+
+void
+USagaUiPopup::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	OnClosed.AddDynamic(this, &USagaUiPopup::HandleOnClosed);
+}
+
+void
+USagaUiPopup::NativeTick(const FGeometry& geometry, float delta_time)
+{
+	Super::NativeTick(geometry, delta_time);
+}
+
+void
+USagaUiPopup::HandleOnClosed()
+{
+	RemoveFromParent();
+}
 
 void
 USagaUiPopup::SetTitle(FText text)
@@ -108,65 +197,4 @@ noexcept
 	color.A = opacity;
 
 	SetTextColorAndOpacity(FSlateColor{ color });
-}
-
-void
-USagaUiPopup::NativeOnInitialized()
-{
-	Super::NativeOnInitialized();
-
-	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
-		{
-			if (element == this) return;
-
-			if (auto labelwidget = Cast<UTextBlock>(element))
-			{
-				if (labelwidget->GetName() == TEXT("Title"))
-				{
-					myTitle = labelwidget;
-				}
-				else
-				{
-					myText = labelwidget;
-				}
-			}
-		}
-	);
-
-	const auto my_name = GetName();
-	if (nullptr == myTitle)
-	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiPopup] '%s' found no title text in children."), *my_name);
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiPopup] '%s' found the title text in children."), *my_name);
-	}
-
-	if (nullptr == myText)
-	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiPopup] '%s' found no content text in children."), *my_name);
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[USagaUiPopup] '%s' found the content text in children."), *my_name);
-	}
-}
-
-void
-USagaUiPopup::NativePreConstruct()
-{
-	Super::NativePreConstruct();
-
-	if (nullptr != myTitle)
-	{
-		myTitle->SetText(popupTitle);
-		myTitle->SetColorAndOpacity(titleColorAndOpacity);
-	}
-
-	if (nullptr != myText)
-	{
-		myText->SetText(popupContentText);
-		myText->SetColorAndOpacity(textColorAndOpacity);
-	}
 }
