@@ -5,6 +5,6 @@ ASagaSessionController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FInputModeUIOnly UIOnlyInputMode;
-	SetInputMode(UIOnlyInputMode);
+	FInputModeUIOnly mode{};
+	SetInputMode(mode);
 }

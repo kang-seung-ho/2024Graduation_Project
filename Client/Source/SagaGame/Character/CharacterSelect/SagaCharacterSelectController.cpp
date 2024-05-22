@@ -20,7 +20,10 @@ noexcept
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	bShowMouseCursor = true;
+	FInputModeGameAndUI mode{};
+	SetInputMode(mode);
+
+	SetShowMouseCursor(true);
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_CharacterSelect.UI_CharacterSelect_C'"));
 
@@ -28,8 +31,12 @@ noexcept
 	{
 		mSelectWidgetClass = WidgetClass.Class;
 	}
+	else
+	{
+		const auto my_name = GetName();
 
-	isGameStartable = false;
+		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaCharacterSelectController] '%s' could not find the selectable character class."), *my_name);
+	}
 }
 
 void
@@ -39,9 +46,6 @@ ASagaCharacterSelectController::BeginPlay()
 
 	FTimerHandle TimerHandle{};
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaCharacterSelectController::CountDown, 1.0f, true, 0.0);
-
-	FInputModeGameAndUI InputMode;
-	SetInputMode(InputMode);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 

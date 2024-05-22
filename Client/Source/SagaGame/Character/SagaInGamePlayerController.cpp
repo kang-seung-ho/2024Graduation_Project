@@ -1,8 +1,8 @@
 #include "SagaInGamePlayerController.h"
-#include "Kismet/GameplayStatics.h"
+#include <Kismet/GameplayStatics.h>
+#include <EnhancedInputSubsystems.h>
+#include <EnhancedInputComponent.h>
 #include <Blueprint/UserWidget.h>
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
 
 #include "SagaGameInfo.h"
 #include "Input/SagaInputSystem.h"
@@ -83,6 +83,11 @@ void
 ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FInputModeGameOnly mode{};
+	SetInputMode(mode);
+
+	SetShowMouseCursor(false);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 

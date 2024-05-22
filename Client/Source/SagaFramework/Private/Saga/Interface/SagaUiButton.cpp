@@ -34,7 +34,7 @@ USagaUiButton::NativeOnInitialized()
 	const auto my_name = GetName();
 	if (nullptr == myButton)
 	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiButton] '%s' found no slate button in children."), *my_name);
+		UE_LOG(LogSagaFramework, Fatal, TEXT("[USagaUiButton] '%s' found no slate button in children."), *my_name);
 	}
 	else
 	{
@@ -49,7 +49,7 @@ USagaUiButton::NativeOnInitialized()
 
 	if (nullptr == myLabel)
 	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[USagaUiButton] '%s' found no label in children."), *my_name);
+		UE_LOG(LogSagaFramework, Fatal, TEXT("[USagaUiButton] '%s' found no label in children."), *my_name);
 	}
 	else
 	{
