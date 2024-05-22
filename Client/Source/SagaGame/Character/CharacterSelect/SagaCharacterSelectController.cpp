@@ -1,18 +1,23 @@
 #include "SagaCharacterSelectController.h"
 #include <InputActionValue.h>
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
+#include <EnhancedInputSubsystems.h>
+#include <EnhancedInputComponent.h>
 
 #include "SagaGameInfo.h"
-#include "SagaSelectCharacter.h"
-#include "Input/SagaInputSystem.h"
-#include "UI/SagaCharacterSelectWidget.h"
+#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"
+#include "SagaGame/Input/SagaInputSystem.h"
+#include "SagaGame/UI/SagaCharacterSelectWidget.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 
-ASagaCharacterSelectController::ASagaCharacterSelectController()
+ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInitializer& initializer)
+noexcept
+	: Super(initializer)
+	, isStartButtonClicked(), isGameStartable()
+	, mSelectWidgetClass(), mSelectWidget()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
