@@ -20,11 +20,6 @@ noexcept
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	FInputModeGameAndUI mode{};
-	SetInputMode(mode);
-
-	SetShowMouseCursor(true);
-
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_CharacterSelect.UI_CharacterSelect_C'"));
 
 	if (WidgetClass.Succeeded())
@@ -43,6 +38,11 @@ void
 ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FInputModeGameAndUI mode{};
+	SetInputMode(mode);
+
+	SetShowMouseCursor(true);
 
 	FTimerHandle TimerHandle{};
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaCharacterSelectController::CountDown, 1.0f, true, 0.0);
