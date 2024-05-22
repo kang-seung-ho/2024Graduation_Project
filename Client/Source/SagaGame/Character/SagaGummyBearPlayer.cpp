@@ -4,7 +4,6 @@
 
 #include "SagaGame/Player/SagaUserTeam.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
@@ -123,36 +122,30 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		// 파티클 이펙트 실행
 
 		//상대 팀 점수 증가 실행
-		if (system)
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+
+		if (not system->IsOfflineMode())
 		{
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+			// arg1이 1이면 곰 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+		}
+		else
+		{
 
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-			}
-			else
-			{
-
-			}
 		}
 
 		//Destroy();
 	}
 	else
 	{
-		if (system)
+		if (not system->IsOfflineMode())
 		{
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-			}
-			else
-			{
+			// arg1이 1이면 곰 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+		}
+		else
+		{
 
-			}
 		}
 	}
 

@@ -3,8 +3,8 @@
 #include <Sockets.h>
 #include <SocketSubsystem.h>
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkUtility.h"
+#include "Saga/Network/SagaNetworkSettings.h"
 
 ESagaConnectionContract
 USagaNetworkSubSystem::ConnectToServer_Implementation()
@@ -87,21 +87,6 @@ const noexcept
 	}
 }
 
-bool
-USagaNetworkSubSystem::IsOfflineMode()
-const noexcept
-{
-	if constexpr (saga::IsOfflineMode)
-	{
-		// 정적인 비연결 모드 검사
-		return true;
-	}
-	else
-	{
-		return netIsOfflineMode;
-	}
-}
-
 FSocket*
 USagaNetworkSubSystem::CreateSocket()
 {
@@ -115,17 +100,19 @@ USagaNetworkSubSystem::CreateSocket()
 TSharedRef<FInternetAddr>
 USagaNetworkSubSystem::CreateRemoteEndPoint()
 {
-	if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Local)
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Local)
 	{
-		return saga::MakeEndPoint(FIPv4Address::Any, saga::RemotePort);
+		return saga::MakeEndPoint(FIPv4Address::Any, settings->RemotePort);
 	}
-	else if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Host)
+	else if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Host)
 	{
-		return saga::MakeEndPoint(FIPv4Address::InternalLoopback, saga::RemotePort);
+		return saga::MakeEndPoint(FIPv4Address::InternalLoopback, settings->RemotePort);
 	}
-	else if constexpr (saga::ConnectionCategory == saga::SagaNetworkConnectionCategory::Remote)
+	else if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Remote)
 	{
-		return saga::MakeEndPointFrom(saga::RemoteAddress, saga::RemotePort);
+		return saga::MakeEndPointFrom(settings->RemoteAddress, settings->RemotePort);
 	}
 	else
 	{

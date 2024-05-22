@@ -8,7 +8,6 @@
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
@@ -235,7 +234,9 @@ ASagaCharacterPlayer::RespawnCharacter()
 	HpBar->SetHiddenInGame(false);
 
 	// Reset the position
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
 		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
@@ -244,22 +245,17 @@ ASagaCharacterPlayer::RespawnCharacter()
 
 		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
 	}
+	else if (system->IsConnected())
+	{
+		const auto spawn_point = system->GetStoredPosition(myId);
+
+		SetActorLocationAndRotation(spawn_point, FRotator{});
+
+		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
+	}
 	else
 	{
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (system)
-		{
-			const auto spawn_point = system->GetStoredPosition(myId);
-
-			SetActorLocationAndRotation(spawn_point, FRotator{});
-
-			UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[RespawnCharacter] Network subsystem is not ready."));
-		}
+		UE_LOG(LogSagaGame, Error, TEXT("[RespawnCharacter] Network subsystem is not ready."));
 	}
 }
 

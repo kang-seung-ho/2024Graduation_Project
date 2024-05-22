@@ -9,9 +9,8 @@
 #include "SagaGame/Input/SagaInputSystem.h"
 #include "SagaGame/UI/SagaCharacterSelectWidget.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
-#include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaRpcProtocol.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInitializer& initializer)
 noexcept
@@ -112,7 +111,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 	if (mSelectActor)
 	{
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		ASagaSelectCharacter* SelectedCharacter = Cast<ASagaSelectCharacter>(mSelectActor);
+
 		if (SelectedCharacter)
 		{
 			EPlayerWeapon WeaponType = SelectedCharacter->GetWeapon();
@@ -121,7 +122,6 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 			// 무기 유형에 따라 서버전송 처리를 수행
 			FString WeaponName = TEXT("Unknown");
-			const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 			switch (WeaponType)
 			{
@@ -129,9 +129,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Light Sabor");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 0);
 					}
@@ -151,9 +151,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Water Gun");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 1);
 					}
@@ -173,9 +173,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Hammer");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 2);
 					}

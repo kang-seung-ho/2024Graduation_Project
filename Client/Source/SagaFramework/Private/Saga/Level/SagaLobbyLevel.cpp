@@ -47,7 +47,7 @@ ASagaLobbyLevel::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	levelUiInstance = CreateWidget<USagaLobbyLevelUiWidget>(GetWorld(), levelUiClass);
 	if (IsValid(levelUiInstance))

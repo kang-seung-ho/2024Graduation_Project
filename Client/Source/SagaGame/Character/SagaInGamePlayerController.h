@@ -129,7 +129,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
 	FRotator lastCharacterRotation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	FTimerHandle tranformUpdateTimer;
+	FTimerHandle transformUpdateTimer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isAttacking;

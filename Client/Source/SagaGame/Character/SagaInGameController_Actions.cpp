@@ -1,9 +1,11 @@
 #include "SagaInGamePlayerController.h"
 
 #include "SagaCharacterPlayer.h"
+
 #include "Saga/Serializer.h"
-#include "Saga/Network/SagaNetworkSettings.h"
+
 #include "Saga/Network/SagaRpcProtocol.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
 PrintVector(const FVector& vector)
@@ -22,7 +24,9 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -52,7 +56,9 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -73,7 +79,9 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -103,7 +111,9 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -121,7 +131,9 @@ ASagaInGamePlayerController::BeginRun()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -138,7 +150,9 @@ ASagaInGamePlayerController::EndRun()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -155,7 +169,9 @@ ASagaInGamePlayerController::BeginJump()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
@@ -172,7 +188,9 @@ ASagaInGamePlayerController::EndJump()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto pawn = GetPawn<ASagaCharacterPlayer>();
 
@@ -203,7 +221,9 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
 	if (not isAttacking)
 	{
-		if constexpr (saga::IsOfflineMode)
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (not system->IsOfflineMode())
 		{
 			auto pawn = GetPawn<ASagaCharacterPlayer>();
 
@@ -225,7 +245,9 @@ ASagaInGamePlayerController::EndAttack()
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		if constexpr (saga::IsOfflineMode)
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (not system->IsOfflineMode())
 		{
 		}
 		else
@@ -240,7 +262,9 @@ ASagaInGamePlayerController::EndAttack()
 void
 ASagaInGamePlayerController::BeginRide()
 {
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 	}
@@ -253,7 +277,9 @@ ASagaInGamePlayerController::BeginRide()
 void
 ASagaInGamePlayerController::EndRide()
 {
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 	}

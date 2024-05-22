@@ -7,6 +7,17 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Loading configuration..."));
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Is Offline Mode: %s"), IsOfflineMode() ? TEXT("True") : TEXT("False"));
+
+	const auto option = UEnum::GetValueAsString(GetConnectionOption());
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Connect Option: %s"), *option);
+
+	const auto address = GetRemoteAddress();
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Remote Address: %s"), *address);
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Remote Port: %d"), GetRemotePort());
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local Port: %d"), GetLocalPort());
+
 	OnNetworkInitialized.AddDynamic(this, &USagaNetworkSubSystem::OnNetworkInitialized_Implementation);
 	OnFailedToConnect.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToConnect_Implementation);
 	OnConnected.AddDynamic(this, &USagaNetworkSubSystem::OnConnected_Implementation);
@@ -49,6 +60,9 @@ void
 USagaNetworkSubSystem::Deinitialize()
 {
 	Super::Deinitialize();
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("Saving configuration..."));
+	SaveConfig();
 
 	if (not IsOfflineMode())
 	{

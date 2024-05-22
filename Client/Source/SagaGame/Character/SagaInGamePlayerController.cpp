@@ -10,7 +10,6 @@
 #include "SagaGummyBearPlayer.h"
 #include "SagaCharacterSpawner.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
@@ -19,7 +18,7 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	, mTeamScoreBoardClass(), mTeamScoreBoard()
 	, playerSpawners()
 	, walkDirection()
-	, lastCharacterPosition(), lastCharacterRotation(), tranformUpdateTimer()
+	, lastCharacterPosition(), lastCharacterRotation(), transformUpdateTimer()
 	, isAttacking()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
@@ -213,7 +212,7 @@ ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	GetWorldTimerManager().ClearTimer(tranformUpdateTimer);
+	GetWorldTimerManager().ClearTimer(transformUpdateTimer);
 }
 
 void

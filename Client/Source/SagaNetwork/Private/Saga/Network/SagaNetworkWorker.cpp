@@ -2,8 +2,8 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 FSagaNetworkWorker::FSagaNetworkWorker(TObjectPtr<USagaNetworkSubSystem> instance)
-	: SubSystemInstance(instance)
-	, MyThread()
+	: MyThread()
+	, SubSystemInstance(instance)
 {
 	MyThread = FRunnableThread::Create(this, TEXT("Saga Network Worker Thread"), 128, EThreadPriority::TPri_AboveNormal);
 }

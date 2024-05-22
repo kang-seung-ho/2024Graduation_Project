@@ -2,7 +2,6 @@
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
@@ -93,30 +92,24 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		// RespawnCharacter 함수 3초 뒤	실행
 		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
 
-		if (system)
-		{
-			// 상대 팀 점수 증가 실행
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+		// 상대 팀 점수 증가 실행
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
 
-			// arg1이 0이면 사람 캐릭터
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-		}
+		// arg1이 0이면 사람 캐릭터
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
 	}
 	else
 	{
 		//mAnimInst->Hit();
 
-		if (system)
+		if (not system->IsOfflineMode())
 		{
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 0이면 사람 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-			}
-			else
-			{
+			// arg1이 0이면 사람 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
+		}
+		else
+		{
 
-			}
 		}
 	}
 

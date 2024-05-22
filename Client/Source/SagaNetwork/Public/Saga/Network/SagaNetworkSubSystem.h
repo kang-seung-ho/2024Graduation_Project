@@ -45,7 +45,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, in
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
-UCLASS(Category = "CandyLandSaga|Network", Config = "Game")
+UCLASS(Config = Game, Category = "CandyLandSaga|Network")
 class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
@@ -243,8 +243,6 @@ public:
 	bool IsSocketAvailable() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
 	bool IsConnected() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
-	bool IsOfflineMode() const noexcept;
 #pragma endregion
 
 	/* Getters */
@@ -257,6 +255,8 @@ public:
 	int32 GetRemotePort() const noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
 	int32 GetLocalPort() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsOfflineMode() const noexcept;
 #pragma endregion
 
 public:
@@ -481,17 +481,6 @@ private:
 	FSocket * clientSocket;
 	class FSagaNetworkWorker* netWorker;
 	class FSagaTaskWorker* taskWorker;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = IsOfflineMode, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
-	bool netIsOfflineMode;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetConnectionOption, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
-	ESagaNetworkConnectionCategory netConnectOption;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetRemoteAddress, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
-	FString netRemoteAddress;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetRemotePort, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
-	int32 netRemotePort;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, BlueprintGetter = GetLocalPort, Category = "CandyLandSaga|Network", meta = (AllowPrivateAccess = true))
-	int32 netLocalPort;
 
 	static inline constexpr int32 recvLimit = 512;
 	UPROPERTY(VisibleInstanceOnly)

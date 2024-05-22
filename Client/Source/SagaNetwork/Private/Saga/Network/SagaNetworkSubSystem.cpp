@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <Sockets.h>
 
+#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaBasicPacket.h"
 
 USagaNetworkSubSystem::USagaNetworkSubSystem()
@@ -14,7 +15,6 @@ USagaNetworkSubSystem::USagaNetworkSubSystem()
 	, OnGetPreparedGame(), OnStartGame(), OnCreatingCharacter()
 	, OnUpdatePosition(), OnUpdateRotation(), OnRpc()
 	, clientSocket(), netWorker(), taskWorker()
-	, netIsOfflineMode(false), netConnectOption(), netRemoteAddress(), netRemotePort(), netLocalPort()
 	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
 	, receivedDataLock()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
@@ -254,26 +254,43 @@ ESagaNetworkConnectionCategory
 USagaNetworkSubSystem::GetConnectionOption()
 const noexcept
 {
-	return netConnectOption;
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	return settings->ConnectionCategory;
 }
 
 FString
 USagaNetworkSubSystem::GetRemoteAddress()
 const
 {
-	return netRemoteAddress;
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	return settings->RemoteAddress;
 }
 
 int32
 USagaNetworkSubSystem::GetRemotePort()
 const noexcept
 {
-	return netRemotePort;
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	return settings->RemotePort;
 }
 
 int32
 USagaNetworkSubSystem::GetLocalPort()
 const noexcept
 {
-	return netLocalPort;
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	return settings->LocalPort;
+}
+
+bool
+USagaNetworkSubSystem::IsOfflineMode()
+const noexcept
+{
+	const auto settings = GetDefault<USagaNetworkSettings>();
+
+	return settings->IsOfflineMode;
 }
