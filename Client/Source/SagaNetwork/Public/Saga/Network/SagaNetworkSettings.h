@@ -16,7 +16,7 @@ public:
 	bool IsOfflineMode; // false
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
-	ESagaNetworkConnectionCategory ConnectionCategory; // ESagaNetworkConnectionCategory::Remote;
+	ESagaNetworkConnectionCategory ConnectionCategory; // Remote;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
 	FString RemoteAddress; // TEXT("61.84.90.208")

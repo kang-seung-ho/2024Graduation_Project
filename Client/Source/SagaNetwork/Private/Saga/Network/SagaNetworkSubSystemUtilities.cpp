@@ -102,15 +102,15 @@ USagaNetworkSubSystem::CreateRemoteEndPoint()
 {
 	const auto settings = GetDefault<USagaNetworkSettings>();
 
-	if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Local)
+	if (settings->ConnectionCategory == ESagaNetworkConnectionCategory::Local)
 	{
 		return saga::MakeEndPoint(FIPv4Address::Any, settings->RemotePort);
 	}
-	else if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Host)
+	else if (settings->ConnectionCategory == ESagaNetworkConnectionCategory::Host)
 	{
 		return saga::MakeEndPoint(FIPv4Address::InternalLoopback, settings->RemotePort);
 	}
-	else if (settings->ConnectionCategory == saga::SagaNetworkConnectionCategory::Remote)
+	else if (settings->ConnectionCategory == ESagaNetworkConnectionCategory::Remote)
 	{
 		return saga::MakeEndPointFrom(settings->RemoteAddress, settings->RemotePort);
 	}
