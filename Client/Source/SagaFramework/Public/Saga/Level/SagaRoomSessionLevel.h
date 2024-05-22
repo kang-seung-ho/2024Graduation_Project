@@ -58,6 +58,8 @@ protected:
 	void PauseTimer();
 	UFUNCTION()
 	void UnPauseTimer();
+	UFUNCTION()
+	void AddMemberToTeamViewer(class UListView* listview, const struct FSagaVirtualUser& user);
 
 	UPROPERTY()
 	TSubclassOf<class USagaRoomSessionLevelUiWidget> levelUiClass;
@@ -67,6 +69,8 @@ protected:
 	TSubclassOf<class USagaUiPopup> errorPopupWidgetClass;
 	UPROPERTY()
 	TObjectPtr<class USagaUiPopup> errorPopupWidgetInstance;
+	UPROPERTY()
+	TSubclassOf<class USagaUiInstancedUserData> userDataClass;
 
 	UPROPERTY()
 	FTimerHandle teamUpdateTimer;

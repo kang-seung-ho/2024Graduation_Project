@@ -9,6 +9,7 @@
 #include "Saga/Interface/SagaUiPopup.h"
 #include "Saga/Interface/SagaRoomSessionLevelUiWidget.h"
 #include "Saga/Interface/SagaRoomMemberViewerUiWidget.h"
+#include "Saga/Interface/Data/SagaUiInstancedUserData.h"
 
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -18,6 +19,7 @@ noexcept
 	: Super()
 	, levelUiClass(), levelUiInstance()
 	, errorPopupWidgetClass(), errorPopupWidgetInstance()
+	, userDataClass()
 	, teamUpdateTimer()
 {
 	SetNextLevelName(TEXT("CharacterSelectLevel"));
@@ -44,10 +46,77 @@ noexcept
 	{
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][Ctor] Could not find the class of error message popup for room session."));
 	}
+
+	static ConstructorHelpers::FClassFinder<USagaUiInstancedUserData> userdata_class{ TEXT("/Game/UI/Level/RoomSessionLevel/SagaUiInstancedUserData.SagaUiInstancedUserData_C") };
+
+	if (userdata_class.Succeeded())
+	{
+		userDataClass = userdata_class.Class;
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][ctor] Could not find the class of user data for room session."));
+	}
 }
 
-void ASagaRoomSessionLevel::UpdateRoomSessionUI()
-{}
+void
+ASagaRoomSessionLevel::UpdateRoomSessionUI()
+{
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not system->IsOfflineMode())
+	{
+		const auto& list = system->GetUserList();
+
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] %d users would be listed."), list.Num());
+
+		const auto& red_list = levelUiInstance->myRedTeamMemberListView->myListView;
+		const auto& blu_list = levelUiInstance->myBlueTeamMemberListView->myListView;
+
+		red_list->ClearListItems();
+		blu_list->ClearListItems();
+
+		for (auto& user : list)
+		{
+			switch (user.myTeam)
+			{
+			case EUserTeam::Unknown:
+			{
+				UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has unkown team."), user.MyID);
+			}
+			break;
+			
+			case EUserTeam::Red:
+			{
+				auto& team_list = *red_list;
+
+				AddMemberToTeamViewer(&team_list, user);
+			}
+			break;
+			
+			case EUserTeam::Blue:
+			{
+				auto& team_list = *blu_list;
+
+				AddMemberToTeamViewer(&team_list, user);
+			}
+			break;
+
+			default:
+			{
+				UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has invalid team '%d'."), user.MyID, static_cast<int32>(user.myTeam));
+			}
+			break;
+			}
+		}
+
+		red_list->ScrollToTop();
+		blu_list->ScrollToTop();
+
+		red_list->RequestRefresh();
+		blu_list->RequestRefresh();
+	}
+}
 
 void
 ASagaRoomSessionLevel::BeginPlay()
@@ -360,4 +429,14 @@ void
 ASagaRoomSessionLevel::UnPauseTimer()
 {
 	GetWorldTimerManager().UnPauseTimer(teamUpdateTimer);
+}
+
+void
+ASagaRoomSessionLevel::AddMemberToTeamViewer(UListView* listview, const FSagaVirtualUser& user)
+{
+	auto data_representation = NewObject<USagaUiInstancedUserData>(GetWorld(), userDataClass);
+
+	data_representation->virtualMember = user;
+
+	listview->AddItem(data_representation);
 }
