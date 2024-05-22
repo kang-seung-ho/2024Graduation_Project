@@ -12,18 +12,18 @@ class SAGANETWORK_API USagaNetworkSettings : public UDeveloperSettings
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "CandyLandSaga|Network")
 	bool IsOfflineMode; // false
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "CandyLandSaga|Network")
 	ESagaNetworkConnectionCategory ConnectionCategory; // Remote;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "CandyLandSaga|Network")
 	FString RemoteAddress; // TEXT("61.84.90.208")
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "CandyLandSaga|Network")
 	int32 RemotePort; // 40000
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Config, Category = "CandyLandSaga|Network")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Config, Category = "CandyLandSaga|Network")
 	int32 LocalPort; // 40001
 };
