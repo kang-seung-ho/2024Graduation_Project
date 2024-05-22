@@ -1,6 +1,9 @@
+module;
+#include <string>
+#include <format>
+
 export module Iconer.Utility.ColourfulConsole.Colour;
 export import :Codes;
-import <format>;
 
 export namespace iconer::util::cfc
 {
@@ -69,45 +72,49 @@ export namespace iconer::util::cfc
 		};
 	}
 }
-
-export template<>
-struct std::formatter<iconer::util::cfc::Colour, char>
-{
-	static std::format_parse_context::iterator parse(std::format_parse_context& context) noexcept
-	{
-		return context.begin();
-	}
-
-	static auto format(const iconer::util::cfc::Colour& colour, std::format_context& context) noexcept
-	{
-		if (colour.IsOk())
-		{
-			return std::format_to(context.out(), "Colour {}", colour.GetCode());
-		}
-		else
-		{
-			return std::format_to(context.out(), "!Invaild Colour");
-		}
-	}
-};
-
-export template<>
-struct std::formatter<iconer::util::cfc::Colour, wchar_t>
-{
-	static std::wformat_parse_context::iterator parse(std::wformat_parse_context& context) noexcept
-	{
-		return context.begin();
-	}
-
-	static auto format(const iconer::util::cfc::Colour& colour, std::wformat_context& context) noexcept
-	{
-		if (colour.IsOk())
-		{
-			return std::format_to(context.out(), L"Colour {}", colour.GetCode());
-		}
-		else
-		{
-			return std::format_to(context.out(), L"!Invaild Colour");
-		}
-	}
-};
+//
+//export template<>
+//struct std::formatter<iconer::util::cfc::Colour, char>
+//{
+//	static std::format_parse_context::iterator parse(std::format_parse_context& context) noexcept
+//	{
+//		return context.begin();
+//	}
+//
+//	static auto format(const iconer::util::cfc::Colour& colour, std::format_context& context) noexcept
+//	{
+//		if (colour.IsOk())
+//		{
+//			constexpr auto&& format_str = "Colour {}";
+//
+//			return std::format_to(context.out(), format_str, colour.GetCode());
+//		}
+//		else
+//		{
+//			return std::format_to(context.out(), "!Invaild Colour");
+//		}
+//	}
+//};
+//
+//export template<>
+//struct std::formatter<iconer::util::cfc::Colour, wchar_t>
+//{
+//	static std::wformat_parse_context::iterator parse(std::wformat_parse_context& context) noexcept
+//	{
+//		return context.begin();
+//	}
+//
+//	static auto format(const iconer::util::cfc::Colour& colour, std::wformat_context& context) noexcept
+//	{
+//		if (colour.IsOk())
+//		{
+//			constexpr auto&& format_str = L"Colour {}";
+//
+//			return std::format_to(context.out(), format_str, colour.GetCode());
+//		}
+//		else
+//		{
+//			return std::format_to(context.out(), L"!Invaild Colour");
+//		}
+//	}
+//};

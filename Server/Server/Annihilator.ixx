@@ -1,14 +1,14 @@
+module;
+#include <memory>
+#include <utility>
 export module Iconer.Utility.Annihilator;
-import <memory>;
-import <utility>;
 
 export namespace iconer::util
 {
 	template<typename Deallocator>
 	struct Annihilator
 	{
-		constexpr ~Annihilator()
-			noexcept(noexcept(std::declval<Deallocator>().deallocate(std::declval<std::allocator_traits<Deallocator>::pointer>(), size_t{})))
+		constexpr ~Annihilator() noexcept
 		{
 			if (ptrHandle != nullptr)
 			{
