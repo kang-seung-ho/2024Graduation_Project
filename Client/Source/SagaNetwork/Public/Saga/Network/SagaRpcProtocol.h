@@ -41,4 +41,6 @@ enum class [[nodiscard]] ESagaRpcProtocol : uint8
 	RPC_DEAD,
 	RPC_CHECK_GAME_VICTORY,
 	RPC_UPDATE_HEALTH,
+	RPC_WEAPON_TIMER, // seconds
+	RPC_GAME_TIMER, // seconds
 };
