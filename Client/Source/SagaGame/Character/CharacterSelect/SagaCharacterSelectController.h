@@ -26,6 +26,8 @@ public:
 	int32 Minutes = 0;
 	UPROPERTY(BlueprintReadOnly)
 	int32 Seconds = 30;
+	UPROPERTY()
+	FTimespan awaitCountdownDuration;
 
 	ASagaCharacterSelectController(const FObjectInitializer& initializer) noexcept;
 
@@ -34,12 +36,6 @@ public:
 	UFUNCTION()
 	void CountDown();
 
-	UFUNCTION()
-	bool GetStartButtonStatus() const noexcept
-	{
-		return isStartButtonClicked;
-	}
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -47,12 +43,12 @@ protected:
 	void OnClick(const FInputActionValue& Value);
 
 	UPROPERTY()
+	TSubclassOf<class USagaCharacterSelectWidget> levelUiClass;
+	UPROPERTY()
+	TObjectPtr<class USagaCharacterSelectWidget> levelUiInstance;
+
+	UPROPERTY()
 	TObjectPtr<AActor> mUnderCursorActor;
 	UPROPERTY()
 	TObjectPtr<AActor> mSelectActor;
-
-	UPROPERTY()
-	TSubclassOf<UUserWidget> mSelectWidgetClass;
-	UPROPERTY()
-	TObjectPtr<class USagaCharacterSelectWidget> mSelectWidget;
 };

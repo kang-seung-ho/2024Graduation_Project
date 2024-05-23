@@ -16,21 +16,21 @@ ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInit
 noexcept
 	: Super(initializer)
 	, isStartButtonClicked(), isGameStartable()
-	, mSelectWidgetClass(), mSelectWidget()
+	, levelUiClass(), levelUiInstance()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_CharacterSelect.UI_CharacterSelect_C'"));
+	static ConstructorHelpers::FClassFinder<USagaCharacterSelectWidget> widget_class(TEXT("/Game/UI/Level/SagaCharacterSelectLevelUI.SagaCharacterSelectLevelUI_C"));
 
-	if (WidgetClass.Succeeded())
+	if (widget_class.Succeeded())
 	{
-		mSelectWidgetClass = WidgetClass.Class;
+		levelUiClass = widget_class.Class;
 	}
 	else
 	{
 		const auto my_name = GetName();
 
-		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaCharacterSelectController] '%s' could not find the selectable character class."), *my_name);
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterSelectController] '%s' could not find the selectable character class."), *my_name);
 	}
 }
 
@@ -51,6 +51,18 @@ ASagaCharacterSelectController::BeginPlay()
 
 	const USagaCharacterSelectInputSystem* InputSystem = GetDefault<USagaCharacterSelectInputSystem>();
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
+
+	levelUiInstance = CreateWidget<USagaCharacterSelectWidget>(this, levelUiClass);
+	if (nullptr == levelUiInstance)
+	{
+		const auto my_name = GetName();
+
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterSelectController] '%s' could not create the level ui for room session."), *my_name);
+	}
+	else
+	{
+		levelUiInstance->AddToViewport(1);
+	}
 }
 
 void
@@ -206,5 +218,10 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 	else
 	{
 		isGameStartable = false;
+	}
+
+	if (levelUiInstance)
+	{
+		levelUiInstance->StartButtonEnable(isGameStartable);
 	}
 }
