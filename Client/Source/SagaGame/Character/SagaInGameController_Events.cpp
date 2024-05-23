@@ -214,5 +214,5 @@ ASagaInGamePlayerController::OnGameStarted()
 		}
 	}
 
-	GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 0.1f, true, 2.0f);
+	GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 0.016f, true, 2.0f);
 }
