@@ -33,7 +33,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			return;
 		}
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is user %d's rpc message."), id);
 
 		is_remote = true;
 		character = user.GetCharacterHandle();
@@ -58,11 +58,11 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
@@ -89,11 +89,11 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
@@ -172,7 +172,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		const auto guardian_id = arg0;
 		const auto guardian_info = arg1;
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
 		if (is_remote)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] user '%d' Begin ride guardian '%d'"), id, guardian_id);
