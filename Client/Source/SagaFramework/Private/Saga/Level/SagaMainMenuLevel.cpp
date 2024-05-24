@@ -20,7 +20,7 @@ noexcept
 {
 	SetNextLevelName(TEXT("LobbyLevel"));
 
-	static ConstructorHelpers::FClassFinder<USagaMainMenuUiWidget> widget_class(TEXT("/Game/UI/Level/SagaMainMenuLevelUI.SagaMainMenuLevelUI_C"));
+	static ConstructorHelpers::FClassFinder<USagaMainMenuUiWidget> widget_class(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Level/SagaMainMenuLevelUI.SagaMainMenuLevelUI_C'"));
 
 	if (widget_class.Succeeded())
 	{
@@ -31,7 +31,7 @@ noexcept
 		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaMainMenuController][Ctor] Could not find the class of user interface for main menu."));
 	}
 
-	static ConstructorHelpers::FClassFinder<USagaUiPopup> popup_class(TEXT("/Game/UI/Components/SagaUiPopup.SagaUiPopup_C"));
+	static ConstructorHelpers::FClassFinder<USagaUiPopup> popup_class(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Components/SagaUiPopup.SagaUiPopup_C'"));
 
 	if (popup_class.Succeeded())
 	{

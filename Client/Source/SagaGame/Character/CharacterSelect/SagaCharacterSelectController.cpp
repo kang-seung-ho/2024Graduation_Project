@@ -20,7 +20,7 @@ noexcept
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FClassFinder<USagaCharacterSelectWidget> widget_class(TEXT("/Game/UI/Level/SagaCharacterSelectLevelUI.SagaCharacterSelectLevelUI_C"));
+	static ConstructorHelpers::FClassFinder<USagaCharacterSelectWidget> widget_class(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Level/SagaCharacterSelectLevelUI.SagaCharacterSelectLevelUI_C'"));
 
 	if (widget_class.Succeeded())
 	{

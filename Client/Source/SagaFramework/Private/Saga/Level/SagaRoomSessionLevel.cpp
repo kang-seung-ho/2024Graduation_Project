@@ -25,7 +25,7 @@ noexcept
 	SetNextLevelName(TEXT("CharacterSelectLevel"));
 	SetPrevLevelName(TEXT("LobbyLevel"));
 
-	static ConstructorHelpers::FClassFinder<USagaRoomSessionLevelUiWidget> widget_class{ TEXT("/Game/UI/Level/SagaRoomSessionLevelUI.SagaRoomSessionLevelUI_C") };
+	static ConstructorHelpers::FClassFinder<USagaRoomSessionLevelUiWidget> widget_class{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Level/SagaRoomSessionLevelUI.SagaRoomSessionLevelUI_C'") };
 
 	if (widget_class.Succeeded())
 	{

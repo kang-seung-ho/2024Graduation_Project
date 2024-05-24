@@ -19,7 +19,7 @@ noexcept
 	SetNextLevelName(TEXT("RoomSessionLevel"));
 	SetPrevLevelName(TEXT("MainMenuLevel"));
 
-	static ConstructorHelpers::FClassFinder<USagaLobbyLevelUiWidget> widget_class{ TEXT("/Game/UI/Level/SagaLobbyLevelUI.SagaLobbyLevelUI_C") };
+	static ConstructorHelpers::FClassFinder<USagaLobbyLevelUiWidget> widget_class{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Level/SagaLobbyLevelUI.SagaLobbyLevelUI_C'") };
 
 	if (widget_class.Succeeded())
 	{
