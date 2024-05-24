@@ -17,16 +17,14 @@ class SAGAGAME_API ASagaCharacterSelectController final : public APlayerControll
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool isStartButtonClicked;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	bool isGameStartable;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	int32 Minutes = 0;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	int32 Seconds = 30;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	FTimespan awaitCountdownDuration;
 
 	ASagaCharacterSelectController(const FObjectInitializer& initializer) noexcept;

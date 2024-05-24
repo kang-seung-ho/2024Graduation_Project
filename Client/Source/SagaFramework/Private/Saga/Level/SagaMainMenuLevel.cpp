@@ -28,7 +28,7 @@ noexcept
 	}
 	else
 	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaMainMenuController][Ctor] Could not find the class of user interface for main menu."));
+		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaMainMenuController][Ctor] Could not find the class of user interface for main menu."));
 	}
 
 	static ConstructorHelpers::FClassFinder<USagaUiPopup> popup_class(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Components/SagaUiPopup.SagaUiPopup_C'"));

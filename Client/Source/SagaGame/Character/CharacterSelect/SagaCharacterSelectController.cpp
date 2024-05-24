@@ -15,7 +15,7 @@
 ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInitializer& initializer)
 noexcept
 	: Super(initializer)
-	, isStartButtonClicked(), isGameStartable()
+	, isGameStartable()
 	, levelUiClass(), levelUiInstance()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,7 +30,7 @@ noexcept
 	{
 		const auto my_name = GetName();
 
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterSelectController] '%s' could not find the selectable character class."), *my_name);
+		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaCharacterSelectController] '%s' could not find the character selection ui class."), *my_name);
 	}
 }
 
