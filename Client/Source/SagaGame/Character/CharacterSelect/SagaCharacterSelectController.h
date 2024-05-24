@@ -42,7 +42,7 @@ protected:
 
 	void OnClick(const FInputActionValue& Value);
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaCharacterSelectWidget> levelUiClass;
 	UPROPERTY()
 	TObjectPtr<class USagaCharacterSelectWidget> levelUiInstance;

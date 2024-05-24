@@ -27,7 +27,7 @@ private:
 	UFUNCTION()
 	void OnUpdateRoomList(UPARAM(ref) const TArray<struct FSagaVirtualRoom>& list);
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaLobbyLevelUiWidget> levelUiClass;
 	UPROPERTY()
 	TObjectPtr<class USagaLobbyLevelUiWidget> levelUiInstance;

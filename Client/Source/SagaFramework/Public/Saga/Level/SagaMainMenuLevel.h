@@ -20,11 +20,11 @@ protected:
 	void OnSignedIn(int32 my_id, const FName& nickname);
 
 private:
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaUserWidget> levelUiClass;
 	UPROPERTY()
 	TObjectPtr<class USagaMainMenuUiWidget> levelUiInstance;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaUiPopup> errorPopupWidgetClass;
 	UPROPERTY()
 	TObjectPtr<class USagaUiPopup> errorPopupWidgetInstance;

@@ -61,11 +61,11 @@ protected:
 	UFUNCTION()
 	void AddMemberToTeamViewer(class UListView* listview, const struct FSagaVirtualUser& user);
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaRoomSessionLevelUiWidget> levelUiClass;
 	UPROPERTY()
 	TObjectPtr<class USagaRoomSessionLevelUiWidget> levelUiInstance;
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, NoClear, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class USagaUiPopup> errorPopupWidgetClass;
 	UPROPERTY()
 	TObjectPtr<class USagaUiPopup> errorPopupWidgetInstance;
