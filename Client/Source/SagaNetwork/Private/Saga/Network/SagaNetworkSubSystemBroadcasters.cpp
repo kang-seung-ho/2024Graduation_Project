@@ -320,7 +320,7 @@ void
 USagaNetworkSubSystem::BroadcastOnUpdatePosition(int32 user_id, float x, float y, float z)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdatePosition`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdatePosition`"));
 
 	if (OnUpdatePosition.IsBound())
 	{
@@ -340,7 +340,7 @@ void
 USagaNetworkSubSystem::BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdateRotation`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdateRotation`"));
 
 	if (OnUpdateRotation.IsBound())
 	{
@@ -380,7 +380,7 @@ void
 USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
 
 	if (OnRpc.IsBound())
 	{

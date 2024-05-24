@@ -108,13 +108,13 @@ USagaNetworkSubSystem::Receive()
 {
 	if (IsOfflineMode())
 	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving... (Offline Mode)"));
+		//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving... (Offline Mode)"));
 
 		return true;
 	}
 	else // IF (IsOfflineMode)
 	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving..."));
+		//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving..."));
 
 		auto recv_buffer = recvBuffer.GetData();
 		int32 read_bytes{};
@@ -195,7 +195,7 @@ USagaNetworkSubSystem::Receive()
 			const auto remained_size = static_cast<size_t>(recvLimit - read_offset);
 			std::memcpy(recv_buffer, recv_buffer + read_offset, remained_size);
 			std::memset(adv_buffer, 0, remained_size);
-			UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Buffer is pulled by %d bytes"), read_offset);
+			//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Buffer is pulled by %d bytes"), read_offset);
 		}
 	} // IF NOT (IsOfflineMode)
 
@@ -224,7 +224,7 @@ USagaNetworkSubSystem::ProcessPackets()
 			}
 
 			// Routes stacked events
-			UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Routing packet events..."));
+			//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Routing packet events..."));
 
 			RouteEvents(transitBuffer, process_offset, basic_pk.myProtocol, basic_pk.mySize);
 
