@@ -36,7 +36,7 @@ noexcept
 		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][Ctor] Could not find the class of user interface for room session."));
 	}
 
-	static ConstructorHelpers::FClassFinder<USagaUiPopup> popup_class(TEXT("/Game/UI/Components/SagaUiPopup.SagaUiPopup_C"));
+	static ConstructorHelpers::FClassFinder<USagaUiPopup> popup_class(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Components/SagaUiPopup.SagaUiPopup_C'"));
 
 	if (popup_class.Succeeded())
 	{
