@@ -17,6 +17,8 @@ noexcept
 
 	const bool game_sk_created = iconer::net::Socket::TryCreate(iconer::net::IoCategory::Asynchronous, iconer::net::InternetProtocol::UDP, iconer::net::IpAddressFamily::IPv4, gameListener);
 
+	//constexpr std::shared_mutex tt{};
+
 	return lobby_sk_created and game_sk_created;
 }
 

@@ -297,11 +297,49 @@ public:
 		}
 	}
 
+	bool RedTeamPinataBroken = false;
+	bool BlueTeamPinataBroken = false;
+
+	void SetWhoWonByPinata(int32 TeamPinataColor)
+	{
+		if (TeamPinataColor == 0) //redteam's pinata broken
+		{
+			RedTeamPinataBroken = true;
+		}
+		else
+		{
+			BlueTeamPinataBroken = true;
+		}
+
+	}
 	UFUNCTION(BlueprintCallable)
 	FString GetWhoWon()
 	{
 		EUserTeam team;
 		GetLocalUserTeam(team);
+
+		if (RedTeamPinataBroken == true)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return TEXT("Lose"); // I'm Red Team And My team Lose
+			}
+			else
+			{
+				return TEXT("Victory!"); // I'm Blue Team And My team Win
+			}
+		}
+		else if (BlueTeamPinataBroken == true)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return TEXT("Victory!"); // I'm Red Team And My team Win
+			}
+			else
+			{
+				return TEXT("Lose"); // I'm Blue Team And My team Lose
+			}
+		}
 
 		if (RedTeamScore > BlueTeamScore)
 		{

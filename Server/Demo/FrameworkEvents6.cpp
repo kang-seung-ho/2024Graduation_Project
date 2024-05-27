@@ -104,6 +104,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	if (room->GetMembersCount() == 0)
 	{
+		delete rpc_ctx;
+
 		return false;
 	}
 
@@ -190,7 +192,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_ATTACK_0:
 	{
-		if (0 < user->myHealth)
+		//if (0 < user->myHealth)
 		{
 			room->ForEach
 			(
