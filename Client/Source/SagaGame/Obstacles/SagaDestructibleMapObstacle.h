@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "../SagaGameInfo.h"
+#include "SagaGameInfo.h"
 #include "GameFramework/Actor.h"
-#include "ObjectComponents/ObstacleHPComponent.h"
 #include "SagaDestructibleMapObstacle.generated.h"
 
 UCLASS()
@@ -15,6 +14,8 @@ class SAGAGAME_API ASagaDestructibleMapObstacle : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASagaDestructibleMapObstacle();
+	void DestroyObstacle();
+	float health = 100.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,13 +23,16 @@ protected:
 
 	TSoftClassPtr<UAnimInstance> ObjectAnimation;
 
+	class UNiagaraSystem* HitEffect;
+
+private:
+	FTimerHandle TimerHandle;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	UObstacleHPComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
 	USkeletalMeshComponent* MeshComponent;
@@ -38,6 +42,7 @@ public:
 
 	UPROPERTY()
 	UAnimSequence* DeathAnimation;
+	UAnimSequence* HitAnimation;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 

@@ -9,8 +9,13 @@
 void
 USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset
 	, EPacketProtocol protocol, int16 packet_size)
+{}
+
+void
+USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketProtocol protocol, int16 packet_size)
 {
-	auto alt_buffer = reinterpret_cast<const std::byte*>(packet_buffer.GetData()) + offset;
+	const auto raw_packet_buffer = packet_buffer.Get();
+	const auto alt_buffer = reinterpret_cast<const std::byte*>(raw_packet_buffer);
 
 	switch (protocol)
 	{
@@ -21,11 +26,11 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Local client's id is %d"), my_id);
 
-		CallFunctionOnGameThread([this, my_id]()
+		CallFunctionOnGameThread([this, my_id, name = GetLocalUserName()]()
 			{
 				SetLocalUserId(my_id);
 
-				BroadcastOnConnected();
+				BroadcastOnSignedIn(my_id, name);
 			}
 		);
 	}
@@ -54,6 +59,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		CallFunctionOnGameThread([this, room_id]()
 			{
 				SetCurrentRoomId(room_id);
+				currentRoom.MembersCount = 1;
 
 				BroadcastOnRoomCreated(room_id);
 			}
@@ -81,33 +87,39 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		{
 			UE_LOG(LogSagaNetwork, Log, TEXT("Local client has joined to the room %d"), room_id);
 
-			CallFunctionOnGameThread([this, room_id, newbie_id = newbie.id]()
+			CallFunctionOnGameThread(
+				[this, room_id, team = static_cast<EUserTeam>(newbie.team_id)]()
 				{
 					SetCurrentRoomId(room_id);
+					SetTeam(GetLocalUserId(), team);
 
-					BroadcastOnJoinedRoom(newbie_id);
+					BroadcastOnJoinedRoom(GetLocalUserId());
 				}
 			);
 		}
 		else
 		{
-			auto nickname = FString{ newbie.nickname };
-			UE_LOG(LogSagaNetwork, Log, TEXT("Client %d [%s] has joined to the room %d"), newbie.id, *nickname, room_id);
+			UE_LOG(LogSagaNetwork, Log, TEXT("Client %d [%s] has joined to the room %d"), newbie.id, newbie.nickname, room_id);
 
 			CallFunctionOnGameThread(
-				[this, newbie = MoveTemp(newbie), nickname = MoveTempIfPossible(nickname)]()
+				[this
+				, id = MoveTemp(newbie.id)
+				, nickname = FText::FromString(newbie.nickname)
+				, team = static_cast<EUserTeam>(newbie.team_id)]()
 				{
 					AddUser(FSagaVirtualUser
 						{
-							newbie.id,
-							MoveTempIfPossible(nickname),
+							id,
+							nickname,
 							nullptr,
-							static_cast<EUserTeam>(newbie.team_id),
+							team,
 							EPlayerWeapon::LightSabor
 						}
 					);
 
-					BroadcastOnJoinedRoom(newbie.id);
+					++currentRoom.MembersCount;
+
+					BroadcastOnJoinedRoom(id);
 				}
 			);
 		}
@@ -133,10 +145,10 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		{
 			CallFunctionOnGameThread([this]()
 				{
-					SetCurrentRoomId(-1);
-					ClearUserList();
-
 					BroadcastOnLeftRoomBySelf();
+
+					SetCurrentRoomId(-1);
+					ClearUserList(true);
 				}
 			);
 		}
@@ -144,9 +156,11 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		{
 			CallFunctionOnGameThread([this, left_client_id]()
 				{
+					BroadcastOnLeftRoom(left_client_id);
+
 					RemoveUser(left_client_id);
 
-					BroadcastOnLeftRoom(left_client_id);
+					--currentRoom.MembersCount;
 				}
 			);
 		}
@@ -178,12 +192,15 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 		CallFunctionOnGameThread([this, tr_rooms = std::move(rooms)]()
 			{
 				ClearRoomList();
+
 				for (auto& room : tr_rooms)
 				{
 					AddRoom(FSagaVirtualRoom
 						{
-							room.id, room.title, static_cast<int>(room.members)
-						});
+							room.id, FText::FromString(room.title), static_cast<int>(room.members)
+						}
+					);
+
 					UE_LOG(LogSagaNetwork, Log, TEXT("Room (%d): %s (%d/4)"), room.id, room.title, room.members);
 				}
 
@@ -203,24 +220,28 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 		CallFunctionOnGameThread([this, tr_users = std::move(users)]()
 			{
-				ClearUserList();
+				ClearUserList(true);
+
 				for (auto& user : tr_users)
 				{
 					const auto team_id = user.team_id == 1 ? EUserTeam::Red : EUserTeam::Blue;
 
 					auto str = UEnum::GetValueAsString(team_id);
+
 					UE_LOG(LogSagaNetwork, Log, TEXT("Client (%d): %s in team '%s'"), user.id, user.nickname, *str);
 
 					AddUser(FSagaVirtualUser
 						{
 							user.id,
-							user.nickname,
+							FText::FromString(user.nickname),
 							nullptr,
 							team_id,
 							EPlayerWeapon::LightSabor
 						}
 					);
 				}
+
+				currentRoom.MembersCount = everyUsers.Num();
 
 				BroadcastOnUpdateMembers(everyUsers);
 			}
@@ -239,13 +260,17 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 		for (auto& member : everyUsers)
 		{
-			if (member.MyID == client_id)
+			if (member.myID == client_id)
 			{
 				member.myTeam = is_red_team ? EUserTeam::Red : EUserTeam::Blue;
 			}
 		}
 
-		BroadcastOnTeamChanged(client_id, is_red_team);
+		CallPureFunctionOnGameThread([this, client_id, is_red_team]()
+			{
+				BroadcastOnTeamChanged(client_id, is_red_team);
+			}
+		);
 	}
 	break;
 
@@ -259,18 +284,23 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Failed to start game due to %s"), *str);
 
-		BroadcastOnFailedToStartGame(cause);
+		CallPureFunctionOnGameThread([this, cause]()
+			{
+				BroadcastOnFailedToStartGame(cause);
+			}
+		);
 	}
 	break;
 
 	case EPacketProtocol::SC_GAME_GETTING_READY:
 	{
-		//SC_ReadyForGamePacket pk{};
-		//pk.Read(alt_buffer);
-
 		UE_LOG(LogSagaNetwork, Log, TEXT("Now start loading game..."));
 
-		BroadcastOnGetPreparedGame();
+		CallPureFunctionOnGameThread([this]()
+			{
+				BroadcastOnGetPreparedGame();
+			}
+		);
 	}
 	break;
 
@@ -283,13 +313,13 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 				everyUsers.Sort(
 					[](const FSagaVirtualUser& lhs, const FSagaVirtualUser& rhs) noexcept -> bool
 					{
-						return lhs.MyID < rhs.MyID;
+						return lhs.myID < rhs.myID;
 					}
 				);
+
+				BroadcastOnStartGame();
 			}
 		);
-
-		BroadcastOnStartGame();
 	}
 	break;
 
@@ -301,7 +331,7 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 			{
 				for (auto& member : everyUsers)
 				{
-					BroadcastOnCreatingCharacter(member.MyID, member.myTeam, member.myWeapon);
+					BroadcastOnCreatingCharacter(member.myID, member.myTeam, member.myWeapon);
 				}
 			}
 		);
@@ -363,18 +393,22 @@ USagaNetworkSubSystem::RouteEvents(const TArray<uint8>& packet_buffer, const int
 
 	case EPacketProtocol::SC_RPC:
 	{
-		static ESagaRpcProtocol category{};
-		static int32 user_id{};
-		static int64 argument0{};
-		static int32 argument1{};
+		ESagaRpcProtocol category{};
+		int32 user_id{};
+		int64 argument0{};
+		int32 argument1{};
 
 		saga::ReceiveRpcPacket(alt_buffer, category, user_id, argument0, argument1);
 
-		auto name = UEnum::GetValueAsString(category);
+		//auto name = UEnum::GetValueAsString(category);
 
 		//UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
-		BroadcastOnRpc(category, user_id, argument0, argument1);
+		CallFunctionOnGameThread([this, category, user_id, argument0, argument1]()
+			{
+				BroadcastOnRpc(category, user_id, argument0, argument1);
+			}
+		);
 	}
 	break;
 	}

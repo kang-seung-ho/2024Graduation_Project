@@ -2,7 +2,7 @@
 #ifndef SAGAGAME_INC_CORE_COMPLETE
 #define SAGAGAME_INC_CORE_COMPLETE
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #endif // !SAGAGAME_INC_CORE_COMPLETE
 #endif // SAGAGAME_INC_CORE
 

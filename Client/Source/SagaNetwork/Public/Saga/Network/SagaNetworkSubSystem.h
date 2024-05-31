@@ -1,15 +1,23 @@
 #pragma once
 #include "SagaNetwork.h"
-#include "Subsystems/GameInstanceSubsystem.h"
-#include "Async/Async.h"
+#include <Subsystems/GameInstanceSubsystem.h>
+#include <Async/Async.h>
 
-#include "Saga/Network/SagaPacketProtocol.h"
-#include "Saga/Network/SagaConnectionContract.h"
-#include "Saga/Network/SagaGameContract.h"
-#include "Saga/Network/SagaVirtualRoom.h"
-#include "Saga/Network/SagaVirtualUser.h"
-#include "Saga/Network/SagaRpcProtocol.h"
+// SagaUtility
+#include <Saga/Containers/atomic_queue.h>
+#include <Saga/Containers/barrier.h>
 
+// SagaNetwork
+#include "SagaNetworkConnectionCategory.h"
+#include "SagaPacketProtocol.h"
+#include "SagaConnectionContract.h"
+#include "SagaGameContract.h"
+#include "SagaVirtualRoom.h"
+#include "SagaVirtualUser.h"
+#include "SagaRpcProtocol.h"
+#include "SagaSerializedPacket.h"
+
+// SagaGame
 #include "SagaGame/Player/SagaUserTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "SagaGame/Character/SagaPlayableCharacter.h"
@@ -21,9 +29,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnNetworkInitialized, bool
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnConnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnFailedToConnect, ESagaConnectionContract, reason);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnDisconnected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSagaEventOnSignedIn, int32, my_id, const FText&, nickname);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnRoomCreated, int32, room_id);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnJoinedRoom, int32, room_id);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FString&, nickname, const EUserTeam&, team);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FText&, nickname, const EUserTeam&, team);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnLeftRoomBySelf);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnLeftRoom, int32, id);
 
@@ -43,216 +52,46 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, in
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
-UCLASS(Category = "CandyLandSaga|Network")
-class SAGANETWORK_API USagaNetworkSubSystem : public UGameInstanceSubsystem
+UCLASS(Config = Game, Category = "CandyLandSaga|Network")
+class SAGANETWORK_API USagaNetworkSubSystem final : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
+private:
+	/* Network Setting */
+#pragma region =========================
+	UPROPERTY(BlueprintSetter = SetOfflineMode, BlueprintGetter = IsOfflineMode)
+	bool netIsOfflineMode;
+	UPROPERTY(BlueprintSetter = SetConnectionOption, BlueprintGetter = GetConnectionOption)
+	ESagaNetworkConnectionCategory netConnectionCategory;
+	UPROPERTY(BlueprintSetter = SetRemoteAddress, BlueprintGetter = GetRemoteAddress)
+	FString netRemoteAddress;
+	UPROPERTY(BlueprintSetter = SetRemotePort, BlueprintGetter = GetRemotePort)
+	int32 netRemotePort;
+	UPROPERTY(BlueprintSetter = SetLocalPort, BlueprintGetter = GetLocalPort)
+	int32 netLocalPort;
+#pragma endregion
+
 public:
-	USagaNetworkSubSystem();
-
-	/* State Machines */
-#pragma region =========================
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
-	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
-#pragma endregion
-
-	/* General Methods */
-#pragma region =========================
-	FORCEINLINE void CallFunctionOnGameThread(TUniqueFunction<void()>&& function)
-	{
-		if (IsInGameThread())
-		{
-			function();
-		}
-		else
-		{
-			AsyncTask(ENamedThreads::GameThread, MoveTemp(function));
-		}
-	}
-	FORCEINLINE	void CallPureFunctionOnGameThread(TUniqueFunction<void()>&& function) const
-	{
-		if (IsInGameThread())
-		{
-			function();
-		}
-		else
-		{
-			AsyncTask(ENamedThreads::GameThread, MoveTemp(function));
-		}
-	}
-#pragma endregion
-
-	/* Overall Clients Methods */
-#pragma region =========================
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	void AddUser(const FSagaVirtualUser& client);
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	bool RemoveUser(int32 id) noexcept;
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	void ClearUserList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool HasUser(int32 id) const noexcept;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCharacterHandle(int32 user_id, class ASagaCharacterPlayer* character) noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetTeam(int32 user_id, const EUserTeam& team) noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetWeapon(int32 user_id, EPlayerWeapon weapon) noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetHealth(int32 user_id, const float hp) noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void StorePosition(int32 user_id, const double& x, const double& y, const double& z) noexcept;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	class ASagaCharacterPlayer* GetCharacterHandle(int32 user_id) const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetTeam(int32 user_id, EUserTeam& outpin) const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetWeapon(int32 user_id, EPlayerWeapon& outpin) const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	float GetHealth(int32 user_id) const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	FVector GetStoredPosition(int32 user_id) const noexcept;
-#pragma endregion
-
-	/* Overall Rooms Methods */
-#pragma region =========================
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	void AddRoom(const FSagaVirtualRoom& room);
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	bool RemoveRoom(int32 room_id) noexcept;
-	UFUNCTION(Category = "CandyLandSaga|Network|Session")
-	void ClearRoomList() noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool FindRoom(int32 room_id, FSagaVirtualRoom& outpin) const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	bool HasRoom(int32 room_id) const noexcept;
-#pragma endregion
-
-	/* Local Client Methods */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetLocalUserId(int32 user_id) noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	int32 GetLocalUserId() const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetLocalUserName(const FString& nickname);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	FString GetLocalUserName() const;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetLocalUserTeam(EUserTeam& outpin) const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCurrentRoomId(int32 room_id) noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	int32 GetCurrentRoomId() const noexcept;
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCurrentRoomTitle(const FString& title);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	FString GetCurrentRoomTitle() const;
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetOfflineWeapon(EPlayerWeapon weapon) noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
-	EPlayerWeapon GetOfflineWeapon() const noexcept;
-#pragma endregion
-
-	/* Getters */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
-#pragma endregion
-
-	/* Observers */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network")
-	bool IsSocketAvailable() const noexcept;
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network")
-	bool IsConnected() const noexcept;
-#pragma endregion
-
-	/* Network Methods */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool ConnectToServer(const FString& nickname);
-
-	UFUNCTION(Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
-	bool Receive();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
-	bool Close();
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
-	const TArray<FSagaVirtualUser>& UpdatePlayerList();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction, Latent))
-	const TArray<FSagaVirtualRoom>& UpdateRoomList();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network", CallInEditor)
-	static bool IsOfflineMode() noexcept;
-#pragma endregion
-
-	/* Packet Senders */
-#pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendSignInPacket(const FString& nickname);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendCreateRoomPacket(const FString& title);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendJoinRoomPacket(int32 room_id);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendLeaveRoomPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRequestVersionPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRequestRoomsPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRequestMembersPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendChangeTeamPacket(bool is_red_team);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendGameStartPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendGameIsLoadedPacket();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendPositionPacket(float x, float y, float z);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRotationPacket(float r, float y, float p);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRpcPacket(ESagaRpcProtocol category, int64 argument0 = 0, int32 argument1 = 0);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
-	int32 SendRoomUpdaterPacket();
-#pragma endregion
-
-	/* Local Session's Properties */
+	/* Session's Properties */
 #pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	int32 localUserId;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString localUserName;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	int32 currentRoomId;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	FString currentRoomTitle;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
-	EPlayerWeapon currentHandledWeapon;
-#pragma endregion
+	FSagaVirtualUser localUser;
 
-	/* Offline */
-#pragma region =========================
-#pragma endregion
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
+	FSagaVirtualRoom currentRoom;
 
-	/* Public Properties */
-#pragma region =========================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game")
+	int32 CurrentMode = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
+	int32 RedTeamScore = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
+	int32 BlueTeamScore = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
+	bool RedTeamPinataBroken = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
+	bool BlueTeamPinataBroken = false;
 #pragma endregion
 
 	/* Events */
@@ -266,6 +105,8 @@ public:
 	FSagaEventOnFailedToConnect OnFailedToConnect;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnDisconnected OnDisconnected;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
+	FSagaEventOnSignedIn OnSignedIn;
 
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnRoomCreated OnRoomCreated;
@@ -304,43 +145,201 @@ public:
 	FSagaEventOnRpc OnRpc;
 #pragma endregion
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
-	UClass* GetPlayableCharacterClass(const int32& user_id) const;
+	USagaNetworkSubSystem();
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 CurrentMode = 1;
+	/* State Machines */
+#pragma region =========================
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+#pragma endregion
+
+	/* Network Methods */
+#pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
+	ESagaConnectionContract ConnectToServer(const FText& nickname);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
+	bool Close();
+
+	UFUNCTION()
+	bool Receive();
+	UFUNCTION()
+	bool ProcessPackets();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|Network")
+	void SetOfflineMode(bool flag) noexcept;
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|Network")
+	void SetConnectionOption(ESagaNetworkConnectionCategory category) noexcept;
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|Network")
+	void SetRemoteAddress(const FString& address);
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|Network")
+	void SetRemotePort(int32 port) noexcept;
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|Network")
+	void SetLocalPort(int32 port) noexcept;
+#pragma endregion
+
+	/* Packet Senders */
+#pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendSignInPacket(const FText& nickname);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendCreateRoomPacket(const FText& title);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendJoinRoomPacket(int32 room_id);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendLeaveRoomPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRequestVersionPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRequestRoomsPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRequestMembersPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendChangeTeamPacket(bool is_red_team);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendGameStartPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendGameIsLoadedPacket();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendPositionPacket(float x, float y, float z);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRotationPacket(float r, float y, float p);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRpcPacket(ESagaRpcProtocol category, int64 argument0 = 0, int32 argument1 = 0);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Packet", meta = (UnsafeDuringActorConstruction))
+	int32 SendRoomUpdaterPacket();
+#pragma endregion
+
+	/* Overall Clients Methods */
+#pragma region =========================
+	void AddUser(const FSagaVirtualUser& client);
+	void AddUser(FSagaVirtualUser&& client);
+	bool RemoveUser(int32 id) noexcept;
+	void ClearUserList(bool removed_me_also) noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	const TArray<FSagaVirtualUser>& GetUserList() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool FindUser(int32 id, FSagaVirtualUser& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool HasUser(int32 id) const noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetCharacterHandle(int32 user_id, class ASagaCharacterPlayer* character) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetTeam(int32 user_id, const EUserTeam& team) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetWeapon(int32 user_id, EPlayerWeapon weapon) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetHealth(int32 user_id, const float hp) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void StorePosition(int32 user_id, const double& x, const double& y, const double& z) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	class ASagaCharacterPlayer* GetCharacterHandle(int32 user_id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetTeam(int32 user_id, EUserTeam& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool GetWeapon(int32 user_id, EPlayerWeapon& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	float GetHealth(int32 user_id) const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	FVector GetStoredPosition(int32 user_id) const noexcept;
+#pragma endregion
+
+	/* Overall Rooms Methods */
+#pragma region =========================
+	void AddRoom(const FSagaVirtualRoom& room);
+	void AddRoom(FSagaVirtualRoom&& room);
+	bool RemoveRoom(int32 room_id) noexcept;
+	void ClearRoomList() noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	const TArray<FSagaVirtualRoom>& GetRoomList() const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	bool RoomAt(int32 index, FSagaVirtualRoom& outpin) noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool FindRoom(int32 room_id, FSagaVirtualRoom& outpin) const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	bool HasRoom(int32 room_id) const noexcept;
+#pragma endregion
+
+	/* Local Client Methods */
+#pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetLocalUserId(int32 user_id) noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	int32 GetLocalUserId() const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetLocalUserName(FText nickname);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	FText GetLocalUserName() const;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetLocalUserTeam(EUserTeam team);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	EUserTeam GetLocalUserTeam() const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetLocalUserWeapon(EPlayerWeapon weapon) noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	EPlayerWeapon GetLocalUserWeapon() const noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetCurrentRoomId(int32 room_id) noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	int32 GetCurrentRoomId() const noexcept;
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
+	void SetCurrentRoomTitle(FText title);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	FText GetCurrentRoomTitle() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
+	int32 GetCurrentRoomMemberCount() const noexcept;
+#pragma endregion
+
+	/* Observers */
+#pragma region =========================
+#pragma endregion
+
+	/* Getters */
+#pragma region =========================
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network", meta = (UnsafeDuringActorConstruction))
+	static USagaNetworkSubSystem* GetSubSystem(const UWorld* world) noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	ESagaNetworkConnectionCategory GetConnectionOption() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	FString GetRemoteAddress() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	int32 GetRemotePort() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	int32 GetLocalPort() const noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsOfflineMode() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsSocketAvailable() const noexcept;
+	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
+	bool IsConnected() const noexcept;
+#pragma endregion
 
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentMode(int32 Mode)
 	{
 		CurrentMode = Mode;
 	}
-
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurrentMode() const
-		{
+	{
 		return CurrentMode;
 	}
-
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 RedTeamScore = 0;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 BlueTeamScore = 0;
-
 	UFUNCTION(BlueprintCallable)
 	int32 GetRedTeamScore() const
 	{
 		return RedTeamScore;
 	}
-
 	UFUNCTION(BlueprintCallable)
 	int32 GetBlueTeamScore() const
 	{
 		return BlueTeamScore;
 	}
-
+	UFUNCTION()
 	void AddScore(EUserTeam team, int32 score)
 	{
 		if (team == EUserTeam::Red)
@@ -352,12 +351,46 @@ public:
 			BlueTeamScore += score;
 		}
 	}
+	UFUNCTION()
+	void SetWhoWonByPinata(int32 TeamPinataColor)
+	{
+		if (TeamPinataColor == 0) //redteam's pinata broken
+		{
+			RedTeamPinataBroken = true;
+		}
+		else
+		{
+			BlueTeamPinataBroken = true;
+		}
 
+	}
 	UFUNCTION(BlueprintCallable)
 	FString GetWhoWon()
 	{
-		EUserTeam team;
-		GetLocalUserTeam(team);
+		const EUserTeam team = GetLocalUserTeam();
+
+		if (RedTeamPinataBroken == true)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return TEXT("Lose"); // I'm Red Team And My team Lose
+			}
+			else
+			{
+				return TEXT("Victory!"); // I'm Blue Team And My team Win
+			}
+		}
+		else if (BlueTeamPinataBroken == true)
+		{
+			if (team == EUserTeam::Red)
+			{
+				return TEXT("Victory!"); // I'm Red Team And My team Win
+			}
+			else
+			{
+				return TEXT("Lose"); // I'm Blue Team And My team Lose
+			}
+		}
 
 		if (RedTeamScore > BlueTeamScore)
 		{
@@ -387,40 +420,37 @@ public:
 		}
 	}
 
-
 private:
 	/* Internal Functions */
 #pragma region =========================
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	bool InitializeNetwork_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	ESagaConnectionContract ConnectToServer_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
 	bool CloseNetwork_Implementation();
 
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	UFUNCTION(meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
 	void RouteEvents(const TArray<uint8>& packet_buffer, const int32& offset, EPacketProtocol protocol, int16 packet_size);
+	void RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketProtocol protocol, int16 packet_size);
+
+	[[nodiscard]] static FSocket* CreateSocket();
+	[[nodiscard]] TSharedRef<FInternetAddr> CreateRemoteEndPoint(ESagaNetworkConnectionCategory category) const;
+#pragma endregion
+
+	/* Basic Event Implementations */
+#pragma region =========================
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnNetworkInitialized_Implementation(bool succeed);
+	UFUNCTION(meta = (NotBlueprintThreadSafe))
+	void OnConnected_Implementation();
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToConnect_Implementation(ESagaConnectionContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnDisconnected_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnRoomCreated_Implementation(int32 room_id);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnLeftRoomBySelf_Implementation();
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnLeftRoom_Implementation(int32 id);
-	UFUNCTION(meta = (NotBlueprintThreadSafe))
-	void OnRespondVersion_Implementation(const FString& version_string);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnFailedToStartGame_Implementation(ESagaGameContract reason);
 	UFUNCTION(meta = (NotBlueprintThreadSafe))
 	void OnRpc_Implementation(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1);
 #pragma endregion
 
-	/* Event Broadcasting Methods */
+	/* Event Broadcaster Methods */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnNetworkInitialized() const;
@@ -432,6 +462,8 @@ private:
 	void BroadcastOnFailedToConnect(ESagaConnectionContract reason) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnDisconnected() const;
+	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
+	void BroadcastOnSignedIn(int32 my_id, const FText& nickname) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRoomCreated(int32 room_id) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
@@ -464,23 +496,22 @@ private:
 	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion
 
-	/* Managed Network Properties */
+	/* Network Properties */
 #pragma region =========================
+	static inline constexpr int32 recvLimit = 512;
+
 	FSocket* clientSocket;
 	class FSagaNetworkWorker* netWorker;
 	class FSagaTaskWorker* taskWorker;
 
-	static inline constexpr int32 recvLimit = 512;
 	UPROPERTY(VisibleInstanceOnly)
 	TArray<uint8> recvBuffer;
 	UPROPERTY(VisibleInstanceOnly)
 	int32 recvBytes;
-	UPROPERTY(VisibleInstanceOnly)
-	TArray<uint8> transitBuffer;
-	UPROPERTY(VisibleInstanceOnly)
-	int32 transitOffset;
-	FCriticalSection receivedDataLock;
-#pragma endregion
+
+	atomic_queue::AtomicQueueB2<TUniquePtr<uint8[]>> taskQueue{ 200 };
+	atomic_queue::Barrier taskBarrier;
+	atomic_queue::AtomicQueueB2<TUniquePtr<uint8[]>> delayedTaskQueue{ 100 };
 
 	/// <remarks>로컬 플레이어도 포함</remarks>
 	UPROPERTY()
@@ -489,4 +520,29 @@ private:
 	TArray<FSagaVirtualRoom> everyRooms;
 	TAtomic<bool> wasUsersUpdated;
 	TAtomic<bool> wasRoomsUpdated;
+#pragma endregion
 };
+
+FORCEINLINE void CallFunctionOnGameThread(TUniqueFunction<void()>&& function)
+{
+	if (IsInGameThread())
+	{
+		function();
+	}
+	else
+	{
+		AsyncTask(ENamedThreads::GameThread, MoveTemp(function));
+	}
+}
+
+FORCEINLINE void CallPureFunctionOnGameThread(TUniqueFunction<void()>&& function)
+{
+	if (IsInGameThread())
+	{
+		function();
+	}
+	else
+	{
+		AsyncTask(ENamedThreads::GameThread, MoveTemp(function));
+	}
+}

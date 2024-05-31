@@ -55,6 +55,8 @@ export namespace iconer::app::inline rpc
 		RPC_DEAD,
 		RPC_CHECK_GAME_VICTORY,
 		RPC_UPDATE_HEALTH,
+		RPC_WEAPON_TIMER, // seconds
+		RPC_GAME_TIMER, // seconds
 	};
 
 	class RpcContext : public IContext

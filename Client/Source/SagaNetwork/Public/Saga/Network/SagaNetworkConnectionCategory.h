@@ -11,8 +11,3 @@ enum class [[nodiscard]] ESagaNetworkConnectionCategory : uint8
 	Host,
 	Remote,
 };
-
-namespace saga
-{
-	using SagaNetworkConnectionCategory = ::ESagaNetworkConnectionCategory;
-}

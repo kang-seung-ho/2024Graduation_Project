@@ -1,6 +1,9 @@
 #include "Character/CharacterSelect/SagaSelectCharacter.h"
+#include <UObject/ConstructorHelpers.h>
+#include <Components/CapsuleComponent.h>
+#include <Components/SkeletalMeshComponent.h>
+#include <Animation/AnimInstance.h>
 
-// Sets default values
 ASagaSelectCharacter::ASagaSelectCharacter()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.

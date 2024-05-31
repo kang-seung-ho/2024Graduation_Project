@@ -1,5 +1,5 @@
 #pragma once
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Engine/DataAsset.h"
 
 #include "SagaWeaponData.generated.h"

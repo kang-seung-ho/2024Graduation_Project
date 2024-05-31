@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Components/ActorComponent.h"
 #include "ObstacleHPComponent.generated.h"
 

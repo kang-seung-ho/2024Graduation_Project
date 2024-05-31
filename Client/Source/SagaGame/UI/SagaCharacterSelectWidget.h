@@ -1,24 +1,27 @@
 #pragma once
-#include "../SagaGameInfo.h"
-#include "Components/Button.h"
-#include "Blueprint/UserWidget.h"
+#include "SagaGame.h"
+#include "SagaGameInfo.h"
 
 #include "Saga/Interface/SagaUserWidget.h"
 #include "SagaCharacterSelectWidget.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI")
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|UI", meta = (DisplayName = "Saga Character Choice Level UI Widget C++ Class"))
 class SAGAGAME_API USagaCharacterSelectWidget : public USagaUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	UButton* mStartButton;
+public:
+	UPROPERTY()
+	TObjectPtr<class USagaTimerUiWidget> myTimer;
+	UPROPERTY()
+	TObjectPtr<class USagaUiButton> myStartButton;
+
+	USagaCharacterSelectWidget(const FObjectInitializer& initializer) noexcept;
+
+	UFUNCTION()
+	void StartButtonEnable(const bool flag);
 
 protected:
 	virtual void NativeConstruct();
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
-
-public:
-	UFUNCTION()
-	void StartButtonEnable(bool bEnable);
+	virtual void NativeTick(const FGeometry& geometry, float delta_time);
 };

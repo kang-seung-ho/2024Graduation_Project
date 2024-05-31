@@ -4,14 +4,14 @@
 
 #include "SagaGame/Player/SagaUserTeam.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "SagaPlayableCharacter.h"
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 {
 	myHealth = 500.0f;
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear1.Bear1'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
 	if (MeshAsset.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
@@ -44,6 +44,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	// 오버랩 이벤트 바인드
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+
+	isCanRide = false;
 }
 
 void
@@ -86,13 +88,13 @@ ASagaGummyBearPlayer::Attack()
 void
 ASagaGummyBearPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
+	
 }
 
 void
 ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	
 }
 
 void
@@ -123,36 +125,30 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		// 파티클 이펙트 실행
 
 		//상대 팀 점수 증가 실행
-		if (system)
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+
+		if (not system->IsOfflineMode())
 		{
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
+			// arg1이 1이면 곰 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+		}
+		else
+		{
 
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-			}
-			else
-			{
-
-			}
 		}
 
 		//Destroy();
 	}
 	else
 	{
-		if (system)
+		if (not system->IsOfflineMode())
 		{
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-			}
-			else
-			{
+			// arg1이 1이면 곰 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+		}
+		else
+		{
 
-			}
 		}
 	}
 

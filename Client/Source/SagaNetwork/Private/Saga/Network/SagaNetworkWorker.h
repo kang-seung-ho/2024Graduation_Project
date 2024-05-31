@@ -1,7 +1,8 @@
 #pragma once
 #include "SagaNetwork.h"
-#include "HAL/Runnable.h"
-#include "HAL/RunnableThread.h"
+#include <UObject/ObjectPtr.h>
+#include <HAL/Runnable.h>
+#include <HAL/RunnableThread.h>
 
 class SAGANETWORK_API FSagaNetworkWorker final : public FRunnable, public FNoncopyable
 {
@@ -16,5 +17,6 @@ public:
 
 private:
 	FRunnableThread* MyThread;
+
 	TObjectPtr<class USagaNetworkSubSystem> SubSystemInstance;
 };

@@ -1,15 +1,14 @@
 #pragma once
 #include "SagaGame.h"
-#include "GameFramework/PlayerController.h"
-#include "InputActionValue.h"
+#include "SagaGameInfo.h"
+#include <GameFramework/PlayerController.h>
+#include <InputActionValue.h>
 
-#include "../SagaGameInfo.h"
 #include "SagaInGamePlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRideNPCDelegate);
 
-
-UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character")
+UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
 class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 {
 	GENERATED_BODY()
@@ -46,7 +45,14 @@ public:
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
 #pragma region =========================
 	UFUNCTION()
+	void OnLeftRoomBySelf();
+
+	UFUNCTION()
+	void OnLeftRoom(int32 user_id);
+
+	UFUNCTION()
 	void OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
+
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 #pragma endregion
@@ -131,7 +137,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
 	FRotator lastCharacterRotation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	FTimerHandle tranformUpdateTimer;
+	FTimerHandle transformUpdateTimer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isAttacking;

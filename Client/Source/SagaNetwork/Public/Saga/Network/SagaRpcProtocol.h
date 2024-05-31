@@ -1,5 +1,5 @@
 #pragma once
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 
 #include "SagaRpcProtocol.generated.h"
 
@@ -29,7 +29,8 @@ enum class [[nodiscard]] ESagaRpcProtocol : uint8
 	RPC_USE_ITEM_2,
 	RPC_USE_ITEM_3,
 	RPC_USE_ITEM_4,
-	RPC_SPAWN_ITEM,
+
+	RPC_SPAWN_ITEM = 150,
 	RPC_GRAB_ITEM,
 	RPC_MAIN_WEAPON,
 	RPC_CHANGE_HAND_ITEM,
@@ -41,4 +42,7 @@ enum class [[nodiscard]] ESagaRpcProtocol : uint8
 	RPC_DEAD,
 	RPC_CHECK_GAME_VICTORY,
 	RPC_UPDATE_HEALTH,
+	RPC_WEAPON_TIMER, // seconds
+	RPC_GAME_TIMER, // seconds
+	RPC_NOTIFY_GAME_COUNTDOWN,
 };

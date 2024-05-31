@@ -1,5 +1,5 @@
 #pragma once
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "SagaStringBpFunctionLibrary.generated.h"

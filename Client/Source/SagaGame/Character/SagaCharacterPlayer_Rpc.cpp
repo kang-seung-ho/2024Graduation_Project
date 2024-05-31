@@ -1,4 +1,5 @@
 #include "SagaCharacterPlayer.h"
+#include <GameFramework/CharacterMovementComponent.h>
 
 void
 ASagaCharacterPlayer::ExecuteStraightWalk(const int& direction)

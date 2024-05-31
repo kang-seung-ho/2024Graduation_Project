@@ -1,15 +1,15 @@
 #include "SagaInGamePlayerController.h"
-#include "Kismet/GameplayStatics.h"
-#include "Blueprint/UserWidget.h"
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
+#include <Kismet/GameplayStatics.h>
+#include <EnhancedInputSubsystems.h>
+#include <EnhancedInputComponent.h>
+#include <Blueprint/UserWidget.h>
 
+#include "SagaGameInfo.h"
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
 #include "SagaCharacterSpawner.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
@@ -18,7 +18,7 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 	, mTeamScoreBoardClass(), mTeamScoreBoard()
 	, playerSpawners()
 	, walkDirection()
-	, lastCharacterPosition(), lastCharacterRotation(), tranformUpdateTimer()
+	, lastCharacterPosition(), lastCharacterRotation(), transformUpdateTimer()
 	, isAttacking()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
@@ -84,6 +84,11 @@ ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FInputModeGameOnly mode{};
+	SetInputMode(mode);
+
+	SetShowMouseCursor(false);
+
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
@@ -116,7 +121,7 @@ ASagaInGamePlayerController::BeginPlay()
 	const auto spawners_number = spawner_found_result.Num();
 	if (0 < spawners_number)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("%d spawner(s) has found."));
+		UE_LOG(LogSagaGame, Log, TEXT("%d spawner(s) has found."), spawners_number);
 
 		if (1 == spawners_number)
 		{
@@ -157,6 +162,10 @@ ASagaInGamePlayerController::BeginPlay()
 
 	if (nullptr != system)
 	{
+		system->OnLeftRoomBySelf.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoomBySelf);
+
+		system->OnLeftRoom.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoom);
+
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 
 		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
@@ -212,7 +221,7 @@ ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	GetWorldTimerManager().ClearTimer(tranformUpdateTimer);
+	GetWorldTimerManager().ClearTimer(transformUpdateTimer);
 }
 
 void
@@ -220,17 +229,40 @@ ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
-	// Update animation's factor value
-	auto pawn = GetPawn();
-	if (nullptr == pawn)
+	const auto pawn = GetPawn<ASagaCharacterPlayer>();
+	if (not IsValid(pawn))
 	{
 		return;
 	}
 
-	auto character = Cast<ASagaCharacterPlayer>(pawn);
-	if (not IsValid(character))
+	auto pos = pawn->GetActorLocation();
+
+	bool out_of_boundary = false;
+	if (pos.X < -4500)
 	{
-		return;
+		pos.X = -4500;
+		out_of_boundary = true;
+	}
+	else if (4500 < pos.X)
+	{
+		pos.X = 4500;
+		out_of_boundary = true;
+	}
+
+	if (pos.Y < -4500)
+	{
+		pos.Y = -4500;
+		out_of_boundary = true;
+	}
+	else if (4500 < pos.Y)
+	{
+		pos.Y = 4500;
+		out_of_boundary = true;
+	}
+
+	if (out_of_boundary)
+	{
+		pawn->SetActorLocation(pos);
 	}
 }
 
@@ -262,7 +294,7 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
 
-	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
+	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
 
 	// �̺�Ʈ�� ��������Ʈ ���ε�
 	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);

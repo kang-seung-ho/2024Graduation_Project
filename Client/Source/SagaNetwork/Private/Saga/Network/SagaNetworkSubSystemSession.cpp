@@ -7,6 +7,13 @@ USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 	wasUsersUpdated = true;
 }
 
+void
+USagaNetworkSubSystem::AddUser(FSagaVirtualUser&& client)
+{
+	everyUsers.Add(MoveTemp(client));
+	wasUsersUpdated = true;
+}
+
 bool
 USagaNetworkSubSystem::RemoveUser(int32 id)
 noexcept
@@ -21,10 +28,23 @@ noexcept
 }
 
 void
-USagaNetworkSubSystem::ClearUserList()
+USagaNetworkSubSystem::ClearUserList(bool removed_me_also)
 noexcept
 {
-	everyUsers.Reset();
+	if (removed_me_also)
+	{
+		everyUsers.Reset();
+	}
+	else
+	{
+		everyUsers.RemoveAllSwap(
+			[my_id = GetLocalUserId()](const FSagaVirtualUser& user) -> bool
+			{
+				return user.myID != my_id;
+			}
+		);
+	}
+
 	wasUsersUpdated = true;
 }
 
@@ -36,10 +56,17 @@ const noexcept
 }
 
 bool
-USagaNetworkSubSystem::FindUser(int32 id, FSagaVirtualUser& outpin)
+USagaNetworkSubSystem::FindUser(int32 user_id, FSagaVirtualUser& outpin)
 const noexcept
 {
-	auto handle = everyUsers.FindByPredicate(FSagaSessionIdComparator{ id });
+	if (user_id == GetLocalUserId())
+	{
+		outpin = localUser;
+
+		return true;
+	}
+
+	auto handle = everyUsers.FindByPredicate(FSagaSessionIdComparator{ user_id });
 	if (nullptr != handle)
 	{
 		outpin = *handle;
@@ -52,21 +79,33 @@ const noexcept
 }
 
 bool
-USagaNetworkSubSystem::HasUser(int32 id)
+USagaNetworkSubSystem::HasUser(int32 user_id)
 const noexcept
 {
-	return everyUsers.ContainsByPredicate(FSagaSessionIdComparator{ id });
+	if (user_id == GetLocalUserId())
+	{
+		return true;
+	}
+
+	return everyUsers.ContainsByPredicate(FSagaSessionIdComparator{ user_id });
 }
 
 void
 USagaNetworkSubSystem::SetCharacterHandle(int32 user_id, ASagaCharacterPlayer* character)
 noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		localUser.SetCharacterHandle(character);
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			user.remoteCharacter = character;
+			if (user.myID == user_id)
+			{
+				user.remoteCharacter = character;
+			}
 		}
 	}
 }
@@ -75,11 +114,18 @@ void
 USagaNetworkSubSystem::SetTeam(int32 user_id, const EUserTeam& team)
 noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		localUser.myTeam = team;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			user.myTeam = team;
+			if (user.myID == user_id)
+			{
+				user.myTeam = team;
+			}
 		}
 	}
 }
@@ -88,11 +134,18 @@ void
 USagaNetworkSubSystem::SetWeapon(int32 user_id, EPlayerWeapon weapon)
 noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		localUser.myWeapon = weapon;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			user.myWeapon = weapon;
+			if (user.myID == user_id)
+			{
+				user.myWeapon = weapon;
+			}
 		}
 	}
 }
@@ -101,11 +154,18 @@ void
 USagaNetworkSubSystem::SetHealth(int32 user_id, const float hp)
 noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		localUser.myHealth = hp;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			user.myHealth = hp;
+			if (user.myID == user_id)
+			{
+				user.myHealth = hp;
+			}
 		}
 	}
 }
@@ -114,13 +174,22 @@ void
 USagaNetworkSubSystem::StorePosition(int32 user_id, const double& x, const double& y, const double& z)
 noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		localUser.myX = x;
+		localUser.myY = y;
+		localUser.myZ = z;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			user.myX = x;
-			user.myY = y;
-			user.myZ = z;
+			if (user.myID == user_id)
+			{
+				user.myX = x;
+				user.myY = y;
+				user.myZ = z;
+			}
 		}
 	}
 }
@@ -129,11 +198,18 @@ ASagaCharacterPlayer*
 USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
 const noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		return localUser.GetCharacterHandle();
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			return user.remoteCharacter;
+			if (user.myID == user_id)
+			{
+				return user.remoteCharacter;
+			}
 		}
 	}
 
@@ -144,12 +220,21 @@ bool
 USagaNetworkSubSystem::GetTeam(int32 user_id, EUserTeam& outpin)
 const noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		outpin = localUser.myTeam;
+
+		return true;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			outpin = user.myTeam;
-			return true;
+			if (user.myID == user_id)
+			{
+				outpin = user.myTeam;
+				return true;
+			}
 		}
 	}
 
@@ -160,12 +245,21 @@ bool
 USagaNetworkSubSystem::GetWeapon(int32 user_id, EPlayerWeapon& outpin)
 const noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		outpin = localUser.myWeapon;
+
+		return true;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			outpin = user.myWeapon;
-			return true;
+			if (user.myID == user_id)
+			{
+				outpin = user.myWeapon;
+				return true;
+			}
 		}
 	}
 
@@ -176,11 +270,18 @@ float
 USagaNetworkSubSystem::GetHealth(int32 user_id)
 const noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		return localUser.myHealth;
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			return user.myHealth;
+			if (user.myID == user_id)
+			{
+				return user.myHealth;
+			}
 		}
 	}
 
@@ -191,11 +292,18 @@ FVector
 USagaNetworkSubSystem::GetStoredPosition(int32 user_id)
 const noexcept
 {
-	for (auto& user : everyUsers)
+	if (user_id == GetLocalUserId())
 	{
-		if (user.MyID == user_id)
+		return FVector{ localUser.myX, localUser.myY, localUser.myZ };
+	}
+	else
+	{
+		for (auto& user : everyUsers)
 		{
-			return FVector{ user.myX, user.myY, user.myZ };
+			if (user.myID == user_id)
+			{
+				return FVector{ user.myX, user.myY, user.myZ };
+			}
 		}
 	}
 
@@ -206,6 +314,13 @@ void
 USagaNetworkSubSystem::AddRoom(const FSagaVirtualRoom& room)
 {
 	everyRooms.Add(room);
+	wasRoomsUpdated = true;
+}
+
+void
+USagaNetworkSubSystem::AddRoom(FSagaVirtualRoom&& room)
+{
+	everyRooms.Add(MoveTemp(room));
 	wasRoomsUpdated = true;
 }
 
@@ -279,73 +394,86 @@ void
 USagaNetworkSubSystem::SetLocalUserId(int32 id)
 noexcept
 {
-	localUserId = id;
+	localUser.myID = id;
 }
 
 int32
 USagaNetworkSubSystem::GetLocalUserId()
 const noexcept
 {
-	return localUserId;
+	return localUser.myID;
 }
 
 void
-USagaNetworkSubSystem::SetLocalUserName(const FString& nickname)
+USagaNetworkSubSystem::SetLocalUserName(FText nickname)
 {
-	localUserName = nickname;
+	localUser.myName = nickname;
 }
 
-FString
+FText
 USagaNetworkSubSystem::GetLocalUserName()
 const
 {
-	return localUserName;
+	return localUser.myName;
 }
 
-bool
-USagaNetworkSubSystem::GetLocalUserTeam(EUserTeam& outpin)
+void
+USagaNetworkSubSystem::SetLocalUserTeam(EUserTeam team)
+{
+	localUser.myTeam = team;
+}
+
+EUserTeam
+USagaNetworkSubSystem::GetLocalUserTeam()
 const noexcept
 {
-	return GetTeam(localUserId, outpin);
+	return localUser.myTeam;
+}
+
+void
+USagaNetworkSubSystem::SetLocalUserWeapon(EPlayerWeapon weapon)
+noexcept
+{
+	localUser.myWeapon = weapon;
+}
+
+EPlayerWeapon
+USagaNetworkSubSystem::GetLocalUserWeapon()
+const noexcept
+{
+	return localUser.myWeapon;
 }
 
 void
 USagaNetworkSubSystem::SetCurrentRoomId(int32 id)
 noexcept
 {
-	currentRoomId = id;
+	currentRoom.myID = id;
 }
 
 int32
 USagaNetworkSubSystem::GetCurrentRoomId()
 const noexcept
 {
-	return currentRoomId;
+	return currentRoom.myID;
 }
 
 void
-USagaNetworkSubSystem::SetCurrentRoomTitle(const FString& title)
+USagaNetworkSubSystem::SetCurrentRoomTitle(FText title)
 {
-	currentRoomTitle = title;
+	currentRoom.myName = title;
 }
 
-FString
+FText
 USagaNetworkSubSystem::GetCurrentRoomTitle()
 const
 {
-	return currentRoomTitle;
+	return currentRoom.myName;
 }
 
-void
-USagaNetworkSubSystem::SetOfflineWeapon(EPlayerWeapon weapon)
-noexcept
-{
-	currentHandledWeapon = weapon;
-}
-
-EPlayerWeapon
-USagaNetworkSubSystem::GetOfflineWeapon()
+int32
+USagaNetworkSubSystem::GetCurrentRoomMemberCount()
 const noexcept
 {
-	return currentHandledWeapon;
+	return currentRoom.MembersCount;
 }

@@ -1,59 +1,42 @@
 #pragma once
-#include "../../SagaGameInfo.h"
-#include "GameFramework/PlayerController.h"
+#include "SagaGame.h"
+#include <HAL/Platform.h>
+#include <UObject/ObjectMacros.h>
+#include <UObject/ObjectPtr.h>
+#include <GameFramework/Actor.h>
+#include <GameFramework/PlayerController.h>
+#include <InputActionValue.h>
+#include <Templates/SubclassOf.h>
+#include <Blueprint/UserWidget.h>
 
 #include "SagaCharacterSelectController.generated.h"
 
-UCLASS()
-class SAGAGAME_API ASagaCharacterSelectController : public APlayerController
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnClickedCharacter, class ASagaSelectCharacter*, character);
+
+UCLASS(BlueprintType, Category = "CandyLandSagaSystem|System|Controller")
+class SAGAGAME_API ASagaCharacterSelectController final : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
-	ASagaCharacterSelectController();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
+	TObjectPtr<AActor> mSelectActor;
 
-public:
-	bool isStartButtonClicked = false;
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSagaSystem|System|Character Choice Level")
+	FSagaEventOnClickedCharacter OnClickedCharacter;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool isGameStartable;
-
-	bool getStartButtonStatus()
-	{
-		return isStartButtonClicked;
-	}
-
-protected:
-	AActor* mUnderCursorActor;
-	AActor* mSelectActor;
-
-	TSubclassOf<UUserWidget> mSelectWidgetClass;
-	class USagaCharacterSelectWidget* mSelectWidget;
-
-public:
-	AActor* GetSelectActor() const
-	{
-		return mSelectActor;
-	}
-
-public:
-	void CountDown();
-
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	int32 Minutes = 0;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	int32 Seconds = 30;
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
+	FTimespan awaitCountdownDuration;
+
+	ASagaCharacterSelectController(const FObjectInitializer& initializer) noexcept;
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void SetupInputComponent();
+	virtual void SetupInputComponent() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-protected:
 	void OnClick(const FInputActionValue& Value);
-
 };

@@ -7,9 +7,13 @@
 #include "../Interface/SagaCharacterItemInterface.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGummyBearPlayer.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "SagaPlayableCharacter.generated.h"
 
 DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class USagaWeaponData*);
+
 
 USTRUCT(BlueprintType)
 struct FTakeItemDelegateWrapper
@@ -50,6 +54,8 @@ public:
 
 	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
+	void DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent);
+
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
@@ -70,4 +76,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	TArray<FTakeItemDelegateWrapper> TakeItemAction;
+
+	class UNiagaraSystem* HitEffect;
+
+	UPROPERTY()
+	UParticleSystem* HitCascadeEffect;
 };

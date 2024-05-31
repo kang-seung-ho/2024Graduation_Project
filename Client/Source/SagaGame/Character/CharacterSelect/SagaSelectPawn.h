@@ -1,18 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-//SelectController°¡ ºùÀÇÇÒ Pawn Å¬·¡½º
-#include "../../SagaGameInfo.h"
-#include "GameFramework/Pawn.h"
+#include "SagaGame.h"
+#include "SagaGameInfo.h"
+#include <GameFramework/Pawn.h>
+
 #include "SagaSelectPawn.generated.h"
 
+//SelectControllerê°€ ë¹™ì˜í•  Pawn í´ë˜ìŠ¤
 UCLASS()
 class SAGAGAME_API ASagaSelectPawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	ASagaSelectPawn();
 
 protected:

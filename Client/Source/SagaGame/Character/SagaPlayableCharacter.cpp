@@ -2,8 +2,15 @@
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
+
+#include "Camera/CameraComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "DrawDebugHelpers.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 {
@@ -33,6 +40,20 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 
 	mArm->TargetArmLength = 150.f;*/
+
+	// ASagaPlayableCharacter 클래스 내 생성자에 추가
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("Niagara.NiagaraSystem'/Game/PartyFX/Niagara/NS_Fireworks_Star.NS_Fireworks_Star'"));
+	if (NiagaraEffect.Succeeded())
+	{
+		HitEffect = NiagaraEffect.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> CascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_5.P_Hit_5'"));
+	if (CascadeEffect.Succeeded())
+	{
+		HitCascadeEffect = CascadeEffect.Object;
+	}
+
 
 	//Item get Action
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
@@ -81,6 +102,31 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
+	FVector NiagaraSpawnLocation = GetActorLocation();
+	FRotator NiagaraSpawnRotation = GetActorRotation();
+
+	FVector EffectSpawnLocation = GetActorLocation();
+	FRotator EffectSpawnRotation = GetActorRotation();
+
+
+	if (HitCascadeEffect)
+	{
+		UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			HitCascadeEffect,
+			EffectSpawnLocation,
+			EffectSpawnRotation,
+			true
+		);
+
+		if (CascadeComponent)
+		{
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+		}
+	}
+	
+
 	if (myHealth <= 0.0f)
 	{
 		// 사망 애니메이션 실행
@@ -93,35 +139,38 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		// RespawnCharacter 함수 3초 뒤	실행
 		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
 
-		if (system)
-		{
-			// 상대 팀 점수 증가 실행
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+		// 상대 팀 점수 증가 실행
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
 
-			// arg1이 0이면 사람 캐릭터
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-		}
+		// arg1이 0이면 사람 캐릭터
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
 	}
 	else
 	{
 		//mAnimInst->Hit();
 
-		if (system)
+		if (not system->IsOfflineMode())
 		{
-			if constexpr (not saga::IsOfflineMode)
-			{
-				// arg1이 0이면 사람 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-			}
-			else
-			{
+			// arg1이 0이면 사람 캐릭터
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
+		}
+		else
+		{
 
-			}
 		}
 	}
 
 	return dmg;
 }
+
+void ASagaPlayableCharacter::DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent)
+{
+	if (ParticleComponent)
+	{
+		ParticleComponent->Deactivate();
+	}
+}
+
 
 void
 ASagaPlayableCharacter::ExecuteDeath()
@@ -148,6 +197,9 @@ ASagaPlayableCharacter::RespawnCharacter()
 
 	// Retrive collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// re-set collision profile name. NOT just Enable
+
+	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 }
 
 void
@@ -161,20 +213,20 @@ ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
 
-	// TODO: ASagaPlayableCharacter::Attack()
-	//myTeam = EUserTeam::Red; //Code For Client Test
-
 	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
 		FHitResult Result;
 
-		// 카메라의 회전을 가져옴
-		FRotator CameraRotation = GetControlRotation();
-		FVector ForwardVector = CameraRotation.Vector();
+		// 플레이어 컨트롤러와 카메라를 가져옵니다.
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (!PlayerController) return;
 
-		// 카메라의 Pitch를 고려하여 공격 시작 및 종료 위치 계산
-		FVector Start = GetActorLocation() + ForwardVector * 50.f;
-		FVector End = Start + ForwardVector * 150.f;
+		FVector WorldLocation, WorldDirection;
+		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
+		// 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + WorldDirection * 50.f;
+		FVector End = Start + WorldDirection * 150.f;
 
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
@@ -183,7 +235,7 @@ ASagaPlayableCharacter::Attack()
 
 #if ENABLE_DRAW_DEBUG
 		FColor Color = Collision ? FColor::Red : FColor::Green;
-		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 75.f, 25.f, FRotationMatrix::MakeFromZ(ForwardVector).ToQuat(), Color, false, 3.f);
+		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 75.f, 25.f, FRotationMatrix::MakeFromZ(WorldDirection).ToQuat(), Color, false, 3.f);
 #endif
 
 		if (Collision)
@@ -196,8 +248,14 @@ ASagaPlayableCharacter::Attack()
 	{
 		FHitResult Result;
 
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (!PlayerController) return;
+
+		FVector WorldLocation, WorldDirection;
+		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
 		FVector TraceStart = GetActorLocation();
-		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1500.0f;
+		FVector TraceEnd = TraceStart + WorldDirection * 1500.0f;
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
@@ -207,16 +265,13 @@ ASagaPlayableCharacter::Attack()
 		if (myTeam == EUserTeam::Red)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
-
 			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
 		}
 		else if (myTeam == EUserTeam::Blue)
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
-
 			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
 		}
-
 
 		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Result.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
 		UE_LOG(LogSagaGame, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
@@ -238,23 +293,26 @@ ASagaPlayableCharacter::Attack()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-
 			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
 			if (Effect)
 			{
 				Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
 				Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 			}
-
 		}
-
 	}
 	else if (myWeaponType == EPlayerWeapon::Hammer)
 	{
 		FHitResult Result;
 
-		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		FVector End = Start + GetActorForwardVector() * 150.f;
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (!PlayerController) return;
+
+		FVector WorldLocation, WorldDirection;
+		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
+		FVector Start = GetActorLocation() + WorldDirection * 50.f;
+		FVector End = Start + WorldDirection * 150.f;
 
 		FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
 		param.AddIgnoredActor(this);
@@ -278,25 +336,17 @@ ASagaPlayableCharacter::Attack()
 
 		if (Collision)
 		{
-			// TODO: RPC
 			FDamageEvent DamageEvent;
 			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-			//ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
-
-			//Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-			//Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 		}
 	}
 	else
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
 	}
-
 }
 
 void ASagaPlayableCharacter::PostInitializeComponents()

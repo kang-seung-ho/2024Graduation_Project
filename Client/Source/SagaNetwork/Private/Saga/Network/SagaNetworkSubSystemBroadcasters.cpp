@@ -81,6 +81,22 @@ const
 }
 
 void
+USagaNetworkSubSystem::BroadcastOnSignedIn(int32 my_id, const FText& nickname)
+const
+{
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnSignedIn`"));
+
+	if (OnSignedIn.IsBound())
+	{
+		OnSignedIn.Broadcast(my_id, nickname);
+	}
+	else
+	{
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnSignedIn` was not bound"));
+	}
+}
+
+void
 USagaNetworkSubSystem::BroadcastOnRoomCreated(int32 room_id)
 const
 {
@@ -200,11 +216,7 @@ const
 
 	if (OnTeamChanged.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, is_red_team]()
-			{
-				OnTeamChanged.Broadcast(user_id, is_red_team);
-			}
-		);
+		OnTeamChanged.Broadcast(user_id, is_red_team);
 	}
 	else
 	{
@@ -220,11 +232,8 @@ const
 
 	if (OnGetPreparedGame.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnGetPreparedGame.Broadcast();
-			}
-		);
+		OnGetPreparedGame.Broadcast();
+
 	}
 	else
 	{
@@ -240,11 +249,7 @@ const
 
 	if (OnFailedToStartGame.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, reason]()
-			{
-				OnFailedToStartGame.Broadcast(reason);
-			}
-		);
+		OnFailedToStartGame.Broadcast(reason);
 	}
 	else
 	{
@@ -260,11 +265,7 @@ const
 
 	if (OnStartGame.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnStartGame.Broadcast();
-			}
-		);
+		OnStartGame.Broadcast();
 	}
 	else
 	{
@@ -276,15 +277,11 @@ void
 USagaNetworkSubSystem::BroadcastOnUpdatePosition(int32 user_id, float x, float y, float z)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdatePosition`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdatePosition`"));
 
 	if (OnUpdatePosition.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, x, y, z]()
-			{
-				OnUpdatePosition.Broadcast(user_id, x, y, z);
-			}
-		);
+		OnUpdatePosition.Broadcast(user_id, x, y, z);
 	}
 	else
 	{
@@ -296,15 +293,11 @@ void
 USagaNetworkSubSystem::BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdateRotation`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnUpdateRotation`"));
 
 	if (OnUpdateRotation.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, r, y, p]()
-			{
-				OnUpdateRotation.Broadcast(user_id, r, y, p);
-			}
-		);
+		OnUpdateRotation.Broadcast(user_id, r, y, p);
 	}
 	else
 	{
@@ -320,11 +313,7 @@ const
 
 	if (OnCreatingCharacter.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, team, weapon]()
-			{
-				OnCreatingCharacter.Broadcast(user_id, team, weapon);
-			}
-		);
+		OnCreatingCharacter.Broadcast(user_id, team, weapon);
 	}
 	else
 	{
@@ -336,15 +325,11 @@ void
 USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
+	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
 
 	if (OnRpc.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, cat, user_id, arg0, arg1]()
-			{
-				OnRpc.Broadcast(cat, user_id, arg0, arg1);
-			}
-		);
+		OnRpc.Broadcast(cat, user_id, arg0, arg1);
 	}
 	else
 	{

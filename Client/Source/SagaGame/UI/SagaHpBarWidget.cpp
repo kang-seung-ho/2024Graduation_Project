@@ -1,36 +1,41 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/SagaHpBarWidget.h"
-#include "Components/ProgressBar.h"
+#include <Components/ProgressBar.h>
+#include <Templates/Casts.h>
+#include <Misc/AssertionMacros.h>
+
 #include "Interface/SagaCharacterWidgetInterface.h"
 
-USagaHpBarWidget::USagaHpBarWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-{
-	MaxHp = -1.0f;
-}
+USagaHpBarWidget::USagaHpBarWidget(const FObjectInitializer& initializer)
+noexcept
+	: Super(initializer)
+	, MaxHp(-1)
+{}
 
-void USagaHpBarWidget::NativeConstruct()
+void
+USagaHpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PlayerHpBar")));
-	ensure(HpProgressBar);
+	ensure(nullptr != HpProgressBar);
 
-	ISagaCharacterWidgetInterface* CharacterWidget = Cast<ISagaCharacterWidgetInterface>(OwningActor);
-	if (CharacterWidget)
+	const auto CharacterWidget = Cast<ISagaCharacterWidgetInterface>(OwningActor);
+	if (nullptr != CharacterWidget)
 	{
 		CharacterWidget->SetupCharacterWidget(this);
 	}
 }
 
-void USagaHpBarWidget::UpdateHpBar(float CurrentHp)
+void
+USagaHpBarWidget::UpdateHpBar(float CurrentHp)
 {
 	ensure(MaxHp > 0.0f);
-	if (HpProgressBar)
+
+	if (nullptr != HpProgressBar)
 	{
-		float NewPercent = CurrentHp / MaxHp;
+		const float NewPercent = CurrentHp / MaxHp;
 		HpProgressBar->SetPercent(NewPercent);
-		UE_LOG(LogTemp, Log, TEXT("CurrentHp: %f, MaxHp: %f, Percent: %f"), CurrentHp, MaxHp, NewPercent);
+
+		UE_LOG(LogSagaGame, Log, TEXT("CurrentHp: %f, MaxHp: %f, Percent: %f"), CurrentHp, MaxHp, NewPercent);
 	}
 }

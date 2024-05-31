@@ -1,6 +1,6 @@
 #pragma once
-#include "../../SagaGameInfo.h"
-#include "GameFramework/Actor.h"
+#include "SagaGame.h"
+#include <GameFramework/Actor.h>
 
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "SagaSelectCharacter.generated.h"
@@ -11,18 +11,17 @@ class SAGAGAME_API ASagaSelectCharacter : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASagaSelectCharacter();
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	UCapsuleComponent* mBody;
+	class UCapsuleComponent* mBody;
 
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* mMesh;
+	class USkeletalMeshComponent* mMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EPlayerWeapon mWeapon = EPlayerWeapon::LightSabor;
+	EPlayerWeapon mWeapon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;

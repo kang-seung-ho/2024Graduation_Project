@@ -12,8 +12,14 @@ public class SagaFramework : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
-		
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate", "SlateCore", "UMG",
+			"EnhancedInput"
+		});
+
+		//PrivateDependencyModuleNames.AddRange(new string[] { "StateTree" });
+
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"SagaUtility"
@@ -22,6 +28,7 @@ public class SagaFramework : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"SagaAssetMgr",
+			"SagaGame",
 			"SagaNetwork"
 		});
 	}

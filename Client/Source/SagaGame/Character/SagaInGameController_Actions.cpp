@@ -1,9 +1,11 @@
 #include "SagaInGamePlayerController.h"
 
 #include "SagaCharacterPlayer.h"
+
 #include "Saga/Serializer.h"
-#include "Saga/Network/SagaNetworkSettings.h"
+
 #include "Saga/Network/SagaRpcProtocol.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
 PrintVector(const FVector& vector)
@@ -22,9 +24,11 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -52,9 +56,11 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -73,9 +79,11 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -103,9 +111,11 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -121,9 +131,11 @@ ASagaInGamePlayerController::BeginRun()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteRun();
 	}
@@ -138,9 +150,11 @@ ASagaInGamePlayerController::EndRun()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->TerminateRun();
 	}
@@ -155,9 +169,11 @@ ASagaInGamePlayerController::BeginJump()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
 
 		character->ExecuteJump();
 	}
@@ -172,9 +188,11 @@ ASagaInGamePlayerController::EndJump()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
 
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto pawn = GetPawn<ASagaCharacterPlayer>();
+		const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
 		pawn->TerminateJump();
 	}
@@ -191,7 +209,7 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 
 	AddYawInput(InputValue.X);
 
-	auto pawn = GetPawn<ASagaCharacterPlayer>();
+	const auto pawn = GetPawn<ASagaCharacterPlayer>();
 	if (pawn != nullptr)
 	{
 		pawn->RotateCameraArm(InputValue.Y);
@@ -203,7 +221,9 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
 	if (not isAttacking)
 	{
-		if constexpr (saga::IsOfflineMode)
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (system->IsOfflineMode())
 		{
 			auto pawn = GetPawn<ASagaCharacterPlayer>();
 
@@ -225,7 +245,9 @@ ASagaInGamePlayerController::EndAttack()
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
 
-		if constexpr (saga::IsOfflineMode)
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (system->IsOfflineMode())
 		{
 		}
 		else
@@ -240,9 +262,13 @@ ASagaInGamePlayerController::EndAttack()
 void
 ASagaInGamePlayerController::BeginRide()
 {
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
+
+
 	}
 	else
 	{
@@ -253,9 +279,13 @@ ASagaInGamePlayerController::BeginRide()
 void
 ASagaInGamePlayerController::EndRide()
 {
-	if constexpr (saga::IsOfflineMode)
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterPlayer>();
+
+
 	}
 	else
 	{

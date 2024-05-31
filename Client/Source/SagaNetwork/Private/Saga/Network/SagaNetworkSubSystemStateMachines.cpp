@@ -1,20 +1,38 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "Delegates/Delegate.h"
+#include <UObject/ObjectMacros.h>
+#include <UObject/Object.h>
+#include <Subsystems/SubsystemCollection.h>
+#include <Delegates/Delegate.h>
 
-#include "Saga/Network/SagaNetworkSettings.h"
+#include <Saga/Network/SagaNetworkSettings.h>
 
 void
 USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Loading configuration..."));
+
+	const auto settings = GetDefault<USagaNetworkSettings>();
+	netIsOfflineMode = settings->IsOfflineMode;
+	netConnectionCategory = settings->ConnectionCategory;
+	netRemoteAddress = settings->RemoteAddress;
+	netRemotePort = settings->RemotePort;
+	netLocalPort = settings->LocalPort;
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Is Offline Mode: %s"), netIsOfflineMode ? TEXT("True") : TEXT("False"));
+
+	const auto option = UEnum::GetValueAsString(netConnectionCategory);
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Connect Option: %s"), *option);
+
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Remote Address: %s"), *netRemoteAddress);
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Remote Port: %d"), netRemotePort);
+	UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local Port: %d"), netLocalPort);
+
 	OnNetworkInitialized.AddDynamic(this, &USagaNetworkSubSystem::OnNetworkInitialized_Implementation);
 	OnFailedToConnect.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToConnect_Implementation);
+	OnConnected.AddDynamic(this, &USagaNetworkSubSystem::OnConnected_Implementation);
 	OnDisconnected.AddDynamic(this, &USagaNetworkSubSystem::OnDisconnected_Implementation);
-	OnRoomCreated.AddDynamic(this, &USagaNetworkSubSystem::OnRoomCreated_Implementation);
-	OnLeftRoomBySelf.AddDynamic(this, &USagaNetworkSubSystem::OnLeftRoomBySelf_Implementation);
-	OnLeftRoom.AddDynamic(this, &USagaNetworkSubSystem::OnLeftRoom_Implementation);
-	OnRespondVersion.AddDynamic(this, &USagaNetworkSubSystem::OnRespondVersion_Implementation);
 	OnFailedToStartGame.AddDynamic(this, &USagaNetworkSubSystem::OnFailedToStartGame_Implementation);
 	OnRpc.AddDynamic(this, &USagaNetworkSubSystem::OnRpc_Implementation);
 
@@ -22,14 +40,24 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	everyRooms.Reserve(100);
 
 	recvBuffer.Init(0, recvLimit);
-	transitBuffer.Init(0, recvLimit);
 
-	if (InitializeNetwork_Implementation())
+	clientSocket = CreateSocket();
+
+	// NOTICE: 클라는 바인드 금지
+	//auto local_endpoint = saga::MakeEndPoint(FIPv4Address::InternalLoopback, saga::GetLocalPort());
+	//if (not clientSocket->Bind(*local_endpoint))
+	//{
+	//	return false;
+	//}
+
+	if (nullptr != clientSocket)
 	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("The socket is initialized."));
 		BroadcastOnNetworkInitialized();
 	}
 	else
 	{
+		UE_LOG(LogSagaNetwork, Fatal, TEXT("The socket is null."));
 		BroadcastOnFailedToInitializeNetwork();
 	}
 }
@@ -39,7 +67,19 @@ USagaNetworkSubSystem::Deinitialize()
 {
 	Super::Deinitialize();
 
-	if constexpr (not saga::IsOfflineMode)
+	UE_LOG(LogSagaNetwork, Log, TEXT("Saving configuration..."));
+
+	auto settings = GetMutableDefault<USagaNetworkSettings>();
+	settings->IsOfflineMode = netIsOfflineMode;
+	settings->ConnectionCategory = netConnectionCategory;
+	settings->RemoteAddress = netRemoteAddress;
+	settings->RemotePort = netRemotePort;
+	settings->LocalPort = netLocalPort;
+
+	const FString default_config = settings->GetDefaultConfigFilename();
+	settings->SaveConfig(CPF_Config, *default_config);
+
+	if (not IsOfflineMode())
 	{
 		if (IsSocketAvailable())
 		{
@@ -60,32 +100,5 @@ bool
 USagaNetworkSubSystem::ShouldCreateSubsystem(UObject* Outer)
 const
 {
-	if (Outer)
-	{
-		// https://forums.unrealengine.com/t/solved-getworld-from-static-function-without-pass-an-object/245939
-		//UWorld* world = GEngine->GameViewport->GetWorld();
-		//float TimeSinceCreation = world->GetFirstPlayerController()->GetGameTimeSinceCreation();
-
-		FString name{ 20, TEXT("") };
-		Outer->GetWorld()->GetCurrentLevel()->GetName(name);
-
-		static const FString non_network_levels[] =
-		{
-			TEXT("InitializationLevel")
-		};
-
-		for (auto& non_network_level : non_network_levels)
-		{
-			if (name == non_network_level)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return true;
 }

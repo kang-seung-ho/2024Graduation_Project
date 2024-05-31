@@ -1,28 +1,26 @@
 #include "SagaCharacterSelectController.h"
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
-#include "../../Input/SagaInputSystem.h"
-#include "../../UI/SagaCharacterSelectWidget.h"
-#include "SagaSelectCharacter.h"
+#include <UObject/Object.h>
+#include <InputActionValue.h>
+#include <EnhancedInputSubsystems.h>
+#include <EnhancedInputComponent.h>
 
-#include "Saga/Network/SagaNetworkSettings.h"
-#include "Saga/Network/SagaNetworkSubSystem.h"
+#include "Saga/Level/SagaCharacterChoiceLevel.h"
+
+#include "SagaGameInfo.h"
+#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGame/Player/SagaPlayerWeaponTypes.h"
+#include "SagaGame/Input/SagaInputSystem.h"
+
 #include "Saga/Network/SagaRpcProtocol.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
-ASagaCharacterSelectController::ASagaCharacterSelectController()
+ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInitializer& initializer)
+noexcept
+	: Super(initializer)
+	, mSelectActor()
+	, OnClickedCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	bShowMouseCursor = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_CharacterSelect.UI_CharacterSelect_C'"));
-
-	if (WidgetClass.Succeeded())
-	{
-		mSelectWidgetClass = WidgetClass.Class;
-	}
-
-	isGameStartable = false;
 }
 
 void
@@ -30,39 +28,15 @@ ASagaCharacterSelectController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FTimerHandle TimerHandle{};
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASagaCharacterSelectController::CountDown, 1.0f, true, 0.0);
+	FInputModeGameAndUI mode{};
+	SetInputMode(mode);
 
-	FInputModeGameAndUI InputMode;
-	SetInputMode(InputMode);
+	SetShowMouseCursor(true);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	const USagaCharacterSelectInputSystem* InputSystem = GetDefault<USagaCharacterSelectInputSystem>();
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
-}
-
-void
-ASagaCharacterSelectController::CountDown()
-{
-	if (Seconds != 0)
-	{
-		Seconds = Seconds - 1;
-	}
-	else
-	{
-		if (Minutes == 0 && Seconds == 0)
-		{
-			// 게임 시작(레벨전환) + 서버에게 게임 시작을 알림
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
-			UE_LOG(LogSagaGame, Warning, TEXT("Game Start"));
-		}
-		else
-		{
-			Minutes = Minutes - 1;
-			Seconds = 59;
-		}
-	}
 }
 
 void
@@ -79,41 +53,32 @@ ASagaCharacterSelectController::SetupInputComponent()
 }
 
 void
-ASagaCharacterSelectController::Tick(float DeltaTime)
+ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 {
-	Super::Tick(DeltaTime);
-
 	FHitResult result;
 	bool Hit = GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel5, false, result);
 
 	if (Hit)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Mouse On"));
-		mUnderCursorActor = result.GetActor();
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterSelectController][OnClick] Mouse on character"));
+		mSelectActor = result.GetActor();
 	}
 	else
 	{
-		mUnderCursorActor = nullptr;
+		mSelectActor = nullptr;
 	}
-}
-
-void
-ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
-{
-	mSelectActor = mUnderCursorActor;
 
 	if (mSelectActor)
 	{
+		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		ASagaSelectCharacter* SelectedCharacter = Cast<ASagaSelectCharacter>(mSelectActor);
+
 		if (SelectedCharacter)
 		{
 			EPlayerWeapon WeaponType = SelectedCharacter->GetWeapon();
 
-			isGameStartable = true;
-
 			// 무기 유형에 따라 서버전송 처리를 수행
 			FString WeaponName = TEXT("Unknown");
-			const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 			switch (WeaponType)
 			{
@@ -121,9 +86,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Light Sabor");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 0);
 					}
@@ -134,7 +99,7 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 				}
 				else
 				{
-					system->SetOfflineWeapon(EPlayerWeapon::LightSabor);
+					system->SetLocalUserWeapon(EPlayerWeapon::LightSabor);
 				}
 			}
 			break;
@@ -143,9 +108,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Water Gun");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 1);
 					}
@@ -156,7 +121,7 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 				}
 				else
 				{
-					system->SetOfflineWeapon(EPlayerWeapon::WaterGun);
+					system->SetLocalUserWeapon(EPlayerWeapon::WaterGun);
 				}
 			}
 			break;
@@ -165,9 +130,9 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 			{
 				WeaponName = TEXT("Hammer");
 
-				if constexpr (not saga::IsOfflineMode)
+				if (not system->IsOfflineMode())
 				{
-					if (nullptr != system and system->GetLocalUserId() != -1)
+					if (system->IsConnected())
 					{
 						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 2);
 					}
@@ -178,21 +143,18 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 				}
 				else
 				{
-					system->SetOfflineWeapon(EPlayerWeapon::Hammer);
+					system->SetLocalUserWeapon(EPlayerWeapon::Hammer);
 				}
 			}
 			break;
 			}
 
 			UE_LOG(LogSagaGame, Warning, TEXT("Selected weapon: %s"), *WeaponName);
+
+			if (OnClickedCharacter.IsBound())
+			{
+				OnClickedCharacter.Broadcast(SelectedCharacter);
+			}
 		}
-		else
-		{
-			isGameStartable = false;
-		}
-	}
-	else
-	{
-		isGameStartable = false;
 	}
 }

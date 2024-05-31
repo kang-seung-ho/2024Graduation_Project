@@ -2,7 +2,6 @@
 #include "Character/SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -59,18 +58,24 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
-		const auto ydir = static_cast<int>(arg1);
+		if (0 != xdir)
+		{
+			character->ExecuteStrafeWalk(xdir);
+		}
 
-		character->ExecuteStrafeWalk(xdir);
-		character->ExecuteStraightWalk(ydir);
+		const auto ydir = static_cast<int>(arg1);
+		if (0 != ydir)
+		{
+			character->ExecuteStraightWalk(ydir);
+		}
 	}
 	break;
 
@@ -84,18 +89,24 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 		if (is_remote)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] End Walking"));
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] End Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
-		const auto ydir = static_cast<int>(arg1);
+		if (0 == xdir)
+		{
+			character->ExecuteStrafeWalk(xdir);
+		}
 
-		character->ExecuteStrafeWalk(xdir);
-		character->ExecuteStraightWalk(ydir);
+		const auto ydir = static_cast<int>(arg1);
+		if (0 == ydir)
+		{
+			character->ExecuteStraightWalk(ydir);
+		}
 	}
 	break;
 
@@ -161,7 +172,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		const auto guardian_id = arg0;
 		const auto guardian_info = arg1;
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
 		if (is_remote)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] user '%d' Begin ride guardian '%d'"), id, guardian_id);
@@ -425,13 +436,11 @@ bool
 ASagaInGamePlayerController::SendRpc(ESagaRpcProtocol rpc, const int64 arg0, const int32 arg1)
 const
 {
-	if constexpr (not saga::IsOfflineMode)
-	{
-		//auto singleton = GEngine->GetWorld()->GetGameInstance();
-		//auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (nullptr != system and system->GetLocalUserId() != -1)
+	if (not system->IsOfflineMode())
+	{
+		if (system->IsConnected())
 		{
 			return 0 < system->SendRpcPacket(rpc, arg0, arg1);
 		}

@@ -60,6 +60,13 @@ USagaInputSystem::USagaInputSystem()
 		if (Asset.Succeeded())
 			Interact = Asset.Object;
 	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Activate.IA_Activate'"));
+
+		if (Asset.Succeeded())
+			Activate = Asset.Object;
+	}
 }
 
 USagaCharacterSelectInputSystem::USagaCharacterSelectInputSystem()
