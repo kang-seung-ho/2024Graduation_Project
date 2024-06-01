@@ -1,10 +1,11 @@
 #include "SagaCharacterSelectController.h"
+#include <Engine/EngineTypes.h>
+#include <Engine/HitResult.h>
 #include <UObject/Object.h>
+#include <Containers/UnrealString.h>
 #include <InputActionValue.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
-
-#include "Saga/Level/SagaCharacterChoiceLevel.h"
 
 #include "SagaGameInfo.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
@@ -17,7 +18,6 @@
 ASagaCharacterSelectController::ASagaCharacterSelectController(const FObjectInitializer& initializer)
 noexcept
 	: Super(initializer)
-	, mSelectActor()
 	, OnClickedCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -60,101 +60,37 @@ ASagaCharacterSelectController::OnClick(const FInputActionValue& Value)
 
 	if (Hit)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterSelectController][OnClick] Mouse on character"));
-		mSelectActor = result.GetActor();
-	}
-	else
-	{
-		mSelectActor = nullptr;
-	}
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterSelectController][OnClick] Mouse on a character"));
 
-	if (mSelectActor)
-	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-		ASagaSelectCharacter* SelectedCharacter = Cast<ASagaSelectCharacter>(mSelectActor);
+		const auto character = Cast<ASagaSelectCharacter>(result.GetActor());
 
-		if (SelectedCharacter)
+		if (nullptr != character)
 		{
-			EPlayerWeapon WeaponType = SelectedCharacter->GetWeapon();
+			const EPlayerWeapon weapon = character->GetWeapon();
 
-			// 무기 유형에 따라 서버전송 처리를 수행
-			FString WeaponName = TEXT("Unknown");
+#if WITH_EDITOR
+			const FString name = UEnum::GetValueAsString(weapon);
+			UE_LOG(LogSagaGame, Warning, TEXT("Selected weapon: %s"), *name);
+#endif
 
-			switch (WeaponType)
+			const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+			if (not system->IsOfflineMode())
 			{
-			case EPlayerWeapon::LightSabor:
-			{
-				WeaponName = TEXT("Light Sabor");
-
-				if (not system->IsOfflineMode())
+				if (system->IsConnected())
 				{
-					if (system->IsConnected())
-					{
-						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 0);
-					}
-					else
-					{
-						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-					}
-				}
-				else
-				{
-					system->SetLocalUserWeapon(EPlayerWeapon::LightSabor);
+					system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, static_cast<int64>(weapon));
 				}
 			}
-			break;
-
-			case EPlayerWeapon::WaterGun:
+			else
 			{
-				WeaponName = TEXT("Water Gun");
-
-				if (not system->IsOfflineMode())
-				{
-					if (system->IsConnected())
-					{
-						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 1);
-					}
-					else
-					{
-						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-					}
-				}
-				else
-				{
-					system->SetLocalUserWeapon(EPlayerWeapon::WaterGun);
-				}
+				system->SetLocalUserWeapon(weapon);
 			}
-			break;
+		}
 
-			case EPlayerWeapon::Hammer:
-			{
-				WeaponName = TEXT("Hammer");
-
-				if (not system->IsOfflineMode())
-				{
-					if (system->IsConnected())
-					{
-						system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, 2);
-					}
-					else
-					{
-						UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-					}
-				}
-				else
-				{
-					system->SetLocalUserWeapon(EPlayerWeapon::Hammer);
-				}
-			}
-			break;
-			}
-
-			UE_LOG(LogSagaGame, Warning, TEXT("Selected weapon: %s"), *WeaponName);
-
-			if (OnClickedCharacter.IsBound())
-			{
-				OnClickedCharacter.Broadcast(SelectedCharacter);
-			}
+		if (OnClickedCharacter.IsBound())
+		{
+			OnClickedCharacter.Broadcast(character);
 		}
 	}
 }

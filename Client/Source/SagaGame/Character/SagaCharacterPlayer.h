@@ -43,7 +43,7 @@ public:
 #pragma endregion
 
 	UFUNCTION()
-	virtual void Attack();
+	virtual void Attack() {};
 	UFUNCTION()
 	virtual void PlayAttackAnimation();
 	UFUNCTION()

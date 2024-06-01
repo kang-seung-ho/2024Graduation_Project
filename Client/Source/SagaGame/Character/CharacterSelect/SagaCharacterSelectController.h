@@ -19,9 +19,6 @@ class SAGAGAME_API ASagaCharacterSelectController final : public APlayerControll
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSagaSystem|System|Character Choice Level")
-	TObjectPtr<AActor> mSelectActor;
-
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSagaSystem|System|Character Choice Level")
 	FSagaEventOnClickedCharacter OnClickedCharacter;
 

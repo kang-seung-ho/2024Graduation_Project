@@ -1,4 +1,5 @@
 #include "SagaInGamePlayerController.h"
+#include <UObject/Object.h>
 #include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
@@ -178,10 +179,10 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 
 	FTimerHandle CountdownTimerHandle{};
-	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true, 0.0f);
+	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true);
 	
 	FTimerHandle ReadyTimerHandle{};
-	GetWorldTimerManager().SetTimer(ReadyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false, 0.0f);
+	GetWorldTimerManager().SetTimer(ReadyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false);
 
 	if (IsValid(mTeamScoreBoardClass))
 	{

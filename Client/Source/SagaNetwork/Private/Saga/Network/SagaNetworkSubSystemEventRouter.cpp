@@ -226,7 +226,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 				{
 					const auto team_id = user.team_id == 1 ? EUserTeam::Red : EUserTeam::Blue;
 
-					auto str = UEnum::GetValueAsString(team_id);
+					const auto str = UEnum::GetValueAsString(team_id);
 
 					UE_LOG(LogSagaNetwork, Log, TEXT("Client (%d): %s in team '%s'"), user.id, user.nickname, *str);
 

@@ -202,10 +202,6 @@ ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 }
 
 void
-ASagaCharacterPlayer::Attack()
-{}
-
-void
 ASagaCharacterPlayer::RotateCameraArm(const float pitch)
 {
 	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
@@ -219,7 +215,8 @@ ASagaCharacterPlayer::RotateCameraArm(const float pitch)
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
 }
 
-void ASagaCharacterPlayer::SetDead()
+void
+ASagaCharacterPlayer::SetDead()
 {
 	HpBar->SetHiddenInGame(true);
 }

@@ -73,14 +73,14 @@ ASagaCharacterChoiceLevel::BeginPlay()
 			levelUiInstance->AddToViewport(1);
 		}
 
-		GetWorldTimerManager().SetTimer(choiceTimerHandle, this, &ASagaCharacterChoiceLevel::PeriodicUpdate, 1.0f, true, 0.0);
+		GetWorldTimerManager().SetTimer(choiceTimerHandle, this, &ASagaCharacterChoiceLevel::HandlePeriodicUpdate, 1.0f, true);
 
-		GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaCharacterChoiceLevel::HandleCompleteCountdown, 30.0f, false, 0.0);
+		//GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaCharacterChoiceLevel::HandleCompleteCountdown, 30.0f, false);
 	}
 }
 
 void
-ASagaCharacterChoiceLevel::PeriodicUpdate()
+ASagaCharacterChoiceLevel::HandlePeriodicUpdate()
 {
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -94,6 +94,7 @@ void
 ASagaCharacterChoiceLevel::HandleCompleteCountdown()
 {
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game!"));
+
 	GotoNextLevel();
 }
 
@@ -115,9 +116,7 @@ ASagaCharacterChoiceLevel::HandleClickedCharacter(ASagaSelectCharacter* characte
 	}
 	else
 	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game! (Offline Mode)"));
-
-		GotoNextLevel();
+		HandleCompleteCountdown();
 	}
 }
 
@@ -132,12 +131,7 @@ ASagaCharacterChoiceLevel::OnFailedToStartGame(ESagaGameContract reason)
 {
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
-	{
-		SetPrevLevelName(TEXT("LobbyLevel"));
-		GotoPrevLevel();
-	}
-	else if (system->IsConnected() and -1 != system->GetCurrentRoomId())
+	if (system->IsConnected() and -1 != system->GetCurrentRoomId())
 	{
 		SetPrevLevelName(TEXT("LobbyLevel"));
 		GotoPrevLevel();
@@ -155,9 +149,7 @@ ASagaCharacterChoiceLevel::OnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0
 	{
 		if (arg0 <= 1)
 		{
-			//UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game!"));
-
-			//GotoNextLevel();
+			HandleCompleteCountdown();
 		}
 		else
 		{

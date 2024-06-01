@@ -29,10 +29,9 @@ protected:
 
 private:
 	UFUNCTION()
-	void PeriodicUpdate();
+	void HandlePeriodicUpdate();
 	UFUNCTION()
 	void HandleCompleteCountdown();
-
 	UFUNCTION()
 	void HandleClickedCharacter(class ASagaSelectCharacter* character);
 
