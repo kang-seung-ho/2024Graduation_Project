@@ -5,8 +5,8 @@
 
 #include "Saga/Interface/SagaUiButton.h"
 #include "Saga/Interface/SagaTimerUiWidget.h"
+#include "Saga/Controllers/SagaCharacterChoiceController.h"
 
-#include "SagaGame/Character/CharacterSelect/SagaCharacterSelectController.h"
 #include "SagaGame/UI/SagaCharacterSelectWidget.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 
@@ -31,7 +31,7 @@ noexcept
 	{
 		const auto my_name = GetName();
 
-		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaCharacterSelectController] '%s' could not find the character selection ui class."), *my_name);
+		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaCharacterChoiceController] '%s' could not find the character selection ui class."), *my_name);
 	}
 }
 
@@ -40,7 +40,7 @@ ASagaCharacterChoiceLevel::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const auto controller = GetWorld()->GetFirstPlayerController<ASagaCharacterSelectController>();
+	const auto controller = GetWorld()->GetFirstPlayerController<ASagaCharacterChoiceController>();
 
 	if (IsValid(controller))
 	{
@@ -66,12 +66,10 @@ ASagaCharacterChoiceLevel::BeginPlay()
 		{
 			const auto my_name = GetName();
 
-			UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaCharacterSelectController] '%s' could not create the level ui for room session."), *my_name);
+			UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaCharacterChoiceController] '%s' could not create the level ui for room session."), *my_name);
 		}
 		else
 		{
-			levelUiInstance->myTimer->SetSeconds(30);
-
 			levelUiInstance->AddToViewport(1);
 		}
 

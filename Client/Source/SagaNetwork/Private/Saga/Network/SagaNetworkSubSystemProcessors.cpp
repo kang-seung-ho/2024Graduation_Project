@@ -68,8 +68,8 @@ USagaNetworkSubSystem::Receive()
 			else if (basic_pk.mySize <= recvBytes)
 			{
 #if WITH_EDITOR
-				const auto ename = UEnum::GetValueAsString(basic_pk.myProtocol);
-				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Received a packet (%s, %d)."), *ename, basic_pk.mySize);
+				//const auto ename = UEnum::GetValueAsString(basic_pk.myProtocol);
+				//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Received a packet (%s, %d)."), *ename, basic_pk.mySize);
 #endif
 
 				// Make a serialized packet
@@ -89,7 +89,7 @@ USagaNetworkSubSystem::Receive()
 			}
 			else
 			{
-				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] A receive phase is done."));
+				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] A receive phase is splited."));
 
 				break;
 			}

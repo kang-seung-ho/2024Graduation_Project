@@ -9,49 +9,23 @@
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.h"
-#include "SagaCharacterSpawner.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
 	: APlayerController(ObjectInitializer)
 	, isRiding(), OnRideNPC()
-	, mTeamScoreBoardClass(), mTeamScoreBoard()
-	, playerSpawners()
 	, walkDirection()
-	, lastCharacterPosition(), lastCharacterRotation(), transformUpdateTimer()
 	, isAttacking()
-{
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'"));
-
-	if (WidgetClass.Succeeded())
-	{
-		mTeamScoreBoardClass = WidgetClass.Class;
-	}
-}
-
-AActor*
-ASagaInGamePlayerController::CreatePlayableCharacter(UClass* type, const FTransform& transform)
-const
-{
-	if (type != nullptr)
-	{
-		FActorSpawnParameters setting{};
-		setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		UE_LOG(LogSagaGame, Log, TEXT("Creating a playable character"));
-		return GetWorld()->SpawnActor(type, &transform, MoveTempIfPossible(setting));
-	}
-	else
-	{
-		return nullptr;
-	}
-}
+	, lastCharacterPosition(), lastCharacterRotation()
+	, readyTimerHandle(), countdownTimerHandle()
+	, transformUpdateTimer()
+{}
 
 void
 ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 {
-	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
+	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
 	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
 
 	if (ControlledCharacter)
@@ -67,7 +41,7 @@ ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
 void
 ASagaInGamePlayerController::RideNPCCallFunction()
 {
-	ASagaPlayableCharacter* ControlledCharacter = Cast<ASagaPlayableCharacter>(GetPawn());
+	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
 
 	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
 	if (ControlledCharacter)
@@ -116,60 +90,11 @@ ASagaInGamePlayerController::BeginPlay()
 	const auto world = GetWorld();
 	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
 
-	TArray<AActor*> spawner_found_result{};
-	UGameplayStatics::GetAllActorsOfClass(world, ASagaCharacterSpawner::StaticClass(), spawner_found_result);
-
-	const auto spawners_number = spawner_found_result.Num();
-	if (0 < spawners_number)
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("%d spawner(s) has found."), spawners_number);
-
-		if (1 == spawners_number)
-		{
-			const auto spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
-			ensure(spawner != nullptr);
-
-			playerSpawners.Add(EUserTeam::Unknown, spawner);
-			playerSpawners.Add(EUserTeam::Red, spawner);
-			playerSpawners.Add(EUserTeam::Blue, spawner);
-		}
-		else
-		{
-			const auto red_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[0]);
-			ensure(red_spawner != nullptr);
-
-			playerSpawners.Add(EUserTeam::Unknown, red_spawner);
-			playerSpawners.Add(EUserTeam::Red, red_spawner);
-
-			const auto blue_spawner = Cast<ASagaCharacterSpawner>(spawner_found_result[1]);
-			ensure(blue_spawner != nullptr);
-
-			playerSpawners.Add(EUserTeam::Blue, blue_spawner);
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Any spawner does not exist."));
-
-		FVector center{};
-		auto automatic_spawner = world->SpawnActor<ASagaCharacterSpawner>(center, {});
-		ensure(automatic_spawner != nullptr);
-
-		UE_LOG(LogSagaGame, Log, TEXT("An automatic spawner is spawned."));
-		playerSpawners.Add(EUserTeam::Unknown, automatic_spawner);
-		playerSpawners.Add(EUserTeam::Red, automatic_spawner);
-		playerSpawners.Add(EUserTeam::Blue, automatic_spawner);
-	}
-
 	if (nullptr != system)
 	{
-		system->OnLeftRoomBySelf.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoomBySelf);
-
 		system->OnLeftRoom.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoom);
 
 		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
-
-		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGamePlayerController::OnCreatingCharacter);
 
 		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
@@ -178,21 +103,9 @@ ASagaInGamePlayerController::BeginPlay()
 		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
 	}
 
-	FTimerHandle CountdownTimerHandle{};
-	GetWorldTimerManager().SetTimer(CountdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true);
-	
-	FTimerHandle ReadyTimerHandle{};
-	GetWorldTimerManager().SetTimer(ReadyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false);
+	GetWorldTimerManager().SetTimer(readyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false);
 
-	if (IsValid(mTeamScoreBoardClass))
-	{
-		mTeamScoreBoard = CreateWidget<UUserWidget>(GetWorld(), mTeamScoreBoardClass);
-
-		if (IsValid(mTeamScoreBoard))
-		{
-			mTeamScoreBoard->AddToViewport();
-		}
-	}
+	GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true);
 }
 
 void

@@ -118,8 +118,9 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	int32 CharacterMode = system->GetCurrentMode();
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	const int32 CharacterMode = system->GetCurrentMode();
 	UE_LOG(LogSagaGame, Warning, TEXT("Character Mode : %d"), CharacterMode);
 
 	if (CharacterMode == 1)
@@ -153,9 +154,9 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 }
 
 void
-ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
+ASagaCharacterPlayer::AttachWeapon()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), WeaponType);
+	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
 
 	// Set Weapon Mesh with Weapon Type
 	if (WeaponMeshes.Contains(myWeaponType))
@@ -185,7 +186,7 @@ ASagaCharacterPlayer::AttachWeapon(EPlayerWeapon WeaponType)
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected Weapon."));
+		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
 	}
 }
 

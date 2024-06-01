@@ -20,8 +20,6 @@ public:
 
 	/* Methods */
 #pragma region =========================
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game", meta = (NotBlueprintThreadSafe, UnsafeDuringActorConstruction))
-	AActor* CreatePlayableCharacter(UClass* type, const FTransform& transform) const;
 	UFUNCTION()
 	void TriggerRideNPC(const FInputActionValue& Value);
 	UFUNCTION()
@@ -45,14 +43,7 @@ public:
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
 #pragma region =========================
 	UFUNCTION()
-	void OnLeftRoomBySelf();
-
-	UFUNCTION()
 	void OnLeftRoom(int32 user_id);
-
-	UFUNCTION()
-	void OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
-
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 #pragma endregion
@@ -97,10 +88,6 @@ public:
 	void EndRide();
 #pragma endregion
 
-	/* Getters */
-#pragma region =========================
-#pragma endregion
-
 public:
 	/* Game */
 #pragma region =========================
@@ -112,14 +99,6 @@ public:
 	bool isRiding;
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
-
-	UPROPERTY()
-	TSubclassOf<UUserWidget> mTeamScoreBoardClass;
-	UPROPERTY()
-	class UUserWidget* mTeamScoreBoard;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TMap<EUserTeam, class ASagaCharacterSpawner*> playerSpawners;
 #pragma endregion
 
 protected:
@@ -130,17 +109,22 @@ protected:
 	virtual void SetupInputComponent() override;
 #pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
 	FVector walkDirection;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isAttacking;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
 	FVector lastCharacterPosition;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
 	FRotator lastCharacterRotation;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	FTimerHandle transformUpdateTimer;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isAttacking;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
+	FTimerHandle readyTimerHandle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
+	FTimerHandle countdownTimerHandle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
+	FTimerHandle transformUpdateTimer;
 
 private:
 	// 좌표 쓰기

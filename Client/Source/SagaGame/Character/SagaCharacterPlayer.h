@@ -18,6 +18,12 @@ class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharact
 	GENERATED_BODY()
 
 public:
+	ASagaCharacterPlayer();
+
+	virtual void PostInitializeComponents() override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float delta_time) override;
+
 	/* 게임 속성 메서드 */
 #pragma region =========================
 	UFUNCTION()
@@ -47,7 +53,7 @@ public:
 	UFUNCTION()
 	virtual void PlayAttackAnimation();
 	UFUNCTION()
-	void AttachWeapon(EPlayerWeapon WeaponType);
+	virtual void AttachWeapon();
 	UFUNCTION()
 	virtual void SetDead();
 	UFUNCTION()
@@ -120,12 +126,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
 
-public:
-	ASagaCharacterPlayer();
-
-	virtual void PostInitializeComponents() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void Tick(float delta_time) override;
 
 protected:
 	virtual void BeginPlay() override;

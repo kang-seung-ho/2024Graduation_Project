@@ -123,8 +123,6 @@ USagaRoomSessionLevelUiWidget::NativeDestruct()
 void
 USagaRoomSessionLevelUiWidget::OnUpdateMembers(const TArray<struct FSagaVirtualUser>& list)
 {
-	UE_LOG(LogSagaFramework, Log, TEXT("[USagaRoomSessionLevelUiWidget][OnUpdateMembers] %d users are listed."), list.Num());
-
 	redTeamCount = 0;
 	bluTeamCount = 0;
 
@@ -283,18 +281,7 @@ const
 	}
 	else
 	{
-		const auto& list = system->GetUserList();
-
-		int32 result{};
-		for (auto& user : list)
-		{
-			if (user.myTeam == EUserTeam::Red)
-			{
-				++result;
-			}
-		}
-
-		return result;
+		return redTeamCount;
 	}
 }
 
@@ -327,17 +314,6 @@ const
 	}
 	else
 	{
-		const auto& list = system->GetUserList();
-
-		int32 result{};
-		for (auto& user : list)
-		{
-			if (user.myTeam == EUserTeam::Blue)
-			{
-				++result;
-			}
-		}
-
-		return result;
+		return bluTeamCount;
 	}
 }

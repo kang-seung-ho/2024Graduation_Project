@@ -59,6 +59,8 @@ USagaCharacterSelectWidget::NativeConstruct()
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaCharacterSelectWidget] '%s' found the start button in children."), *my_name);
 	}
+
+	myTimer->SetSeconds(30);
 }
 
 void

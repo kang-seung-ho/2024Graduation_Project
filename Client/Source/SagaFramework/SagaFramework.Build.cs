@@ -10,12 +10,11 @@ public class SagaFramework : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { "SagaFramework" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"Slate", "SlateCore", "UMG",
-			"EnhancedInput"
+			"Slate", "SlateCore", "UMG"
 		});
 
 		//PrivateDependencyModuleNames.AddRange(new string[] { "StateTree" });

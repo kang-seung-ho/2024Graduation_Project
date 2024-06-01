@@ -98,14 +98,12 @@ noexcept
 	{
 		localUser.SetCharacterHandle(character);
 	}
-	else
+
+	for (auto& user : everyUsers)
 	{
-		for (auto& user : everyUsers)
+		if (user.myID == user_id)
 		{
-			if (user.myID == user_id)
-			{
-				user.remoteCharacter = character;
-			}
+			user.remoteCharacter = character;
 		}
 	}
 }
@@ -118,14 +116,12 @@ noexcept
 	{
 		localUser.myTeam = team;
 	}
-	else
+
+	for (auto& user : everyUsers)
 	{
-		for (auto& user : everyUsers)
+		if (user.myID == user_id)
 		{
-			if (user.myID == user_id)
-			{
-				user.myTeam = team;
-			}
+			user.myTeam = team;
 		}
 	}
 }
@@ -138,14 +134,12 @@ noexcept
 	{
 		localUser.myWeapon = weapon;
 	}
-	else
+
+	for (auto& user : everyUsers)
 	{
-		for (auto& user : everyUsers)
+		if (user.myID == user_id)
 		{
-			if (user.myID == user_id)
-			{
-				user.myWeapon = weapon;
-			}
+			user.myWeapon = weapon;
 		}
 	}
 }
@@ -158,14 +152,12 @@ noexcept
 	{
 		localUser.myHealth = hp;
 	}
-	else
+
+	for (auto& user : everyUsers)
 	{
-		for (auto& user : everyUsers)
+		if (user.myID == user_id)
 		{
-			if (user.myID == user_id)
-			{
-				user.myHealth = hp;
-			}
+			user.myHealth = hp;
 		}
 	}
 }
@@ -180,16 +172,14 @@ noexcept
 		localUser.myY = y;
 		localUser.myZ = z;
 	}
-	else
+
+	for (auto& user : everyUsers)
 	{
-		for (auto& user : everyUsers)
+		if (user.myID == user_id)
 		{
-			if (user.myID == user_id)
-			{
-				user.myX = x;
-				user.myY = y;
-				user.myZ = z;
-			}
+			user.myX = x;
+			user.myY = y;
+			user.myZ = z;
 		}
 	}
 }

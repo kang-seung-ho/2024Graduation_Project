@@ -18,4 +18,11 @@ protected:
 private:
 	UFUNCTION()
 	void OnDisconnected();
+	UFUNCTION()
+	void OnLeftRoomBySelf();
+
+	UPROPERTY()
+	TSubclassOf<class UUserWidget> mTeamScoreBoardClass;
+	UPROPERTY()
+	class UUserWidget* mTeamScoreBoard;
 };

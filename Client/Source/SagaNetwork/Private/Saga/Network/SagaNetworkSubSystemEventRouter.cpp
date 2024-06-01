@@ -258,13 +258,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Client %d's team changed to %s"), client_id, is_red_team ? TEXT("Red") : TEXT("Blue"));
 
-		for (auto& member : everyUsers)
-		{
-			if (member.myID == client_id)
-			{
-				member.myTeam = is_red_team ? EUserTeam::Red : EUserTeam::Blue;
-			}
-		}
+		SetTeam(client_id, is_red_team ? EUserTeam::Red : EUserTeam::Blue);
 
 		CallPureFunctionOnGameThread([this, client_id, is_red_team]()
 			{
@@ -331,7 +325,14 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 			{
 				for (auto& member : everyUsers)
 				{
-					BroadcastOnCreatingCharacter(member.myID, member.myTeam, member.myWeapon);
+					if (member.myID == GetLocalUserId())
+					{
+						BroadcastOnCreatingCharacter(member.myID, GetLocalUserTeam(), GetLocalUserWeapon());
+					}
+					else
+					{
+						BroadcastOnCreatingCharacter(member.myID, member.myTeam, member.myWeapon);
+					}
 				}
 			}
 		);

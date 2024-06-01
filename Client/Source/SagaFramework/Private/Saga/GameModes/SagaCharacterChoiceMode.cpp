@@ -1,8 +1,8 @@
 #include "Saga/GameModes/SagaCharacterChoiceMode.h"
-#include "SagaGame/Character/CharacterSelect/SagaCharacterSelectController.h"
+#include "Saga/Controllers/SagaCharacterChoiceController.h"
 
 ASagaCharacterChoiceMode::ASagaCharacterChoiceMode()
 	: ASagaInterfaceOnlyModeBase()
 {
-	SetControllerClass(ASagaCharacterSelectController::StaticClass());
+	SetControllerClass(ASagaCharacterChoiceController::StaticClass());
 }

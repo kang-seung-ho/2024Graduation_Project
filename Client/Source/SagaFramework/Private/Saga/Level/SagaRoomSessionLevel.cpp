@@ -78,11 +78,18 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 
 		for (auto& user : list)
 		{
+			const auto& user_id = user.myID;
+
+			if (system->GetLocalUserId() == user_id)
+			{
+				system->SetTeam(user_id, user.myTeam);
+			}
+
 			switch (user.myTeam)
 			{
 			case EUserTeam::Unknown:
 			{
-				UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has unkown team."), user.myID);
+				UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has unkown team."), user_id);
 			}
 			break;
 
@@ -91,7 +98,7 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 				auto& team_list = *red_list;
 
 				const auto name = user.myName.ToString();
-				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user.myID, *name, static_cast<int>(user.myTeam));
+				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user_id, *name, static_cast<int>(user.myTeam));
 
 				AddMemberToTeamViewer(&team_list, user);
 			}
@@ -102,7 +109,7 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 				auto& team_list = *blu_list;
 
 				const auto name = user.myName.ToString();
-				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user.myID, *name, static_cast<int>(user.myTeam));
+				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user_id, *name, static_cast<int>(user.myTeam));
 
 				AddMemberToTeamViewer(&team_list, user);
 			}
@@ -110,7 +117,7 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 
 			default:
 			{
-				UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has invalid team '%d'."), user.myID, static_cast<int32>(user.myTeam));
+				UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has invalid team '%d'."), user_id, static_cast<int32>(user.myTeam));
 			}
 			break;
 			}
@@ -223,10 +230,7 @@ void
 ASagaRoomSessionLevel::OnUpdateUserList(const TArray<struct FSagaVirtualUser>& list)
 {
 	PauseTimer();
-	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnUpdateUserList] %d users are listed."), list.Num());
-
 	UpdateRoomSessionUI();
-
 	UnPauseTimer();
 }
 
@@ -360,7 +364,7 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
 
-		system->SetTeam(0, EUserTeam::Red);
+		system->SetTeam(system->GetLocalUserId(), EUserTeam::Red);
 	}
 
 	UnPauseTimer();
@@ -392,7 +396,7 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
 
-		system->SetTeam(0, EUserTeam::Blue);
+		system->SetTeam(system->GetLocalUserId(), EUserTeam::Blue);
 	}
 
 	UnPauseTimer();
