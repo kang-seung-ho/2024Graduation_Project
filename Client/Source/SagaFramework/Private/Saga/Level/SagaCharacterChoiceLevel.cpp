@@ -4,6 +4,7 @@
 #include <Blueprint/UserWidget.h>
 
 #include "Saga/Interface/SagaUiButton.h"
+#include "Saga/Interface/SagaTimerUiWidget.h"
 
 #include "SagaGame/Character/CharacterSelect/SagaCharacterSelectController.h"
 #include "SagaGame/UI/SagaCharacterSelectWidget.h"
@@ -15,8 +16,7 @@ ASagaCharacterChoiceLevel::ASagaCharacterChoiceLevel()
 noexcept
 	: Super()
 	, levelUiClass(), levelUiInstance()
-	, choiceTimerHandle()
-	, countdownTimerHandle()
+	, choiceTimer()
 {
 	SetNextLevelName(TEXT("SagaGameLevel"));
 	SetPrevLevelName(TEXT("MainMenuLevel"));
@@ -70,12 +70,12 @@ ASagaCharacterChoiceLevel::BeginPlay()
 		}
 		else
 		{
+			levelUiInstance->myTimer->SetSeconds(30);
+
 			levelUiInstance->AddToViewport(1);
 		}
 
-		GetWorldTimerManager().SetTimer(choiceTimerHandle, this, &ASagaCharacterChoiceLevel::HandlePeriodicUpdate, 1.0f, true);
-
-		//GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaCharacterChoiceLevel::HandleCompleteCountdown, 30.0f, false);
+		GetWorldTimerManager().SetTimer(choiceTimer, this, &ASagaCharacterChoiceLevel::HandlePeriodicUpdate, 1.0f, true);
 	}
 }
 
@@ -88,14 +88,6 @@ ASagaCharacterChoiceLevel::HandlePeriodicUpdate()
 	{
 		system->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
 	}
-}
-
-void
-ASagaCharacterChoiceLevel::HandleCompleteCountdown()
-{
-	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game!"));
-
-	GotoNextLevel();
 }
 
 void
@@ -116,13 +108,23 @@ ASagaCharacterChoiceLevel::HandleClickedCharacter(ASagaSelectCharacter* characte
 	}
 	else
 	{
-		HandleCompleteCountdown();
+		HandleStartGame();
 	}
+}
+
+void
+ASagaCharacterChoiceLevel::HandleStartGame()
+{
+	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game!"));
+
+	GotoNextLevel();
 }
 
 void
 ASagaCharacterChoiceLevel::OnDisconnected()
 {
+	GetWorldTimerManager().ClearTimer(choiceTimer);
+
 	GotoPrevLevel();
 }
 
@@ -147,13 +149,20 @@ ASagaCharacterChoiceLevel::OnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0
 {
 	if (cat == ESagaRpcProtocol::RPC_WEAPON_TIMER)
 	{
-		if (arg0 <= 1)
+		GetWorldTimerManager().PauseTimer(choiceTimer);
+
+		const auto rep = arg0 / 1000'0000LL;
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Countdown: %d"), rep);
+
+		if (rep <= 0)
 		{
-			HandleCompleteCountdown();
+			HandleStartGame();
 		}
 		else
 		{
-			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Countdown: %d"), arg0);
+			levelUiInstance->myTimer->SetSeconds(static_cast<int32>(rep));
+
+			GetWorldTimerManager().UnPauseTimer(choiceTimer);
 		}
 	}
 }

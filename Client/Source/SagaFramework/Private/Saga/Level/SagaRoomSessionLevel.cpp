@@ -371,7 +371,7 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 {
 	PauseTimer();
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (not system->IsOfflineMode())
 	{
@@ -401,7 +401,7 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 void
 ASagaRoomSessionLevel::HandlePeriodicUpdate()
 {
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (not system->IsOfflineMode())
 	{

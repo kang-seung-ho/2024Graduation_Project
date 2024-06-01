@@ -18,9 +18,7 @@ public:
 	TObjectPtr<class USagaCharacterSelectWidget> levelUiInstance;
 
 	UPROPERTY()
-	FTimerHandle choiceTimerHandle;
-	UPROPERTY()
-	FTimerHandle countdownTimerHandle;
+	FTimerHandle choiceTimer;
 
 	ASagaCharacterChoiceLevel() noexcept;
 
@@ -31,9 +29,9 @@ private:
 	UFUNCTION()
 	void HandlePeriodicUpdate();
 	UFUNCTION()
-	void HandleCompleteCountdown();
-	UFUNCTION()
 	void HandleClickedCharacter(class ASagaSelectCharacter* character);
+	UFUNCTION()
+	void HandleStartGame();
 
 	UFUNCTION()
 	void OnDisconnected();
