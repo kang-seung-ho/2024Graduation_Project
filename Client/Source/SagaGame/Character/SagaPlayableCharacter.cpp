@@ -60,6 +60,18 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		GunHitCascadeEffect = GunCascadeEffect.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundBase> HitSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Damage.Damage'"));
+	if (HitSoundEffectObject.Succeeded())
+	{
+		HitSoundEffect = HitSoundEffectObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> DeadSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Death.Death'"));
+	if (DeadSoundEffectObject.Succeeded())
+	{
+		DeadSoundEffect = DeadSoundEffectObject.Object;
+	}
+
 	//Item get Action
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
@@ -168,6 +180,11 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		// 사망 애니메이션 실행
 		mAnimInst->Death();
 
+		if (DeadSoundEffect)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DeadSoundEffect, GetActorLocation());
+		}
+
 		// 사망 처리 (이동 정리, 충돌 해제)
 		ExecuteDeath();
 
@@ -184,6 +201,11 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	else
 	{
 		mAnimInst->Hit();
+
+		if (HitSoundEffect)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, HitSoundEffect, GetActorLocation());
+		}
 
 		if (not system->IsOfflineMode())
 		{

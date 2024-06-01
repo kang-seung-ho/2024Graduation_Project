@@ -84,4 +84,11 @@ protected:
 
 	UPROPERTY()
 	UParticleSystem* GunHitCascadeEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	USoundBase* HitSoundEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	USoundBase* DeadSoundEffect;
+
 };
