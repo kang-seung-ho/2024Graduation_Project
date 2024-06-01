@@ -113,6 +113,8 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
 
+	
+
 	if (dmg == 30.f)
 	{
 		if (HitCascadeEffect)
@@ -181,7 +183,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	}
 	else
 	{
-		//mAnimInst->Hit();
+		mAnimInst->Hit();
 
 		if (not system->IsOfflineMode())
 		{
