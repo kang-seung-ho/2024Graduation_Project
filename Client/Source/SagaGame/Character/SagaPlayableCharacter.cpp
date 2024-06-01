@@ -54,6 +54,11 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		HitCascadeEffect = CascadeEffect.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> GunCascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_3.P_Hit_3'"));
+	if (GunCascadeEffect.Succeeded())
+	{
+		GunHitCascadeEffect = GunCascadeEffect.Object;
+	}
 
 	//Item get Action
 	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
@@ -108,23 +113,52 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
 
-
-	if (HitCascadeEffect)
+	if (dmg == 30.f)
 	{
-		UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			HitCascadeEffect,
-			EffectSpawnLocation,
-			EffectSpawnRotation,
-			true
-		);
-
-		if (CascadeComponent)
+		if (HitCascadeEffect)
 		{
-			FTimerHandle TimerHandle;
-			GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				HitCascadeEffect,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				FTimerHandle TimerHandle;
+				GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+			}
 		}
 	}
+	else if (dmg == 20.f)
+	{
+		if (GunHitCascadeEffect)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				GunHitCascadeEffect,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				FTimerHandle TimerHandle;
+				GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+			}
+		}
+	}
+	else
+	{
+		if (HitEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, NiagaraSpawnLocation, NiagaraSpawnRotation);
+		}
+	}
+	
 	
 
 	if (myHealth <= 0.0f)
@@ -208,146 +242,64 @@ ASagaPlayableCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void
-ASagaPlayableCharacter::Attack()
+void ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
 
+	FHitResult Result;
+	FVector Start, End;
+	FCollisionQueryParams Params;
+	bool Collision = false;
+
 	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
-		FHitResult Result;
+		// Calculate attack start and end based on the camera's rotation
+		FRotator CameraRotation = GetControlRotation();
+		FVector ForwardVector = CameraRotation.Vector();
+		Start = GetActorLocation() + ForwardVector * 50.f;
+		End = Start + ForwardVector * 150.f;
 
-		// 플레이어 컨트롤러와 카메라를 가져옵니다.
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if (!PlayerController) return;
-
-		FVector WorldLocation, WorldDirection;
-		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
-
-		// 공격 시작 및 종료 위치 계산
-		FVector Start = GetActorLocation() + WorldDirection * 50.f;
-		FVector End = Start + WorldDirection * 150.f;
-
-		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
-
-		bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
-
-#if ENABLE_DRAW_DEBUG
-		FColor Color = Collision ? FColor::Red : FColor::Green;
-		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 75.f, 25.f, FRotationMatrix::MakeFromZ(WorldDirection).ToQuat(), Color, false, 3.f);
-#endif
-
-		if (Collision)
-		{
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
-		}
+		Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
 	}
 	else if (myWeaponType == EPlayerWeapon::WaterGun)
 	{
-		FHitResult Result;
+		Start = GetActorLocation();
+		End = GetActorLocation() + GetActorForwardVector() * 1500.f;
 
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if (!PlayerController) return;
-
-		FVector WorldLocation, WorldDirection;
-		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
-
-		FVector TraceStart = GetActorLocation();
-		FVector TraceEnd = TraceStart + WorldDirection * 1500.0f;
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		bool Collision{};
-
-		if (myTeam == EUserTeam::Red)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
-			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
-		}
-		else if (myTeam == EUserTeam::Blue)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
-			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
-		}
-
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Result.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-		UE_LOG(LogSagaGame, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-		if (Result.bBlockingHit && IsValid(Result.GetActor()))
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
-		}
-
-		if (Collision)
-		{
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(20.f, DamageEvent, GetController(), this);
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
-			if (Effect)
-			{
-				Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-				Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
-			}
-		}
+		Params.AddIgnoredActor(this);
+		Collision = GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECC_GameTraceChannel4, Params);
 	}
 	else if (myWeaponType == EPlayerWeapon::Hammer)
 	{
-		FHitResult Result;
+		Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		End = Start + GetActorForwardVector() * 150.f;
 
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if (!PlayerController) return;
+		Params.AddIgnoredActor(this);
+		Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
+	}
 
-		FVector WorldLocation, WorldDirection;
-		PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+	if (Collision)
+	{
+		FVector HitLocation = Result.ImpactPoint;
+		FVector HitNormal = Result.Normal;
+		float DamageAmount = (myWeaponType == EPlayerWeapon::WaterGun) ? 20.f : 30.f;
 
-		FVector Start = GetActorLocation() + WorldDirection * 50.f;
-		FVector End = Start + WorldDirection * 150.f;
+		FDamageEvent DamageEvent;
+		Result.GetActor()->TakeDamage(DamageAmount, DamageEvent, GetController(), this);
 
-		FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
-		param.AddIgnoredActor(this);
-
-		bool Collision;
-		if (myTeam == EUserTeam::Red)
+		// Check if hit actor is a GummyBear player
+		if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - Hammer"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else if (myTeam == EUserTeam::Blue)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - Hammer"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Not Found Team"));
-			return;
-		}
-
-		if (Collision)
-		{
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(HitLocation, HitNormal);
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
+		UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
 	}
 }
+
 
 void ASagaPlayableCharacter::PostInitializeComponents()
 {

@@ -81,4 +81,7 @@ protected:
 
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;
+
+	UPROPERTY()
+	UParticleSystem* GunHitCascadeEffect;
 };
