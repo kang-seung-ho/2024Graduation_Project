@@ -9,6 +9,8 @@ class SAGAFRAMEWORK_API ASagaGameLevel final : public ASagaLevelScripter
 	GENERATED_BODY()
 
 public:
+	static inline constexpr int32 defaultGameSecondsPeriod = 330;
+
 	ASagaGameLevel() noexcept;
 
 protected:
@@ -23,8 +25,16 @@ private:
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
+	UFUNCTION()
+	void HandleCountdown();
+
 	UPROPERTY()
-	TSubclassOf<class UUserWidget> mTeamScoreBoardClass;
+	TSubclassOf<class USagaGameLevelUiWidget> levelUiClass;
 	UPROPERTY()
-	class UUserWidget* mTeamScoreBoard;
+	TObjectPtr<class USagaGameLevelUiWidget> levelUiInstance;
+
+	UPROPERTY()
+	FTimerHandle countdownTimerHandle;
+	UPROPERTY()
+	int32 storedGameTime;
 };
