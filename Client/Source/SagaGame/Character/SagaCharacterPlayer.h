@@ -12,28 +12,60 @@
 #include "Interface/SagaCharacterWidgetInterface.h"
 #include "SagaCharacterPlayer.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
+UCLASS(BlueprintType, Abstract, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharacterWidgetInterface
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int32 myId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	EUserTeam myTeam;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	EPlayerWeapon myWeaponType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	float myHealth;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	int straightMoveDirection;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
+	int strafeMoveDirection;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRunning;
+
+	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
+#pragma region =========================
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
+	class USagaPlayerAnimInstance* mAnimInst;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
+	class USagaGummyBearAnimInstance* mBearAnimInst;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
+	float animationMoveSpeed; // 애니메이션 전용
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation", Meta = (BlueprintGetter = GetMoveAnimationAngle))
+	float animationMoveAngle; // 애니메이션 전용
+#pragma endregion
+
 	ASagaCharacterPlayer();
 
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float delta_time) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	/* 게임 속성 메서드 */
-#pragma region =========================
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
-	void SetTeamColorAndCollision(const EUserTeam& myTeam) noexcept;
+	void SetTeamColorAndCollision(const EUserTeam& team) noexcept;
 	UFUNCTION()
 	void SetWeapon(const EPlayerWeapon& weapon) noexcept;
 	UFUNCTION()
+	virtual void AttachWeapon();
+	UFUNCTION()
 	void SetHealth(const float hp) noexcept;
+
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
 	UFUNCTION(BlueprintPure)
@@ -42,34 +74,15 @@ public:
 	EPlayerWeapon GetWeapon() const noexcept;
 	UFUNCTION(BlueprintPure)
 	float GetHealth() const noexcept;
+	UFUNCTION(BlueprintPure)
+	bool HasValidOwnerId() const noexcept;
 
 	// 다른 사가 캐릭터에게 속성 전달
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
-#pragma endregion
 
 	UFUNCTION()
 	virtual void Attack() {};
-	UFUNCTION()
-	virtual void PlayAttackAnimation();
-	UFUNCTION()
-	virtual void AttachWeapon();
-	UFUNCTION()
-	virtual void SetDead();
-	UFUNCTION()
-	virtual void RespawnCharacter();
-
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	/*
-		Speed: 속도 (스칼라)
-		Velocity: 속력 (벡터)
-		Angle: 각도 - double
-		Direction: 방향 - double, FVector
-	*/
-
-	UFUNCTION()
-	void RotateCameraArm(const float pitch);
 
 	/* 액션 메서드 */
 #pragma region =========================
@@ -93,6 +106,9 @@ public:
 	virtual void TerminateJump();
 
 	UFUNCTION()
+	void ExecuteRotate(const float pitch);
+
+	UFUNCTION()
 	virtual void ExecuteAttack();
 	UFUNCTION()
 	virtual void TerminateAttack();
@@ -107,11 +123,14 @@ public:
 	*/
 	UFUNCTION()
 	virtual void TerminateRide();
-	
+
 	UFUNCTION()
 	virtual float ExecuteHurt(const float dmg);
 	UFUNCTION()
 	virtual void ExecuteDeath();
+
+	UFUNCTION()
+	virtual void ExecuteRespawn();
 #pragma endregion
 
 	UFUNCTION(BlueprintPure)
@@ -125,16 +144,22 @@ public:
 		return animationMoveAngle;
 	}
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	int straightMoveDirection;
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	int strafeMoveDirection;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRunning;
+	UFUNCTION(BlueprintPure)
+	bool IsAlive() const noexcept
+	{
+		return 0 < myHealth;
+	}
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	UFUNCTION()
+	virtual void PlayAttackAnimation();
+	UFUNCTION()
+	virtual void SetDead();
+	// UFUNCTION
+	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
 	/* 실시간 처리 메서드 (Tick) */
 #pragma region =========================
@@ -171,44 +196,16 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
-	/* 게임 속성 필드 (ID, 팀, 무기) */
-#pragma region =========================
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	int32 myId;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	EUserTeam myTeam;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	EPlayerWeapon myWeaponType;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	float myHealth;
-#pragma endregion
-
-	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
-#pragma region =========================
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	float animationMoveSpeed; // 애니메이션 전용
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (BlueprintGetter = GetMoveAnimationAngle))
-	float animationMoveAngle; // 애니메이션 전용
-
-	UPROPERTY()
-	class USagaPlayerAnimInstance* mAnimInst;
-	UPROPERTY()
-	class USagaGummyBearAnimInstance* mBearAnimInst;
-#pragma endregion
-
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	UCameraComponent* mCamera;
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	USpringArmComponent* mArm;
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterStat", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaCharacterStatComponent> Stat;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widget", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaWidgetComponent> HpBar;
-
-	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
 protected:
 	// For saving Weapon Meshes

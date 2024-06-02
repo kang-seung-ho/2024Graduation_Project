@@ -1,5 +1,7 @@
 #include "SagaCharacterPlayer.h"
+#include <bit>
 #include <Engine/DamageEvents.h>
+#include <GameFramework/Character.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
 #include "SagaGameInfo.h"
@@ -14,11 +16,11 @@
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: Super()
+	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
-	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
+	, animationMoveSpeed(), animationMoveAngle()
 	, mCamera(), mArm()
 	, Stat(), HpBar()
 	, MyWeapon(), WeaponMeshes()
@@ -103,113 +105,55 @@ void ASagaCharacterPlayer::PostInitializeComponents()
 }
 
 void
+ASagaCharacterPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// BeginPlay 호출되기 전에 SkeletalMeshComponent에 지정된
+	// AnimInstance 클래스를 사용하기 위한 객체 만들어놨음.
+	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (not HasValidOwnerId())
+	{
+		SetTeamColorAndCollision(EUserTeam::Blue);
+	}
+}
+
+void
+ASagaCharacterPlayer::Tick(float delta_time)
+{
+	Super::Tick(delta_time);
+
+	ProcessMovement();
+	ProcessAnimation(delta_time);
+}
+
+void
 ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 float
-ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+ASagaCharacterPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] Called TakeDamage"));
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] TakeDamage: %f"), dmg);
 
-	return ExecuteHurt(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser));
+	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
+
+	if (0 != actual_dmg)
+	{
+		ExecuteHurt(actual_dmg);
+	}
+
+	return actual_dmg;
 }
 
 void
-ASagaCharacterPlayer::PlayAttackAnimation()
+ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
-
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	const int32 CharacterMode = system->GetCurrentMode();
-	UE_LOG(LogSagaGame, Warning, TEXT("Character Mode : %d"), CharacterMode);
-
-	if (CharacterMode == 1)
-	{
-		if (mAnimInst != nullptr)
-		{
-			mAnimInst->PlayAttackMontage();
-			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaPlayableCharacter"));
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("mAnimInst is null"));
-		}
-	}
-	else if (CharacterMode == 2)
-	{
-		if (mBearAnimInst != nullptr)
-		{
-			mBearAnimInst->PlayAttackMontage();
-			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaBear"));
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("mBearAnimInst is null"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
-	}
-}
-
-void
-ASagaCharacterPlayer::RotateCameraArm(const float pitch)
-{
-	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
-
-	FRotator Rot = mArm->GetRelativeRotation();
-
-	if (Rot.Pitch < -60.0)
-		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
-
-	else if (Rot.Pitch > 60.0)
-		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
-}
-
-void
-ASagaCharacterPlayer::SetDead()
-{
-	HpBar->SetHiddenInGame(true);
-}
-
-void
-ASagaCharacterPlayer::RespawnCharacter()
-{
-	// Reset game states
-	myHealth = 100.0f;
-	Stat->SetHp(100.0f);
-
-	// Unhide the hp bar
-	HpBar->SetHiddenInGame(false);
-
-	// Reset the position
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (system->IsOfflineMode())
-	{
-		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
-		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
-
-		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
-	}
-	else if (system->IsConnected())
-	{
-		const auto spawn_point = system->GetStoredPosition(myId);
-
-		SetActorLocationAndRotation(spawn_point, FRotator{});
-
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[RespawnCharacter] Network subsystem is not ready."));
-	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void
@@ -221,70 +165,6 @@ const
 		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Transitioning."));
 		return;
 	}
-}
-
-void
-ASagaCharacterPlayer::SetUserId(const int32& id)
-noexcept
-{
-	myId = id;
-}
-
-void
-ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
-noexcept
-{
-	myTeam = team;
-
-	if (team == EUserTeam::Red)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else if (team == EUserTeam::Blue)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
-	}
-}
-
-void
-ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
-noexcept
-{
-	myWeaponType = weapon;
-}
-
-void
-ASagaCharacterPlayer::SetHealth(const float hp)
-noexcept
-{
-	myHealth = hp;
-}
-
-int32
-ASagaCharacterPlayer::GetUserId()
-const noexcept
-{
-	return myId;
-}
-
-EUserTeam
-ASagaCharacterPlayer::GetTeamColorAndCollision()
-const noexcept
-{
-	return myTeam;
-}
-
-EPlayerWeapon
-ASagaCharacterPlayer::GetWeapon() const noexcept
-{
-	return myWeaponType;
-}
-
-float
-ASagaCharacterPlayer::GetHealth()
-const noexcept
-{
-	return myHealth;
 }
 
 void
@@ -347,7 +227,7 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 	}
 	else if (straightMoveDirection < 0) // Going backward
 	{
-		if (strafeMoveDirection < 0)// To left
+		if (strafeMoveDirection < 0) // To left
 		{
 			target_animation_angle = -135.f;
 		}
@@ -395,14 +275,16 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 void
 ASagaCharacterPlayer::AttachWeapon()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
+	const auto name = UEnum::GetValueAsString(myWeaponType);
+
+	UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] WeaponType: %s"), *name);
 
 	// Set Weapon Mesh with Weapon Type
 	if (WeaponMeshes.Contains(myWeaponType))
 	{
 		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
 
-		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
+		UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] Found weapon '%s''s mesh."), *name);
 
 		if (myWeaponType == EPlayerWeapon::LightSabor)
 		{
@@ -425,7 +307,7 @@ ASagaCharacterPlayer::AttachWeapon()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
+		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh has found for the selected weapon."));
 	}
 }
 
@@ -437,6 +319,124 @@ ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 	{
 		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
 		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+
 		Stat->OnHpChanged.AddDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
+}
+
+void
+ASagaCharacterPlayer::PlayAttackAnimation()
+{
+	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
+
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	const int32 CharacterMode = system->GetCurrentMode();
+	UE_LOG(LogSagaGame, Warning, TEXT("Character Mode : %d"), CharacterMode);
+
+	if (CharacterMode == 1)
+	{
+		if (mAnimInst != nullptr)
+		{
+			mAnimInst->PlayAttackMontage();
+			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaPlayableCharacter"));
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("mAnimInst is null"));
+		}
+	}
+	else if (CharacterMode == 2)
+	{
+		if (mBearAnimInst != nullptr)
+		{
+			mBearAnimInst->PlayAttackMontage();
+			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaBear"));
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("mBearAnimInst is null"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
+	}
+}
+
+void
+ASagaCharacterPlayer::SetDead()
+{
+	HpBar->SetHiddenInGame(true);
+}
+
+void
+ASagaCharacterPlayer::SetUserId(const int32& id)
+noexcept
+{
+	myId = id;
+}
+
+void
+ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
+noexcept
+{
+	myTeam = team;
+
+	if (team == EUserTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
+void
+ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
+noexcept
+{
+	myWeaponType = weapon;
+}
+
+void
+ASagaCharacterPlayer::SetHealth(const float hp)
+noexcept
+{
+	myHealth = hp;
+}
+
+int32
+ASagaCharacterPlayer::GetUserId()
+const noexcept
+{
+	return myId;
+}
+
+EUserTeam
+ASagaCharacterPlayer::GetTeamColorAndCollision()
+const noexcept
+{
+	return myTeam;
+}
+
+EPlayerWeapon
+ASagaCharacterPlayer::GetWeapon() const noexcept
+{
+	return myWeaponType;
+}
+
+float
+ASagaCharacterPlayer::GetHealth()
+const noexcept
+{
+	return myHealth;
+}
+
+bool
+ASagaCharacterPlayer::HasValidOwnerId()
+const noexcept
+{
+	return -1 != myId;
 }
