@@ -23,6 +23,8 @@ private:
 	UFUNCTION()
 	void OnLeftRoomBySelf();
 	UFUNCTION()
+	void OnGameStarted();
+	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
 	UFUNCTION()
@@ -37,4 +39,6 @@ private:
 	FTimerHandle countdownTimerHandle;
 	UPROPERTY()
 	int32 storedGameTime;
+	UPROPERTY()
+	bool choosenWeapon;
 };

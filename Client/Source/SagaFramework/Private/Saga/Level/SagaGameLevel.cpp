@@ -17,6 +17,7 @@ noexcept
 	, levelUiClass(), levelUiInstance()
 	, countdownTimerHandle()
 	, storedGameTime(defaultGameSecondsPeriod)
+	, choosenWeapon(false)
 {
 	SetNextLevelName(TEXT("GameVictoryLevel"));
 	SetPrevLevelName(TEXT("MainMenuLevel"));
@@ -44,6 +45,7 @@ ASagaGameLevel::BeginPlay()
 	{
 		system->OnDisconnected.AddDynamic(this, &ASagaGameLevel::OnDisconnected);
 		system->OnLeftRoomBySelf.AddDynamic(this, &ASagaGameLevel::OnLeftRoomBySelf);
+		system->OnGameStarted.AddDynamic(this, &ASagaGameLevel::OnGameStarted);
 		system->OnRpc.AddDynamic(this, &ASagaGameLevel::OnRpc);
 	}
 
@@ -86,13 +88,28 @@ ASagaGameLevel::OnLeftRoomBySelf()
 }
 
 void
+ASagaGameLevel::OnGameStarted()
+{
+	choosenWeapon = true;
+}
+
+void
 ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 {
-	if (cat == ESagaRpcProtocol::RPC_GAME_TIMER)
+	if (cat == ESagaRpcProtocol::RPC_WEAPON_TIMER)
+	{
+		const auto rep = arg0 / 1000'0000LL;
+
+		if (rep <= 0)
+		{
+			choosenWeapon = true;
+		}
+	}
+	else if (cat == ESagaRpcProtocol::RPC_GAME_TIMER)
 	{
 		GetWorldTimerManager().PauseTimer(countdownTimerHandle);
 
-		const auto rep = FMath::Max(0LL, arg0 / 1000'0000LL);
+		const auto rep = arg0 / 1000'0000LL;
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaGameLevel][OnRpc] Countdown: %d"), rep);
 
 		if (rep <= 0)
@@ -130,6 +147,17 @@ ASagaGameLevel::HandleCountdown()
 	}
 	else if (system->IsConnected())
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_GAME_TIMER);
+		if (not choosenWeapon)
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
+		}
+		else
+		{
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_GAME_TIMER);
+		}
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(countdownTimerHandle);
 	}
 }
