@@ -99,7 +99,7 @@ ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString
 		const auto automatic_spawner = world->SpawnActor<ASagaCharacterSpawner>(center, FRotator::ZeroRotator);
 		ensure(automatic_spawner != nullptr);
 
-		const FTransform transform{ FTransform::Identity };
+		const FTransform transform{ FRotator::ZeroRotator, center };
 		UGameplayStatics::FinishSpawningActor(automatic_spawner, transform);
 
 		UE_LOG(LogSagaGame, Log, TEXT("An automatic spawner is generated."));
