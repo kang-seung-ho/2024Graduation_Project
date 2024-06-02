@@ -14,7 +14,7 @@
 
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public ISagaCharacterItemInterface
+class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer
 {
 	GENERATED_BODY()
 	
@@ -43,12 +43,6 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-	virtual void Acquire_Drink(class USagaWeaponData* WeaponData);
-	virtual void Acquire_Gum(class USagaWeaponData* WeaponData);
-	virtual void Acquire_smokebomb(class USagaWeaponData* WeaponData);
-	virtual void TakeItem(class USagaWeaponData* WeaponData) override;
-
-	EItemType mItemType;
 
 	FTimerHandle RespawnTimerHandle;
 
