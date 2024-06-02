@@ -614,10 +614,6 @@ demo::Framework::RouteEvent(bool is_succeed
 		{
 			myLogger.Log(L"\tRPC is failed at room {}\n", io_id);
 		}
-		else
-		{
-			myLogger.Log(L"\tRPC is proceed at room {}\n", io_id);
-		}
 	}
 	break;
 

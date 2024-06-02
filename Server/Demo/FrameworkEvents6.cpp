@@ -225,6 +225,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	default:
 	{
+		//myLogger.Log(L"\tRPC is proceed at room {}\n", room_id);
+
 		room->ForEach
 		(
 			[rpc_ctx, user_id](User& member)

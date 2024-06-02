@@ -39,7 +39,7 @@ demo::Framework::OnReceived(iconer::app::User& user, const ptrdiff_t& bytes)
 		}
 		else LIKELY
 		{
-			myLogger.DebugLog(iconer::app::GetResourceString<9>(), static_cast<std::int8_t>(user_buffer[0]), static_cast<std::int8_t>(user_buffer[1]), static_cast<std::int8_t>(user_buffer[2]));
+			//myLogger.DebugLog(iconer::app::GetResourceString<9>(), static_cast<std::int8_t>(user_buffer[0]), static_cast<std::int8_t>(user_buffer[1]), static_cast<std::int8_t>(user_buffer[2]));
 
 			const auto last_off = user_buffer.size_bytes() - proceed_bytes;
 			std::memcpy(user_buffer.data() + proceed_bytes, user_buffer.data(), last_off);
