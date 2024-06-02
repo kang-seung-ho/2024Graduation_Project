@@ -138,8 +138,6 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	// 오버랩 이벤트 바인드
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
-
-	isCanRide = false;
 }
 
 void
@@ -201,76 +199,49 @@ ASagaGummyBearPlayer::BeginPlay()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
-	myHealth -= dmg;
+	Super::ExecuteHurt(dmg);
+
 	Stat->ApplyDamage(dmg);
 
+	const auto current_hp = GetHealth();
+	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), current_hp);
 
-	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), myHealth);
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (myHealth <= 0.0f)
+	if (current_hp <= 0.0f)
 	{
-		// 사망 애니메이션 실행
-		mBearAnimInst->Death();
-
-		// 사망 처리 (이동 정리, 충돌 해제)
+		// 사망 처리
 		ExecuteDeath();
 
 		// 파티클 이펙트 실행
 
-		//상대 팀 점수 증가 실행
-		if (system)
-		{
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
-
-			if (not system->IsOfflineMode())
-				if (not system->IsOfflineMode())
-				{
-					// arg1이 1이면 곰 캐릭터
-					system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-				}
-				else
-				{
-
-				}
-		}
-
 		//Destroy();
 	}
-	else
-	{
-		if (system)
-		{
-			if (not system->IsOfflineMode())
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-
-
-
-			}
-			else
-			{
-
-			}
-		}
-	}
-
 	return dmg;
 }
 
 void
 ASagaGummyBearPlayer::ExecuteDeath()
 {
-	Super::ExecuteDeath();
-}
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteDeath"));
 
-float
-ASagaGummyBearPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	// 사망 애니메이션 실행
+	mBearAnimInst->Death();
+
+	Super::ExecuteDeath();
+
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (system->IsOfflineMode())
+	{
+		// 상대 팀 점수 증가 실행
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+	}
+	else
+	{
+		// 상대 팀 점수 증가 실행
+		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+	}
 }
 
 
