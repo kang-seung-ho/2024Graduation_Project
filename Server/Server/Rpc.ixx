@@ -30,7 +30,8 @@ export namespace iconer::app::inline rpc
 		RPC_USE_ITEM_2,
 		RPC_USE_ITEM_3,
 		RPC_USE_ITEM_4,
-		RPC_SPAWN_ITEM,
+
+		RPC_SPAWN_ITEM = 150,
 		RPC_GRAB_ITEM,
 		RPC_MAIN_WEAPON,
 		RPC_CHANGE_HAND_ITEM,
@@ -41,6 +42,18 @@ export namespace iconer::app::inline rpc
 		/// <param name="arg0">- 준비된 플레이어의 수</param>
 		/// <param name="arg1">- 없음</param>
 		RPC_NOTIFY_READY_COUNTER,
+		RPC_DMG_PLYER,
+		RPC_DMG_GUARDIAN,
+		RPC_DMG_GUARDIANS_PART,
+		RPC_DMG_BASE,
+		RPC_DEAD,
+		RPC_RESPAWN,
+		RPC_RESPAWN_TIMER,
+
+		RPC_CHECK_GAME_VICTORY,
+		RPC_UPDATE_HEALTH,
+		RPC_WEAPON_TIMER, // seconds
+		RPC_GAME_TIMER, // seconds
 		/// <summary>
 		/// 클라에서 카운트 다운을 요청하면, 서버에서 남은 시간을 보냄
 		/// <para>-------------------------------------------------------------------------------</para>
@@ -48,15 +61,6 @@ export namespace iconer::app::inline rpc
 		/// <param name="arg0">- 준비된 플레이어의 수</param>
 		/// <param name="arg1">- 없음</param>
 		RPC_NOTIFY_GAME_COUNTDOWN,
-		RPC_DMG_PLYER,
-		RPC_DMG_GUARDIAN,
-		RPC_DMG_GUARDIANS_PART,
-		RPC_DMG_BASE,
-		RPC_DEAD,
-		RPC_CHECK_GAME_VICTORY,
-		RPC_UPDATE_HEALTH,
-		RPC_WEAPON_TIMER, // seconds
-		RPC_GAME_TIMER, // seconds
 	};
 
 	class RpcContext : public IContext
