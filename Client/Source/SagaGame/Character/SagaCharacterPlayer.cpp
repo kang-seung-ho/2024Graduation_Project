@@ -13,12 +13,13 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
-	: straightMoveDirection(), strafeMoveDirection()
-	, isRunning()
+	: Super()
 	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
+	, straightMoveDirection(), strafeMoveDirection()
+	, isRunning()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -150,55 +151,6 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 	else
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
-	}
-}
-
-void
-ASagaCharacterPlayer::AttachWeapon()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
-
-	// Set Weapon Mesh with Weapon Type
-	if (WeaponMeshes.Contains(myWeaponType))
-	{
-		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
-
-		if (myWeaponType == EPlayerWeapon::LightSabor)
-		{
-			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
-			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
-		}
-		else if (myWeaponType == EPlayerWeapon::WaterGun)
-		{
-			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
-			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-		else if (myWeaponType == EPlayerWeapon::Hammer)
-		{
-			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
-			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
-	}
-}
-
-void
-ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
-{
-	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
-	if (HpBarWidget)
-	{
-		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
-		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 
@@ -435,5 +387,54 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 		{
 			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
 		}
+	}
+}
+
+void
+ASagaCharacterPlayer::AttachWeapon()
+{
+	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
+
+	// Set Weapon Mesh with Weapon Type
+	if (WeaponMeshes.Contains(myWeaponType))
+	{
+		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
+
+		if (myWeaponType == EPlayerWeapon::LightSabor)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+		}
+		else if (myWeaponType == EPlayerWeapon::WaterGun)
+		{
+			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+		else if (myWeaponType == EPlayerWeapon::Hammer)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
+	}
+}
+
+void
+ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
+{
+	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }

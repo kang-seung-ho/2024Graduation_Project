@@ -3,6 +3,7 @@
 #include <Engine/World.h>
 #include <EngineUtils.h>
 #include <Kismet/GameplayStatics.h>
+#include <UObject/Object.h>
 #include <UObject/ConstructorHelpers.h>
 #include <GameFramework/Actor.h>
 #include <GameFramework/Pawn.h>
@@ -15,6 +16,7 @@
 #include "Character/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterSpawner.h"
 #include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -24,10 +26,10 @@ const FString SagaBluTeamName = TEXT("Blue");
 ASagaInGameMode::ASagaInGameMode()
 	: Super()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassRef(TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C"));
-	if (PlayerPawnClassRef.Class != nullptr)
+	static ConstructorHelpers::FClassFinder<ASagaPlayableCharacter> pawn_class{ TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C") };
+	if (pawn_class.Class != nullptr)
 	{
-		DefaultPawnClass = PlayerPawnClassRef.Class;
+		DefaultPawnClass = pawn_class.Class;
 	}
 
 	PlayerControllerClass = ASagaInGamePlayerController::StaticClass();
@@ -166,12 +168,14 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 			return;
 		}
 
+		ASagaCharacterPlayer* character;
+
 		if (local_id == user_id)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
 
 			// NOTICE: 여기서 로컬 캐릭터 할당
-			const auto character = controller->GetPawn<ASagaCharacterPlayer>();
+			character = controller->GetPawn<ASagaCharacterPlayer>();
 			system->SetCharacterHandle(local_id, character);
 
 			// The id was stored on LobbyLevel
@@ -207,20 +211,20 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] User `%d` would create a playable character."), user_id);
 
-			const auto spawner = GetSpawnerBy(team);
-			ensure(spawner != nullptr);
+			const AActor* spawner = GetSpawnerBy(team);
+			if (nullptr == spawner)
+			{
+				spawner = world->GetWorldSettings();
+			}
 
 			FActorSpawnParameters setting{};
 			setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 			const FTransform& transform = spawner->GetTransform();
 
-			const auto character_class = ASagaPlayableCharacter::StaticClass();
-			const auto character_actor = world->SpawnActor(character_class, &transform, MoveTempIfPossible(setting));
+			character = world->SpawnActor<ASagaPlayableCharacter>(DefaultPawnClass, transform, setting);
 
-			const auto character = Cast<ASagaCharacterPlayer>(character_actor);
-
-			if (nullptr != character)
+			if (IsValid(character))
 			{
 				system->SetCharacterHandle(user_id, character);
 

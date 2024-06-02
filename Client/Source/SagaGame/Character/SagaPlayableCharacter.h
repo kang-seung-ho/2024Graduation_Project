@@ -52,7 +52,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
-
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;
 
