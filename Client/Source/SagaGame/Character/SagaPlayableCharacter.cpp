@@ -95,6 +95,12 @@ ASagaPlayableCharacter::BeginPlay()
 }
 
 void
+ASagaPlayableCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void
 ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -236,12 +242,6 @@ ASagaPlayableCharacter::RespawnCharacter()
 
 	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 }
-
-void
-ASagaPlayableCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	}
 
 void ASagaPlayableCharacter::Attack()
 {
