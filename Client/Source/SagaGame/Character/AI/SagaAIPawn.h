@@ -26,8 +26,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USagaAIMovementComponent> mMovement;
 
+#if WITH_EDITORONLY_DATA
 	UPROPERTY()
 	TObjectPtr<UArrowComponent> mArrowComponent;
+#endif
 
 public:
 	UCapsuleComponent* GetCapsuleComponent() const

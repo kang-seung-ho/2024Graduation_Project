@@ -16,8 +16,7 @@ ASagaCharacterPlayer::BeginPlay()
 	{
 		SetTeamColorAndCollision(EUserTeam::Blue);
 	}
-
-	Stat->OnHpZero.AddDynamic(this, &ASagaCharacterPlayer::SetDead);
+	
 }
 
 void

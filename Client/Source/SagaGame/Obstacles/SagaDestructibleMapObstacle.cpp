@@ -45,7 +45,6 @@ ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
     RootComponent = MeshComponent;
 
     MeshComponent->SetCollisionProfileName(TEXT("Enemy")); // Collision Enabled for both Red and Blue Teams
-    MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
 }
 
@@ -88,13 +87,7 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
         FVector NiagaraSpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 100.0f);
         FRotator NiagaraSpawnRotation = GetActorRotation();
         UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(HitEffect, RootComponent, NAME_None, NiagaraSpawnLocation, NiagaraSpawnRotation, EAttachLocation::KeepWorldPosition, false);
-        if (NiagaraComponent)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Niagara Component Spawned"));
-        }
-        else {
-            			UE_LOG(LogTemp, Warning, TEXT("Niagara Component Not Spawned"));
-        }
+
         if (NiagaraComponent)
         {
             // 3초 후에 나이아가라 이펙트 정지

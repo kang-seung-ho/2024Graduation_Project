@@ -8,7 +8,7 @@ UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API USagaGummyBearAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
 public:
 	// the below functions are the native overrides for each phase
 	// Native initialization override point
@@ -40,7 +40,7 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mMoveSpeed;

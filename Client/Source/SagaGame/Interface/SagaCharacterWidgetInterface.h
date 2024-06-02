@@ -15,6 +15,5 @@ class SAGAGAME_API ISagaCharacterWidgetInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) = 0;
 };

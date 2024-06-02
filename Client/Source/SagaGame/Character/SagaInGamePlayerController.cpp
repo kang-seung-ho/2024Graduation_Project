@@ -120,7 +120,7 @@ ASagaInGamePlayerController::CountDown()
 	{
 		if (Minutes == 0 && Seconds == 0)
 		{
-			//UGameplayStatics::OpenLevel(GetWorld(), TEXT("SagaGameLevel"));
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameEndLevel"));
 			UE_LOG(LogTemp, Warning, TEXT("Game End"));
 		}
 		else
