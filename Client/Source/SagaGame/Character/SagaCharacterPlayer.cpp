@@ -14,12 +14,14 @@
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: Super()
+	, straightMoveDirection(), strafeMoveDirection()
+	, isRunning()
 	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
-	, straightMoveDirection(), strafeMoveDirection()
-	, isRunning()
+	, Stat(), HpBar()
+	, MyWeapon(), WeaponMeshes()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -97,7 +99,7 @@ void ASagaCharacterPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	Stat->OnHpZero.AddUObject(this, &ASagaCharacterPlayer::SetDead);
+	Stat->OnHpZero.AddDynamic(this, &ASagaCharacterPlayer::SetDead);
 }
 
 void
