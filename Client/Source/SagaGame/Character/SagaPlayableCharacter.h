@@ -43,12 +43,11 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-
+	UPROPERTY()
 	FTimerHandle RespawnTimerHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
-
 
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;
