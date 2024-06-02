@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mAttackMontageArray;
 
+	UPROPERTY()
 	int32 mAttackIndex = 0;
+
+	UPROPERTY()
 	bool mAttackEnable = true;
 };

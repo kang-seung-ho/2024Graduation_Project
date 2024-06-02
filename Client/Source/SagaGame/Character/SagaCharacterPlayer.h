@@ -185,7 +185,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (BlueprintGetter = GetMoveAnimationAngle))
 	float animationMoveAngle; // 애니메이션 전용
 
+	UPROPERTY()
 	class USagaPlayerAnimInstance* mAnimInst;
+
+	UPROPERTY()
 	class USagaGummyBearAnimInstance* mBearAnimInst;
 #pragma endregion
 

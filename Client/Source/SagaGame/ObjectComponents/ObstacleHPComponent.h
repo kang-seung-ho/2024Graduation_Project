@@ -24,9 +24,13 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
 	void TakeDamage(float DamageAmount);
 
+	UFUNCTION()
 	float GetCurrentHealth();
+
+	UFUNCTION()
 	void SetObjectHealth(float hp);
 
 
@@ -35,15 +39,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = Obstacles)
 	float Health = 90.0f;
 
+	UFUNCTION()
 	void CheckDeath();
 
 private:
 	UPROPERTY(EditAnywhere)
 	float DestructionDelay = 5.0f;
 
+	UPROPERTY()
 	FTimerHandle DestructionTimerHandle;
 
+
+	UFUNCTION()
 	void HandleDestruction();
+
+	UFUNCTION()
 	void RemoveDestructionPieces();
 		
 };

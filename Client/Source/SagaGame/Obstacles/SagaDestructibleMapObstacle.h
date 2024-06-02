@@ -14,18 +14,25 @@ class SAGAGAME_API ASagaDestructibleMapObstacle : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASagaDestructibleMapObstacle();
+
+	UFUNCTION()
 	void DestroyObstacle();
+
+	UPROPERTY()
 	float health = 100.0f;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	TSoftClassPtr<UAnimInstance> ObjectAnimation;
 
+	UPROPERTY()
 	class UNiagaraSystem* HitEffect;
 
 private:
+	UPROPERTY()
 	FTimerHandle TimerHandle;
 
 public:	
@@ -42,6 +49,8 @@ public:
 
 	UPROPERTY()
 	UAnimSequence* DeathAnimation;
+
+	UPROPERTY()
 	UAnimSequence* HitAnimation;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;

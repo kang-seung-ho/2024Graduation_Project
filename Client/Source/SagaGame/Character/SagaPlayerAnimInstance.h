@@ -30,9 +30,16 @@ public:
 	virtual void NativeBeginPlay();
 
 public:
+	UFUNCTION()
 	void PlayAttackMontage();
+
+	UFUNCTION()
 	void Death();
+
+	UFUNCTION()
 	void Hit();
+
+	UFUNCTION()
 	void Revive();
 
 public:
@@ -80,6 +87,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mGunAttackMontageArray;
 
+	UPROPERTY()
 	int32 mAttackIndex = 0;
+
+	UPROPERTY()
 	bool mAttackEnable = true;
 };
