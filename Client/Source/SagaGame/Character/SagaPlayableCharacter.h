@@ -12,25 +12,6 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "SagaPlayableCharacter.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class USagaWeaponData*);
-
-
-USTRUCT(BlueprintType)
-struct FTakeItemDelegateWrapper
-{
-	GENERATED_BODY()
-
-public:
-	FTakeItemDelegateWrapper()
-		: ItemDelegate()
-	{}
-
-	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate)
-		: ItemDelegate(InItemDelegate)
-	{}
-
-	FOnTakeItemDelegate ItemDelegate;
-};
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer, public ISagaCharacterItemInterface
@@ -74,10 +55,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	TArray<FTakeItemDelegateWrapper> TakeItemAction;
-
-	class UNiagaraSystem* HitEffect;
 
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;

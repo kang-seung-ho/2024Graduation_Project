@@ -20,9 +20,10 @@ ASagaAIPawn::ASagaAIPawn()
 
 #if WITH_EDITORONLY_DATA
 	mArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
+	mArrowComponent->SetupAttachment(mCapsule);
 #endif
 
-	mArrowComponent->SetupAttachment(mCapsule);
+	
 	
 
 }

@@ -134,10 +134,6 @@
 			"Name": "BlueprintInspector",
 			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/2f7aaf4012fc446c8fa95fa5202d9cfe"
-		},
-		{
-			"Name": "ActorPalette",
-			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

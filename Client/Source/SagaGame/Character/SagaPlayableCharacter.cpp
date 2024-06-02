@@ -42,11 +42,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	mArm->TargetArmLength = 150.f;*/
 
 	// ASagaPlayableCharacter 클래스 내 생성자에 추가
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("Niagara.NiagaraSystem'/Game/PartyFX/Niagara/NS_Fireworks_Star.NS_Fireworks_Star'"));
-	if (NiagaraEffect.Succeeded())
-	{
-		HitEffect = NiagaraEffect.Object;
-	}
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> CascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_5.P_Hit_5'"));
 	if (CascadeEffect.Succeeded())
@@ -72,10 +67,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		DeadSoundEffect = DeadSoundEffectObject.Object;
 	}
 
-	//Item get Action
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 }
 
 void
@@ -156,13 +147,6 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 				FTimerHandle TimerHandle;
 				GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
 			}
-		}
-	}
-	else
-	{
-		if (HitEffect)
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, NiagaraSpawnLocation, NiagaraSpawnRotation);
 		}
 	}
 	
@@ -325,51 +309,4 @@ void ASagaPlayableCharacter::PostInitializeComponents()
 	GetMesh()->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 
 	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
-}
-
-void
-ASagaPlayableCharacter::Acquire_Drink(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
-	{
-		//Send HP adding code or Item Acquiring code to server
-		//And Save to Local Inventory
-	}
-
-	mItemType = AcquiredItemData->ItemType;
-}
-
-void
-ASagaPlayableCharacter::Acquire_Gum(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
-	{
-		//Item Acquiring code to server
-		//And Save to Local Inventory
-	}
-
-	mItemType = AcquiredItemData->ItemType;
-}
-
-void
-ASagaPlayableCharacter::Acquire_smokebomb(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
-	{
-		//Item Acquiring code to server
-		//And Save to Local Inventory
-	}
-	mItemType = AcquiredItemData->ItemType;
-}
-
-void
-ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
-{
-	if (WeaponData)
-	{
-		TakeItemAction[(uint8)WeaponData->ItemType].ItemDelegate.ExecuteIfBound(WeaponData);
-	}
 }
