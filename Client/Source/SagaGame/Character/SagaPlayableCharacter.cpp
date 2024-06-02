@@ -13,7 +13,6 @@
 
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
-	: Super()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
 	if (MeshAsset.Succeeded())
@@ -67,6 +66,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	{
 		DeadSoundEffect = DeadSoundEffectObject.Object;
 	}
+
 }
 
 void
@@ -92,12 +92,6 @@ ASagaPlayableCharacter::BeginPlay()
 	Super::BeginPlay();
 	//myWeaponType = EPlayerWeapon::LightSabor;
 	UE_LOG(LogSagaGame, Warning, TEXT("Playable Character BeginPlay"));
-}
-
-void
-ASagaPlayableCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void
@@ -155,7 +149,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 			}
 		}
 	}
-
+	
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (myHealth <= 0.0f)
@@ -243,6 +237,12 @@ ASagaPlayableCharacter::RespawnCharacter()
 	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 }
 
+void
+ASagaPlayableCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
@@ -282,12 +282,12 @@ void ASagaPlayableCharacter::Attack()
 			FDamageEvent DamageEvent;
 			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
 
-			/*if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
 			{
 				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
-			}*/
 			}
 		}
+	}
 	else if (myWeaponType == EPlayerWeapon::WaterGun)
 	{
 		FHitResult Result;
@@ -331,12 +331,12 @@ void ASagaPlayableCharacter::Attack()
 			FVector Hitlocation = Result.ImpactPoint;
 			FVector HitNormal = Result.Normal;
 
-			/*if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
 			{
 				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
-			}*/
 			}
 		}
+	}
 	else if (myWeaponType == EPlayerWeapon::Hammer)
 	{
 		FHitResult Result;
@@ -370,12 +370,12 @@ void ASagaPlayableCharacter::Attack()
 			FVector Hitlocation = Result.ImpactPoint;
 			FVector HitNormal = Result.Normal;
 
-			/*if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
 			{
 				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
-			}*/
 			}
 		}
+	}
 	else
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
