@@ -9,13 +9,13 @@ void
 PrintVector(const FVector& vector)
 {
 	const FString str = vector.ToString();
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Movement Vector: (%s)"), *str);
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Movement Vector: (%s)"), *str);
 }
 
 void
 ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Straight"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Straight"));
 
 	auto dir = input.Get<FVector>();
 
@@ -49,7 +49,7 @@ ASagaInGamePlayerController::MidForwardWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Straight"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Straight"));
 
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
@@ -72,7 +72,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Strafe"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Strafe"));
 
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
@@ -104,7 +104,7 @@ ASagaInGamePlayerController::MidStrafeWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Strafe"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Walking Strafe"));
 
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
@@ -127,7 +127,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginRun()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
 
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -146,7 +146,7 @@ ASagaInGamePlayerController::BeginRun()
 void
 ASagaInGamePlayerController::EndRun()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
 
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -165,7 +165,7 @@ ASagaInGamePlayerController::EndRun()
 void
 ASagaInGamePlayerController::BeginJump()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
 
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -184,7 +184,7 @@ ASagaInGamePlayerController::BeginJump()
 void
 ASagaInGamePlayerController::EndJump()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
 
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
