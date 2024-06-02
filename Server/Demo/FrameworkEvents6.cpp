@@ -57,10 +57,6 @@ demo::Framework::OnCreatingCharacters(Room& room)
 #else
 	if (0 < cnt_ref)
 	{
-		//auto target_time = std::chrono::system_clock::now() + std::chrono::minutes{ 3 };
-
-		//room.gameTimer = std::chrono::system_clock::to_time_t(target_time);
-
 		return true;
 	}
 #endif

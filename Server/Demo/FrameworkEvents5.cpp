@@ -12,12 +12,11 @@ module Demo.Framework;
 import Iconer.Application.RoomContract;
 import Iconer.Application.GameContract;
 
-using namespace iconer::app;
-using namespace demo;
-
 bool
-Framework::OnGameIsLoaded(User& user)
+demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 {
+	using namespace iconer::app;
+	using namespace demo;
 	using enum AsyncOperations;
 
 	if (not user.TryChangeState(UserStates::InRoom, UserStates::ReadyForGame))
@@ -190,8 +189,11 @@ Framework::OnGameIsLoaded(User& user)
 }
 
 void
-Framework::OnFailedToLoadGame(User& user) noexcept
+demo::Framework::OnFailedToLoadGame(iconer::app::User& user) noexcept
 {
+	using namespace iconer::app;
+	using namespace demo;
+
 	if (const auto room_id = user.myRoomId.Load(); -1 != room_id)
 	{
 		if (auto room = FindRoom(room_id); nullptr != room)

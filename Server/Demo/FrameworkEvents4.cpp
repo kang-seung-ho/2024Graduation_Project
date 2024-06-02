@@ -299,9 +299,6 @@ noexcept
 	}
 }
 
-// OnGameIsLoaded
-// OnFailedToLoadGame
-
 bool
 demo::Framework::OnStartGame(Room& room)
 {
