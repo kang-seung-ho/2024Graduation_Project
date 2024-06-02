@@ -3,8 +3,10 @@
 #include "../Effect/SagaSwordEffect.h"
 
 #include "SagaGame/Player/SagaUserTeam.h"
+
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "SagaPlayableCharacter.h"
 #include "GeometryCollection/GeometryCollectionObject.h"
 #include "GeometryCollection/GeometryCollection.h"
 #include "GeometryCollection/GeometryCollectionAlgo.h"
@@ -136,6 +138,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	// 오버랩 이벤트 바인드
 	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
 	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+
+	isCanRide = false;
 }
 
 void
@@ -197,7 +201,7 @@ ASagaGummyBearPlayer::BeginPlay()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
+	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
 
 	myHealth -= dmg;
 	Stat->ApplyDamage(dmg);
@@ -221,15 +225,16 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		{
 			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
 
-			if  (not system->IsOfflineMode())
-			{
-				// arg1이 1이면 곰 캐릭터
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-			}
-			else
-			{
+			if (not system->IsOfflineMode())
+				if (not system->IsOfflineMode())
+				{
+					// arg1이 1이면 곰 캐릭터
+					system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
+				}
+				else
+				{
 
-			}
+				}
 		}
 
 		//Destroy();
@@ -445,7 +450,8 @@ FTransform ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* 
 	TargetGC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	int32 PieceIndex = 0;
 
-	switch (Index) {
+	switch (Index)
+	{
 	case 0:
 		PieceIndex = 13;
 		break;

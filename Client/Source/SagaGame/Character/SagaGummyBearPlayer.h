@@ -1,13 +1,12 @@
 #pragma once
-#include "SagaGame.h"
+#include <CoreMinimal.h>
+
+#include "Character/SagaCharacterPlayer.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
-#include "Character/SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.generated.h"
-
-
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
@@ -17,16 +16,22 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
 public:
 	ASagaGummyBearPlayer();
 
-	virtual void Attack() override;
+	virtual void Attack();
 
 	virtual float ExecuteHurt(const float dmg) override;
 	virtual void ExecuteDeath() override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	bool isCanRide = false;
 	UFUNCTION(BlueprintCallable)
 	FTransform SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index);
 
+	UPROPERTY(EditAnywhere)
+	int32 BearNum = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 DismThreshold;
 	TArray<UStaticMesh*> TargetMeshes;
@@ -37,10 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* NiagaraSystemTemplate;
 
+
+
 protected:
 	// 오버랩 박스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UBoxComponent* InteractionBox;
+	class UBoxComponent* InteractionBox;
 
 	UBoxComponent* Dbox_Rarm;
 	UBoxComponent* Dbox_Larm;
