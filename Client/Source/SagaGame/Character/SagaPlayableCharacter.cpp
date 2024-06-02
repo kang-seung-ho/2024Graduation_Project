@@ -247,59 +247,141 @@ void ASagaPlayableCharacter::Attack()
 {
 	Super::Attack();
 
-	FHitResult Result;
-	FVector Start, End;
-	FCollisionQueryParams Params;
-	bool Collision = false;
+	// TODO: ASagaPlayableCharacter::Attack()
+	// myTeam = EUserTeam::Red; // Code For Client Test
 
 	if (myWeaponType == EPlayerWeapon::LightSabor)
 	{
-		// Calculate attack start and end based on the camera's rotation
-		FRotator CameraRotation = GetControlRotation();
-		FVector ForwardVector = CameraRotation.Vector();
-		Start = GetActorLocation() + ForwardVector * 50.f;
-		End = Start + ForwardVector * 150.f;
+		FHitResult Result;
 
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+
+		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
-		Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
+
+		bool Collision = false;
+		if (myTeam == EUserTeam::Red)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - LightSabor"));
+
+			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
+		}
+		else if (myTeam == EUserTeam::Blue)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - LightSabor"));
+			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), Params);
+		}
+
+		FVector Hitlocation = Result.ImpactPoint;
+		FVector HitNormal = Result.Normal;
+
+		if (Collision)
+		{
+			FDamageEvent DamageEvent;
+			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
+
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			{
+				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
+			}
+		}
 	}
 	else if (myWeaponType == EPlayerWeapon::WaterGun)
 	{
-		Start = GetActorLocation();
-		End = GetActorLocation() + GetActorForwardVector() * 1500.f;
+		FHitResult Result;
 
-		Params.AddIgnoredActor(this);
-		Collision = GetWorld()->LineTraceSingleByChannel(Result, Start, End, ECC_GameTraceChannel4, Params);
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector TraceStart = GetActorLocation();
+		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1500.0f;
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
+		bool Collision = false;
+
+		if (myTeam == EUserTeam::Red)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
+
+			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
+		}
+		else if (myTeam == EUserTeam::Blue)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
+
+			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
+		}
+
+		if (Result.bBlockingHit && IsValid(Result.GetActor()))
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
+		}
+
+		if (Collision)
+		{
+			FDamageEvent DamageEvent;
+			Result.GetActor()->TakeDamage(20.f, DamageEvent, GetController(), this);
+
+			FVector Hitlocation = Result.ImpactPoint;
+			FVector HitNormal = Result.Normal;
+
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			{
+				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
+			}
+		}
 	}
 	else if (myWeaponType == EPlayerWeapon::Hammer)
 	{
-		Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		End = Start + GetActorForwardVector() * 150.f;
+		FHitResult Result;
 
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+
+		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
-		Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
-	}
 
-	if (Collision)
-	{
-		FVector HitLocation = Result.ImpactPoint;
-		FVector HitNormal = Result.Normal;
-		float DamageAmount = (myWeaponType == EPlayerWeapon::WaterGun) ? 20.f : 30.f;
-
-		FDamageEvent DamageEvent;
-		Result.GetActor()->TakeDamage(DamageAmount, DamageEvent, GetController(), this);
-
-		// Check if hit actor is a GummyBear player
-		if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+		bool Collision = false;
+		if (myTeam == EUserTeam::Red)
 		{
-			Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(HitLocation, HitNormal);
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - Hammer"));
+
+			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
+		}
+		else if (myTeam == EUserTeam::Blue)
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - Hammer"));
+
+			Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), Params);
+		}
+
+		if (Collision)
+		{
+			FDamageEvent DamageEvent;
+			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
+
+			FVector Hitlocation = Result.ImpactPoint;
+			FVector HitNormal = Result.Normal;
+
+			if (Result.GetActor()->IsA<ASagaGummyBearPlayer>())
+			{
+				Cast<ASagaGummyBearPlayer>(Result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
+			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
 	}
 }
+
 
 
 void ASagaPlayableCharacter::PostInitializeComponents()
