@@ -17,6 +17,38 @@ PrintVector(const FVector& vector)
 }
 
 void
+ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
+{
+	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
+	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
+
+	if (ControlledCharacter)
+	{
+		ControlledCharacter->RideNPC();
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
+	}
+}
+
+void
+ASagaInGamePlayerController::RideNPCCallFunction()
+{
+	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
+
+	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
+	if (ControlledCharacter)
+	{
+		ControlledCharacter->RideNPC();
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
+	}
+}
+
+void
 ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Straight"));
@@ -209,31 +241,35 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 {
 	const FVector InputValue = input.Get<FVector>();
 
-	AddYawInput(InputValue.X);
-
 	const auto pawn = GetPawn<ASagaCharacterPlayer>();
-	if (pawn != nullptr)
+	if (IsValid(pawn))
 	{
-		pawn->RotateCameraArm(InputValue.Y);
+		AddYawInput(InputValue.X);
+
+		pawn->ExecuteRotate(InputValue.Y);
 	}
 }
 
 void
 ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Attack"));
+
 	if (not isAttacking)
 	{
 		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-		if (system->IsOfflineMode())
+		if (pawn->IsAlive())
 		{
-			auto pawn = GetPawn<ASagaCharacterPlayer>();
-
-			pawn->PlayAttackAnimation();
-		}
-		else
-		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			if (system->IsOfflineMode())
+			{
+				pawn->ExecuteAttack();
+			}
+			else
+			{
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			}
 		}
 
 		isAttacking = true;

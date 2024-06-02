@@ -14,12 +14,8 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Minutes = 5;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Seconds = 30;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRiding;
+	friend class ASagaInGameMode;
+
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
 
@@ -34,13 +30,11 @@ public:
 	void RideNPCCallFunction();
 #pragma endregion
 
-	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
-#pragma region =========================
 	UFUNCTION()
-	void OnLeftRoom(int32 user_id);
-	UFUNCTION()
-	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
-#pragma endregion
+	int32 GetOwnerId() const noexcept
+	{
+		return ownerId;
+	}
 
 	/* Actions */
 #pragma region =========================
@@ -88,17 +82,17 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
-	/* 게임 내 이벤트 (타이머, 입력 반응, 언리얼 이벤트, ...) */
-#pragma region =========================
 	UFUNCTION()
-	void OnLevelReady();
+	void SetOwnerId(int32 id) noexcept
+	{
+		ownerId = id;
+	}
+
 	UFUNCTION()
 	void OnGameStarted();
+
 	UFUNCTION()
-	void OnUpdateTransform();
-	UFUNCTION()
-	void CountDown();
-#pragma endregion
+	void HandleUpdateTransform();
 
 	// 좌표 쓰기
 	UFUNCTION()
@@ -107,6 +101,8 @@ private:
 	UFUNCTION()
 	static FVector DeserializePosition(const int64& arg0, const int32& arg1);
 
+	UPROPERTY()
+	int32 ownerId;
 	UPROPERTY()
 	FVector walkDirection;
 	UPROPERTY()
@@ -117,10 +113,6 @@ private:
 	UPROPERTY()
 	FRotator lastCharacterRotation;
 
-	UPROPERTY()
-	FTimerHandle readyTimerHandle;
-	UPROPERTY()
-	FTimerHandle countdownTimerHandle;
 	UPROPERTY()
 	FTimerHandle transformUpdateTimer;
 };

@@ -22,8 +22,6 @@ public:
 	virtual float ExecuteHurt(const float dmg) override;
 	virtual void ExecuteDeath() override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
 	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
 
 	UFUNCTION(BlueprintCallable)
@@ -38,8 +36,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* NiagaraSystemTemplate;
-
-
 
 protected:
 	// 오버랩 박스

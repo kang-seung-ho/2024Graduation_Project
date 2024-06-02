@@ -7,104 +7,68 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
-ASagaInGamePlayerController::OnUpdateTransform()
+ASagaInGamePlayerController::HandleUpdateTransform()
 {
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (system->IsConnected())
 	{
-		const auto pawn = GetPawn();
+		const auto pawn = GetPawn<ASagaCharacterPlayer>();
 
-		const auto loc = pawn->GetActorLocation();
-		if (lastCharacterPosition != loc)
+		if (pawn->IsAlive())
 		{
-			int64 arg0{};
-			int32 arg1{};
+			const auto loc = pawn->GetActorLocation();
+			if (lastCharacterPosition != loc)
+			{
+				int64 arg0{};
+				int32 arg1{};
 
-			SerializePosition(loc, arg0, arg1);
+				SerializePosition(loc, arg0, arg1);
 
-			//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+				//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
 
-			lastCharacterPosition = loc;
-		}
+				lastCharacterPosition = loc;
+			}
 
-		const auto rot = pawn->GetActorRotation();
-		if (lastCharacterRotation != rot)
-		{
-			int64 arg0{};
-			int32 arg1{};
+			const auto rot = pawn->GetActorRotation();
+			if (lastCharacterRotation != rot)
+			{
+				int64 arg0{};
+				int32 arg1{};
 
-			SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
+				SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
 
-			//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
+				//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
 
-			lastCharacterRotation = rot;
-		}
-	}
-}
-
-void
-ASagaInGamePlayerController::OnLevelReady()
-{
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (not system->IsOfflineMode())
-	{
-		if (system->IsConnected())
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("[OnLevelReady] Game controller would send a loaded packet"));
-			system->SendGameIsLoadedPacket();
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[OnLevelReady] Clent is not connected to server!"));
+				lastCharacterRotation = rot;
+			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[OnLevelReady] (Offline Mode)"));
+		GetWorldTimerManager().ClearTimer(transformUpdateTimer);
 	}
 }
 
 void
 ASagaInGamePlayerController::OnGameStarted()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto world = GetWorld();
+	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
 
 	if (not system->IsOfflineMode())
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started."));
-
-		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Starting periodic transformer timer."));
-		GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 0.03f, true, 1.0f);
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started. (Offline Mode)"));
-	}
-}
-
-void
-ASagaInGamePlayerController::OnLeftRoom(int32 user_id)
-{
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	FSagaVirtualUser user{};
-
-	if (system->FindUser(user_id, user))
-	{
-		const auto character = user.GetCharacterHandle();
-
-		if (IsValid(character))
+		if (system->IsConnected())
 		{
-			system->SetCharacterHandle(user_id, nullptr);
-			character->Destroy();
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][OnGameStarted] Starting periodic timers."));
+
+			GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGamePlayerController::HandleUpdateTransform, 0.03f, true, 1.0f);
 		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[OnLeftRoom] Could not find the user %d"), user_id);
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGamePlayerController][OnGameStarted] Game controller could not start periodic timers!"));
+		}
 	}
 }

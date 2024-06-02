@@ -1,60 +1,24 @@
 #include "SagaInGamePlayerController.h"
-#include <Math/UnrealMathUtility.h>
 #include <UObject/Object.h>
-#include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
-#include <Blueprint/UserWidget.h>
 
 #include "SagaGameInfo.h"
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
-#include "SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
 	: APlayerController(initializer)
-	, isRiding(), OnRideNPC()
+	, OnRideNPC()
+	, ownerId(-1)
 	, walkDirection()
 	, isAttacking()
 	, lastCharacterPosition(), lastCharacterRotation()
-	, readyTimerHandle(), countdownTimerHandle()
 	, transformUpdateTimer()
 {}
-
-void
-ASagaInGamePlayerController::TriggerRideNPC(const FInputActionValue& Value)
-{
-	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
-	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
-
-	if (ControlledCharacter)
-	{
-		ControlledCharacter->RideNPC();
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
-	}
-}
-
-void
-ASagaInGamePlayerController::RideNPCCallFunction()
-{
-	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
-
-	UE_LOG(LogSagaGame, Warning, TEXT("TriggerRideNPC"));
-	if (ControlledCharacter)
-	{
-		ControlledCharacter->RideNPC();
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
-	}
-}
 
 void
 ASagaInGamePlayerController::BeginPlay()
@@ -94,7 +58,7 @@ ASagaInGamePlayerController::BeginPlay()
 
 	if (not system->IsOfflineMode())
 	{
-		system->OnLeftRoom.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoom);
+		system->OnGameStarted.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
 
 		//system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
