@@ -37,6 +37,7 @@ public:
 
 	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
+	UFUNCTION()
 	void DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent);
 
 protected:
