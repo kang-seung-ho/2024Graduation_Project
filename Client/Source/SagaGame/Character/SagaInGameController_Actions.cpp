@@ -1,4 +1,5 @@
 #include "SagaInGamePlayerController.h"
+#include <UObject/Object.h>
 
 #include "SagaCharacterPlayer.h"
 
@@ -203,14 +204,13 @@ ASagaInGamePlayerController::EndJump()
 void
 ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 {
-	const FVector InputValue = input.Get<FVector>();
-
-	AddYawInput(InputValue.X);
-
 	const auto pawn = GetPawn<ASagaCharacterPlayer>();
-	if (pawn != nullptr)
+	if (IsValid(pawn))
 	{
-		pawn->RotateCameraArm(InputValue.Y);
+		const FVector input_axis = input.Get<FVector>();
+
+		pawn->ExecuteRotate(input_axis.Y);
+		AddYawInput(input_axis.X);
 	}
 }
 

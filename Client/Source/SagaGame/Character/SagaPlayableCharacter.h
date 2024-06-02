@@ -21,15 +21,15 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer
 public:
 	ASagaPlayableCharacter();
 
-	virtual void Attack() override;
-	void RideNPC();
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
-	//void RidingFunction();
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual float ExecuteHurt(const float dmg) override;
 	virtual void ExecuteDeath() override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void Attack() override;
+	void RideNPC();
+	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
+	//void RidingFunction();
 
 	virtual void RespawnCharacter() override;
 

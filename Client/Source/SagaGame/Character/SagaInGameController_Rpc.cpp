@@ -295,6 +295,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_0:
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_BEG_ATTACK_0] by %d"), id);
+
 		if (is_remote)
 		{
 		}
@@ -305,6 +307,8 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_END_ATTACK_0:
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_ATTACK_0] by %d"), id);
+
 		if (is_remote)
 		{
 		}
@@ -315,11 +319,12 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 
 	case ESagaRpcProtocol::RPC_BEG_ATTACK_1:
 	{
-		character->ExecuteAttack();
 		if (is_remote)
 		{
-			
+
 		}
+
+		character->ExecuteAttack();
 	}
 	break;
 
@@ -327,7 +332,11 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 	{
 		if (is_remote)
 		{
-			//character->TerminateAttack();
+			if (is_remote)
+			{
+			}
+
+			character->TerminateAttack();
 		}
 	}
 	break;
@@ -385,11 +394,7 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		const auto new_weapon = static_cast<EPlayerWeapon>(arg0);
 		system->SetWeapon(id, new_weapon);
 
-		EPlayerWeapon test{};
-		system->GetWeapon(id, test);
-		ensure(new_weapon == test);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("[RPC] %d's weapon is %d"), id, static_cast<int>(test));
+		UE_LOG(LogSagaGame, Warning, TEXT("[RPC] %d's weapon is '%d'"), id, static_cast<int>(new_weapon));
 	}
 	break;
 

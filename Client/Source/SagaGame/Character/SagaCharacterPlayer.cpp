@@ -52,9 +52,9 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mCamera->SetupAttachment(mArm);
 
 	Stat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
+
 	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
 	HpBar->SetupAttachment(GetMesh());
-
 	HpBar->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
@@ -66,22 +66,23 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
-	//Weapon
+	// Weapon
 	MyWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	MyWeapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 	// WeaponMesh Collision Disable
 	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
 	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
-	//Load Weapon Meshes
+	// Load Weapon Meshes
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
-
 	if (LightSaborMeshRef.Succeeded())
 	{
 		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMeshRef.Object);
 	}
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
+
 	if (WaterGunMeshRef.Succeeded())
 	{
 		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMeshRef.Object);
@@ -90,13 +91,6 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	{
 		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
-}
-
-void ASagaCharacterPlayer::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	Stat->OnHpZero.AddUObject(this, &ASagaCharacterPlayer::SetDead);
 }
 
 void
@@ -108,9 +102,10 @@ ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 float
 ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] Called TakeDamage"));
+	const auto dmg = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogSagaGame, Warning, TEXT("[TakeDamage] Damage: (%f)"), dmg);
 
-	return ExecuteHurt(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser));
+	return ExecuteHurt(dmg);
 }
 
 void
@@ -154,66 +149,20 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 }
 
 void
-ASagaCharacterPlayer::AttachWeapon()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
-
-	// Set Weapon Mesh with Weapon Type
-	if (WeaponMeshes.Contains(myWeaponType))
-	{
-		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
-
-		if (myWeaponType == EPlayerWeapon::LightSabor)
-		{
-			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
-			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
-		}
-		else if (myWeaponType == EPlayerWeapon::WaterGun)
-		{
-			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
-			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-		else if (myWeaponType == EPlayerWeapon::Hammer)
-		{
-			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
-			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
-	}
-}
-
-void
-ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
-{
-	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
-	if (HpBarWidget)
-	{
-		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
-		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
-	}
-}
-
-void
-ASagaCharacterPlayer::RotateCameraArm(const float pitch)
+ASagaCharacterPlayer::ExecuteRotate(const float pitch)
 {
 	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
 
 	FRotator Rot = mArm->GetRelativeRotation();
 
 	if (Rot.Pitch < -60.0)
+	{
 		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
-
+	}
 	else if (Rot.Pitch > 60.0)
+	{
 		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+	}
 }
 
 void
@@ -435,5 +384,54 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 		{
 			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
 		}
+	}
+}
+
+void
+ASagaCharacterPlayer::AttachWeapon()
+{
+	UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] WeaponType: %d"), myWeaponType);
+
+	// Set Weapon Mesh with Weapon Type
+	if (WeaponMeshes.Contains(myWeaponType))
+	{
+		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[AttachWeapon] Weapon's MeshType (%d)"), myWeaponType);
+
+		if (myWeaponType == EPlayerWeapon::LightSabor)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+		}
+		else if (myWeaponType == EPlayerWeapon::WaterGun)
+		{
+			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+		else if (myWeaponType == EPlayerWeapon::Hammer)
+		{
+			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh found for the selected weapon."));
+	}
+}
+
+void
+ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
+{
+	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpChanged.AddUObject(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }

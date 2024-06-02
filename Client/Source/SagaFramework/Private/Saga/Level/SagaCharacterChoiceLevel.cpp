@@ -1,4 +1,5 @@
 #include "Saga/Level/SagaCharacterChoiceLevel.h"
+#include <Math/UnrealMathUtility.h>
 #include <UObject/Object.h>
 #include <Delegates/Delegate.h>
 #include <Blueprint/UserWidget.h>
@@ -149,7 +150,7 @@ ASagaCharacterChoiceLevel::OnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0
 	{
 		GetWorldTimerManager().PauseTimer(choiceTimer);
 
-		const auto rep = arg0 / 1000'0000LL;
+		const auto rep = FMath::Max(0LL, arg0 / 1000'0000LL);
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Countdown: %d"), rep);
 
 		if (rep <= 0)

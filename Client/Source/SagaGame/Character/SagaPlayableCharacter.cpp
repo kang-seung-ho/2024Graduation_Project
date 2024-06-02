@@ -11,8 +11,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
-
 ASagaPlayableCharacter::ASagaPlayableCharacter()
+	: Super()
+	, TakeItemAction()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
 	if (MeshAsset.Succeeded())
@@ -67,23 +68,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		DeadSoundEffect = DeadSoundEffectObject.Object;
 	}
 
-}
-
-void
-ASagaPlayableCharacter::RideNPC()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
-		FOutputDeviceNull Ar;
-
-	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
-	if (ret == true)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Called"))
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Not Found"))
-	}
+	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
 }
 
 void
@@ -95,9 +80,21 @@ ASagaPlayableCharacter::BeginPlay()
 }
 
 void
+ASagaPlayableCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void
 ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+}
+
+float
+ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 float
@@ -149,7 +146,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 			}
 		}
 	}
-	
+
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (myHealth <= 0.0f)
@@ -215,12 +212,6 @@ ASagaPlayableCharacter::ExecuteDeath()
 	Super::ExecuteDeath();
 }
 
-float
-ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-}
-
 void
 ASagaPlayableCharacter::RespawnCharacter()
 {
@@ -238,9 +229,20 @@ ASagaPlayableCharacter::RespawnCharacter()
 }
 
 void
-ASagaPlayableCharacter::Tick(float DeltaTime)
+ASagaPlayableCharacter::RideNPC()
 {
-	Super::Tick(DeltaTime);
+	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
+		FOutputDeviceNull Ar;
+
+	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
+	if (ret == true)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Called"))
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Not Found"))
+	}
 }
 
 void ASagaPlayableCharacter::Attack()
