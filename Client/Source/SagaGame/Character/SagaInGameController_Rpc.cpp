@@ -437,28 +437,3 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 		break;
 	}
 }
-
-bool
-ASagaInGamePlayerController::SendRpc(ESagaRpcProtocol rpc, const int64 arg0, const int32 arg1)
-const
-{
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (not system->IsOfflineMode())
-	{
-		if (system->IsConnected())
-		{
-			return 0 < system->SendRpcPacket(rpc, arg0, arg1);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-
-			return false;
-		}
-	}
-	else
-	{
-		return true;
-	}
-}

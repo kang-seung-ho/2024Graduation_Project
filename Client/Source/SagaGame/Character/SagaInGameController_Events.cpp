@@ -24,7 +24,7 @@ ASagaInGamePlayerController::OnUpdateTransform()
 			SerializePosition(loc, arg0, arg1);
 
 			//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
-			SendRpc(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
 
 			lastCharacterPosition = loc;
 		}
@@ -38,7 +38,7 @@ ASagaInGamePlayerController::OnUpdateTransform()
 			SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
 
 			//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
-			SendRpc(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
 
 			lastCharacterRotation = rot;
 		}

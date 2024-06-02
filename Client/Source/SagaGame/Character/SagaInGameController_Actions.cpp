@@ -33,7 +33,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -65,7 +65,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -88,7 +88,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -120,7 +120,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -139,7 +139,7 @@ ASagaInGamePlayerController::BeginRun()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_BEG_RUN);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
 	}
 }
 
@@ -158,7 +158,7 @@ ASagaInGamePlayerController::EndRun()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_RUN);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
 	}
 }
 
@@ -177,7 +177,7 @@ ASagaInGamePlayerController::BeginJump()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_BEG_JUMP);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
 	}
 }
 
@@ -196,7 +196,7 @@ ASagaInGamePlayerController::EndJump()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_JUMP);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
 	}
 }
 
@@ -229,7 +229,7 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 		}
 		else
 		{
-			SendRpc(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
 		}
 
 		isAttacking = true;
@@ -250,7 +250,7 @@ ASagaInGamePlayerController::EndAttack()
 		}
 		else
 		{
-			SendRpc(ESagaRpcProtocol::RPC_END_ATTACK_0);
+			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
 		}
 
 		isAttacking = false;
@@ -270,7 +270,7 @@ ASagaInGamePlayerController::BeginRide()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
 	}
 }
 
@@ -287,6 +287,6 @@ ASagaInGamePlayerController::EndRide()
 	}
 	else
 	{
-		SendRpc(ESagaRpcProtocol::RPC_END_RIDE, 0);
+		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, 0);
 	}
 }

@@ -14,7 +14,6 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Minutes = 5;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -24,7 +23,7 @@ public:
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
 
-	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	ASagaInGamePlayerController(const FObjectInitializer& initializer) noexcept;
 
 	virtual void Tick(float delta_time) override;
 
@@ -33,8 +32,6 @@ public:
 	void TriggerRideNPC(const FInputActionValue& Value);
 	UFUNCTION()
 	void RideNPCCallFunction();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	bool SendRpc(ESagaRpcProtocol rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
 #pragma endregion
 
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */

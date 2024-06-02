@@ -13,8 +13,9 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer)
-	: APlayerController(ObjectInitializer)
+ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
+noexcept
+	: APlayerController(initializer)
 	, isRiding(), OnRideNPC()
 	, walkDirection()
 	, isAttacking()

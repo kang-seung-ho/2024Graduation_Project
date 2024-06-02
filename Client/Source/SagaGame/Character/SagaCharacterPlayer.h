@@ -97,8 +97,14 @@ public:
 	UFUNCTION()
 	virtual void TerminateAttack();
 
+	/*
+	* 수호자 승차
+	*/
 	UFUNCTION()
 	virtual void ExecuteRide();
+	/*
+	* 수호자 하차
+	*/
 	UFUNCTION()
 	virtual void TerminateRide();
 	
@@ -171,7 +177,7 @@ protected:
 	int32 myId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EUserTeam myTeam;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EPlayerWeapon myWeaponType;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	float myHealth;
@@ -186,7 +192,6 @@ protected:
 
 	UPROPERTY()
 	class USagaPlayerAnimInstance* mAnimInst;
-
 	UPROPERTY()
 	class USagaGummyBearAnimInstance* mBearAnimInst;
 #pragma endregion
