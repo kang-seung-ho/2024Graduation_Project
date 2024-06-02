@@ -134,6 +134,8 @@ demo::Framework::OnGameIsLoaded(iconer::app::User& user)
 				else if (room->TryMarkPreparedForGame())
 				{
 					// now let's start a game
+					room->gamePhaseTime = std::chrono::system_clock::now() + Room::gamePhasePeriod;
+
 					room->SetOperation(OpStartGame);
 					if (not Schedule(room, 0))
 					{

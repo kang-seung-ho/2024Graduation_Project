@@ -1,5 +1,6 @@
 module;
 #include <string_view>
+#include <chrono>
 
 module Demo.Framework;
 import Iconer.Application.GameContract;
@@ -72,6 +73,9 @@ demo::Framework::OnCreateGame(User& user)
 		}
 		else
 		{
+			using namespace std::chrono_literals;
+			room->selectionPhaseTime = std::chrono::system_clock::now() + Room::weaponPhasePeriod;
+
 			return user.TryChangeState(UserStates::MakingGame, UserStates::InRoom);
 		}
 	}

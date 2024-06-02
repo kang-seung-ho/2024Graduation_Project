@@ -1,5 +1,7 @@
 module;
+#include <chrono>
 #include <string_view>
+#include <print>
 
 #define SEND(user_var, method, ...) \
 auto [io, ctx] = ((user_var).method)(__VA_ARGS__); \
@@ -144,6 +146,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_RIDE:
 	{
+		myLogger.Log(L"\t[RPC_BEG_RIDE] at room {}\n", room_id);
+
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
@@ -166,6 +170,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_END_RIDE:
 	{
+		myLogger.Log(L"\t[RPC_END_RIDE] at room {}\n", room_id);
+
 		// arg0: index of guardian
 		if (arg0 < 0 or 3 <= arg0)
 		{
@@ -188,6 +194,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_ATTACK_0:
 	{
+		myLogger.Log(L"\t[RPC_BEG_ATTACK_0] at room {}\n", room_id);
+
 		//if (0 < user->myHealth)
 		{
 			room->ForEach
@@ -203,19 +211,178 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_DMG_PLYER:
 	{
+		// arg0: 플레이어가 준 피해량
+		// arg1: 플레이어가 맟힌 대상의 식별자
+		//     예시: 플레이어의 ID, 수호자의 순번
 
+		auto& hp = user->myHealth;
+
+		float dmg{};
+		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+		myLogger.Log(L"\t[RPC_DMG_PLYER] at room {} - {} dmg\n", room_id, dmg);
+
+		if (0 < hp)
+		{
+			//hp.FetchSubtract(dmg);
+
+			if (hp <= 0)
+			{
+				if (user->isRidingGuardian)
+				{
+					// 수호자 파괴
+
+					// 하차 처리
+					room->ForEach
+					(
+						[&](User& member)
+						{
+							SEND(member, SendRpcPacket, user_id, RPC_END_RIDE, arg0, arg1);
+						}
+					);
+				}
+				else
+				{
+					// 사망
+					//room->ForEach
+					//(
+					//	[&](User& member)
+						{
+							//SEND(member, SendRpcPacket, user_id, RPC_DEAD, arg0, hp);
+						}
+					//);
+
+					user->respawnTime = std::chrono::system_clock::now() + User::respawnPeriod;
+				}
+			}
+			else
+			{
+				// 데미지 처리
+				room->ForEach
+				(
+					[&](User& member)
+					{
+						SEND(member, SendRpcPacket, user_id, RPC_DMG_PLYER, arg0, arg1);
+					}
+				);
+			}
+		}
+	}
+	break;
+
+	case RPC_RESPAWN:
+	{
+		// arg1: 플레이어 ID
+
+		auto& hp = user->myHealth;
+		hp = 100.0f;
+
+		room->ForEach
+		(
+			[&](User& member)
+			{
+				SEND(member, SendRpcPacket, user_id, RPC_RESPAWN, arg0, arg1);
+			}
+		);
+	}
+	break;
+
+	case RPC_RESPAWN_TIMER:
+	{
+		const auto now = std::chrono::system_clock::now();
+
+		if (now <= user->respawnTime)
+		{
+			// 
+		}
+
+		const auto gap = user->respawnTime - now;
+		const auto cnt = gap.count();
+		myLogger.Log(L"\tUser {}'s respawn time: {}\n", user_id, cnt);
+
+		if (0 < cnt)
+		{
+			SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
+		}
+		else
+		{
+			// RPC_RESPAWN랑 똑같은 처리
+			auto& hp = user->myHealth;
+			hp = 100.0f;
+
+			room->ForEach
+			(
+				[&](User& member)
+				{
+					SEND(member, SendRpcPacket, user_id, RPC_RESPAWN, arg0, arg1);
+				}
+			);
+		}
 	}
 	break;
 
 	case RPC_DMG_GUARDIAN:
 	{
+		myLogger.Log(L"\t[RPC_DMG_GUARDIAN] at room {}\n", room_id);
 
 	}
 	break;
 
 	case RPC_DMG_GUARDIANS_PART:
 	{
+		myLogger.Log(L"\t[RPC_DMG_GUARDIANS_PART] at room {}\n", room_id);
 
+	}
+	break;
+	
+	case RPC_WEAPON_TIMER:
+	{
+		const auto now = std::chrono::system_clock::now();
+
+		if (now <= room->selectionPhaseTime)
+		{
+			// 
+		}
+
+		const auto gap = room->selectionPhaseTime - now;
+		const auto cnt = gap.count();
+		//myLogger.Log(L"\tRoom {}'s weapon phase: {}\n", room_id, cnt);
+
+		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
+	}
+	break;
+
+	case RPC_GAME_TIMER:
+	{
+		const auto now = std::chrono::system_clock::now();
+
+		if (now <= room->gamePhaseTime)
+		{
+			// 
+		}
+
+		const auto gap = room->gamePhaseTime - now;
+		const auto cnt = gap.count();
+		//myLogger.Log(L"\tRoom {}'s game time: {}\n", room_id, cnt);
+
+
+		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
+	}
+	break;
+	
+	case RPC_NOTIFY_GAME_COUNTDOWN:
+	{
+		const auto now = std::chrono::system_clock::now();
+
+		if (now <= room->gamePhaseTime)
+		{
+			// 
+		}
+
+		const auto gap = room->gamePhaseTime - now;
+		const auto cnt = gap.count();
+		//myLogger.Log(L"\tRoom {}'s game time: {}\n", room_id, cnt);
+
+		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
 	}
 	break;
 
