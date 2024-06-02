@@ -92,43 +92,11 @@ ASagaInGamePlayerController::BeginPlay()
 	const auto world = GetWorld();
 	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (nullptr != system)
+	if (not system->IsOfflineMode())
 	{
 		system->OnLeftRoom.AddDynamic(this, &ASagaInGamePlayerController::OnLeftRoom);
 
-		system->OnStartGame.AddDynamic(this, &ASagaInGamePlayerController::OnGameStarted);
-
-		system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Network subsystem is not ready."));
-	}
-
-	GetWorldTimerManager().SetTimer(readyTimerHandle, this, &ASagaInGamePlayerController::OnLevelReady, 1.0f, false);
-
-	GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaInGamePlayerController::CountDown, 1.0f, true);
-}
-
-void
-ASagaInGamePlayerController::CountDown()
-{
-	if (Seconds != 0)
-	{
-		Seconds = Seconds - 1;
-	}
-	else
-	{
-		if (Minutes == 0 && Seconds == 0)
-		{
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameEndLevel"));
-			UE_LOG(LogTemp, Warning, TEXT("Game End"));
-		}
-		else
-		{
-			Minutes = Minutes - 1;
-			Seconds = 59;
-		}
+		//system->OnRpc.AddDynamic(this, &ASagaInGamePlayerController::OnRpc);
 	}
 }
 
@@ -212,7 +180,6 @@ ASagaInGamePlayerController::SetupInputComponent()
 
 	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
 
-	// �̺�Ʈ�� ��������Ʈ ���ε�
 	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
 }
 

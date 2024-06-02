@@ -23,19 +23,22 @@ public:
 
 	virtual void Attack() override;
 
+	virtual float ExecuteHurt(const float dmg) override;
+	virtual void ExecuteDeath() override;
+	UFUNCTION()
+	void BeginRespawn();
+	virtual void ExecuteRespawn() override;
+
+	UFUNCTION()
+	void HandleRespawnCountdown();
+
 	UFUNCTION()
 	void RideNPC();
 	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
 	//void RidingFunction();
 
-	virtual float ExecuteHurt(const float dmg) override;
-	virtual void ExecuteDeath() override;
-
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	virtual void RespawnCharacter() override;
-
-	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
+	UFUNCTION()
+	EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
 	UFUNCTION()
 	void DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent);
@@ -52,7 +55,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
-
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;
 
@@ -64,5 +66,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase* DeadSoundEffect;
-
 };

@@ -1,4 +1,8 @@
 #include "SagaInGamePlayerController.h"
+#include <Logging/LogMacros.h>
+#include <Containers/UnrealString.h>
+#include <UObject/Object.h>
+#include <InputActionValue.h>
 
 #include "SagaCharacterPlayer.h"
 
@@ -239,6 +243,8 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndAttack()
 {
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Attack"));
+
 	if (isAttacking)
 	{
 		auto character = GetPawn<ASagaCharacterPlayer>();
@@ -260,6 +266,8 @@ ASagaInGamePlayerController::EndAttack()
 void
 ASagaInGamePlayerController::BeginRide()
 {
+	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Ride"));
+
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (system->IsOfflineMode())

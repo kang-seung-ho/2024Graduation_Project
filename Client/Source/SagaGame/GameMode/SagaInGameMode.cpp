@@ -6,8 +6,8 @@
 #include <UObject/Object.h>
 #include <UObject/ConstructorHelpers.h>
 #include <GameFramework/Actor.h>
-#include <GameFramework/Pawn.h>
 #include <GameFramework/Controller.h>
+#include <GameFramework/GameStateBase.h>
 #include <Containers/UnrealString.h>
 #include <Containers/Array.h>
 #include <Templates/Casts.h>
@@ -77,7 +77,9 @@ const
 void
 ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString& err_msg)
 {
-	Super::InitGame(mapname, optios, err_msg);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][InitGame]"));
+
+	AGameModeBase::InitGame(mapname, optios, err_msg);
 
 	const auto world = GetWorld();
 
@@ -107,7 +109,7 @@ ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString
 		UE_LOG(LogSagaGame, Log, TEXT("An automatic spawner is generated."));
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
 
 	system->OnCreatingCharacter.AddDynamic(this, &ASagaInGameMode::OnCreatingCharacter);
 }
@@ -134,7 +136,7 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 	default:
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Choosing a player spawner for unknown team..."));
-		return Super::ChoosePlayerStart_Implementation(player);
+		return AGameModeBase::ChoosePlayerStart_Implementation(player);
 	}
 	}
 }
@@ -144,7 +146,7 @@ ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FStri
 {
 	UE_LOG(LogSagaGame, Log, TEXT("Finding a player spawn by a tag '%s'..."), *tag);
 
-	return Super::FindPlayerStart_Implementation(player, tag);
+	return AGameModeBase::FindPlayerStart_Implementation(player, tag);
 }
 
 void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)

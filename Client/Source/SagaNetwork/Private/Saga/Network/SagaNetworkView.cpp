@@ -55,7 +55,7 @@ ISagaNetworkView::RegisterView(USagaNetworkSubSystem* system, TScriptInterface<I
 
 	system->OnFailedToStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToStartGame_Implementation, ESagaGameContract);
 	system->OnGetPreparedGame.SagaAddDelegate(actor, ISagaNetworkView::OnBeginPrepareGame_Implementation, void);
-	system->OnStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation, void);
+	system->OnGameStarted.SagaAddDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation, void);
 	system->OnCreatingCharacter.SagaAddDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation, int32, EUserTeam, EPlayerWeapon);
 
 	system->OnRpc.SagaAddDelegate(actor, ISagaNetworkView::OnRpc, ESagaRpcProtocol, int32, int64, int32);
@@ -85,7 +85,7 @@ ISagaNetworkView::DeregisterView(USagaNetworkSubSystem* system, TScriptInterface
 
 	system->OnFailedToStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnFailedToStartGame_Implementation);
 	system->OnGetPreparedGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnBeginPrepareGame_Implementation);
-	system->OnStartGame.SagaRemoveDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation);
+	system->OnGameStarted.SagaRemoveDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation);
 	system->OnCreatingCharacter.SagaRemoveDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation);
 
 	system->OnRpc.SagaRemoveDelegate(actor, ISagaNetworkView::OnRpc_Implementation);

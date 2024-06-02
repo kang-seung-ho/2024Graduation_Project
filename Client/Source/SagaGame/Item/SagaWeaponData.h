@@ -27,5 +27,7 @@ public:
 public:
 	UFUNCTION()
 	void SetItemType(EItemType Type) { ItemType = Type; }
-	void SetWeaponMesh(TObjectPtr<UTexture2D> Mesh) { ItemIcon = Mesh; }
+
+	UFUNCTION()
+	void SetWeaponMesh(UTexture2D* Mesh) { ItemIcon = Mesh; }
 };

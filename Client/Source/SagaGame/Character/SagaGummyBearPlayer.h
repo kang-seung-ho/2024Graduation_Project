@@ -1,10 +1,10 @@
 #pragma once
-#include "CoreMinimal.h"
-#include "Character/SagaCharacterPlayer.h"
+#include "SagaGame.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
+#include "Character/SagaCharacterPlayer.h"
 #include "SagaGummyBearPlayer.generated.h"
 
 
@@ -17,7 +17,7 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
 public:
 	ASagaGummyBearPlayer();
 
-	virtual void Attack();
+	virtual void Attack() override;
 
 	virtual float ExecuteHurt(const float dmg) override;
 	virtual void ExecuteDeath() override;

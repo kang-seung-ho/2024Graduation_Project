@@ -197,7 +197,7 @@ ASagaGummyBearPlayer::BeginPlay()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
 	myHealth -= dmg;
 	Stat->ApplyDamage(dmg);

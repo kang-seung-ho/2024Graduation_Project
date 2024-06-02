@@ -133,7 +133,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnGetPreparedGame OnGetPreparedGame;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
-	FSagaEventOnStartGame OnStartGame;
+	FSagaEventOnStartGame OnGameStarted;
 	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Network")
 	FSagaEventOnCreatingCharacter OnCreatingCharacter;
 

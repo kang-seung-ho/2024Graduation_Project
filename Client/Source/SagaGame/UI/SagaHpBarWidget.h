@@ -13,7 +13,9 @@ class SAGAGAME_API USagaHpBarWidget : public USagaUserWidget
 public:
 	USagaHpBarWidget(const FObjectInitializer& initializer) noexcept;
 
+	UFUNCTION()
 	FORCEINLINE void SetMaxHp(float NewMaxHp) { MaxHp = NewMaxHp; }
+	UFUNCTION()
 	void UpdateHpBar(float CurrentHp);
 	
 protected:

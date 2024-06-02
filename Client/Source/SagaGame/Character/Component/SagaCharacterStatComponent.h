@@ -27,9 +27,9 @@ public:
 public:
 	static constexpr float defaultMaxHealth = 100;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character Stat")
+	UPROPERTY(VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character")
 	float MaxHp;
-	UPROPERTY(Transient, VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character Stat")
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character")
 	float CurrentHp;
 
 	UPROPERTY(BlueprintAssignable)

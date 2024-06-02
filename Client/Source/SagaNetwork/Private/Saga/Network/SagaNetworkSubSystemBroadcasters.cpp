@@ -261,15 +261,15 @@ void
 USagaNetworkSubSystem::BroadcastOnStartGame()
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnStartGame`"));
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnGameStarted`"));
 
-	if (OnStartGame.IsBound())
+	if (OnGameStarted.IsBound())
 	{
-		OnStartGame.Broadcast();
+		OnGameStarted.Broadcast();
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnStartGame` was not bound"));
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnGameStarted` was not bound"));
 	}
 }
 
