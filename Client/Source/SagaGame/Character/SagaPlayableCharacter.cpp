@@ -112,20 +112,13 @@ ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
-
-	Stat->ApplyDamage(dmg);
-	myHealth -= dmg;
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	Super::ExecuteHurt(dmg);
 
 	FVector NiagaraSpawnLocation = GetActorLocation();
 	FRotator NiagaraSpawnRotation = GetActorRotation();
 
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
-
-	
 
 	if (dmg == 30.f)
 	{
@@ -173,7 +166,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		}
 	}
 	
-	
+	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (myHealth <= 0.0f)
 	{

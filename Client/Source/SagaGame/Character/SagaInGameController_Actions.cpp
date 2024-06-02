@@ -2,8 +2,6 @@
 
 #include "SagaCharacterPlayer.h"
 
-#include "Saga/Serializer.h"
-
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 

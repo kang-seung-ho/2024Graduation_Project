@@ -180,9 +180,11 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			FActorSpawnParameters SpawnParams{};
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
 
-			auto old_character = user.GetCharacterHandle();
+			const auto old_character = user.GetCharacterHandle();
 
 			UWorld* World = GetWorld();
+
+			const auto& transform = old_character->GetTransform();
 			FVector location{};
 			FRotator rotation{};
 
@@ -190,10 +192,11 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 			{
 				location = old_character->GetActorLocation();
 				rotation = old_character->GetActorRotation();
-				old_character->Destroy();
 			}
 
 			auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
+			UGameplayStatics::FinishSpawningActor(bear, transform);
+			//bear->SetTre
 
 			// 곰에 속성 전달
 			if (IsValid(old_character))
@@ -203,12 +206,15 @@ ASagaInGamePlayerController::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, i
 					이미 가져왔으므로 서브시스템에 있는 FSagaVirtualUser는 수정할 필요없음
 				*/
 				old_character->TranslateProperties(bear);
+
+				// 파괴
+				old_character->Destroy();
 			}
 
 			// 혹시 character를 쓸 일이 있으면 대입해줘야 함
 			character = bear;
 
-			user.SetCharacterHandle(bear);
+			system->SetCharacterHandle(id, bear);
 		}
 		else
 		{

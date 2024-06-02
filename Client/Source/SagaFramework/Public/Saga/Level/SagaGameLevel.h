@@ -20,6 +20,8 @@ private:
 	void OnDisconnected();
 	UFUNCTION()
 	void OnLeftRoomBySelf();
+	UFUNCTION()
+	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
 	UPROPERTY()
 	TSubclassOf<class UUserWidget> mTeamScoreBoardClass;

@@ -1,10 +1,11 @@
 #include "SagaCharacterPlayer.h"
+#include <Engine/DamageEvents.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
 #include "SagaGameInfo.h"
 #include "SagaPlayerAnimInstance.h"
 #include "SagaGummyBearAnimInstance.h"
-#include "../Item/SagaWeaponData.h"
+#include "Item/SagaWeaponData.h"
 
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
@@ -19,7 +20,6 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, mCamera(), mArm()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Creating UCharacterMovementComponent
@@ -110,7 +110,7 @@ ASagaCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] Called TakeDamage"));
 
-	return ExecuteHurt(DamageAmount);
+	return ExecuteHurt(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser));
 }
 
 void

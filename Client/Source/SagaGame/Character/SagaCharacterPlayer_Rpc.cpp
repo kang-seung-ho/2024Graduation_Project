@@ -83,7 +83,12 @@ ASagaCharacterPlayer::TerminateRide()
 float
 ASagaCharacterPlayer::ExecuteHurt(const float dmg)
 {
-	return 0.0f;
+	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
+
+	myHealth -= dmg;
+	Stat->ApplyDamage(dmg);
+
+	return dmg;
 }
 
 void

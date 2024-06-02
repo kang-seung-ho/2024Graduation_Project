@@ -75,14 +75,14 @@ ASagaInGamePlayerController::OnGameStarted()
 
 	if (not system->IsOfflineMode())
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[OnGameStarted] Game is started."));
+		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started."));
 
 		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Starting periodic transformer timer."));
 		GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGamePlayerController::OnUpdateTransform, 0.03f, true, 1.0f);
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[OnGameStarted] Game is started. (Offline Mode)"));
+		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started. (Offline Mode)"));
 	}
 }
 

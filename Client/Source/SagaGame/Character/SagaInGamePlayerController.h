@@ -14,11 +14,20 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Minutes = 5;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Seconds = 30;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRiding;
+	UPROPERTY()
+	FOnRideNPCDelegate OnRideNPC;
+
 	ASagaInGamePlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void Tick(float delta_time) override;
 
-	/* Methods */
 #pragma region =========================
 	UFUNCTION()
 	void TriggerRideNPC(const FInputActionValue& Value);
@@ -26,18 +35,6 @@ public:
 	void RideNPCCallFunction();
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
 	bool SendRpc(ESagaRpcProtocol rpc, const int64 arg0 = 0, const int32 arg1 = 0) const;
-#pragma endregion
-
-	/* 게임 내 이벤트 (타이머, 입력 반응, 언리얼 이벤트, ...) */
-#pragma region =========================
-	UFUNCTION()
-	void OnLevelReady();
-	UFUNCTION()
-	void OnGameStarted();
-	UFUNCTION()
-	void OnUpdateTransform();
-	UFUNCTION()
-	void CountDown();
 #pragma endregion
 
 	/* 패킷 이벤트 (USagaNetworkSubSystem에서 전달) */
@@ -88,49 +85,45 @@ public:
 	void EndRide();
 #pragma endregion
 
-public:
-	/* Game */
-#pragma region =========================
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Minutes = 5;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Seconds = 30;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRiding;
-	UPROPERTY()
-	FOnRideNPCDelegate OnRideNPC;
-#pragma endregion
-
 protected:
-	/* State Machines */
-#pragma region =========================
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
-#pragma endregion
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
-	FVector walkDirection;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isAttacking;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
-	FVector lastCharacterPosition;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game|Character")
-	FRotator lastCharacterRotation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
-	FTimerHandle readyTimerHandle;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
-	FTimerHandle countdownTimerHandle;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, AdvancedDisplay, Category = "CandyLandSaga|Game")
-	FTimerHandle transformUpdateTimer;
 
 private:
+	/* 게임 내 이벤트 (타이머, 입력 반응, 언리얼 이벤트, ...) */
+#pragma region =========================
+	UFUNCTION()
+	void OnLevelReady();
+	UFUNCTION()
+	void OnGameStarted();
+	UFUNCTION()
+	void OnUpdateTransform();
+	UFUNCTION()
+	void CountDown();
+#pragma endregion
+
 	// 좌표 쓰기
 	UFUNCTION()
 	static void SerializePosition(const FVector& vector, int64& arg0, int32& arg1);
 	// 좌표 읽기
 	UFUNCTION()
 	static FVector DeserializePosition(const int64& arg0, const int32& arg1);
+
+	UPROPERTY()
+	FVector walkDirection;
+	UPROPERTY()
+	bool isAttacking;
+
+	UPROPERTY()
+	FVector lastCharacterPosition;
+	UPROPERTY()
+	FRotator lastCharacterRotation;
+
+	UPROPERTY()
+	FTimerHandle readyTimerHandle;
+	UPROPERTY()
+	FTimerHandle countdownTimerHandle;
+	UPROPERTY()
+	FTimerHandle transformUpdateTimer;
 };

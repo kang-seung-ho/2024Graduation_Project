@@ -120,13 +120,13 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 	case EUserTeam::Red:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for red team..."));
-		return FindPlayerStart(player, SagaRedTeamName);
+		return GetSpawner(SagaRedTeamName);
 	}
 
 	case EUserTeam::Blue:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for blue team..."));
-		return FindPlayerStart(player, SagaBluTeamName);
+		return GetSpawner(SagaBluTeamName);
 	}
 
 	default:

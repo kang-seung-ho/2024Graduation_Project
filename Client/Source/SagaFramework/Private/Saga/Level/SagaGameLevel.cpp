@@ -5,6 +5,7 @@
 #include <Delegates/Delegate.h>
 #include <Blueprint/UserWidget.h>
 
+#include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaGameLevel::ASagaGameLevel()
@@ -32,6 +33,7 @@ ASagaGameLevel::BeginPlay()
 
 	system->OnDisconnected.AddDynamic(this, &ASagaGameLevel::OnDisconnected);
 	system->OnLeftRoomBySelf.AddDynamic(this, &ASagaGameLevel::OnLeftRoomBySelf);
+	system->OnRpc.AddDynamic(this, &ASagaGameLevel::OnRpc);
 
 	if (IsValid(mTeamScoreBoardClass))
 	{
@@ -71,4 +73,10 @@ ASagaGameLevel::OnLeftRoomBySelf()
 	}
 
 	GotoPrevLevel();
+}
+
+void
+ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
+{
+	
 }

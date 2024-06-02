@@ -162,7 +162,7 @@ ASagaGummyBearPlayer::Attack()
 
 	if (Collision)
 	{
-		FDamageEvent DamageEvent;
+		FDamageEvent DamageEvent{};
 		Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
 
 		FActorSpawnParameters SpawnParams;
@@ -198,13 +198,9 @@ ASagaGummyBearPlayer::BeginPlay()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character][Bear] ExecuteHurt (%f)"), dmg);
+	Super::ExecuteHurt(dmg);
 
-	myHealth -= dmg;
-	Stat->ApplyDamage(dmg);
-
-
-	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), myHealth);
+	UE_LOG(LogSagaGame, Log, TEXT("Bear Hp : %f"), myHealth);
 
 	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	if (myHealth <= 0.0f)
@@ -220,7 +216,7 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		//상대 팀 점수 증가 실행
 		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 3);
 
-		if (system->IsOfflineMode())
+		if (not system->IsOfflineMode())
 		{
 			// arg1이 1이면 곰 캐릭터
 			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
@@ -234,11 +230,10 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 	}
 	else
 	{
-		if (system->IsOfflineMode())
+		if (not system->IsOfflineMode())
 		{
 			// arg1이 1이면 곰 캐릭터
 			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 1);
-
 
 
 		}
@@ -280,9 +275,8 @@ void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNorm
 
 }
 
-
-
-void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
+void
+ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
 {
 	for (int32 i = 0; i < DismCollisionBox.Num(); i++)
 	{
@@ -292,7 +286,7 @@ void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
 			ActiveIndx[i]--;
 			if (ActiveIndx[i] == 0)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+				//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 				DismPartID = i;
 
 				FVector Impulse = -Normal * 250.0f; // Example impulse calculation
@@ -301,7 +295,7 @@ void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
 				break;
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+		UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 	}
 
 	if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
@@ -387,7 +381,7 @@ void ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
 	FName BoneName = BOX->GetAttachSocketName();
 	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TriggerExplosion: %d"), Index);
+		UE_LOG(LogSagaGame, Warning, TEXT("TriggerExplosion: %d"), Index);
 		ExplodeBodyParts(BoneName, Impulse, Index);
 	}
 }
@@ -530,5 +524,5 @@ void ASagaGummyBearPlayer::InitTargetMeshes()
 		TargetMeshes.Add(Mesh4Asset.Object);
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
+	//UE_LOG(LogSagaGame, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
 }
