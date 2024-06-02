@@ -23,6 +23,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool isCanRide = false;
 
+	UPROPERTY(EditAnywhere)
+	int32 BearNum = 0;
+
+
 
 protected:
 	// 오버랩 박스

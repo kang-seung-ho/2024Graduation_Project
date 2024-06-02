@@ -35,7 +35,6 @@ public:
 
 	virtual void RespawnCharacter() override;
 
-	UFUNCTION()
 	constexpr EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
 
 	void DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent);
@@ -51,6 +50,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
+
 
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;

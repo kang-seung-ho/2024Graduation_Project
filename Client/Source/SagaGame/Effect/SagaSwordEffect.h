@@ -34,13 +34,11 @@ public:
 	UFUNCTION()
 	void SetParticle(const FString& Path);
 
-	UFUNCTION()
 	void SetParticle(UParticleSystem* particle);
 
 	UFUNCTION()
 	void SetSound(const FString& Path);
 
-	UFUNCTION()
 	void SetSound(USoundBase* sound);
 
 public:
