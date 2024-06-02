@@ -1,6 +1,7 @@
 module;
 #include <cstdint>
 #include <string>
+#include <chrono>
 
 export module Iconer.Application.User;
 import Iconer.Utility.Constraints;
@@ -45,6 +46,7 @@ namespace iconer::app
 
 		static inline constexpr bool nothrowDtor = nothrow_destructibles<Super, iconer::net::Socket>;
 		static inline constexpr size_t nicknameLength = 16;
+		static inline constexpr std::chrono::seconds respawnPeriod{ 5 };
 
 		explicit User() = default;
 
@@ -64,6 +66,7 @@ namespace iconer::app
 			, myRoomId(-1)
 			, myHealth(100), myTeamId(id % 2 == 0 ? Team::Red : Team::Blue), myWeaponId(0)
 			, isRidingGuardian(false)
+			, respawnTime()
 			, preSignInPacket(), preRoomCreationPacket()
 		{
 		}
@@ -140,6 +143,7 @@ namespace iconer::app
 		iconer::util::MovableAtomic<Team> myTeamId;
 		iconer::util::MovableAtomic<std::uint8_t> myWeaponId;
 		iconer::util::MovableAtomic<bool> isRidingGuardian;
+		std::chrono::system_clock::time_point respawnTime;
 
 		std::unique_ptr<std::byte[]> preSignInPacket;
 		std::unique_ptr<std::byte[]> preRoomCreationPacket;

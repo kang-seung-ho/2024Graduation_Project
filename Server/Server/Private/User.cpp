@@ -40,6 +40,7 @@ noexcept
 	myHealth = 100.0f;
 	myTeamId = GetID() % 2 == 1 ? Team::Red : Team::Blue;
 	myWeaponId = 0;
+	respawnTime = {};
 	isRidingGuardian = false;
 }
 
