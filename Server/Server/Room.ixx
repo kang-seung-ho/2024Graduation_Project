@@ -44,6 +44,12 @@ export namespace iconer::app
 		using const_iterator = const RoomMember*;
 		using const_volatile_iterator = const volatile RoomMember*;
 
+		/* These have 1 more second */
+
+		static inline constexpr std::chrono::seconds weaponPhasePeriod{ 31 };
+		static inline constexpr std::chrono::seconds gameAwaitPhasePeriod{ 31 };
+		static inline constexpr std::chrono::seconds gamePhasePeriod{ 301 };
+
 		static inline constexpr size_t maxUsersNumberInRoom = 4;
 		static inline constexpr size_t minUsersNumberForGame = 2;
 
