@@ -25,9 +25,9 @@ public:
 	ASagaInGameMode();
 
 	UFUNCTION()
-	class ASagaCharacterSpawner* GetSpawnerBy(EUserTeam team) const;
+	class AActor* GetSpawnerBy(EUserTeam team) const;
 	UFUNCTION()
-	class ASagaCharacterSpawner* GetSpawner(const FString& team_name) const;
+	class AActor* GetSpawner(const FString& team_name) const;
 	
 	virtual void InitGame(const FString& mapname, const FString& optios, FString& err_msg) override;
 	virtual void StartPlay() override;

@@ -174,12 +174,13 @@ ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FStri
 	return AGameModeBase::FindPlayerStart_Implementation(player, tag);
 }
 
-ASagaCharacterSpawner*
+AActor*
 ASagaInGameMode::GetSpawnerBy(EUserTeam team)
 const
 {
 	switch (team)
 	{
+	case EUserTeam::Unknown:
 	case EUserTeam::Red:
 	{
 		return GetSpawner(SagaRedTeamName);
@@ -197,7 +198,7 @@ const
 	}
 }
 
-ASagaCharacterSpawner*
+AActor*
 ASagaInGameMode::GetSpawner(const FString& team_name)
 const
 {
