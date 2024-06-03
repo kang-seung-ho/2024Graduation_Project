@@ -14,6 +14,17 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere)
+	int32 BearNum = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DismThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UStaticMesh*> TargetMeshes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	bool isCanRide = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UNiagaraSystem * NiagaraSystemTemplate;
+
 	ASagaGummyBearPlayer();
 
 	virtual void Attack() override;
@@ -24,24 +35,11 @@ public:
 	UFUNCTION()
 	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	bool isCanRide = false;
 	UFUNCTION(BlueprintCallable)
 	FTransform SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index);
 
-	UPROPERTY(EditAnywhere)
-	int32 BearNum = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 DismThreshold;
-	TArray<UStaticMesh*> TargetMeshes;
-
 	UFUNCTION(BlueprintCallable)
 	UStaticMesh* GetTargetMesh(int32 Index);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraSystem* NiagaraSystemTemplate;
-
-
 
 protected:
 	// 오버랩 박스

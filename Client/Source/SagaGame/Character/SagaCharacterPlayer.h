@@ -1,5 +1,6 @@
 #pragma once
 #include "SagaGame.h"
+#include <UObject/ObjectPtr.h>
 #include <GameFramework/Character.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Components/StaticMeshComponent.h>
@@ -25,8 +26,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EPlayerWeapon myWeaponType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	float myHealth;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USagaCharacterStatComponent> Stat;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
@@ -199,9 +200,6 @@ protected:
 	UCameraComponent* mCamera;
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	USpringArmComponent* mArm;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USagaCharacterStatComponent> Stat;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaWidgetComponent> HpBar;

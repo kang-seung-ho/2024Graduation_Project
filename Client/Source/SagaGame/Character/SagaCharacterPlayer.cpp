@@ -1,8 +1,8 @@
 #include "SagaCharacterPlayer.h"
-#include <bit>
 #include <Engine/DamageEvents.h>
 #include <GameFramework/Character.h>
 #include <GameFramework/CharacterMovementComponent.h>
+#include <Components/WidgetComponent.h>
 
 #include "SagaGameInfo.h"
 #include "SagaPlayerAnimInstance.h"
@@ -142,7 +142,7 @@ ASagaCharacterPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 
 	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] TakeDamage: %f"), actual_dmg);
 
-		ExecuteHurt(actual_dmg);
+	ExecuteHurt(actual_dmg);
 
 	return actual_dmg;
 }
