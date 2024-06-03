@@ -1,15 +1,17 @@
 #include "SagaPlayableCharacter.h"
+#include <DrawDebugHelpers.h>
+#include <UObject/Object.h>
+#include <Kismet/KismetSystemLibrary.h>
+#include <Camera/CameraComponent.h>
+#include <GameFramework/PlayerController.h>
+#include <Animation/AnimInstance.h>
+#include <NiagaraFunctionLibrary.h>
+#include <NiagaraComponent.h>
+
 #include "SagaPlayerAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
-
-#include "Camera/CameraComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "DrawDebugHelpers.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 	: Super()
@@ -88,7 +90,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		//system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0);
 	}
 
-	Super::ExecuteHurt(dmg);
+	const auto current_health = Super::ExecuteHurt(dmg);
 
 	FVector NiagaraSpawnLocation = GetActorLocation();
 	FRotator NiagaraSpawnRotation = GetActorRotation();
@@ -133,9 +135,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		}
 	}
 
-	Stat->ApplyDamage(dmg);
-
-	if (myHealth <= 0.0f)
+	if (current_health <= 0.0f)
 	{
 		// 사망 처리
 		ExecuteDeath();
