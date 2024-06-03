@@ -14,6 +14,7 @@
 class USagaCharacterDismComponent;
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
+	: Super()
 {
 	Stat->SetMaxHp(500.0f);
 
@@ -202,8 +203,6 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
 	Super::ExecuteHurt(dmg);
-
-	Stat->ApplyDamage(dmg);
 
 	const auto current_hp = GetHealth();
 	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), current_hp);

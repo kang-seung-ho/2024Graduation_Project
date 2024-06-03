@@ -21,6 +21,7 @@ public:
 	virtual float ExecuteHurt(const float dmg) override;
 	virtual void ExecuteDeath() override;
 
+	UFUNCTION()
 	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
