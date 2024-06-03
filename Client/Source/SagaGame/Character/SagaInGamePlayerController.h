@@ -1,6 +1,7 @@
 #pragma once
 #include "SagaGame.h"
 #include "SagaGameInfo.h"
+#include <UObject/ObjectPtr.h>
 #include <GameFramework/PlayerController.h>
 #include <InputActionValue.h>
 
@@ -23,19 +24,20 @@ public:
 
 	virtual void Tick(float delta_time) override;
 
-#pragma region =========================
 	UFUNCTION()
 	void TriggerRideNPC(const FInputActionValue& Value);
 	UFUNCTION()
 	void RideNPCCallFunction();
-#pragma endregion
 
 	UFUNCTION()
-	int32 GetOwnerId() const noexcept
-	{
-		return ownerId;
-	}
+	void AssignPlayerSpawner(class AActor* spawner) noexcept;
 
+	UFUNCTION()
+	const AActor* GetLocalPlayerSpawner() const noexcept;
+
+	UFUNCTION()
+	int32 GetOwnerId() const noexcept;
+	
 	/* Actions */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
@@ -107,6 +109,8 @@ private:
 	FVector walkDirection;
 	UPROPERTY()
 	bool isAttacking;
+	UPROPERTY()
+	TObjectPtr<class AActor> mySpawner;
 
 	UPROPERTY()
 	FVector lastCharacterPosition;

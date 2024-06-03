@@ -105,7 +105,10 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 			character->AttachWeapon();
 
 			// Making a spawn point
-			const FVector pos = character->GetActorLocation();
+			const AActor* spawner = controller->GetLocalPlayerSpawner();
+			const auto& spawn_transform = spawner->GetTransform();
+			const auto pos = spawn_transform.GetLocation();
+			const auto rot = spawn_transform.GetRotation();
 
 			// store the initial spawn point (local)
 			system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
@@ -129,18 +132,18 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] User `%d` would create a playable character."), user_id);
 
+			FActorSpawnParameters setting{};
+			setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
 			const AActor* spawner = GetSpawnerBy(team);
 			if (nullptr == spawner)
 			{
 				spawner = world->GetWorldSettings();
 			}
 
-			FActorSpawnParameters setting{};
-			setting.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			const FTransform& spawn_transform = spawner->GetTransform();
 
-			const FTransform& transform = spawner->GetTransform();
-
-			character = world->SpawnActor<ASagaPlayableCharacter>(DefaultPawnClass, transform, setting);
+			character = world->SpawnActor<ASagaPlayableCharacter>(DefaultPawnClass, spawn_transform, setting);
 
 			if (IsValid(character))
 			{
@@ -155,7 +158,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 				character->AttachWeapon();
 
 				// store the initial spawn point (remote)
-				const auto pos = transform.GetLocation();
+				const auto pos = spawn_transform.GetLocation();
 				system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
 			}
 			else

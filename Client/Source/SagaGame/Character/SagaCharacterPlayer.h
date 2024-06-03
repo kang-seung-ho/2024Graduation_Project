@@ -58,6 +58,8 @@ public:
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
+	void SetTeam(const EUserTeam& team) noexcept;
+	UFUNCTION()
 	void SetTeamColorAndCollision(const EUserTeam& team) noexcept;
 	UFUNCTION()
 	void SetWeapon(const EPlayerWeapon& weapon) noexcept;

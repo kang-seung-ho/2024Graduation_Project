@@ -18,6 +18,8 @@ class SAGAGAME_API ASagaInGameMode : public AGameModeBase
 
 public:
 	UPROPERTY()
+	TArray<TObjectPtr<class ASagaCharacterSpawner>> playerSpawners;
+	UPROPERTY()
 	TObjectPtr<class ASagaInGamePlayerController> localPlayerController;
 
 	ASagaInGameMode();

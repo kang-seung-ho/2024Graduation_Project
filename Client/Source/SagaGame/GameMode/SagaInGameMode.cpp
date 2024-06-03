@@ -25,6 +25,7 @@ const FString SagaBluTeamName = TEXT("Blue");
 
 ASagaInGameMode::ASagaInGameMode()
 	: AGameModeBase()
+	, playerSpawners()
 	, localPlayerController()
 {
 	static ConstructorHelpers::FClassFinder<ASagaPlayableCharacter> pawn_class{ TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C") };
@@ -45,19 +46,18 @@ ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString
 
 	const auto world = GetWorld();
 
-	TArray<TObjectPtr<class ASagaCharacterSpawner>> player_spawners{};
-
+	playerSpawners.Reserve(10);
 	for (TActorIterator<ASagaCharacterSpawner> it{ world }; it; ++it)
 	{
 		const auto spawner = *it;
 
-		player_spawners.Add(spawner);
+		playerSpawners.Add(spawner);
 	}
 
-	const auto spawners_number = player_spawners.Num();
+	const auto spawners_number = playerSpawners.Num();
 	UE_LOG(LogSagaGame, Log, TEXT("%d spawner(s) has found."), spawners_number);
 
-	if (0 == spawners_number)
+	if (playerSpawners.IsEmpty())
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Any spawner does not exist."));
 
@@ -106,6 +106,27 @@ ASagaInGameMode::StartPlay()
 				localPlayerController = controller;
 				localPlayerController->SetAsLocalPlayerController();
 				localPlayerController->SetOwnerId(system->GetLocalUserId());
+
+				switch (system->GetLocalUserTeam())
+				{
+				case EUserTeam::Red:
+				{
+					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
+					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
+				}
+
+				case EUserTeam::Blue:
+				{
+					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
+					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
+				}
+
+				default:
+				{
+					UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
+					localPlayerController->AssignPlayerSpawner(world->GetWorldSettings());
+				}
+				}
 			}
 		}
 	}

@@ -211,13 +211,13 @@ ASagaPlayableCharacter::BeginRespawn()
 void
 ASagaPlayableCharacter::ExecuteRespawn()
 {
+	// Retrive collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
 	Super::ExecuteRespawn();
 
 	// Animate
 	mAnimInst->Revive();
-
-	// Retrive collision
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	// re-set collision profile name. NOT just Enable
 	//SetTeamColorAndCollision(myTeam);

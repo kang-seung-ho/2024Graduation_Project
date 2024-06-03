@@ -320,7 +320,7 @@ ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
 		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
 
-		Stat->OnHpChanged.AddDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
+		Stat->OnHpChanged.AddUniqueDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 
@@ -375,6 +375,12 @@ ASagaCharacterPlayer::SetUserId(const int32& id)
 noexcept
 {
 	myId = id;
+}
+
+void
+ASagaCharacterPlayer::SetTeam(const EUserTeam& team) noexcept
+{
+	myTeam = team;
 }
 
 void

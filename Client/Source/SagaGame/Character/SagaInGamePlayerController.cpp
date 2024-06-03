@@ -1,9 +1,10 @@
 #include "SagaInGamePlayerController.h"
+#include <Math/MathFwd.h>
 #include <UObject/Object.h>
+#include <UObject/UObjectGlobals.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
 
-#include "SagaGameInfo.h"
 #include "Input/SagaInputSystem.h"
 #include "SagaCharacterPlayer.h"
 
@@ -16,8 +17,8 @@ noexcept
 	, ownerId(-1)
 	, walkDirection()
 	, isAttacking()
-	, lastCharacterPosition(), lastCharacterRotation()
-	, transformUpdateTimer()
+	, mySpawner()
+	, lastCharacterPosition(), lastCharacterRotation(), transformUpdateTimer()
 {}
 
 void
@@ -145,6 +146,27 @@ ASagaInGamePlayerController::SetupInputComponent()
 	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
 
 	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
+}
+
+void
+ASagaInGamePlayerController::AssignPlayerSpawner(AActor* spawner)
+noexcept
+{
+	mySpawner = spawner;
+}
+
+const AActor*
+ASagaInGamePlayerController::GetLocalPlayerSpawner()
+const noexcept
+{
+	return mySpawner;
+}
+
+int32
+ASagaInGamePlayerController::GetOwnerId()
+const noexcept
+{
+	return ownerId;
 }
 
 void

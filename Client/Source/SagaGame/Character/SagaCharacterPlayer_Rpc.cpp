@@ -2,6 +2,7 @@
 #include <Engine/EngineTypes.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
+#include "SagaInGamePlayerController.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 
@@ -143,10 +144,10 @@ ASagaCharacterPlayer::ExecuteRespawn()
 	// Reset the position
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode() or HasValidOwnerId())
+	if (system->IsOfflineMode())
 	{
-		FVector SpawnLocation = FVector(-760.f, 3930.0f, 330.0f);
-		FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
+		const FVector SpawnLocation = FVector(0, 0, 330.0f);
+		const FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 
@@ -154,12 +155,45 @@ ASagaCharacterPlayer::ExecuteRespawn()
 	}
 	else if (system->IsConnected())
 	{
-		const auto spawn_point = system->GetStoredPosition(GetUserId());
+		const auto controller = GetController<ASagaInGamePlayerController>();
 
-		TeleportTo(spawn_point, FRotator::ZeroRotator);
-		//SetActorLocationAndRotation(spawn_point, FRotator{});
+		FVector spawn_pos;
+		FRotator spawn_rot;
 
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s"), *spawn_point.ToString());
+		if (myTeam == EUserTeam::Red)
+		{
+			spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
+			spawn_rot = FRotator::ZeroRotator;
+		}
+		else // blue team
+		{
+			spawn_pos = FVector{ -3892.0, -3540.0, 320.0 };
+			//spawn_rot = FRotator{ 0, -129.0, 0 };
+			spawn_rot = FRotator::ZeroRotator;
+		}
+
+		// TODO
+
+		/*
+
+		if (GetUserId() == system->GetLocalUserId())
+		{
+			const auto spawner = controller->GetLocalPlayerSpawner();
+			spawn_pos = spawner->GetActorLocation();
+			spawn_rot = spawner->GetActorRotation();
+		}
+		else
+		{
+			spawn_pos = system->GetStoredPosition(GetUserId());
+			spawn_rot = FRotator::ZeroRotator;
+		}
+		spawn_pos += FVector{ 0, 0, 50.0 };
+		*/
+
+		//TeleportTo(spawn_pos, spawn_rot);
+		SetActorLocationAndRotation(spawn_pos, spawn_rot);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
 	}
 	else
 	{
