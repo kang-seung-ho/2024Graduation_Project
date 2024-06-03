@@ -110,8 +110,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 
 			if (CascadeComponent)
 			{
-				FTimerHandle TimerHandle;
-				GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+				CascadeComponent->bAutoDestroy = true;
 			}
 		}
 	}
@@ -129,8 +128,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 
 			if (CascadeComponent)
 			{
-				FTimerHandle TimerHandle;
-				GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateUObject(this, &ASagaPlayableCharacter::DeactivateCascadeEffect, CascadeComponent), 3.0f, false);
+				CascadeComponent->bAutoDestroy = true;
 			}
 		}
 	}
@@ -188,10 +186,13 @@ ASagaPlayableCharacter::ExecuteDeath()
 		}
 		else
 		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
+			//system->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
 
 			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
-			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
+			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
+			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+
+			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
 	}
 }
@@ -219,7 +220,7 @@ ASagaPlayableCharacter::ExecuteRespawn()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	// re-set collision profile name. NOT just Enable
-	SetTeamColorAndCollision(myTeam);
+	//SetTeamColorAndCollision(myTeam);
 }
 
 void
@@ -296,7 +297,7 @@ ASagaPlayableCharacter::Attack()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Not Found Weapon"));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][Attack]No Weapon Found."));
 		return;
 	}
 
@@ -311,15 +312,6 @@ ASagaPlayableCharacter::Attack()
 		{
 			Cast<ASagaGummyBearPlayer>(hit_result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
 		}*/
-	}
-}
-
-void
-ASagaPlayableCharacter::DeactivateCascadeEffect(UParticleSystemComponent* ParticleComponent)
-{
-	if (ParticleComponent)
-	{
-		ParticleComponent->Deactivate();
 	}
 }
 
