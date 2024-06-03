@@ -15,7 +15,7 @@ class USagaCharacterDismComponent;
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 {
-	myHealth = 500.0f;
+	Stat->SetMaxHp(500.0f);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
 	if (MeshAsset.Succeeded())
@@ -287,7 +287,7 @@ void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
 
 	if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
 	{
-		ExecuteHurt(myHealth);
+		ExecuteHurt(GetHealth());
 	}
 }
 

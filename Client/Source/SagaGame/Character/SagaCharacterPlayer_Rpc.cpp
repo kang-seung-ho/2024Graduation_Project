@@ -112,12 +112,7 @@ ASagaCharacterPlayer::ExecuteHurt(const float dmg)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
 
-	if (0 != dmg)
-	{
-		myHealth -= dmg;
-	}
-
-	return dmg;
+	return Stat->ApplyDamage(dmg);
 }
 
 void
@@ -135,8 +130,7 @@ void
 ASagaCharacterPlayer::ExecuteRespawn()
 {
 	// Reset game states
-	myHealth = 100.0f;
-	Stat->SetHp(100.0f);
+	Stat->ResetHp();
 
 	// Unhide the hp bar
 	HpBar->SetHiddenInGame(false);

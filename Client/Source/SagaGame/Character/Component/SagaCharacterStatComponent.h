@@ -14,6 +14,8 @@ enum class ESagaMaxHealthUpdatePolicy
 
 	SetCurrentHealthFromRatio,
 	SetCurrentHealthToMaxHealth,
+
+	Default = SetCurrentHealthToMaxHealth
 };
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character", ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -38,11 +40,13 @@ public:
 	FSagaEventOnHpChanged OnHpChanged;
 
 	UFUNCTION()
-	void SetMaxHp(float hp, ESagaMaxHealthUpdatePolicy current_health_policy);
+	void SetMaxHp(float hp, ESagaMaxHealthUpdatePolicy current_health_policy = ESagaMaxHealthUpdatePolicy::Default);
 	UFUNCTION()
-	void SetHp(float NewHp);
+	void SetCurrentHp(float hp);
 	UFUNCTION()
-	float ApplyDamage(float Damage);
+	float ApplyDamage(float dmg);
+	UFUNCTION()
+	void ResetHp();
 
 	UFUNCTION()
 	FORCEINLINE float GetMaxHp() const { return MaxHp; }

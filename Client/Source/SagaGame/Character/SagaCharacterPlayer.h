@@ -147,10 +147,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	bool IsAlive() const noexcept
-	{
-		return 0 < myHealth;
-	}
+	bool IsAlive() const noexcept;
 
 protected:
 	virtual void BeginPlay() override;

@@ -16,11 +16,11 @@ USagaCharacterStatComponent::BeginPlay()
 void
 USagaCharacterStatComponent::SetMaxHp(float hp, ESagaMaxHealthUpdatePolicy current_health_policy)
 {
-
+	MaxHp = hp;
 }
 
 void
-USagaCharacterStatComponent::SetHp(float NewHp)
+USagaCharacterStatComponent::SetCurrentHp(float NewHp)
 {
 	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
 
@@ -31,14 +31,14 @@ USagaCharacterStatComponent::SetHp(float NewHp)
 }
 
 float
-USagaCharacterStatComponent::ApplyDamage(float Damage)
+USagaCharacterStatComponent::ApplyDamage(float dmg)
 {
-	const float PrevHp = CurrentHp;
-	const float ActualDamage = FMath::Clamp<float>(Damage, 0, Damage);
+	const float actual_dmg = FMath::Max(0, dmg);
+	const float remain_hp = CurrentHp - actual_dmg;
 
-	SetHp(PrevHp - ActualDamage);
+	SetCurrentHp(remain_hp);
 
-	if (CurrentHp <= KINDA_SMALL_NUMBER)
+	if (remain_hp <= KINDA_SMALL_NUMBER)
 	{
 		if (OnHpZero.IsBound())
 		{
@@ -48,5 +48,11 @@ USagaCharacterStatComponent::ApplyDamage(float Damage)
 		UE_LOG(LogTemp, Log, TEXT("[USagaCharacterStatComponent] Character is dead"));
 	}
 
-	return ActualDamage;
+	return remain_hp;
+}
+
+void
+USagaCharacterStatComponent::ResetHp()
+{
+	SetCurrentHp(MaxHp);
 }

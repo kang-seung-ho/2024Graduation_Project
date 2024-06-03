@@ -8,7 +8,6 @@
 #include "SagaPlayerAnimInstance.h"
 #include "SagaGummyBearAnimInstance.h"
 #include "Item/SagaWeaponData.h"
-
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 
@@ -16,7 +15,7 @@
 
 ASagaCharacterPlayer::ASagaCharacterPlayer()
 	: Super()
-	, myId(-1), myTeam(EUserTeam::Unknown), myHealth(100.0f)
+	, myId(-1), myTeam(EUserTeam::Unknown)
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
@@ -57,9 +56,10 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mCamera->SetupAttachment(mArm);
 
 	Stat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
+	Stat->SetMaxHp(100.0f);
+
 	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
 	HpBar->SetupAttachment(GetMesh());
-
 	HpBar->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
@@ -138,14 +138,11 @@ ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 float
 ASagaCharacterPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] TakeDamage: %f"), dmg);
-
 	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
 
-	if (0 != actual_dmg)
-	{
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] TakeDamage: %f"), actual_dmg);
+
 		ExecuteHurt(actual_dmg);
-	}
 
 	return actual_dmg;
 }
@@ -410,7 +407,7 @@ void
 ASagaCharacterPlayer::SetHealth(const float hp)
 noexcept
 {
-	myHealth = hp;
+	Stat->SetCurrentHp(hp);
 }
 
 int32
@@ -437,7 +434,14 @@ float
 ASagaCharacterPlayer::GetHealth()
 const noexcept
 {
-	return myHealth;
+	return Stat->GetCurrentHp();
+}
+
+bool
+ASagaCharacterPlayer::IsAlive()
+const noexcept
+{
+	return 0 < Stat->GetCurrentHp();
 }
 
 bool
