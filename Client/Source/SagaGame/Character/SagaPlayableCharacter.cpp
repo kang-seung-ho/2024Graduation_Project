@@ -303,15 +303,18 @@ ASagaPlayableCharacter::Attack()
 
 	if (collide)
 	{
-		Hitlocation = hit_result.ImpactPoint;
-		HitNormal = hit_result.Normal;
+		const auto hit_actor = hit_result.GetActor();
 
 		hit_result.GetActor()->TakeDamage(damage, hit_event, GetController(), this);
 
-		/*if (hit_result.GetActor()->IsA<ASagaGummyBearPlayer>())
+
+		if (hit_actor->IsA<ASagaGummyBearPlayer>())
 		{
-			Cast<ASagaGummyBearPlayer>(hit_result.GetActor())->TryDismemberment(Hitlocation, HitNormal);
-		}*/
+			Hitlocation = hit_result.ImpactPoint;
+			HitNormal = hit_result.Normal;
+
+			Cast<ASagaGummyBearPlayer>(hit_actor)->TryDismemberment(Hitlocation, HitNormal);
+		}
 	}
 }
 
