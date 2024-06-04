@@ -1,4 +1,4 @@
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include <Engine/DamageEvents.h>
 #include <GameFramework/Character.h>
 #include <GameFramework/CharacterMovementComponent.h>
@@ -13,7 +13,7 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-ASagaCharacterPlayer::ASagaCharacterPlayer()
+ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
 	, myId(-1), myTeam(EUserTeam::Unknown)
 	, straightMoveDirection(), strafeMoveDirection()
@@ -21,7 +21,7 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mCamera(), mArm()
-	, Stat(), HpBar()
+	, myGameStat(), HpBar()
 	, MyWeapon(), WeaponMeshes()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -55,8 +55,8 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	mCamera->SetupAttachment(mArm);
 
-	Stat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
-	Stat->SetMaxHp(100.0f);
+	myGameStat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
+	myGameStat->SetMaxHp(100.0f);
 
 	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
 	HpBar->SetupAttachment(GetMesh());
@@ -97,15 +97,15 @@ ASagaCharacterPlayer::ASagaCharacterPlayer()
 	}
 }
 
-void ASagaCharacterPlayer::PostInitializeComponents()
+void ASagaCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	Stat->OnHpZero.AddDynamic(this, &ASagaCharacterPlayer::SetDead);
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::SetDead);
 }
 
 void
-ASagaCharacterPlayer::BeginPlay()
+ASagaCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -121,7 +121,7 @@ ASagaCharacterPlayer::BeginPlay()
 }
 
 void
-ASagaCharacterPlayer::Tick(float delta_time)
+ASagaCharacterBase::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
@@ -130,33 +130,33 @@ ASagaCharacterPlayer::Tick(float delta_time)
 }
 
 void
-ASagaCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+ASagaCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 float
-ASagaCharacterPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
+ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
 	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
 	const float current_hp = ExecuteHurt(actual_dmg);
 
 #if WITH_EDITOR
 	const auto name = GetName();
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
 #endif
 
 	return actual_dmg;
 }
 
 void
-ASagaCharacterPlayer::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ASagaCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 }
 
 void
-ASagaCharacterPlayer::TranslateProperties(ASagaCharacterPlayer* other)
+ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
 const
 {
 	if (other == this)
@@ -167,7 +167,7 @@ const
 }
 
 void
-ASagaCharacterPlayer::ProcessMovement()
+ASagaCharacterBase::ProcessMovement()
 {
 	const FRotator rotation = K2_GetActorRotation();
 	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
@@ -179,7 +179,7 @@ ASagaCharacterPlayer::ProcessMovement()
 }
 
 void
-ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
+ASagaCharacterBase::ProcessAnimation(const float& delta_time)
 {
 	UE::Math::TVector2<float> move_direction{ float(strafeMoveDirection), float(straightMoveDirection) };
 	move_direction.Normalize();
@@ -272,7 +272,7 @@ ASagaCharacterPlayer::ProcessAnimation(const float& delta_time)
 }
 
 void
-ASagaCharacterPlayer::AttachWeapon()
+ASagaCharacterBase::AttachWeapon()
 {
 	const auto name = UEnum::GetValueAsString(myWeaponType);
 
@@ -311,20 +311,20 @@ ASagaCharacterPlayer::AttachWeapon()
 }
 
 void
-ASagaCharacterPlayer::SetupCharacterWidget(USagaUserWidget* InUserWidget)
+ASagaCharacterBase::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 {
 	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
 	if (HpBarWidget)
 	{
-		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		HpBarWidget->SetMaxHp(myGameStat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(myGameStat->GetCurrentHp());
 
-		Stat->OnHpChanged.AddUniqueDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
+		myGameStat->OnHpChanged.AddUniqueDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 
 void
-ASagaCharacterPlayer::PlayAttackAnimation()
+ASagaCharacterBase::PlayAttackAnimation()
 {
 	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
 
@@ -364,26 +364,26 @@ ASagaCharacterPlayer::PlayAttackAnimation()
 }
 
 void
-ASagaCharacterPlayer::SetDead()
+ASagaCharacterBase::SetDead()
 {
 	HpBar->SetHiddenInGame(true);
 }
 
 void
-ASagaCharacterPlayer::SetUserId(const int32& id)
+ASagaCharacterBase::SetUserId(const int32& id)
 noexcept
 {
 	myId = id;
 }
 
 void
-ASagaCharacterPlayer::SetTeam(const EUserTeam& team) noexcept
+ASagaCharacterBase::SetTeam(const EUserTeam& team) noexcept
 {
 	myTeam = team;
 }
 
 void
-ASagaCharacterPlayer::SetTeamColorAndCollision(const EUserTeam& team)
+ASagaCharacterBase::SetTeamColorAndCollision(const EUserTeam& team)
 noexcept
 {
 	myTeam = team;
@@ -399,55 +399,55 @@ noexcept
 }
 
 void
-ASagaCharacterPlayer::SetWeapon(const EPlayerWeapon& weapon)
+ASagaCharacterBase::SetWeapon(const EPlayerWeapon& weapon)
 noexcept
 {
 	myWeaponType = weapon;
 }
 
 void
-ASagaCharacterPlayer::SetHealth(const float hp)
+ASagaCharacterBase::SetHealth(const float hp)
 noexcept
 {
-	Stat->SetCurrentHp(hp);
+	myGameStat->SetCurrentHp(hp);
 }
 
 int32
-ASagaCharacterPlayer::GetUserId()
+ASagaCharacterBase::GetUserId()
 const noexcept
 {
 	return myId;
 }
 
 EUserTeam
-ASagaCharacterPlayer::GetTeamColorAndCollision()
+ASagaCharacterBase::GetTeamColorAndCollision()
 const noexcept
 {
 	return myTeam;
 }
 
 EPlayerWeapon
-ASagaCharacterPlayer::GetWeapon() const noexcept
+ASagaCharacterBase::GetWeapon() const noexcept
 {
 	return myWeaponType;
 }
 
 float
-ASagaCharacterPlayer::GetHealth()
+ASagaCharacterBase::GetHealth()
 const noexcept
 {
-	return Stat->GetCurrentHp();
+	return myGameStat->GetCurrentHp();
 }
 
 bool
-ASagaCharacterPlayer::IsAlive()
+ASagaCharacterBase::IsAlive()
 const noexcept
 {
-	return 0 < Stat->GetCurrentHp();
+	return 0 < myGameStat->GetCurrentHp();
 }
 
 bool
-ASagaCharacterPlayer::HasValidOwnerId()
+ASagaCharacterBase::HasValidOwnerId()
 const noexcept
 {
 	return -1 != myId;

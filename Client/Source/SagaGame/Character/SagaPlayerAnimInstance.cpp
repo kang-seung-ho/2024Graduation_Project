@@ -15,7 +15,7 @@ USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	auto character = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	auto character = Cast<ASagaCharacterBase>(TryGetPawnOwner());
 
 	if (IsValid(character))
 	{
@@ -120,7 +120,7 @@ void USagaPlayerAnimInstance::Revive()
 void
 USagaPlayerAnimInstance::AnimNotify_Attack()
 {
-	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	ASagaCharacterBase* PlayerCharacter = Cast<ASagaCharacterBase>(TryGetPawnOwner());
 	if (IsValid(PlayerCharacter))
 	{
 		PlayerCharacter->Attack();

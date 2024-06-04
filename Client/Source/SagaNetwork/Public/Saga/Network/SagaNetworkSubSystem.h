@@ -224,7 +224,7 @@ public:
 	bool HasUser(int32 id) const noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetCharacterHandle(int32 user_id, class ASagaCharacterPlayer* character) noexcept;
+	void SetCharacterHandle(int32 user_id, class ASagaCharacterBase* character) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetTeam(int32 user_id, const EUserTeam& team) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -235,7 +235,7 @@ public:
 	void StorePosition(int32 user_id, const double& x, const double& y, const double& z) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	class ASagaCharacterPlayer* GetCharacterHandle(int32 user_id) const noexcept;
+	class ASagaCharacterBase* GetCharacterHandle(int32 user_id) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool GetTeam(int32 user_id, EUserTeam& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")

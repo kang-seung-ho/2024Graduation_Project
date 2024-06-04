@@ -1,7 +1,7 @@
 #include "SagaInGamePlayerController.h"
 #include <Templates/Casts.h>
 
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include "SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -13,7 +13,7 @@ ASagaInGamePlayerController::HandleUpdateTransform()
 
 	if (system->IsConnected())
 	{
-		const auto pawn = GetPawn<ASagaCharacterPlayer>();
+		const auto pawn = GetPawn<ASagaCharacterBase>();
 
 		if (pawn->IsAlive())
 		{

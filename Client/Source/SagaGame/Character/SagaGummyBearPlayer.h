@@ -1,7 +1,7 @@
 #pragma once
 #include <CoreMinimal.h>
 
-#include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -9,7 +9,7 @@
 #include "SagaGummyBearPlayer.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterPlayer
+class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterBase
 {
 	GENERATED_BODY()
 

@@ -4,7 +4,7 @@
 #include <UObject/Object.h>
 #include <InputActionValue.h>
 
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -62,7 +62,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -94,7 +94,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -117,7 +117,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -149,7 +149,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteStraightWalk(static_cast<int>(walkDirection.Y));
 		character->ExecuteStrafeWalk(static_cast<int>(walkDirection.X));
@@ -169,7 +169,7 @@ ASagaInGamePlayerController::BeginRun()
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteRun();
 	}
@@ -188,7 +188,7 @@ ASagaInGamePlayerController::EndRun()
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->TerminateRun();
 	}
@@ -207,7 +207,7 @@ ASagaInGamePlayerController::BeginJump()
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 		character->ExecuteJump();
 	}
@@ -226,7 +226,7 @@ ASagaInGamePlayerController::EndJump()
 
 	if (system->IsOfflineMode())
 	{
-		const auto pawn = GetPawn<ASagaCharacterPlayer>();
+		const auto pawn = GetPawn<ASagaCharacterBase>();
 
 		pawn->TerminateJump();
 	}
@@ -241,7 +241,7 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 {
 	const FVector InputValue = input.Get<FVector>();
 
-	const auto pawn = GetPawn<ASagaCharacterPlayer>();
+	const auto pawn = GetPawn<ASagaCharacterBase>();
 	if (IsValid(pawn))
 	{
 		AddYawInput(InputValue.X);
@@ -258,7 +258,7 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 	if (not isAttacking)
 	{
 		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-		const auto pawn = GetPawn<ASagaCharacterPlayer>();
+		const auto pawn = GetPawn<ASagaCharacterBase>();
 
 		if (pawn->IsAlive())
 		{
@@ -283,7 +283,7 @@ ASagaInGamePlayerController::EndAttack()
 
 	if (isAttacking)
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		auto character = GetPawn<ASagaCharacterBase>();
 
 		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -308,7 +308,7 @@ ASagaInGamePlayerController::BeginRide()
 
 	if (system->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterPlayer>();
+		auto character = GetPawn<ASagaCharacterBase>();
 
 
 	}
@@ -325,7 +325,7 @@ ASagaInGamePlayerController::EndRide()
 
 	if (system->IsOfflineMode())
 	{
-		const auto character = GetPawn<ASagaCharacterPlayer>();
+		const auto character = GetPawn<ASagaCharacterBase>();
 
 
 	}

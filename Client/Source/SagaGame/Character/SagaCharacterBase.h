@@ -11,10 +11,10 @@
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
 #include "Interface/SagaCharacterWidgetInterface.h"
-#include "SagaCharacterPlayer.generated.h"
+#include "SagaCharacterBase.generated.h"
 
-UCLASS(BlueprintType, Abstract, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaCharacterPlayer : public ACharacter, public ISagaCharacterWidgetInterface
+UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
+class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -27,7 +27,7 @@ public:
 	EPlayerWeapon myWeaponType;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USagaCharacterStatComponent> Stat;
+	TObjectPtr<class USagaCharacterStatComponent> myGameStat;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
@@ -49,7 +49,7 @@ public:
 	float animationMoveAngle; // 애니메이션 전용
 #pragma endregion
 
-	ASagaCharacterPlayer();
+	ASagaCharacterBase();
 
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -82,7 +82,7 @@ public:
 
 	// 다른 사가 캐릭터에게 속성 전달
 	UFUNCTION()
-	virtual void TranslateProperties(ASagaCharacterPlayer* other) const;
+	virtual void TranslateProperties(ASagaCharacterBase* other) const;
 
 	UFUNCTION()
 	virtual void Attack() {};

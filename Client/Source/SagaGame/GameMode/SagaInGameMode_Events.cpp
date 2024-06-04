@@ -6,7 +6,7 @@
 #include <GameFramework/Actor.h>
 
 #include "Character/SagaInGamePlayerController.h"
-#include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -35,7 +35,7 @@ ASagaInGameMode::OnLeftRoom(int32 user_id)
 		UE_LOG(LogSagaGame, Error, TEXT("[OnLeftRoom] Could not find the user %d."), user_id);
 
 		// 어쨌든 찾아서 삭제함
-		for (TActorIterator<ASagaCharacterPlayer> it{ world }; it; ++it)
+		for (TActorIterator<ASagaCharacterBase> it{ world }; it; ++it)
 		{
 			const auto character = *it;
 
@@ -86,14 +86,14 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 			return;
 		}
 
-		ASagaCharacterPlayer* character;
+		ASagaCharacterBase* character;
 
 		if (local_id == user_id)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
 
 			// NOTICE: 여기서 로컬 캐릭터 할당
-			character = controller->GetPawn<ASagaCharacterPlayer>();
+			character = controller->GetPawn<ASagaCharacterBase>();
 			system->SetCharacterHandle(local_id, character);
 
 			// The id was stored on LobbyLevel
@@ -171,7 +171,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayer
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character. (Offline Mode)"), user_id);
 
-		const auto character = controller->GetPawn<ASagaCharacterPlayer>();
+		const auto character = controller->GetPawn<ASagaCharacterBase>();
 		system->SetCharacterHandle(user_id, character);
 
 		character->SetUserId(user_id);

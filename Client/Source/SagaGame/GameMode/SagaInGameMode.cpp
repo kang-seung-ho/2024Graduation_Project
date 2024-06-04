@@ -15,7 +15,7 @@
 #include "Player/SagaUserTeam.h"
 #include "Character/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterSpawner.h"
-#include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"

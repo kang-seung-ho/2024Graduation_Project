@@ -16,7 +16,7 @@ class USagaCharacterDismComponent;
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 {
-	Stat->SetMaxHp(500.0f);
+	myGameStat->SetMaxHp(500.0f);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
 	if (MeshAsset.Succeeded())

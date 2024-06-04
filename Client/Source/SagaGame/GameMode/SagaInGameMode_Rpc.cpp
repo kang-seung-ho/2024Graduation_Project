@@ -3,7 +3,7 @@
 #include <UObject/Object.h>
 #include <Templates/Casts.h>
 
-#include "Character/SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include "Character/SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
@@ -24,7 +24,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		return;
 	}
 
-	ASagaCharacterPlayer* character = user.GetCharacterHandle();
+	ASagaCharacterBase* character = user.GetCharacterHandle();
 
 	if (id == system->GetLocalUserId()) // 로컬 클라이언트
 	{

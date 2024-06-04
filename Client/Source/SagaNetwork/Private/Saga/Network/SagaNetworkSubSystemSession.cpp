@@ -91,7 +91,7 @@ const noexcept
 }
 
 void
-USagaNetworkSubSystem::SetCharacterHandle(int32 user_id, ASagaCharacterPlayer* character)
+USagaNetworkSubSystem::SetCharacterHandle(int32 user_id, ASagaCharacterBase* character)
 noexcept
 {
 	if (user_id == GetLocalUserId())
@@ -184,7 +184,7 @@ noexcept
 	}
 }
 
-ASagaCharacterPlayer*
+ASagaCharacterBase*
 USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
 const noexcept
 {

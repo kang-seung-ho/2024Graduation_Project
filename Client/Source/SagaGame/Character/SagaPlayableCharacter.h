@@ -1,7 +1,7 @@
 #pragma once
 #include "SagaGame.h"
 #include "Misc/OutputDeviceNull.h"
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 
 #include "../Item/SagaWeaponData.h"
 #include "../Interface/SagaCharacterItemInterface.h"
@@ -14,7 +14,7 @@
 
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterPlayer
+class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterBase
 {
 	GENERATED_BODY()
 	

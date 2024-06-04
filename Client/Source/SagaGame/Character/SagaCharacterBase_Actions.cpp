@@ -1,4 +1,4 @@
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 #include <Engine/EngineTypes.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
@@ -9,7 +9,7 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
-ASagaCharacterPlayer::ExecuteStraightWalk(const int& direction)
+ASagaCharacterBase::ExecuteStraightWalk(const int& direction)
 noexcept
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
@@ -18,7 +18,7 @@ noexcept
 }
 
 void
-ASagaCharacterPlayer::ExecuteStrafeWalk(const int& direction)
+ASagaCharacterBase::ExecuteStrafeWalk(const int& direction)
 noexcept
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
@@ -27,33 +27,33 @@ noexcept
 }
 
 void
-ASagaCharacterPlayer::TerminateStraightWalk()
+ASagaCharacterBase::TerminateStraightWalk()
 {
 	straightMoveDirection = 0;
 }
 
 void
-ASagaCharacterPlayer::TerminateStrafeWalk()
+ASagaCharacterBase::TerminateStrafeWalk()
 {
 	strafeMoveDirection = 0;
 }
 
 void
-ASagaCharacterPlayer::ExecuteRun()
+ASagaCharacterBase::ExecuteRun()
 {
 	// 달리기 시작할 때 속도를 높임
 	GetCharacterMovement()->MaxWalkSpeed = GetMaxMoveSpeed(true);
 }
 
 void
-ASagaCharacterPlayer::TerminateRun()
+ASagaCharacterBase::TerminateRun()
 {
 	// 달리기를 멈췄을 때 속도를 원래대로 복원
 	GetCharacterMovement()->MaxWalkSpeed = GetMaxMoveSpeed(false);
 }
 
 void
-ASagaCharacterPlayer::ExecuteJump()
+ASagaCharacterBase::ExecuteJump()
 {
 	if (CanJump())
 	{
@@ -62,11 +62,11 @@ ASagaCharacterPlayer::ExecuteJump()
 }
 
 void
-ASagaCharacterPlayer::TerminateJump()
+ASagaCharacterBase::TerminateJump()
 {}
 
 void
-ASagaCharacterPlayer::ExecuteRotate(const float pitch)
+ASagaCharacterBase::ExecuteRotate(const float pitch)
 {
 	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
 
@@ -82,7 +82,7 @@ ASagaCharacterPlayer::ExecuteRotate(const float pitch)
 }
 
 void
-ASagaCharacterPlayer::ExecuteRide()
+ASagaCharacterBase::ExecuteRide()
 {
 	isRunning = false;
 	TerminateStraightWalk();
@@ -90,7 +90,7 @@ ASagaCharacterPlayer::ExecuteRide()
 }
 
 void
-ASagaCharacterPlayer::TerminateRide()
+ASagaCharacterBase::TerminateRide()
 {
 	isRunning = false;
 	TerminateStraightWalk();
@@ -98,25 +98,25 @@ ASagaCharacterPlayer::TerminateRide()
 }
 
 void
-ASagaCharacterPlayer::ExecuteAttack()
+ASagaCharacterBase::ExecuteAttack()
 {
 	PlayAttackAnimation();
 }
 
 void
-ASagaCharacterPlayer::TerminateAttack()
+ASagaCharacterBase::TerminateAttack()
 {}
 
 float
-ASagaCharacterPlayer::ExecuteHurt(const float dmg)
+ASagaCharacterBase::ExecuteHurt(const float dmg)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
 
-	return Stat->ApplyDamage(dmg);
+	return myGameStat->ApplyDamage(dmg);
 }
 
 void
-ASagaCharacterPlayer::ExecuteDeath()
+ASagaCharacterBase::ExecuteDeath()
 {
 	isRunning = false;
 	TerminateStraightWalk();
@@ -127,10 +127,10 @@ ASagaCharacterPlayer::ExecuteDeath()
 }
 
 void
-ASagaCharacterPlayer::ExecuteRespawn()
+ASagaCharacterBase::ExecuteRespawn()
 {
 	// Reset game states
-	Stat->ResetHp();
+	myGameStat->ResetHp();
 
 	// Unhide the hp bar
 	HpBar->SetHiddenInGame(false);

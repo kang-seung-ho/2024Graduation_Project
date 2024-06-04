@@ -6,7 +6,7 @@
 #include <EnhancedInputComponent.h>
 
 #include "Input/SagaInputSystem.h"
-#include "SagaCharacterPlayer.h"
+#include "Character/SagaCharacterBase.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -78,7 +78,7 @@ ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
-	const auto pawn = GetPawn<ASagaCharacterPlayer>();
+	const auto pawn = GetPawn<ASagaCharacterBase>();
 	if (not IsValid(pawn))
 	{
 		return;
