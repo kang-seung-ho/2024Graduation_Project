@@ -139,10 +139,12 @@ float
 ASagaCharacterPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
 	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
+	const float current_hp = ExecuteHurt(actual_dmg);
 
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] TakeDamage: %f"), actual_dmg);
-
-	ExecuteHurt(actual_dmg);
+#if WITH_EDITOR
+	const auto name = GetName();
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterPlayer] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
+#endif
 
 	return actual_dmg;
 }
