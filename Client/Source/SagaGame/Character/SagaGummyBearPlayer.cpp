@@ -202,9 +202,8 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
-	Super::ExecuteHurt(dmg);
+	const auto current_hp = Super::ExecuteHurt(dmg);
 
-	const auto current_hp = GetHealth();
 	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), current_hp);
 
 	if (current_hp <= 0.0f)
@@ -216,7 +215,8 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 
 		//Destroy();
 	}
-	return dmg;
+
+	return current_hp;
 }
 
 void
