@@ -1,13 +1,9 @@
 #include "Saga/GameModes/SagaGameModeBase.h"
 
 ASagaGameModeBase::ASagaGameModeBase()
+noexcept
 	: Super()
-{
-	SetPawnClass(nullptr);
-	SetSpectatorClass(nullptr);
-	SetSessionClass(nullptr);
-	SetHUDClass(nullptr);
-}
+{}
 
 void
 ASagaGameModeBase::SetControllerClass(TSubclassOf<APlayerController> controller_class)

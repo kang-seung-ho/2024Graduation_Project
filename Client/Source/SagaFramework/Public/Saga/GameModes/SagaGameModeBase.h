@@ -1,5 +1,5 @@
 #pragma once
-#include <CoreMinimal.h>
+#include "SagaFramework.h"
 #include <GameFramework/GameModeBase.h>
 #include <GameFramework/PlayerController.h>
 #include <GameFramework/Pawn.h>
@@ -16,7 +16,7 @@ class SAGAFRAMEWORK_API ASagaGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	ASagaGameModeBase();
+	ASagaGameModeBase() noexcept;
 
 protected:
 	UFUNCTION(Category = "CandyLandSaga|System|Game Mode")
