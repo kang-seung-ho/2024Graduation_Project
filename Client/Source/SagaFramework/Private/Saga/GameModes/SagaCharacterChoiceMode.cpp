@@ -1,5 +1,5 @@
 #include "Saga/GameModes/SagaCharacterChoiceMode.h"
-#include "Saga/Controllers/SagaCharacterChoiceController.h"
+#include "Saga/PlayerControllers/SagaCharacterChoiceController.h"
 
 ASagaCharacterChoiceMode::ASagaCharacterChoiceMode()
 	: ASagaInterfaceOnlyModeBase()

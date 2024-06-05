@@ -1,5 +1,5 @@
 #include "Saga/GameModes/SagaSessionMode.h"
-#include "Saga/Controllers/SagaSessionController.h"
+#include "Saga/PlayerControllers/SagaSessionController.h"
 
 ASagaSessionMode::ASagaSessionMode()
 	: ASagaInterfaceOnlyModeBase()

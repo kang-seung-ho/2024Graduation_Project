@@ -1,5 +1,5 @@
 #include "Saga/GameModes/SagaLobbyMode.h"
-#include "Saga/Controllers/SagaLobbyController.h"
+#include "Saga/PlayerControllers/SagaLobbyController.h"
 
 ASagaLobbyMode::ASagaLobbyMode()
 	: ASagaInterfaceOnlyModeBase()

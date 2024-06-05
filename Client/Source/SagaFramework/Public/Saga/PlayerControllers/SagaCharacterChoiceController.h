@@ -1,5 +1,5 @@
 #pragma once
-#include "Saga/Controllers/SagaInterfaceController.h"
+#include "Saga/PlayerControllers/SagaInterfaceController.h"
 #include <InputActionValue.h>
 
 #include "SagaCharacterChoiceController.generated.h"

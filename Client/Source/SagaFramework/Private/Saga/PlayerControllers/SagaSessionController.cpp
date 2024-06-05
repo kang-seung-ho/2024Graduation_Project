@@ -1,4 +1,4 @@
-#include "Saga/Controllers/SagaSessionController.h"
+#include "Saga/PlayerControllers/SagaSessionController.h"
 
 void
 ASagaSessionController::BeginPlay()

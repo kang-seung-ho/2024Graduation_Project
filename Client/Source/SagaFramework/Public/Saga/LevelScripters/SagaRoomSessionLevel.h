@@ -1,5 +1,5 @@
 #pragma once
-#include "Saga/Level/SagaLevelScripter.h"
+#include "Saga/LevelScripters/SagaLevelScripter.h"
 #include <Containers/Array.h>
 
 #include "Saga/Network/SagaGameContract.h"

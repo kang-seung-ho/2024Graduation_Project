@@ -1,4 +1,4 @@
-#include "Saga/Level/SagaCharacterChoiceLevel.h"
+#include "Saga/LevelScripters/SagaCharacterChoiceLevel.h"
 #include <Math/UnrealMathUtility.h>
 #include <UObject/Object.h>
 #include <Delegates/Delegate.h>
@@ -6,7 +6,7 @@
 
 #include "Saga/Interface/SagaUiButton.h"
 #include "Saga/Interface/SagaTimerUiWidget.h"
-#include "Saga/Controllers/SagaCharacterChoiceController.h"
+#include "Saga/PlayerControllers/SagaCharacterChoiceController.h"
 
 #include "SagaGame/UI/SagaCharacterSelectWidget.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"

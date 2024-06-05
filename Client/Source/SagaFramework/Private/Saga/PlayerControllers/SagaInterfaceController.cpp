@@ -1,4 +1,4 @@
-#include "Saga/Controllers/SagaInterfaceController.h"
+#include "Saga/PlayerControllers/SagaInterfaceController.h"
 
 void
 ASagaInterfaceController::BeginPlay()

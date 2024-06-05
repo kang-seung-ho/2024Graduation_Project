@@ -1,5 +1,5 @@
 #include "Saga/GameModes/SagaMainMenuMode.h"
-#include "Saga/Controllers/SagaMainMenuController.h"
+#include "Saga/PlayerControllers/SagaMainMenuController.h"
 
 ASagaMainMenuMode::ASagaMainMenuMode()
 	: ASagaInterfaceOnlyModeBase()
