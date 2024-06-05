@@ -16,12 +16,13 @@
 ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
 	, myId(-1), myTeam(ESagaPlayerTeam::Unknown)
+	, myGameStat()
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mCamera(), mArm()
-	, myGameStat(), HpBar()
+	, HpBar()
 	, MyWeapon(), WeaponMeshes()
 {
 	PrimaryActorTick.bCanEverTick = true;
