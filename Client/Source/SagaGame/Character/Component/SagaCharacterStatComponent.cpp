@@ -14,9 +14,36 @@ USagaCharacterStatComponent::BeginPlay()
 }
 
 void
-USagaCharacterStatComponent::SetMaxHp(float hp, ESagaMaxHealthUpdatePolicy current_health_policy)
+USagaCharacterStatComponent::SetMaxHp(float maxhp, ESagaMaxHealthUpdatePolicy current_health_policy)
 {
-	MaxHp = hp;
+	switch (current_health_policy)
+	{
+	case ESagaMaxHealthUpdatePolicy::Ignore:
+	{}
+	break;
+
+	case ESagaMaxHealthUpdatePolicy::SetCurrentHealthFromRatio:
+	{
+		const auto pre_ratio = CurrentHp / MaxHp;
+
+		CurrentHp = maxhp * pre_ratio;
+	}
+	break;
+
+	case ESagaMaxHealthUpdatePolicy::SetCurrentHealthToMaxHealth:
+	{
+		CurrentHp = maxhp;
+	}
+	break;
+
+	default:
+	{
+		CurrentHp = maxhp;
+	}
+	break;
+	}
+
+	MaxHp = maxhp;
 }
 
 void
@@ -45,7 +72,10 @@ USagaCharacterStatComponent::ApplyDamage(float dmg)
 			OnHpZero.Broadcast();
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("[USagaCharacterStatComponent] Character is dead"));
+#if WITH_EDITOR
+		const FString name = GetParentNativeClass(GetClass())->GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaCharacterStatComponent] '%s' is dead."), *name);
+#endif
 	}
 
 	return remain_hp;
@@ -54,5 +84,5 @@ USagaCharacterStatComponent::ApplyDamage(float dmg)
 void
 USagaCharacterStatComponent::ResetHp()
 {
-	SetCurrentHp(MaxHp);
+	CurrentHp = MaxHp;
 }
