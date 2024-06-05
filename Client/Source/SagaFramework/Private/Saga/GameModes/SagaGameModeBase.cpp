@@ -3,7 +3,9 @@
 ASagaGameModeBase::ASagaGameModeBase()
 noexcept
 	: Super()
-{}
+{
+	SetHUDClass(nullptr);
+}
 
 void
 ASagaGameModeBase::SetControllerClass(TSubclassOf<APlayerController> controller_class)
@@ -16,21 +18,21 @@ void
 ASagaGameModeBase::SetPawnClass(TSubclassOf<APawn> pawn_class)
 noexcept
 {
-	GameSessionClass = pawn_class;
+	DefaultPawnClass = pawn_class;
 }
 
 void
 ASagaGameModeBase::SetSpectatorClass(TSubclassOf<ASpectatorPawn> pawn_class)
 noexcept
 {
-	DefaultPawnClass = pawn_class;
+	SpectatorClass = pawn_class;
 }
 
 void
 ASagaGameModeBase::SetSessionClass(TSubclassOf<AGameSession> session_class)
 noexcept
 {
-	SpectatorClass = session_class;
+	GameSessionClass = session_class;
 }
 
 void
