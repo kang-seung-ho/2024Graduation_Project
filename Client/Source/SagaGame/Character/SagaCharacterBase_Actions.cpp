@@ -2,9 +2,7 @@
 #include <Engine/EngineTypes.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
-#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "UI/SagaWidgetComponent.h"
-#include "UI/SagaHpBarWidget.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -149,8 +147,6 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 	else if (system->IsConnected())
 	{
-		const auto controller = GetController<ASagaInGamePlayerController>();
-
 		FVector spawn_pos;
 		FRotator spawn_rot;
 
@@ -168,23 +164,6 @@ ASagaCharacterBase::ExecuteRespawn()
 
 		// TODO
 
-		/*
-
-		if (GetUserId() == system->GetLocalUserId())
-		{
-			const auto spawner = controller->GetLocalPlayerSpawner();
-			spawn_pos = spawner->GetActorLocation();
-			spawn_rot = spawner->GetActorRotation();
-		}
-		else
-		{
-			spawn_pos = system->GetStoredPosition(GetUserId());
-			spawn_rot = FRotator::ZeroRotator;
-		}
-		spawn_pos += FVector{ 0, 0, 50.0 };
-		*/
-
-		//TeleportTo(spawn_pos, spawn_rot);
 		SetActorLocationAndRotation(spawn_pos, spawn_rot);
 
 		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
