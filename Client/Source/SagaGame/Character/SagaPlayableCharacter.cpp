@@ -8,8 +8,8 @@
 #include <NiagaraFunctionLibrary.h>
 #include <NiagaraComponent.h>
 
-#include "SagaPlayerAnimInstance.h"
-#include "../Effect/SagaSwordEffect.h"
+#include "Character/SagaPlayerAnimInstance.h"
+#include "Effect/SagaSwordEffect.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -98,6 +98,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
 
+	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함
 	if (dmg == 30.f)
 	{
 		if (HitCascadeEffect)
@@ -178,7 +179,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 		if (system->IsOfflineMode())
 		{
 			// 상대 팀 점수 증가 실행
-			system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
@@ -190,7 +191,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
 			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
-			system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
@@ -218,9 +219,6 @@ ASagaPlayableCharacter::ExecuteRespawn()
 
 	// Animate
 	mAnimInst->Revive();
-
-	// re-set collision profile name. NOT just Enable
-	//SetTeamColorAndCollision(myTeam);
 }
 
 void
@@ -238,10 +236,13 @@ ASagaPlayableCharacter::HandleRespawnCountdown()
 void
 ASagaPlayableCharacter::Attack()
 {
-	FCollisionQueryParams query{};
-	query.AddIgnoredActor(this);
+	const auto name = GetName();
+	const auto weapon = GetWeapon();
 
 	float damage{};
+
+	FCollisionQueryParams query{};
+	query.AddIgnoredActor(this);
 
 	bool collide = false;
 	FHitResult hit_result{};
@@ -249,7 +250,7 @@ ASagaPlayableCharacter::Attack()
 	FVector Hitlocation, HitNormal;
 
 	ECollisionChannel channel;
-	if (myTeam == ESagaPlayerTeam::Red)
+	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
 	}
@@ -258,7 +259,9 @@ ASagaPlayableCharacter::Attack()
 		channel = ECC_GameTraceChannel7;
 	}
 
-	if (myWeaponType == EPlayerWeapon::LightSabor)
+	switch (weapon)
+	{
+	case EPlayerWeapon::LightSabor:
 	{
 		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -268,7 +271,9 @@ ASagaPlayableCharacter::Attack()
 
 		damage = 30.f;
 	}
-	else if (myWeaponType == EPlayerWeapon::WaterGun)
+	break;
+	
+	case EPlayerWeapon::WaterGun:
 	{
 		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
 		FVector TraceStart = GetActorLocation();
@@ -277,16 +282,18 @@ ASagaPlayableCharacter::Attack()
 
 		if (hit_result.bBlockingHit && IsValid(hit_result.GetActor()))
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("Trace hit actor: %s"), *hit_result.GetActor()->GetName());
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] Trace hit actor: %s"), *hit_result.GetActor()->GetName());
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s': No Actors were hit"), *name);
 		}
 
 		damage = 20.f;
 	}
-	else if (myWeaponType == EPlayerWeapon::Hammer)
+	break;
+	
+	case EPlayerWeapon::Hammer:
 	{
 		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -295,10 +302,14 @@ ASagaPlayableCharacter::Attack()
 
 		damage = 30.f;
 	}
-	else
+	break;
+
+	default:
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][Attack]No Weapon Found."));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][Attack] '%s' has no Weapon."), *name);
 		return;
+	}
+	break;
 	}
 
 	if (collide)
@@ -307,9 +318,11 @@ ASagaPlayableCharacter::Attack()
 
 		hit_result.GetActor()->TakeDamage(damage, hit_event, GetController(), this);
 
-
+		// TODO: 이 코드를 구미 베어의 TakeDamage로 옮겨야 함.
 		if (hit_actor->IsA<ASagaGummyBearPlayer>())
 		{
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' hits a gummy bear."), *name);
+
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
 
@@ -321,17 +334,17 @@ ASagaPlayableCharacter::Attack()
 void
 ASagaPlayableCharacter::RideNPC()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
+	UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] Called"))
 		FOutputDeviceNull Ar;
 
 	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
-	if (ret == true)
+	if (ret)
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Called"))
+		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Called"))
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Not Found"))
+		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Not Found"))
 	}
 }
 

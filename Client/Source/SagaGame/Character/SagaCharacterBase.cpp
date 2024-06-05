@@ -15,11 +15,11 @@
 
 ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
-	, myId(-1), myTeam(ESagaPlayerTeam::Unknown)
+	, ownerData()
 	, myGameStat()
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
-	, mAnimInst(nullptr), mBearAnimInst(nullptr)
+	, myAnimationInst(), mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
 	, mCamera(), mArm()
 	, HpBar()
@@ -275,34 +275,50 @@ ASagaCharacterBase::ProcessAnimation(const float& delta_time)
 void
 ASagaCharacterBase::AttachWeapon()
 {
-	const auto name = UEnum::GetValueAsString(myWeaponType);
+	const auto name = GetName();
+	const auto weapon = GetWeapon();
+	const auto weapon_name = UEnum::GetValueAsString(weapon);
 
-	UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] WeaponType: %s"), *name);
+	UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] '%s''s weapon: %s"), *name, *weapon_name);
 
-	// Set Weapon Mesh with Weapon Type
-	if (WeaponMeshes.Contains(myWeaponType))
+	// Set the weapon mesh from its handled weapon
+	if (WeaponMeshes.Contains(weapon))
 	{
-		MyWeapon->SetStaticMesh(WeaponMeshes[myWeaponType]);
+		UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] '%s' has found its weapon mesh (%s)."), *name, *weapon_name);
 
-		UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] Found weapon '%s''s mesh."), *name);
+		MyWeapon->SetStaticMesh(WeaponMeshes[weapon]);
 
-		if (myWeaponType == EPlayerWeapon::LightSabor)
+		switch (weapon)
+		{
+		case EPlayerWeapon::LightSabor:
 		{
 			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
 			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
 			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
 		}
-		else if (myWeaponType == EPlayerWeapon::WaterGun)
+		break;
+
+		case EPlayerWeapon::WaterGun:
 		{
 			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
 			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
 			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
-		else if (myWeaponType == EPlayerWeapon::Hammer)
+		break;
+
+		case EPlayerWeapon::Hammer:
 		{
 			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
 			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
 			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+		}
+		break;
+
+		default:
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] '%s' has a invalid weapon '%d'"), *name, static_cast<int32>(weapon));
+		}
+		break;
 		}
 	}
 	else
@@ -315,6 +331,7 @@ void
 ASagaCharacterBase::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 {
 	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
+
 	if (HpBarWidget)
 	{
 		HpBarWidget->SetMaxHp(myGameStat->GetMaxHp());
@@ -374,20 +391,20 @@ void
 ASagaCharacterBase::SetUserId(const int32& id)
 noexcept
 {
-	myId = id;
+	ownerData.myID = id;
 }
 
 void
 ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team) noexcept
 {
-	myTeam = team;
+	ownerData.myTeam = team;
 }
 
 void
 ASagaCharacterBase::SetTeamColorAndCollision(const ESagaPlayerTeam& team)
 noexcept
 {
-	myTeam = team;
+	SetTeam(team);
 
 	if (team == ESagaPlayerTeam::Red)
 	{
@@ -403,7 +420,7 @@ void
 ASagaCharacterBase::SetWeapon(const EPlayerWeapon& weapon)
 noexcept
 {
-	myWeaponType = weapon;
+	ownerData.myWeapon = weapon;
 }
 
 void
@@ -417,20 +434,20 @@ int32
 ASagaCharacterBase::GetUserId()
 const noexcept
 {
-	return myId;
+	return ownerData.myID;
 }
 
 ESagaPlayerTeam
-ASagaCharacterBase::GetTeamColorAndCollision()
+ASagaCharacterBase::GetTeam()
 const noexcept
 {
-	return myTeam;
+	return ownerData.myTeam;
 }
 
 EPlayerWeapon
 ASagaCharacterBase::GetWeapon() const noexcept
 {
-	return myWeaponType;
+	return ownerData.myWeapon;
 }
 
 float
@@ -441,15 +458,15 @@ const noexcept
 }
 
 bool
+ASagaCharacterBase::HasValidOwnerId()
+const noexcept
+{
+	return -1 != ownerData.myID;
+}
+
+bool
 ASagaCharacterBase::IsAlive()
 const noexcept
 {
 	return 0 < myGameStat->GetCurrentHp();
-}
-
-bool
-ASagaCharacterBase::HasValidOwnerId()
-const noexcept
-{
-	return -1 != myId;
 }

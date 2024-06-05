@@ -23,7 +23,7 @@ USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		if (IsValid(WeaponHoldingCharacter))
 		{
-			mWeaponTypes = WeaponHoldingCharacter->GetWeaponType();
+			mWeaponTypes = WeaponHoldingCharacter->GetWeapon();
 		}
 
 		mMoveSpeed = character->GetMoveAnimationSpeed();

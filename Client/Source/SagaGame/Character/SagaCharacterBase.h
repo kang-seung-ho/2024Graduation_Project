@@ -11,6 +11,8 @@
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
 #include "Interface/SagaCharacterWidgetInterface.h"
+
+#include "Saga/Network/SagaVirtualUser.h"
 #include "SagaCharacterBase.generated.h"
 
 UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
@@ -20,11 +22,7 @@ class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacter
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	int32 myId;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	ESagaPlayerTeam myTeam;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	EPlayerWeapon myWeaponType;
+	FSagaVirtualUser ownerData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USagaCharacterStatComponent> myGameStat;
@@ -38,6 +36,8 @@ public:
 
 	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
 #pragma region =========================
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
+	TObjectPtr<class UAnimInstance> myAnimationInst;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
 	class USagaPlayerAnimInstance* mAnimInst;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
@@ -72,7 +72,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
 	UFUNCTION(BlueprintPure)
-	ESagaPlayerTeam GetTeamColorAndCollision() const noexcept;
+	ESagaPlayerTeam GetTeam() const noexcept;
 	UFUNCTION(BlueprintPure)
 	EPlayerWeapon GetWeapon() const noexcept;
 	UFUNCTION(BlueprintPure)
@@ -127,6 +127,7 @@ public:
 	UFUNCTION()
 	virtual void TerminateRide();
 
+	// TODO: ExecuteHurt에 맞은 무기 종류를 전달하도록 추가
 	UFUNCTION()
 	virtual float ExecuteHurt(const float dmg);
 	UFUNCTION()

@@ -37,9 +37,6 @@ public:
 	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
 	//void RidingFunction();
 
-	UFUNCTION()
-	EPlayerWeapon GetWeaponType() const noexcept { return myWeaponType; }
-
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;

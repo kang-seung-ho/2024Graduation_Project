@@ -154,7 +154,7 @@ ASagaCharacterBase::ExecuteRespawn()
 		FVector spawn_pos;
 		FRotator spawn_rot;
 
-		if (myTeam == ESagaPlayerTeam::Red)
+		if (GetTeam() == ESagaPlayerTeam::Red)
 		{
 			spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
 			spawn_rot = FRotator::ZeroRotator;

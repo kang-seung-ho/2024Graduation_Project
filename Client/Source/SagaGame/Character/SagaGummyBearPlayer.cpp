@@ -234,12 +234,12 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	if (system->IsOfflineMode())
 	{
 		// 상대 팀 점수 증가 실행
-		system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 	else
 	{
 		// 상대 팀 점수 증가 실행
-		system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 }
 
