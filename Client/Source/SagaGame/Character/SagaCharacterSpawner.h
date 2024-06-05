@@ -1,7 +1,6 @@
 #pragma once
 #include <GameFramework/PlayerStart.h>
 
-#include "SagaGame/Player/SagaPlayerTeam.h"
 #include "SagaCharacterSpawner.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game")
