@@ -13,7 +13,6 @@ ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitialize
 noexcept
 	: APlayerController(initializer)
 	, OnRideNPC()
-	, ownerId(-1)
 	, walkDirection()
 	, isAttacking()
 	, mySpawner()
@@ -55,9 +54,36 @@ ASagaInGamePlayerController::BeginPlay()
 }
 
 void
-ASagaInGamePlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ASagaInGamePlayerController::SetupInputComponent()
 {
-	Super::EndPlay(EndPlayReason);
+	Super::SetupInputComponent();
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+	ensure(Input);
+
+	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
+
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidForwardWalk);
+	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
+
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidStrafeWalk);
+	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
+
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
+	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
+
+	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
+
+	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
+
+	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
+	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
+
+	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
+
+	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
 }
 
 void
@@ -103,39 +129,6 @@ ASagaInGamePlayerController::Tick(float delta_time)
 }
 
 void
-ASagaInGamePlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
-	ensure(Input);
-
-	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
-
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidForwardWalk);
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
-
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidStrafeWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
-
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
-
-	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
-
-	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
-
-	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
-	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
-
-	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
-
-	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
-}
-
-void
 ASagaInGamePlayerController::AssignPlayerSpawner(AActor* spawner)
 noexcept
 {
@@ -147,11 +140,4 @@ ASagaInGamePlayerController::GetLocalPlayerSpawner()
 const noexcept
 {
 	return mySpawner;
-}
-
-int32
-ASagaInGamePlayerController::GetOwnerId()
-const noexcept
-{
-	return ownerId;
 }

@@ -111,7 +111,6 @@ ASagaInGameMode::StartPlay()
 
 				localPlayerController = controller;
 				localPlayerController->SetAsLocalPlayerController();
-				localPlayerController->SetOwnerId(system->GetLocalUserId());
 
 				switch (system->GetLocalUserTeam())
 				{

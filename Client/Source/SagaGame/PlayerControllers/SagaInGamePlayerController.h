@@ -15,8 +15,6 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	friend class ASagaInGameMode;
-
 	UPROPERTY()
 	FOnRideNPCDelegate OnRideNPC;
 
@@ -35,9 +33,6 @@ public:
 	UFUNCTION()
 	const AActor* GetLocalPlayerSpawner() const noexcept;
 
-	UFUNCTION()
-	int32 GetOwnerId() const noexcept;
-	
 	/* Actions */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
@@ -83,14 +78,6 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
-	UFUNCTION()
-	void SetOwnerId(int32 id) noexcept
-	{
-		ownerId = id;
-	}
-
-	UPROPERTY()
-	int32 ownerId;
 	UPROPERTY()
 	FVector walkDirection;
 	UPROPERTY()
