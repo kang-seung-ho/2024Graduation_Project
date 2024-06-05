@@ -115,7 +115,7 @@ void ASagaCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::SetDead);
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
 void
@@ -400,12 +400,6 @@ ASagaCharacterBase::PlayAttackAnimation()
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
 	}
-}
-
-void
-ASagaCharacterBase::SetDead()
-{
-	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void

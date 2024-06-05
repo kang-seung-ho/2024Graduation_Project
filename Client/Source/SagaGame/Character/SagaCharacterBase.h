@@ -52,6 +52,9 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION()
+	virtual void Attack() {};
+
+	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
 	void SetTeam(const ESagaPlayerTeam& team) noexcept;
@@ -63,6 +66,9 @@ public:
 	virtual void AttachWeapon();
 	UFUNCTION()
 	void SetHealth(const float hp) noexcept;
+	// 다른 사가 캐릭터에게 속성 전달
+	UFUNCTION()
+	virtual void TranslateProperties(ASagaCharacterBase* other) const;
 
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
@@ -74,13 +80,6 @@ public:
 	float GetHealth() const noexcept;
 	UFUNCTION(BlueprintPure)
 	bool HasValidOwnerId() const noexcept;
-
-	// 다른 사가 캐릭터에게 속성 전달
-	UFUNCTION()
-	virtual void TranslateProperties(ASagaCharacterBase* other) const;
-
-	UFUNCTION()
-	virtual void Attack() {};
 
 	/* 액션 메서드 */
 #pragma region =========================
@@ -152,8 +151,6 @@ protected:
 
 	UFUNCTION()
 	virtual void PlayAttackAnimation();
-	UFUNCTION()
-	virtual void SetDead();
 	// UFUNCTION()
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
