@@ -153,11 +153,6 @@ protected:
 	// UFUNCTION()
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
-	UFUNCTION()
-	virtual void ProcessMovement();
-	UFUNCTION()
-	virtual void ProcessAnimation(const float& delta_time);
-
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{

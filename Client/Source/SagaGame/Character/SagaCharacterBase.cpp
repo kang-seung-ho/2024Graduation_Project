@@ -139,58 +139,8 @@ ASagaCharacterBase::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
-	ProcessMovement();
-	ProcessAnimation(delta_time);
-}
+	/* Process Movement */
 
-void
-ASagaCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-float
-ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
-{
-	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
-	const float current_hp = ExecuteHurt(actual_dmg);
-
-#if WITH_EDITOR
-	const auto name = GetName();
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
-#endif
-
-	return actual_dmg;
-}
-
-void
-ASagaCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-void
-ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
-const
-{
-	if (not IsValid(other))
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[TranslateProperties] Invalid character handle."));
-		return;
-	}
-
-	if (other == this)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[TranslateProperties] Invalid property transitioning."));
-		return;
-	}
-
-	other->ownerData = ownerData;
-}
-
-void
-ASagaCharacterBase::ProcessMovement()
-{
 	const FRotator rotation = K2_GetActorRotation();
 	const FRotator yaw = FRotator(0.0, rotation.Yaw, 0.0);
 	const FVector forward_dir = yaw.Vector();
@@ -198,11 +148,9 @@ ASagaCharacterBase::ProcessMovement()
 
 	AddMovementInput(forward_dir, straightMoveDirection * GetVerticalMoveAcceleration());
 	AddMovementInput(right_dir, strafeMoveDirection * GetHorizontalMoveAcceleration());
-}
 
-void
-ASagaCharacterBase::ProcessAnimation(const float& delta_time)
-{
+	/* Process Animation */
+
 	UE::Math::TVector2<float> move_direction{ float(strafeMoveDirection), float(straightMoveDirection) };
 	move_direction.Normalize();
 
@@ -291,6 +239,51 @@ ASagaCharacterBase::ProcessAnimation(const float& delta_time)
 			animationMoveAngle += FMath::Sign(interpolated_gap) * delta;
 		}
 	}
+}
+
+void
+ASagaCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+float
+ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
+{
+	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
+	const float current_hp = ExecuteHurt(actual_dmg);
+
+#if WITH_EDITOR
+	const auto name = GetName();
+	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
+#endif
+
+	return actual_dmg;
+}
+
+void
+ASagaCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+}
+
+void
+ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
+const
+{
+	if (not IsValid(other))
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[TranslateProperties] Invalid character handle."));
+		return;
+	}
+
+	if (other == this)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[TranslateProperties] Invalid property transitioning."));
+		return;
+	}
+
+	other->ownerData = ownerData;
 }
 
 void
