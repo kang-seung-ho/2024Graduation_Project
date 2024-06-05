@@ -108,9 +108,8 @@ ASagaCharacterBase::TerminateAttack()
 float
 ASagaCharacterBase::ExecuteHurt(const float dmg)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
-
 	isRunning = false;
+
 	return myGameStat->ApplyDamage(dmg);
 }
 
