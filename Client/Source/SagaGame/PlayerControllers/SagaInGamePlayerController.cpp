@@ -2,6 +2,7 @@
 #include <Math/MathFwd.h>
 #include <UObject/Object.h>
 #include <UObject/UObjectGlobals.h>
+#include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
 
@@ -29,6 +30,7 @@ ASagaInGamePlayerController::BeginPlay()
 	FInputModeGameOnly mode{};
 	SetInputMode(mode);
 
+	UGameplayStatics::SetViewportMouseCaptureMode(this, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
 	SetShowMouseCursor(false);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
