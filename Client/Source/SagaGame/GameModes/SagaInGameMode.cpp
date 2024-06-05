@@ -21,9 +21,8 @@
 const FString SagaRedTeamName = TEXT("Red");
 const FString SagaBluTeamName = TEXT("Blue");
 
-ASagaInGameMode::ASagaInGameMode()
-noexcept
-	: Super()
+ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
+	: Super(initializer)
 	, playerSpawners()
 	, localPlayerController()
 {

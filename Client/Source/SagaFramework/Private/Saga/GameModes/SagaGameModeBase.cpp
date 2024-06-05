@@ -1,8 +1,8 @@
 #include "Saga/GameModes/SagaGameModeBase.h"
 
-ASagaGameModeBase::ASagaGameModeBase()
+ASagaGameModeBase::ASagaGameModeBase(const FObjectInitializer& initializer)
 noexcept
-	: Super()
+	: Super(initializer)
 {
 	SetHUDClass(nullptr);
 }

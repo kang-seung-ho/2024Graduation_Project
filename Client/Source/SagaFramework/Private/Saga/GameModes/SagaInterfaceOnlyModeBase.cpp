@@ -1,8 +1,8 @@
 #include "Saga/GameModes/SagaInterfaceOnlyModeBase.h"
 
-ASagaInterfaceOnlyModeBase::ASagaInterfaceOnlyModeBase()
+ASagaInterfaceOnlyModeBase::ASagaInterfaceOnlyModeBase(const FObjectInitializer& initializer)
 noexcept
-	: Super()
+	: Super(initializer)
 {
 	SetPawnClass(nullptr);
 	SetSpectatorClass(nullptr);

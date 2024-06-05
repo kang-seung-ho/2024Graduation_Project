@@ -9,5 +9,5 @@ class SAGAFRAMEWORK_API ASagaInterfaceOnlyModeBase : public ASagaGameModeBase
 	GENERATED_BODY()
 
 public:
-	ASagaInterfaceOnlyModeBase() noexcept;
+	ASagaInterfaceOnlyModeBase(const FObjectInitializer& initializer) noexcept;
 };

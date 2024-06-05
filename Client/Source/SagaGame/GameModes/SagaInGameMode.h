@@ -26,7 +26,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<class ASagaInGamePlayerController> localPlayerController;
 
-	ASagaInGameMode() noexcept;
+	ASagaInGameMode(const FObjectInitializer& initializer);
 
 	UFUNCTION()
 	class AActor* GetSpawnerBy(ESagaPlayerTeam team) const;

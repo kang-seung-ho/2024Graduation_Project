@@ -9,5 +9,5 @@ class SAGAFRAMEWORK_API ASagaMainMenuMode : public ASagaInterfaceOnlyModeBase
 	GENERATED_BODY()
 
 public:
-	ASagaMainMenuMode();
+	ASagaMainMenuMode(const FObjectInitializer& initializer) noexcept;
 };

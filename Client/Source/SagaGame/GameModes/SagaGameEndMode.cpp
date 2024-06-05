@@ -1,8 +1,9 @@
 #include "GameModes/SagaGameEndMode.h"
 #include "PlayerControllers/SagaGameEndController.h"
 
-AGameEndMode::AGameEndMode()
-	: Super()
+AGameEndMode::AGameEndMode(const FObjectInitializer& initializer)
+noexcept
+	: Super(initializer)
 {
 	PlayerControllerClass = ASagaGameEndController::StaticClass();
 }

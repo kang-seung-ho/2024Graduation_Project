@@ -10,7 +10,7 @@ class SAGAGAME_API AGameEndMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	AGameEndMode();
+	AGameEndMode(const FObjectInitializer& initializer) noexcept;
 
 	virtual void BeginPlay() override;
 };
