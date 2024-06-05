@@ -56,6 +56,17 @@ ASagaInGameMode::OnGameStarted()
 	if (not system->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started."));
+
+		if (system->IsConnected())
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][OnGameStarted] Starting periodic timers."));
+
+			GetWorldTimerManager().SetTimer(transformUpdateTimer, this, &ASagaInGameMode::HandleUpdateTransform, 0.03f, true, 1.0f);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGamePlayerController][OnGameStarted] Game controller could not start periodic timers!"));
+		}
 	}
 	else
 	{

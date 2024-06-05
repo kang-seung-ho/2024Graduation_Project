@@ -25,6 +25,9 @@ ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, playerSpawners()
 	, localPlayerController()
+	, readyTimerHandle()
+	, transformUpdateTimer()
+	, lastCharacterPosition(), lastCharacterRotation()
 {
 	SetControllerClass(ASagaInGamePlayerController::StaticClass());
 
@@ -177,6 +180,12 @@ ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FStri
 	return Super::FindPlayerStart_Implementation(player, tag);
 }
 
+void
+ASagaInGameMode::EndPlay(const EEndPlayReason::Type reason)
+{
+	Super::EndPlay(reason);
+}
+
 AActor*
 ASagaInGameMode::GetSpawnerBy(ESagaPlayerTeam team)
 const
@@ -215,4 +224,78 @@ const
 	}
 
 	return nullptr;
+}
+
+void
+ASagaInGameMode::HandleUpdateTransform()
+{
+	const auto world = GetWorld();
+	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (system->IsConnected())
+	{
+		const auto controller = world->GetFirstPlayerController<ASagaInGamePlayerController>();
+		const auto pawn = controller->GetPawn<ASagaCharacterBase>();
+
+		if (pawn->IsAlive())
+		{
+			const auto loc = pawn->GetActorLocation();
+			if (lastCharacterPosition != loc)
+			{
+				int64 arg0{};
+				int32 arg1{};
+
+				SerializePosition(loc, arg0, arg1);
+
+				//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+
+				lastCharacterPosition = loc;
+			}
+
+			const auto rot = pawn->GetActorRotation();
+			if (lastCharacterRotation != rot)
+			{
+				int64 arg0{};
+				int32 arg1{};
+
+				SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
+
+				//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				system->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
+
+				lastCharacterRotation = rot;
+			}
+		}
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(transformUpdateTimer);
+	}
+}
+
+void
+SerializePosition(const FVector& vector, int64& arg0, int32& arg1)
+{
+	const auto x = static_cast<float>(vector.X);
+	const auto y = static_cast<float>(vector.Y);
+	const auto z = static_cast<float>(vector.Z);
+
+	memcpy(reinterpret_cast<char*>(&arg0), &x, 4);
+	memcpy(reinterpret_cast<char*>(&arg0) + 4, &y, 4);
+	memcpy(reinterpret_cast<char*>(&arg1), &z, 4);
+}
+
+FVector
+DeserializePosition(const int64& arg0, const int32& arg1)
+{
+	float x{};
+	float y{};
+	float z{};
+
+	std::memcpy(&x, &arg0, 4);
+	std::memcpy(&y, reinterpret_cast<const char*>(&arg0) + 4, 4);
+	std::memcpy(&z, &arg1, 4);
+
+	return FVector{ x, y, z };
 }

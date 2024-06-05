@@ -1,5 +1,6 @@
 #include "Character/SagaCharacterBase.h"
 #include <Engine/EngineTypes.h>
+#include <UObject/Object.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
 #include "UI/SagaWidgetComponent.h"
@@ -133,7 +134,10 @@ ASagaCharacterBase::ExecuteRespawn()
 	myGameStat->ResetHp();
 
 	// Unhide the hp bar
-	myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	if (IsValid(myHealthIndicatorBarWidget))
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	}
 
 	// Reset the position
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());

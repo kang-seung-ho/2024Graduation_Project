@@ -80,7 +80,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
 
 private:
@@ -90,19 +89,6 @@ private:
 		ownerId = id;
 	}
 
-	UFUNCTION()
-	void OnGameStarted();
-
-	UFUNCTION()
-	void HandleUpdateTransform();
-
-	// 좌표 쓰기
-	UFUNCTION()
-	static void SerializePosition(const FVector& vector, int64& arg0, int32& arg1);
-	// 좌표 읽기
-	UFUNCTION()
-	static FVector DeserializePosition(const int64& arg0, const int32& arg1);
-
 	UPROPERTY()
 	int32 ownerId;
 	UPROPERTY()
@@ -111,12 +97,4 @@ private:
 	bool isAttacking;
 	UPROPERTY()
 	TObjectPtr<class AActor> mySpawner;
-
-	UPROPERTY()
-	FVector lastCharacterPosition;
-	UPROPERTY()
-	FRotator lastCharacterRotation;
-
-	UPROPERTY()
-	FTimerHandle transformUpdateTimer;
 };

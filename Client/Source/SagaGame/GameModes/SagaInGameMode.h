@@ -35,6 +35,7 @@ public:
 	
 	virtual void InitGame(const FString& mapname, const FString& optios, FString& err_msg) override;
 	virtual void StartPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* player) override;
 	virtual AActor* FindPlayerStart_Implementation(AController* player, const FString& tag) override;
@@ -49,9 +50,22 @@ private:
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 
+	UFUNCTION()
+	void HandleUpdateTransform();
+
 	UPROPERTY()
 	FTimerHandle readyTimerHandle;
+
+	UPROPERTY()
+	FTimerHandle transformUpdateTimer;
+	UPROPERTY()
+	FVector lastCharacterPosition;
+	UPROPERTY()
+	FRotator lastCharacterRotation;
 };
 
 extern const FString SagaRedTeamName;
 extern const FString SagaBluTeamName;
+
+void SerializePosition(const FVector& vector, int64& arg0, int32& arg1);
+FVector DeserializePosition(const int64& arg0, const int32& arg1);
