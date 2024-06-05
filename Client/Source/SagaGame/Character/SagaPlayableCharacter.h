@@ -1,17 +1,14 @@
 #pragma once
 #include "SagaGame.h"
-#include "Misc/OutputDeviceNull.h"
-#include "Character/SagaCharacterBase.h"
+#include <Misc/OutputDeviceNull.h>
+#include <Particles/ParticleSystem.h>
+#include <Particles/ParticleSystemComponent.h>
 
-#include "../Item/SagaWeaponData.h"
-#include "../Interface/SagaCharacterItemInterface.h"
 #include "Player/SagaPlayerWeaponTypes.h"
-#include "CharacterSelect/SagaSelectCharacter.h"
-#include "SagaGummyBearPlayer.h"
-#include "Particles/ParticleSystem.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "Character/SagaCharacterBase.h"
+#include "Item/SagaWeaponData.h"
+#include "Interface/SagaCharacterItemInterface.h"
 #include "SagaPlayableCharacter.generated.h"
-
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterBase
@@ -47,7 +44,7 @@ protected:
 	FTimerHandle RespawnTimerHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
+	TSoftClassPtr<class UAnimInstance> humanCharacterAnimation;
 
 	UPROPERTY()
 	UParticleSystem* HitCascadeEffect;

@@ -1,12 +1,5 @@
 #pragma once
 #include "SagaGame.h"
-#include <UObject/ObjectPtr.h>
-#include <GameFramework/Character.h>
-#include <GameFramework/SpringArmComponent.h>
-#include <Components/StaticMeshComponent.h>
-#include <Camera/CameraComponent.h>
-
-#include "SagaGameInfo.h"
 #include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
@@ -20,34 +13,36 @@ class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacter
 {
 	GENERATED_BODY()
 
+protected:
+	static TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> WeaponMeshes;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	FSagaVirtualUser ownerData;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class USagaCharacterStatComponent> myGameStat;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	int straightMoveDirection;
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
-	int strafeMoveDirection;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRunning;
+	TObjectPtr<class UStaticMeshComponent> myWeapon;
 
 	/* 애니메이션 관련 필드 (애니메이션 인스턴스, 이동, 공격, ...) */
 #pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
 	TObjectPtr<class UAnimInstance> myAnimationInst;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
-	class USagaPlayerAnimInstance* mAnimInst;
+	TObjectPtr<class USagaPlayerAnimInstance> mAnimInst;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
-	class USagaGummyBearAnimInstance* mBearAnimInst;
+	TObjectPtr<class USagaGummyBearAnimInstance> mBearAnimInst;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
-	float animationMoveSpeed; // 애니메이션 전용
+	float animationMoveSpeed;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation", Meta = (BlueprintGetter = GetMoveAnimationAngle))
-	float animationMoveAngle; // 애니메이션 전용
+	float animationMoveAngle;
 #pragma endregion
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class USagaWidgetComponent> myHealthIndicatorBarWidget;
 
 	ASagaCharacterBase();
 
@@ -159,19 +154,14 @@ protected:
 	virtual void PlayAttackAnimation();
 	UFUNCTION()
 	virtual void SetDead();
-	// UFUNCTION
+	// UFUNCTION()
 	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
-	/* 실시간 처리 메서드 (Tick) */
-#pragma region =========================
 	UFUNCTION()
 	virtual void ProcessMovement();
 	UFUNCTION()
 	virtual void ProcessAnimation(const float& delta_time);
-#pragma endregion
 
-	/* 이동 속성 메서드 */
-#pragma region =========================
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{
@@ -189,7 +179,6 @@ protected:
 	{
 		return isRunning ? 300 : 200;
 	}
-#pragma endregion
 
 	UFUNCTION(BlueprintPure)
 	virtual float GetMoveAnimationDirectionDelta() const noexcept
@@ -197,19 +186,15 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	UCameraComponent* mCamera;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
-	USpringArmComponent* mArm;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USagaWidgetComponent> HpBar;
-
-protected:
-	// For saving Weapon Meshes
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TObjectPtr<class UStaticMeshComponent> MyWeapon;
+	UCameraComponent* myCameraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	USpringArmComponent* myCameraSpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	TMap<EPlayerWeapon, UStaticMesh*> WeaponMeshes;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int straightMoveDirection;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int strafeMoveDirection;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRunning;
 };

@@ -1,29 +1,39 @@
 #include "Character/SagaCharacterBase.h"
+#include <UObject/ConstructorHelpers.h>
+#include <UObject/ObjectPtr.h>
+#include <Engine/StaticMesh.h>
 #include <Engine/DamageEvents.h>
-#include <GameFramework/Character.h>
-#include <GameFramework/CharacterMovementComponent.h>
+#include <Containers/Map.h>
+#include <Templates/UnrealTemplate.h>
+#include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
+#include <Animation/AnimInstance.h>
+#include <Camera/CameraComponent.h>
+#include <GameFramework/Character.h>
+#include <GameFramework/SpringArmComponent.h>
 
-#include "SagaGameInfo.h"
-#include "SagaPlayerAnimInstance.h"
-#include "SagaGummyBearAnimInstance.h"
+#include "Player/SagaPlayerWeaponTypes.h"
+#include "Character/SagaPlayerAnimInstance.h"
+#include "Character/SagaGummyBearAnimInstance.h"
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
+
 ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
 	, ownerData()
 	, myGameStat()
-	, straightMoveDirection(), strafeMoveDirection()
-	, isRunning()
+	, myWeapon()
 	, myAnimationInst(), mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
-	, mCamera(), mArm()
-	, HpBar()
-	, MyWeapon(), WeaponMeshes()
+	, myHealthIndicatorBarWidget()
+	, myCameraComponent(), myCameraSpringArmComponent()
+	, straightMoveDirection(), strafeMoveDirection()
+	, isRunning()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -44,54 +54,57 @@ ASagaCharacterBase::ASagaCharacterBase()
 		mesh->SetSkeletalMesh(MeshAsset.Object);
 	}
 
-	mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
-	mArm->SetupAttachment(mesh);
-	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
-	mArm->TargetArmLength = 150.f;
+	myCameraSpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
+	myCameraSpringArmComponent->SetupAttachment(mesh);
+	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
+	myCameraSpringArmComponent->TargetArmLength = 150.f;
 
-	mArm->bEnableCameraLag = true;
-	mArm->bEnableCameraRotationLag = true;
+	myCameraSpringArmComponent->bEnableCameraLag = true;
+	myCameraSpringArmComponent->bEnableCameraRotationLag = true;
 
-	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	mCamera->SetupAttachment(mArm);
+	myCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	myCameraComponent->SetupAttachment(myCameraSpringArmComponent);
 
 	myGameStat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
 	myGameStat->SetMaxHp(100.0f);
 
-	HpBar = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
-	HpBar->SetupAttachment(GetMesh());
-	HpBar->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	myHealthIndicatorBarWidget = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
+	myHealthIndicatorBarWidget->SetupAttachment(GetMesh());
+	myHealthIndicatorBarWidget->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
 	if (HpBarWidgetRef.Succeeded())
 	{
-		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
-		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
-		HpBar->SetDrawSize(FVector2D(150, 20));
-		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		myHealthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
+		myHealthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+		myHealthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
+		myHealthIndicatorBarWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
-	//Weapon
-	MyWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	MyWeapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
+	// Weapon
+	myWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	myWeapon->SetupAttachment(GetMesh(), TEXT("c_middle1_r"));
 	// WeaponMesh Collision Disable
-	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	myWeapon->SetCollisionProfileName(TEXT("Weapon"));
 	//Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
-	//Load Weapon Meshes
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
+	// Load Weapon Meshes
+	WeaponMeshes.Reserve(4);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> LightSaborMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Lightsaber_prop.Lightsaber_prop'"));
 	if (LightSaborMeshRef.Succeeded())
 	{
 		WeaponMeshes.Add(EPlayerWeapon::LightSabor, LightSaborMeshRef.Object);
 	}
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WaterGunMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Watergun_prop.Watergun_prop'"));
 	if (WaterGunMeshRef.Succeeded())
 	{
 		WeaponMeshes.Add(EPlayerWeapon::WaterGun, WaterGunMeshRef.Object);
 	}
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> HammerMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/Weapons/Hammer_prop.Hammer_prop'"));
 	if (HammerMeshRef.Succeeded())
 	{
 		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
@@ -160,11 +173,19 @@ void
 ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
 const
 {
-	if (other == this)
+	if (not IsValid(other))
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Transitioning."));
+		UE_LOG(LogSagaGame, Error, TEXT("[TranslateProperties] Invalid character handle."));
 		return;
 	}
+
+	if (other == this)
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[TranslateProperties] Invalid property transitioning."));
+		return;
+	}
+
+	other->ownerData = ownerData;
 }
 
 void
@@ -286,31 +307,31 @@ ASagaCharacterBase::AttachWeapon()
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] '%s' has found its weapon mesh (%s)."), *name, *weapon_name);
 
-		MyWeapon->SetStaticMesh(WeaponMeshes[weapon]);
+		myWeapon->SetStaticMesh(WeaponMeshes[weapon]);
 
 		switch (weapon)
 		{
 		case EPlayerWeapon::LightSabor:
 		{
-			MyWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-			MyWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
-			MyWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+			myWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+			myWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+			myWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
 		}
 		break;
 
 		case EPlayerWeapon::WaterGun:
 		{
-			MyWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
-			MyWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			myWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+			myWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+			myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
 		break;
 
 		case EPlayerWeapon::Hammer:
 		{
-			MyWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
-			MyWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
-			MyWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			myWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+			myWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+			myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
 		}
 		break;
 
@@ -384,7 +405,7 @@ ASagaCharacterBase::PlayAttackAnimation()
 void
 ASagaCharacterBase::SetDead()
 {
-	HpBar->SetHiddenInGame(true);
+	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
@@ -395,7 +416,8 @@ noexcept
 }
 
 void
-ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team) noexcept
+ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
+noexcept
 {
 	ownerData.myTeam = team;
 }
@@ -445,7 +467,8 @@ const noexcept
 }
 
 EPlayerWeapon
-ASagaCharacterBase::GetWeapon() const noexcept
+ASagaCharacterBase::GetWeapon()
+const noexcept
 {
 	return ownerData.myWeapon;
 }

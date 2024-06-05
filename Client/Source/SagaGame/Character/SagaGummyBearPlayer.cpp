@@ -38,9 +38,9 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
 	}
 
-	mArm->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
-	mArm->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));
-	mArm->TargetArmLength = 400.f;
+	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
+	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));
+	myCameraSpringArmComponent->TargetArmLength = 400.f;
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
 	InteractionBox->SetupAttachment(RootComponent);

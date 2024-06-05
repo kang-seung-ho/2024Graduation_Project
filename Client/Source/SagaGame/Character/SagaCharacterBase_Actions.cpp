@@ -68,16 +68,16 @@ ASagaCharacterBase::TerminateJump()
 void
 ASagaCharacterBase::ExecuteRotate(const float pitch)
 {
-	mArm->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
+	myCameraSpringArmComponent->AddRelativeRotation(FRotator(pitch, 0.0, 0.0));
 
-	const FRotator Rot = mArm->GetRelativeRotation();
+	const FRotator Rot = myCameraSpringArmComponent->GetRelativeRotation();
 	if (Rot.Pitch < -60.0)
 	{
-		mArm->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
+		myCameraSpringArmComponent->SetRelativeRotation(FRotator(-60.0, Rot.Yaw, Rot.Roll));
 	}
 	else if (Rot.Pitch > 60.0)
 	{
-		mArm->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
+		myCameraSpringArmComponent->SetRelativeRotation(FRotator(60.0, Rot.Yaw, Rot.Roll));
 	}
 }
 
@@ -133,7 +133,7 @@ ASagaCharacterBase::ExecuteRespawn()
 	myGameStat->ResetHp();
 
 	// Unhide the hp bar
-	HpBar->SetHiddenInGame(false);
+	myHealthIndicatorBarWidget->SetHiddenInGame(false);
 
 	// Reset the position
 	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());

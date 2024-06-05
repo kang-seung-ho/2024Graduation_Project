@@ -1,6 +1,7 @@
 #include "SagaPlayableCharacter.h"
 #include <DrawDebugHelpers.h>
 #include <UObject/Object.h>
+#include <Templates/Casts.h>
 #include <Kismet/KismetSystemLibrary.h>
 #include <Camera/CameraComponent.h>
 #include <GameFramework/PlayerController.h>
@@ -8,6 +9,7 @@
 #include <NiagaraFunctionLibrary.h>
 #include <NiagaraComponent.h>
 
+#include "Character/SagaGummyBearPlayer.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Effect/SagaSwordEffect.h"
 
@@ -32,17 +34,17 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		humanCharacterAnimation = AnimAsset.Class;
 	}
 
-	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
-	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	/*myCameraSpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
+	myCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
-	mArm->SetupAttachment(GetMesh());
+	myCameraSpringArmComponent->SetupAttachment(GetMesh());
 
-	mCamera->SetupAttachment(mArm);
+	myCameraComponent->SetupAttachment(myCameraSpringArmComponent);
 
-	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
+	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
 
-	mArm->TargetArmLength = 150.f;*/
+	myCameraSpringArmComponent->TargetArmLength = 150.f;*/
 
 	// ASagaPlayableCharacter 클래스 내 생성자에 추가
 
@@ -355,7 +357,7 @@ ASagaPlayableCharacter::PostInitializeComponents()
 
 	GetMesh()->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 
-	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	myWeapon->SetCollisionProfileName(TEXT("Weapon"));
 }
 
 void
