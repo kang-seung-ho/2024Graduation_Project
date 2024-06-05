@@ -156,7 +156,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		}
 	}
 
-	return dmg;
+	return current_health;
 }
 
 void
