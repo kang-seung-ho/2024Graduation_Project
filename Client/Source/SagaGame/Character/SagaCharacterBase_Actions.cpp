@@ -2,7 +2,7 @@
 #include <Engine/EngineTypes.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
-#include "SagaInGamePlayerController.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
 
@@ -154,7 +154,7 @@ ASagaCharacterBase::ExecuteRespawn()
 		FVector spawn_pos;
 		FRotator spawn_rot;
 
-		if (myTeam == EUserTeam::Red)
+		if (myTeam == ESagaPlayerTeam::Red)
 		{
 			spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
 			spawn_rot = FRotator::ZeroRotator;

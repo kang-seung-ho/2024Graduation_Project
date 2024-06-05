@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
-#include <CoreMinimal.h>
+#include "SagaGame.h"
 #include <GameFramework/GameModeBase.h>
-#include "GameEndMode.generated.h"
 
-/**
- * 
- */
+#include "SagaGameEndMode.generated.h"
+
 UCLASS()
 class SAGAGAME_API AGameEndMode : public AGameModeBase
 {
@@ -16,6 +11,6 @@ class SAGAGAME_API AGameEndMode : public AGameModeBase
 
 public:
 	AGameEndMode();
+
 	virtual void BeginPlay() override;
-	
 };

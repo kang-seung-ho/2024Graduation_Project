@@ -87,13 +87,13 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 
 			switch (user.myTeam)
 			{
-			case EUserTeam::Unknown:
+			case ESagaPlayerTeam::Unknown:
 			{
 				UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has unkown team."), user_id);
 			}
 			break;
 
-			case EUserTeam::Red:
+			case ESagaPlayerTeam::Red:
 			{
 				auto& team_list = *red_list;
 
@@ -104,7 +104,7 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 			}
 			break;
 
-			case EUserTeam::Blue:
+			case ESagaPlayerTeam::Blue:
 			{
 				auto& team_list = *blu_list;
 
@@ -364,7 +364,7 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
 
-		system->SetTeam(system->GetLocalUserId(), EUserTeam::Red);
+		system->SetTeam(system->GetLocalUserId(), ESagaPlayerTeam::Red);
 	}
 
 	UnPauseTimer();
@@ -396,7 +396,7 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
 
-		system->SetTeam(system->GetLocalUserId(), EUserTeam::Blue);
+		system->SetTeam(system->GetLocalUserId(), ESagaPlayerTeam::Blue);
 	}
 
 	UnPauseTimer();

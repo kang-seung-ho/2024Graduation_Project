@@ -9,7 +9,7 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 
 template<typename RetValType, typename... ParamTypes>
@@ -56,7 +56,7 @@ ISagaNetworkView::RegisterView(USagaNetworkSubSystem* system, TScriptInterface<I
 	system->OnFailedToStartGame.SagaAddDelegate(actor, ISagaNetworkView::OnFailedToStartGame_Implementation, ESagaGameContract);
 	system->OnGetPreparedGame.SagaAddDelegate(actor, ISagaNetworkView::OnBeginPrepareGame_Implementation, void);
 	system->OnGameStarted.SagaAddDelegate(actor, ISagaNetworkView::OnGameStarted_Implementation, void);
-	system->OnCreatingCharacter.SagaAddDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation, int32, EUserTeam, EPlayerWeapon);
+	system->OnCreatingCharacter.SagaAddDelegate(actor, ISagaNetworkView::OnCreatePlayerCharacter_Implementation, int32, ESagaPlayerTeam, EPlayerWeapon);
 
 	system->OnRpc.SagaAddDelegate(actor, ISagaNetworkView::OnRpc, ESagaRpcProtocol, int32, int64, int32);
 }

@@ -69,7 +69,7 @@ USagaNetworkSubSystem::OnDisconnected_Implementation()
 
 	SetLocalUserId(-1);
 	SetLocalUserName(FText::GetEmpty());
-	SetLocalUserTeam(EUserTeam::Unknown);
+	SetLocalUserTeam(ESagaPlayerTeam::Unknown);
 	SetCurrentRoomId(-1);
 	currentRoom.MembersCount = 0;
 }

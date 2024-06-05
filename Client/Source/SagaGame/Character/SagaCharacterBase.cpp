@@ -15,7 +15,7 @@
 
 ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
-	, myId(-1), myTeam(EUserTeam::Unknown)
+	, myId(-1), myTeam(ESagaPlayerTeam::Unknown)
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
 	, mAnimInst(nullptr), mBearAnimInst(nullptr)
@@ -116,7 +116,7 @@ ASagaCharacterBase::BeginPlay()
 
 	if (not HasValidOwnerId())
 	{
-		SetTeamColorAndCollision(EUserTeam::Blue);
+		SetTeamColorAndCollision(ESagaPlayerTeam::Blue);
 	}
 }
 
@@ -377,18 +377,18 @@ noexcept
 }
 
 void
-ASagaCharacterBase::SetTeam(const EUserTeam& team) noexcept
+ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team) noexcept
 {
 	myTeam = team;
 }
 
 void
-ASagaCharacterBase::SetTeamColorAndCollision(const EUserTeam& team)
+ASagaCharacterBase::SetTeamColorAndCollision(const ESagaPlayerTeam& team)
 noexcept
 {
 	myTeam = team;
 
-	if (team == EUserTeam::Red)
+	if (team == ESagaPlayerTeam::Red)
 	{
 		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
 	}
@@ -419,7 +419,7 @@ const noexcept
 	return myId;
 }
 
-EUserTeam
+ESagaPlayerTeam
 ASagaCharacterBase::GetTeamColorAndCollision()
 const noexcept
 {

@@ -4,7 +4,7 @@
 #include <GameFramework/GameModeBase.h>
 #include <GameFramework/Actor.h>
 
-#include "Player/SagaUserTeam.h"
+#include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Character/SagaCharacterSpawner.h"
 
@@ -25,7 +25,7 @@ public:
 	ASagaInGameMode();
 
 	UFUNCTION()
-	class AActor* GetSpawnerBy(EUserTeam team) const;
+	class AActor* GetSpawnerBy(ESagaPlayerTeam team) const;
 	UFUNCTION()
 	class AActor* GetSpawner(const FString& team_name) const;
 	
@@ -41,7 +41,7 @@ private:
 	UFUNCTION()
 	void OnGameStarted();
 	UFUNCTION()
-	void OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
+	void OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon);
 	UFUNCTION()
 	void OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1);
 

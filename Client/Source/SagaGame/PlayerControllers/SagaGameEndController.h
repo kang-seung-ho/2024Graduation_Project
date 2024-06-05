@@ -1,22 +1,22 @@
 #pragma once
-#include <CoreMinimal.h>
+#include "SagaGame.h"
 #include <GameFramework/PlayerController.h>
 
 #include "SagaGameEndController.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType, Category = "CandyLandSaga|System|Game Mode")
 class SAGAGAME_API ASagaGameEndController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
-	ASagaGameEndController();
+	ASagaGameEndController() noexcept;
+
 	virtual void BeginPlay() override;
 
 public:
 	UPROPERTY()
 	TSubclassOf<UUserWidget> mGameResultClass;
 	UPROPERTY()
-	class UUserWidget* mGameResultWidget;
-	
+	TObjectPtr<class UUserWidget> mGameResultWidget;
 };

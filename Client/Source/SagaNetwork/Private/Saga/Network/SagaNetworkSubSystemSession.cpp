@@ -109,7 +109,7 @@ noexcept
 }
 
 void
-USagaNetworkSubSystem::SetTeam(int32 user_id, const EUserTeam& team)
+USagaNetworkSubSystem::SetTeam(int32 user_id, const ESagaPlayerTeam& team)
 noexcept
 {
 	if (user_id == GetLocalUserId())
@@ -207,7 +207,7 @@ const noexcept
 }
 
 bool
-USagaNetworkSubSystem::GetTeam(int32 user_id, EUserTeam& outpin)
+USagaNetworkSubSystem::GetTeam(int32 user_id, ESagaPlayerTeam& outpin)
 const noexcept
 {
 	if (user_id == GetLocalUserId())
@@ -408,12 +408,12 @@ const
 }
 
 void
-USagaNetworkSubSystem::SetLocalUserTeam(EUserTeam team)
+USagaNetworkSubSystem::SetLocalUserTeam(ESagaPlayerTeam team)
 {
 	localUser.myTeam = team;
 }
 
-EUserTeam
+ESagaPlayerTeam
 USagaNetworkSubSystem::GetLocalUserTeam()
 const noexcept
 {

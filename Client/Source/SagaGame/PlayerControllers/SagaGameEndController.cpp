@@ -1,11 +1,12 @@
-#include "Character/SagaGameEndController.h"
+#include "PlayerControllers/SagaGameEndController.h"
 #include <Blueprint/UserWidget.h>
 
 ASagaGameEndController::ASagaGameEndController()
+noexcept
+	: Super()
+	, mGameResultClass(), mGameResultWidget()
 {
-	//Load GameEnd Widget
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ShowResult.UI_ShowResult_C'"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ShowResult.UI_ShowResult_C'") };
 
 	if (WidgetClass.Succeeded())
 	{
@@ -25,7 +26,7 @@ void ASagaGameEndController::BeginPlay()
 
 		if (IsValid(mGameResultWidget))
 		{
-			mGameResultWidget->AddToViewport();
+			mGameResultWidget->AddToViewport(1);
 		}
 	}
 }

@@ -7,7 +7,7 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaNetworkView.generated.h"
 
-enum class [[nodiscard]] EUserTeam : uint8;
+enum class [[nodiscard]] ESagaPlayerTeam : uint8;
 enum class [[nodiscard]] EPlayerWeapon : uint8;
 
 UINTERFACE(BlueprintType, Blueprintable, MinimalAPI)
@@ -80,7 +80,7 @@ public:
 	void OnGameStarted();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
-	void OnCreatePlayerCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
+	void OnCreatePlayerCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
 	void OnUpdatePosition(int32 id, float x, float y, float z);

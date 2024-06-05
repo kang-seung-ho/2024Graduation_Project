@@ -12,8 +12,8 @@
 #include <Containers/Array.h>
 #include <Templates/Casts.h>
 
-#include "Player/SagaUserTeam.h"
-#include "Character/SagaInGamePlayerController.h"
+#include "Player/SagaPlayerTeam.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterSpawner.h"
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
@@ -109,13 +109,13 @@ ASagaInGameMode::StartPlay()
 
 				switch (system->GetLocalUserTeam())
 				{
-				case EUserTeam::Red:
+				case ESagaPlayerTeam::Red:
 				{
 					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
 					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
 				}
 
-				case EUserTeam::Blue:
+				case ESagaPlayerTeam::Blue:
 				{
 					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
 					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
@@ -146,13 +146,13 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 
 	switch (system->GetLocalUserTeam())
 	{
-	case EUserTeam::Red:
+	case ESagaPlayerTeam::Red:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for red team..."));
 		return GetSpawner(SagaRedTeamName);
 	}
 
-	case EUserTeam::Blue:
+	case ESagaPlayerTeam::Blue:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for blue team..."));
 		return GetSpawner(SagaBluTeamName);
@@ -175,18 +175,18 @@ ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FStri
 }
 
 AActor*
-ASagaInGameMode::GetSpawnerBy(EUserTeam team)
+ASagaInGameMode::GetSpawnerBy(ESagaPlayerTeam team)
 const
 {
 	switch (team)
 	{
-	case EUserTeam::Unknown:
-	case EUserTeam::Red:
+	case ESagaPlayerTeam::Unknown:
+	case ESagaPlayerTeam::Red:
 	{
 		return GetSpawner(SagaRedTeamName);
 	}
 
-	case EUserTeam::Blue:
+	case ESagaPlayerTeam::Blue:
 	{
 		return GetSpawner(SagaBluTeamName);
 	}

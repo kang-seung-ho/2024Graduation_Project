@@ -7,7 +7,7 @@
 #include <Camera/CameraComponent.h>
 
 #include "SagaGameInfo.h"
-#include "Player/SagaUserTeam.h"
+#include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
 #include "Interface/SagaCharacterWidgetInterface.h"
@@ -22,7 +22,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	int32 myId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	EUserTeam myTeam;
+	ESagaPlayerTeam myTeam;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	EPlayerWeapon myWeaponType;
 
@@ -59,9 +59,9 @@ public:
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	UFUNCTION()
-	void SetTeam(const EUserTeam& team) noexcept;
+	void SetTeam(const ESagaPlayerTeam& team) noexcept;
 	UFUNCTION()
-	void SetTeamColorAndCollision(const EUserTeam& team) noexcept;
+	void SetTeamColorAndCollision(const ESagaPlayerTeam& team) noexcept;
 	UFUNCTION()
 	void SetWeapon(const EPlayerWeapon& weapon) noexcept;
 	UFUNCTION()
@@ -72,7 +72,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
 	UFUNCTION(BlueprintPure)
-	EUserTeam GetTeamColorAndCollision() const noexcept;
+	ESagaPlayerTeam GetTeamColorAndCollision() const noexcept;
 	UFUNCTION(BlueprintPure)
 	EPlayerWeapon GetWeapon() const noexcept;
 	UFUNCTION(BlueprintPure)

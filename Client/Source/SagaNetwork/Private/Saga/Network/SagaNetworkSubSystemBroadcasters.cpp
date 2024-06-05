@@ -306,7 +306,7 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
+USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon)
 const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnCreatingCharacter`"));

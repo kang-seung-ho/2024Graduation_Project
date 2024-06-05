@@ -18,7 +18,7 @@
 #include "SagaSerializedPacket.h"
 
 // SagaGame
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "SagaGame/Character/SagaPlayableCharacter.h"
 #include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
@@ -32,7 +32,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnDisconnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSagaEventOnSignedIn, int32, my_id, const FText&, nickname);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnRoomCreated, int32, room_id);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnJoinedRoom, int32, room_id);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FText&, nickname, const EUserTeam&, team);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnOtherJoinedRoom, int32, user_id, const FText&, nickname, const ESagaPlayerTeam&, team);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnLeftRoomBySelf);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnLeftRoom, int32, id);
 
@@ -48,7 +48,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSagaEventOnStartGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdatePosition, int32, id, float, x, float, y, float, z);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnUpdateRotation, int32, id, float, r, float, y, float, p);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, EUserTeam, team, EPlayerWeapon, weapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FSagaEventOnCreatingCharacter, int32, user_id, ESagaPlayerTeam, team, EPlayerWeapon, weapon);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSagaEventOnRpc, ESagaRpcProtocol, category, int32, id, int64, arg0, int32, arg1);
 
@@ -226,7 +226,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetCharacterHandle(int32 user_id, class ASagaCharacterBase* character) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetTeam(int32 user_id, const EUserTeam& team) noexcept;
+	void SetTeam(int32 user_id, const ESagaPlayerTeam& team) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetWeapon(int32 user_id, EPlayerWeapon weapon) noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -237,7 +237,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	class ASagaCharacterBase* GetCharacterHandle(int32 user_id) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	bool GetTeam(int32 user_id, EUserTeam& outpin) const noexcept;
+	bool GetTeam(int32 user_id, ESagaPlayerTeam& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	bool GetWeapon(int32 user_id, EPlayerWeapon& outpin) const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
@@ -273,9 +273,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
 	FText GetLocalUserName() const;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	void SetLocalUserTeam(EUserTeam team);
+	void SetLocalUserTeam(ESagaPlayerTeam team);
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
-	EUserTeam GetLocalUserTeam() const noexcept;
+	ESagaPlayerTeam GetLocalUserTeam() const noexcept;
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Network|Session")
 	void SetLocalUserWeapon(EPlayerWeapon weapon) noexcept;
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Network|Session")
@@ -340,9 +340,9 @@ public:
 		return BlueTeamScore;
 	}
 	UFUNCTION()
-	void AddScore(EUserTeam team, int32 score)
+	void AddScore(ESagaPlayerTeam team, int32 score)
 	{
-		if (team == EUserTeam::Red)
+		if (team == ESagaPlayerTeam::Red)
 		{
 			RedTeamScore += score;
 		}
@@ -367,11 +367,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetWhoWon()
 	{
-		const EUserTeam team = GetLocalUserTeam();
+		const ESagaPlayerTeam team = GetLocalUserTeam();
 
 		if (RedTeamPinataBroken == true)
 		{
-			if (team == EUserTeam::Red)
+			if (team == ESagaPlayerTeam::Red)
 			{
 				return TEXT("Lose"); // I'm Red Team And My team Lose
 			}
@@ -382,7 +382,7 @@ public:
 		}
 		else if (BlueTeamPinataBroken == true)
 		{
-			if (team == EUserTeam::Red)
+			if (team == ESagaPlayerTeam::Red)
 			{
 				return TEXT("Victory!"); // I'm Red Team And My team Win
 			}
@@ -394,7 +394,7 @@ public:
 
 		if (RedTeamScore > BlueTeamScore)
 		{
-			if (team == EUserTeam::Red)
+			if (team == ESagaPlayerTeam::Red)
 			{
 				return TEXT("Victory!"); // I'm Red Team And My team Win
 			}
@@ -405,7 +405,7 @@ public:
 		}
 		else if (RedTeamScore < BlueTeamScore)
 		{
-			if (team == EUserTeam::Red)
+			if (team == ESagaPlayerTeam::Red)
 			{
 				return TEXT("Lose"); // I'm Red Team And My team Lose
 			}
@@ -491,7 +491,7 @@ private:
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnUpdateRotation(int32 user_id, float r, float y, float p) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
-	void BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon) const;
+	void BroadcastOnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon) const;
 	UFUNCTION(Category = "CandyLandSaga|Network|Internal", meta = (BlueprintInternalUseOnly, UnsafeDuringActorConstruction, NotBlueprintThreadSafe))
 	void BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1) const;
 #pragma endregion

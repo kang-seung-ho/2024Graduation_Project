@@ -178,7 +178,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 		if (system->IsOfflineMode())
 		{
 			// 상대 팀 점수 증가 실행
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+			system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
@@ -190,7 +190,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
 			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
-			system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+			system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
@@ -249,7 +249,7 @@ ASagaPlayableCharacter::Attack()
 	FVector Hitlocation, HitNormal;
 
 	ECollisionChannel channel;
-	if (myTeam == EUserTeam::Red)
+	if (myTeam == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
 	}

@@ -2,7 +2,7 @@
 #include "SagaGummyBearAnimInstance.h"
 #include "../Effect/SagaSwordEffect.h"
 
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerTeam.h"
 
 #include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -234,12 +234,12 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	if (system->IsOfflineMode())
 	{
 		// 상대 팀 점수 증가 실행
-		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+		system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 	else
 	{
 		// 상대 팀 점수 증가 실행
-		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
+		system->AddScore(myTeam == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 }
 

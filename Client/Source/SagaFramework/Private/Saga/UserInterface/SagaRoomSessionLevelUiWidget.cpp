@@ -9,7 +9,7 @@
 #include "Saga/Interface/SagaRoomMemberViewerUiWidget.h"
 #include "Saga/Interface/Data/SagaUiInstancedUserData.h"
 
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerTeam.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 #include "Saga/Network/SagaVirtualRoom.h"
@@ -131,13 +131,13 @@ USagaRoomSessionLevelUiWidget::OnUpdateMembers(const TArray<struct FSagaVirtualU
 		const auto& member_name = member.myName;
 		const auto& member_name_str = member_name.ToString();
 
-		if (member.myTeam == EUserTeam::Red)
+		if (member.myTeam == ESagaPlayerTeam::Red)
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[USagaRoomSessionLevelUiWidget][OnUpdateMembers] '%s' is in red team."), *member_name_str);
 
 			++redTeamCount;
 		}
-		else if (member.myTeam == EUserTeam::Blue)
+		else if (member.myTeam == ESagaPlayerTeam::Blue)
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[USagaRoomSessionLevelUiWidget][OnUpdateMembers] '%s' is in blue team."), *member_name_str);
 
@@ -275,9 +275,9 @@ const
 	}
 	else if (system->IsOfflineMode())
 	{
-		const EUserTeam team = system->GetLocalUserTeam();
+		const ESagaPlayerTeam team = system->GetLocalUserTeam();
 
-		return (team == EUserTeam::Unknown) ? -1 : ((team == EUserTeam::Red) ? 1 : 0);
+		return (team == ESagaPlayerTeam::Unknown) ? -1 : ((team == ESagaPlayerTeam::Red) ? 1 : 0);
 	}
 	else
 	{
@@ -308,9 +308,9 @@ const
 	}
 	else if (system->IsOfflineMode())
 	{
-		const EUserTeam team = system->GetLocalUserTeam();
+		const ESagaPlayerTeam team = system->GetLocalUserTeam();
 
-		return (team == EUserTeam::Unknown) ? -1 : ((team == EUserTeam::Blue) ? 1 : 0);
+		return (team == ESagaPlayerTeam::Unknown) ? -1 : ((team == ESagaPlayerTeam::Blue) ? 1 : 0);
 	}
 	else
 	{

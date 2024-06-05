@@ -5,7 +5,7 @@
 #include <UObject/Object.h>
 #include <GameFramework/Actor.h>
 
-#include "Character/SagaInGamePlayerController.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterBase.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
@@ -65,7 +65,7 @@ ASagaInGameMode::OnGameStarted()
 	world->bMatchStarted = true;
 }
 
-void ASagaInGameMode::OnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
+void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon)
 {
 	const auto world = GetWorld();
 	const auto system = USagaNetworkSubSystem::GetSubSystem(world);

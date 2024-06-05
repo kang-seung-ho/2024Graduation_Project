@@ -3,7 +3,7 @@
 
 #include "SagaPlayerWeaponTypes.generated.h"
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, Category = "CandyLandSaga|Game|Player")
 enum class EPlayerWeapon : uint8
 {
 	LightSabor,

@@ -1,6 +1,6 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-#include "SagaGame/Player/SagaUserTeam.h"
+#include "SagaGame/Player/SagaPlayerTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "Saga/Network/SagaGameContract.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -88,7 +88,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 			UE_LOG(LogSagaNetwork, Log, TEXT("Local client has joined to the room %d"), room_id);
 
 			CallFunctionOnGameThread(
-				[this, room_id, team = static_cast<EUserTeam>(newbie.team_id)]()
+				[this, room_id, team = static_cast<ESagaPlayerTeam>(newbie.team_id)]()
 				{
 					SetCurrentRoomId(room_id);
 					SetTeam(GetLocalUserId(), team);
@@ -105,7 +105,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 				[this
 				, id = MoveTemp(newbie.id)
 				, nickname = FText::FromString(newbie.nickname)
-				, team = static_cast<EUserTeam>(newbie.team_id)]()
+				, team = static_cast<ESagaPlayerTeam>(newbie.team_id)]()
 				{
 					AddUser(FSagaVirtualUser
 						{
@@ -224,7 +224,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 
 				for (auto& user : tr_users)
 				{
-					const auto team_id = user.team_id == 1 ? EUserTeam::Red : EUserTeam::Blue;
+					const auto team_id = user.team_id == 1 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blue;
 
 					const auto str = UEnum::GetValueAsString(team_id);
 
@@ -263,7 +263,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 
 		UE_LOG(LogSagaNetwork, Log, TEXT("Client %d's team changed to %s"), client_id, is_red_team ? TEXT("Red") : TEXT("Blue"));
 
-		SetTeam(client_id, is_red_team ? EUserTeam::Red : EUserTeam::Blue);
+		SetTeam(client_id, is_red_team ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blue);
 
 		CallPureFunctionOnGameThread([this, client_id, is_red_team]()
 			{

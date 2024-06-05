@@ -1,8 +1,8 @@
-#include "SagaInGamePlayerController.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include <Templates/Casts.h>
 
 #include "Character/SagaCharacterBase.h"
-#include "SagaPlayableCharacter.h"
+#include "Character/SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
