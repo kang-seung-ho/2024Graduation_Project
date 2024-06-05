@@ -130,7 +130,7 @@ ASagaCharacterBase::BeginPlay()
 
 	if (not HasValidOwnerId())
 	{
-		SetTeamColorAndCollision(ESagaPlayerTeam::Blue);
+		SetTeam(ESagaPlayerTeam::Blue);
 	}
 }
 
@@ -411,16 +411,8 @@ noexcept
 
 void
 ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
-noexcept
 {
 	ownerData.myTeam = team;
-}
-
-void
-ASagaCharacterBase::SetTeamColorAndCollision(const ESagaPlayerTeam& team)
-noexcept
-{
-	SetTeam(team);
 
 	if (team == ESagaPlayerTeam::Red)
 	{

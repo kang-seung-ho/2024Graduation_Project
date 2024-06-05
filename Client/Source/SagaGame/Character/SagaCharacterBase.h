@@ -56,10 +56,9 @@ public:
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
+	/* SetTeamColorAndCollision과 통합 */
 	UFUNCTION()
-	void SetTeam(const ESagaPlayerTeam& team) noexcept;
-	UFUNCTION()
-	void SetTeamColorAndCollision(const ESagaPlayerTeam& team) noexcept;
+	void SetTeam(const ESagaPlayerTeam& team);
 	UFUNCTION()
 	void SetWeapon(const EPlayerWeapon& weapon) noexcept;
 	UFUNCTION()

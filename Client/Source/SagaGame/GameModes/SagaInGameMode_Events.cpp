@@ -99,7 +99,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			// The id was stored on LobbyLevel
 			character->SetUserId(user_id);
 			// The team was stored on RoomSessionLevel
-			character->SetTeamColorAndCollision(team);
+			character->SetTeam(team);
 			// The weapon was stored on CharacterSelectLevel
 			character->SetWeapon(weapon);
 			character->AttachWeapon();
@@ -152,7 +152,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 				// The id was stored on LobbyLevel
 				character->SetUserId(user_id);
 				// The team was stored on RoomSessionLevel
-				character->SetTeamColorAndCollision(team);
+				character->SetTeam(team);
 				// The weapon was stored on CharacterSelectLevel
 				character->SetWeapon(weapon);
 				character->AttachWeapon();
@@ -175,7 +175,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		system->SetCharacterHandle(user_id, character);
 
 		character->SetUserId(user_id);
-		character->SetTeamColorAndCollision(team);
+		character->SetTeam(team);
 		character->SetWeapon(weapon);
 		character->AttachWeapon();
 	}
