@@ -1,18 +1,22 @@
 #pragma once
 #include "SagaGame.h"
 #include <UObject/ObjectPtr.h>
-#include <GameFramework/GameModeBase.h>
 #include <GameFramework/Actor.h>
 
+/* Framework */
+#include "Saga/GameModes/SagaGameModeBase.h"
+
+/* Game */
 #include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Character/SagaCharacterSpawner.h"
 
+/* Network */
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaInGameMode.generated.h"
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|System|Game Mode")
-class SAGAGAME_API ASagaInGameMode : public AGameModeBase
+class SAGAGAME_API ASagaInGameMode : public ASagaGameModeBase
 {
 	GENERATED_BODY()
 
@@ -22,7 +26,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<class ASagaInGamePlayerController> localPlayerController;
 
-	ASagaInGameMode();
+	ASagaInGameMode() noexcept;
 
 	UFUNCTION()
 	class AActor* GetSpawnerBy(ESagaPlayerTeam team) const;

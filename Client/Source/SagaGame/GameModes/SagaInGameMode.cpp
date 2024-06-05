@@ -5,15 +5,13 @@
 #include <Kismet/GameplayStatics.h>
 #include <UObject/Object.h>
 #include <UObject/ConstructorHelpers.h>
-#include <GameFramework/Actor.h>
 #include <GameFramework/Controller.h>
-#include <GameFramework/GameStateBase.h>
 #include <Containers/UnrealString.h>
 #include <Containers/Array.h>
 #include <Templates/Casts.h>
 
-#include "Player/SagaPlayerTeam.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
+#include "Player/SagaPlayerTeam.h"
 #include "Character/SagaCharacterSpawner.h"
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
@@ -24,17 +22,23 @@ const FString SagaRedTeamName = TEXT("Red");
 const FString SagaBluTeamName = TEXT("Blue");
 
 ASagaInGameMode::ASagaInGameMode()
-	: AGameModeBase()
+noexcept
+	: Super()
 	, playerSpawners()
 	, localPlayerController()
 {
-	static ConstructorHelpers::FClassFinder<ASagaPlayableCharacter> pawn_class{ TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C") };
-	if (pawn_class.Class != nullptr)
-	{
-		DefaultPawnClass = pawn_class.Class;
-	}
+	SetControllerClass(ASagaInGamePlayerController::StaticClass());
 
-	PlayerControllerClass = ASagaInGamePlayerController::StaticClass();
+	static ConstructorHelpers::FClassFinder<ASagaPlayableCharacter> pawn_class{ TEXT("/Game/PlayerAssets/BP/BP_SagaPlayableCharacter.BP_SagaPlayableCharacter_C") };
+	if (pawn_class.Succeeded())
+	{
+		SetPawnClass(pawn_class.Class);
+	}
+	else
+	{
+		const auto name = GetName();
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][ctor] '%s' could not find the class of player character."), *name);
+	}
 }
 
 void
@@ -42,7 +46,7 @@ ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][InitGame]"));
 
-	AGameModeBase::InitGame(mapname, optios, err_msg);
+	Super::InitGame(mapname, optios, err_msg);
 
 	const auto world = GetWorld();
 
@@ -136,7 +140,7 @@ ASagaInGameMode::StartPlay()
 	}
 
 	// First find the local controller and enumerate actors' BeginPlay
-	AGameModeBase::StartPlay();
+	Super::StartPlay();
 }
 
 AActor*
@@ -161,7 +165,7 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 	default:
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Choosing a player spawner for unknown team..."));
-		return AGameModeBase::ChoosePlayerStart_Implementation(player);
+		return Super::ChoosePlayerStart_Implementation(player);
 	}
 	}
 }
@@ -171,7 +175,7 @@ ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FStri
 {
 	UE_LOG(LogSagaGame, Log, TEXT("Finding a player spawn by a tag '%s'..."), *tag);
 
-	return AGameModeBase::FindPlayerStart_Implementation(player, tag);
+	return Super::FindPlayerStart_Implementation(player, tag);
 }
 
 AActor*
