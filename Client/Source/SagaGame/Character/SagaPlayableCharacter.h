@@ -20,10 +20,12 @@ public:
 
 	virtual void Attack() override;
 
-	virtual float ExecuteHurt(const float dmg) override;
-	virtual void ExecuteDeath() override;
 	UFUNCTION()
 	void BeginRespawn();
+
+	virtual float ExecuteHurt(const float dmg) override;
+	virtual void ExecuteDeath() override;
+
 	virtual void ExecuteRespawn() override;
 
 	UFUNCTION()

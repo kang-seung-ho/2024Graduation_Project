@@ -138,12 +138,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		}
 	}
 
-	if (current_health <= 0.0f)
-	{
-		// 사망 처리
-		ExecuteDeath();
-	}
-	else
+	if (0 < current_health)
 	{
 		// NOTICE: 여기서 RPC 또 보내면 안됨
 		// 중복되서 데미지 여러번 처리됨
@@ -162,6 +157,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 void
 ASagaPlayableCharacter::ExecuteDeath()
 {
+	// 사망 처리
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] ExecuteDeath"));
 
 	Super::ExecuteDeath();

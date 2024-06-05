@@ -203,17 +203,12 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
 	const auto current_hp = Super::ExecuteHurt(dmg);
+	UE_LOG(LogSagaGame, Log, TEXT("Bear Hp : %f"), current_hp);
 
-	UE_LOG(LogTemp, Log, TEXT("Bear Hp : %f"), current_hp);
-
-	if (current_hp <= 0.0f)
+	if (0 < current_hp)
 	{
-		// 사망 처리
-		ExecuteDeath();
+		// 피격 이펙트
 
-		// 파티클 이펙트 실행
-
-		//Destroy();
 	}
 
 	return current_hp;
@@ -222,6 +217,7 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 void
 ASagaGummyBearPlayer::ExecuteDeath()
 {
+	// 사망 처리
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteDeath"));
 
 	// 사망 애니메이션 실행
