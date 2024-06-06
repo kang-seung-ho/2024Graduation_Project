@@ -1,6 +1,7 @@
 #include "Character/SagaCharacterBase.h"
-#include <UObject/ConstructorHelpers.h>
+#include <UObject/Linker.h>
 #include <UObject/ObjectPtr.h>
+#include <UObject/ConstructorHelpers.h>
 #include <Engine/StaticMesh.h>
 #include <Engine/DamageEvents.h>
 #include <Containers/Map.h>
@@ -131,6 +132,16 @@ ASagaCharacterBase::BeginPlay()
 	if (not HasValidOwnerId())
 	{
 		SetTeam(ESagaPlayerTeam::Blue);
+	}
+
+	if (IsValid(myHealthIndicatorBarWidget))
+	{
+		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+
+		healthbar->SetMaxHp(myGameStat->GetMaxHp());
+		healthbar->UpdateHpBar(myGameStat->GetCurrentHp());
+
+		myGameStat->OnHpChanged.AddUniqueDynamic(healthbar, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 
@@ -338,20 +349,6 @@ ASagaCharacterBase::AttachWeapon()
 	else
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh has found for the selected weapon."));
-	}
-}
-
-void
-ASagaCharacterBase::SetupCharacterWidget(USagaUserWidget* InUserWidget)
-{
-	USagaHpBarWidget* HpBarWidget = Cast<USagaHpBarWidget>(InUserWidget);
-
-	if (HpBarWidget)
-	{
-		HpBarWidget->SetMaxHp(myGameStat->GetMaxHp());
-		HpBarWidget->UpdateHpBar(myGameStat->GetCurrentHp());
-
-		myGameStat->OnHpChanged.AddUniqueDynamic(HpBarWidget, &USagaHpBarWidget::UpdateHpBar);
 	}
 }
 

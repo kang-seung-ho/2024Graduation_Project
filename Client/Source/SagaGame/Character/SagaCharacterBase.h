@@ -3,7 +3,6 @@
 #include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
-#include "Interface/SagaCharacterWidgetInterface.h"
 
 #include "Saga/Network/SagaVirtualUser.h"
 #include "SagaCharacterBase.generated.h"
@@ -13,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class AS
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterRespawned, class ASagaCharacterBase*, character);
 
 UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterWidgetInterface
+class SAGAGAME_API ASagaCharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -59,6 +58,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float delta_time) override;
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION()
@@ -160,8 +160,6 @@ protected:
 
 	UFUNCTION()
 	virtual void PlayAttackAnimation();
-	// UFUNCTION()
-	virtual void SetupCharacterWidget(class USagaUserWidget* InUserWidget) override;
 
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept

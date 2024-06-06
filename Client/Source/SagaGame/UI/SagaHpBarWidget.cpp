@@ -18,12 +18,6 @@ USagaHpBarWidget::NativeConstruct()
 
 	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PlayerHpBar")));
 	ensure(nullptr != HpProgressBar);
-
-	const auto CharacterWidget = Cast<ISagaCharacterWidgetInterface>(OwningActor);
-	if (nullptr != CharacterWidget)
-	{
-		CharacterWidget->SetupCharacterWidget(this);
-	}
 }
 
 void
