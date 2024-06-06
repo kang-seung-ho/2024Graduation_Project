@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColourfulConsole", "Colourf
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{01656469-A3FD-4BDD-8436-FE96F53737AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Client", "Test Client\Test Client.vcxproj", "{25E41881-34E0-4EB3-96CB-D8559BC7A1A9}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "UserDatabase", "UserDatabase\UserDatabase.sqlproj", "{B14A2359-33A0-4FD8-8EDA-2F6337DD4DCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServer", "AuthServer\AuthServer.csproj", "{884C6BF9-08C1-4EE4-9C2C-5431BF670DF2}"
 EndProject
