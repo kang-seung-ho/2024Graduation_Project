@@ -1,43 +1,37 @@
 #pragma once
 #include "SagaGame.h"
+#include <UObject/ObjectPtr.h>
 #include <GameFramework/Actor.h>
 
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "SagaSelectCharacter.generated.h"
 
-UCLASS()
-class SAGAGAME_API ASagaSelectCharacter : public AActor
+UCLASS(BlueprintType, Category = "CandyLandSaga|Character Choice Level")
+class SAGAGAME_API ASagaSelectCharacter final : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	ASagaSelectCharacter();
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Character Choice Level")
+	TObjectPtr<class UCapsuleComponent> mBody;
 
-protected:
-	UPROPERTY(VisibleAnywhere)
-	class UCapsuleComponent* mBody;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Character Choice Level")
+	TObjectPtr<class USkeletalMeshComponent> mMesh;
 
-	UPROPERTY(VisibleAnywhere)
-	class USkeletalMeshComponent* mMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Character Choice Level")
 	EPlayerWeapon mWeapon;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Character Choice Level")
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
 
-public:
-	EPlayerWeapon GetWeapon() const
+	ASagaSelectCharacter();
+
+	UFUNCTION(BlueprintPure)
+	EPlayerWeapon GetWeapon() const noexcept
 	{
-		return mWeapon; 
+		return mWeapon;
 	}
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	virtual void PostInitializeComponents() override;
 };

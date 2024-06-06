@@ -12,7 +12,7 @@ class SAGAFRAMEWORK_API ASagaCharacterChoiceController final : public ASagaInter
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintAssignable, Category = "CandyLandSagaSystem|System|Character Choice Level")
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSagaSystem|Character Choice Level")
 	FSagaEventOnClickedCharacter OnClickedCharacter;
 
 	ASagaCharacterChoiceController(const FObjectInitializer& initializer) noexcept;

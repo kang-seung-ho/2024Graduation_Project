@@ -5,19 +5,17 @@
 #include <Animation/AnimInstance.h>
 
 ASagaSelectCharacter::ASagaSelectCharacter()
+	: Super()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	mBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Body"));
-	mMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	SetRootComponent(mBody);
 
 	mBody->SetCollisionProfileName(TEXT("Player"));
 
+	mMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	mMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	SetRootComponent(mBody);
 
 	mMesh->SetupAttachment(mBody);
 
@@ -26,21 +24,12 @@ ASagaSelectCharacter::ASagaSelectCharacter()
 	{
 		humanCharacterAnimation = AnimAsset.Class;
 	}
-
-
 }
 
-// Called when the game starts or when spawned
-void ASagaSelectCharacter::BeginPlay()
+void
+ASagaSelectCharacter::PostInitializeComponents()
 {
-	Super::BeginPlay();
-	
+	Super::PostInitializeComponents();
+
+	mMesh->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 }
-
-// Called every frame
-void ASagaSelectCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
