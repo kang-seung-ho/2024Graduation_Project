@@ -214,8 +214,8 @@ const
 		return err_text;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return err_text;
 	}
@@ -241,8 +241,8 @@ const
 		return 0;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return 0;
 	}
@@ -268,8 +268,8 @@ const
 		return 0;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return 0;
 	}
@@ -301,8 +301,8 @@ const
 		return 0;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return 0;
 	}

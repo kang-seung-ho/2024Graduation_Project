@@ -507,8 +507,8 @@ const
 		return settings->IsOfflineMode;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		const auto settings = GetDefault<USagaNetworkSettings>();
 		return settings->IsOfflineMode;
@@ -537,8 +537,8 @@ const
 		return settings->ConnectionCategory;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		const auto settings = GetDefault<USagaNetworkSettings>();
 		return settings->ConnectionCategory;
@@ -567,8 +567,8 @@ const
 		return settings->RemoteAddress;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		const auto settings = GetDefault<USagaNetworkSettings>();
 		return settings->RemoteAddress;
@@ -597,8 +597,8 @@ const
 		return settings->RemotePort;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		const auto settings = GetDefault<USagaNetworkSettings>();
 		return settings->RemotePort;

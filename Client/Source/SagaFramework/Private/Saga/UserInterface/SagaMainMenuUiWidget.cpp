@@ -144,7 +144,7 @@ USagaMainMenuUiWidget::HandleSigningIn()
 
 	AsyncTask(ENamedThreads::AnyBackgroundHiPriTask,
 		[this
-		, system = USagaNetworkSubSystem::GetSubSystem(GetWorld())]()
+		, net = USagaNetworkSubSystem::GetSubSystem(GetWorld())]()
 		{
 			const auto nickname_str = transientNickname.ToString();
 			UE_LOG(LogSagaFramework, Warning, TEXT("[USagaMainMenuUiWidget] Nickname: %s"), *nickname_str);

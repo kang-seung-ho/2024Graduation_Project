@@ -360,8 +360,8 @@ const
 		return unknown;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return unknown;
 	}
@@ -387,8 +387,8 @@ const
 		return -1;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return -1;
 	}
@@ -414,8 +414,8 @@ const
 		return false;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return false;
 	}
@@ -444,8 +444,8 @@ const
 		return back_text;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return back_text;
 	}
@@ -481,8 +481,8 @@ const
 		return err_text;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return err_text;
 	}
@@ -516,8 +516,8 @@ const
 		return ESlateVisibility::Collapsed;
 	}
 
-	const auto system = singleton->GetSubsystem<USagaNetworkSubSystem>();
-	if (nullptr == system)
+	const auto net = singleton->GetSubsystem<USagaNetworkSubSystem>();
+	if (nullptr == net)
 	{
 		return ESlateVisibility::Collapsed;
 	}
