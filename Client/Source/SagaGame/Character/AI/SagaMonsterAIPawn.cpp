@@ -1,7 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/AI/SagaMonsterAIPawn.h"
+#include "SagaGameInfo.h"
 #include "SagaMonsterAIController.h"
 
 ASagaMonsterAIPawn::ASagaMonsterAIPawn()
@@ -16,16 +14,16 @@ void ASagaMonsterAIPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-    // ¼­¹ö¿¡¼­ ½ÇÇà ÁßÀÎÁö È®ÀÎ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     if (!HasAuthority())
     {
         return;
     }
 
-    // AI°¡ µ¿ÀûÀ¸·Î ½ºÆùµÇ¸é ÀÚµ¿ ºùÀÇ¸¦ È°¼ºÈ­
+    // AIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ç¸ï¿½ È°ï¿½ï¿½È­
     //AutoPossessAI = EAutoPossessAI::Spawned;
 
-    // ÇÊ¿äÇÑ °æ¿ì ±âº» ÄÁÆ®·Ñ·¯¸¦ ½ºÆù
+    // ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     /*if (AIControllerClass != nullptr && GetController() == nullptr)
     {
         SpawnDefaultController();

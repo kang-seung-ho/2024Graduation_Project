@@ -1,13 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "SagaGame.h"
+#include <GameFramework/Pawn.h>
+#include <Components/ArrowComponent.h>
 
-#include "GameFramework/Pawn.h"
-#include "Components/ArrowComponent.h"
 #include "SagaAIMovementComponent.h"
 #include "SagaAIPawn.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType, Category = "CandyLandSaga|Game|AI")
 class SAGAGAME_API ASagaAIPawn : public APawn
 {
 	GENERATED_BODY()

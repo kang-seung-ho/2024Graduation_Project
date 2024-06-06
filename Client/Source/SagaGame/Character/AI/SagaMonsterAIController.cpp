@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/AI/SagaMonsterAIController.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardData.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include <BehaviorTree/BehaviorTree.h>
+#include <BehaviorTree/BlackboardData.h>
+#include <BehaviorTree/BlackboardComponent.h>
+
+#include "SagaGameInfo.h"
 
 ASagaMonsterAIController::ASagaMonsterAIController()
 {
