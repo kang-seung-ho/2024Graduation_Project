@@ -97,11 +97,11 @@ ASagaInGameMode::StartPlay()
 	if (not system->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
-
-		if (system->IsConnected())
+	}
+	else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
-			system->SendGameIsLoadedPacket();
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
+	}
 
 			// Find the local controller
 			// At first, there is only an ASagaInGamePlayerController
@@ -133,6 +133,14 @@ ASagaInGameMode::StartPlay()
 				}
 				}
 			}
+
+	if (not system->IsOfflineMode())
+	{
+		if (system->IsConnected())
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
+			system->SendGameIsLoadedPacket();
+
 		}
 	}
 	else
