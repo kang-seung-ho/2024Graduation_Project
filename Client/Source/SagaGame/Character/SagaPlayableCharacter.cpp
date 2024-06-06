@@ -356,7 +356,10 @@ ASagaPlayableCharacter::PostInitializeComponents()
 
 	GetMesh()->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 
-	myWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	if (IsValid(myWeapon))
+	{
+		myWeapon->SetCollisionProfileName(TEXT("Weapon"));
+	}
 }
 
 void
