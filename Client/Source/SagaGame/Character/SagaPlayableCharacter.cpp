@@ -17,7 +17,7 @@
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 	: Super()
-	, RespawnTimerHandle()
+	, respawnTimerHandle()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
 	if (MeshAsset.Succeeded())
@@ -181,17 +181,17 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
-			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
+			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
 		else
 		{
 			//system->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
 
-			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
-			//GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
+			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
+			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
 			system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
-			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
+			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
 	}
 }

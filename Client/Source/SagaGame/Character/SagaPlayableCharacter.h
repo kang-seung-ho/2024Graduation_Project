@@ -43,7 +43,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 	UPROPERTY()
-	FTimerHandle RespawnTimerHandle;
+	FTimerHandle respawnTimerHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<class UAnimInstance> humanCharacterAnimation;
