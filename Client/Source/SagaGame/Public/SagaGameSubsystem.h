@@ -25,10 +25,51 @@ public:
 	UFUNCTION()
 	void AssignLocalPlayerSpawner(class AActor* spawner) noexcept;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void SetCurrentMode(int32 Mode) noexcept
+	{
+		CurrentMode = Mode;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void SetScore(ESagaPlayerTeam team, int32 score) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void AddScore(ESagaPlayerTeam team, int32 score) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void SetWhoWonByPinata(int32 TeamPinataColor) noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
 	const AActor* GetLocalPlayerSpawner() const noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	int32 GetCurrentMode() const noexcept
+	{
+		return CurrentMode;
+	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	int32 GetRedTeamScore() const noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	int32 GetBlueTeamScore() const noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	FString GetWhoWon() const;
 
 private:
 	UPROPERTY()
 	TObjectPtr<class AActor> localPlayerSpawner;
+
+	UPROPERTY()
+	int32 CurrentMode = 1;
+	UPROPERTY()
+	int32 RedTeamScore;
+	UPROPERTY()
+	int32 BluTeamScore;
+	UPROPERTY()
+	bool RedTeamPinataBroken;
+	UPROPERTY()
+	bool BluTeamPinataBroken;
 };

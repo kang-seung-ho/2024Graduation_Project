@@ -9,6 +9,7 @@
 #include <NiagaraFunctionLibrary.h>
 #include <NiagaraComponent.h>
 
+#include "SagaGameSubsystem.h"
 #include "Character/SagaGummyBearPlayer.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Effect/SagaSwordEffect.h"
@@ -175,12 +176,14 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 	if (HasValidOwnerId())
 	{
-		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto world = GetWorld();
+		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 		if (net->IsOfflineMode())
 		{
 			// 상대 팀 점수 증가 실행
-			net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
@@ -192,7 +195,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
-			net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}

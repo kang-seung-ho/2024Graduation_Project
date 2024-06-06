@@ -490,15 +490,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		// TODO: RPC_DEAD
 		character->ExecuteDeath();
-
-		ESagaPlayerTeam user_team{};
-		if (net->GetTeam(id, user_team))
-		{
-			const auto team_name = UEnum::GetValueAsString(user_team);
-
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DEAD] Give a score to team '%s'."), *team_name);
-			net->AddScore(user_team == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-		}
 	}
 	break;
 

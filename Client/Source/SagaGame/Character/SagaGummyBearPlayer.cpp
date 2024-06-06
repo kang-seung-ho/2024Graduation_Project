@@ -6,6 +6,7 @@
 #include <NiagaraComponent.h>
 #include <NiagaraFunctionLibrary.h>
 
+#include "SagaGameSubsystem.h"
 #include "Player/SagaPlayerTeam.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearAnimInstance.h"
@@ -261,17 +262,19 @@ ASagaGummyBearPlayer::ExecuteDeath()
 
 	Super::ExecuteDeath();
 
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 	if (net->IsOfflineMode())
 	{
 		// 상대 팀 점수 증가 실행
-		net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 	else
 	{
 		// 상대 팀 점수 증가 실행
-		net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 }
 

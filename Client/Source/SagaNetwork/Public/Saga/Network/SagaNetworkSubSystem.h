@@ -70,26 +70,10 @@ private:
 #pragma endregion
 
 public:
-	/* Session's Properties */
-#pragma region =========================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
 	FSagaVirtualUser localUser;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network")
 	FSagaVirtualRoom currentRoom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game")
-	int32 CurrentMode = 1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
-	int32 RedTeamScore = 0;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
-	int32 BlueTeamScore = 0;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
-	bool RedTeamPinataBroken = false;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game")
-	bool BlueTeamPinataBroken = false;
-#pragma endregion
 
 	/* Events */
 #pragma region =========================
@@ -315,107 +299,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, CallInEditor, Category = "CandyLandSaga|Network")
 	bool IsConnected() const noexcept;
 #pragma endregion
-
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentMode(int32 Mode)
-	{
-		CurrentMode = Mode;
-	}
-	UFUNCTION(BlueprintCallable)
-	int32 GetCurrentMode() const
-	{
-		return CurrentMode;
-	}
-	UFUNCTION(BlueprintCallable)
-	int32 GetRedTeamScore() const
-	{
-		return RedTeamScore;
-	}
-	UFUNCTION(BlueprintCallable)
-	int32 GetBlueTeamScore() const
-	{
-		return BlueTeamScore;
-	}
-	UFUNCTION()
-	void AddScore(ESagaPlayerTeam team, int32 score)
-	{
-		if (team == ESagaPlayerTeam::Red)
-		{
-			RedTeamScore += score;
-		}
-		else
-		{
-			BlueTeamScore += score;
-		}
-	}
-	UFUNCTION()
-	void SetWhoWonByPinata(int32 TeamPinataColor)
-	{
-		if (TeamPinataColor == 0) //redteam's pinata broken
-		{
-			RedTeamPinataBroken = true;
-		}
-		else
-		{
-			BlueTeamPinataBroken = true;
-		}
-
-	}
-	UFUNCTION(BlueprintCallable)
-	FString GetWhoWon()
-	{
-		const ESagaPlayerTeam team = GetLocalUserTeam();
-
-		if (RedTeamPinataBroken == true)
-		{
-			if (team == ESagaPlayerTeam::Red)
-			{
-				return TEXT("Lose"); // I'm Red Team And My team Lose
-			}
-			else
-			{
-				return TEXT("Victory!"); // I'm Blue Team And My team Win
-			}
-		}
-		else if (BlueTeamPinataBroken == true)
-		{
-			if (team == ESagaPlayerTeam::Red)
-			{
-				return TEXT("Victory!"); // I'm Red Team And My team Win
-			}
-			else
-			{
-				return TEXT("Lose"); // I'm Blue Team And My team Lose
-			}
-		}
-
-		if (RedTeamScore > BlueTeamScore)
-		{
-			if (team == ESagaPlayerTeam::Red)
-			{
-				return TEXT("Victory!"); // I'm Red Team And My team Win
-			}
-			else
-			{
-				return TEXT("Lose"); // I'm Blue Team And My team Lose
-			}
-		}
-		else if (RedTeamScore < BlueTeamScore)
-		{
-			if (team == ESagaPlayerTeam::Red)
-			{
-				return TEXT("Lose"); // I'm Red Team And My team Lose
-			}
-			else
-			{
-				return TEXT("Victory!"); // I'm Blue Team And My team Win
-			}
-		}
-		else
-		{
-			return TEXT("Draw"); // Draw
-		}
-	}
 
 private:
 	/* Internal Functions */
