@@ -17,6 +17,9 @@
 
 ASagaPlayableCharacter::ASagaPlayableCharacter()
 	: Super()
+	, humanCharacterAnimation()
+	, HitCascadeEffect(), GunHitCascadeEffect()
+	, HitSoundEffect(), DeadSoundEffect()
 	, respawnTimerHandle()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));

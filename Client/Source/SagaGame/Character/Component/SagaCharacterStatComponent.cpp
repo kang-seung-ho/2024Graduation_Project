@@ -11,6 +11,8 @@ void
 USagaCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetActive(true, true);
 }
 
 void
@@ -71,18 +73,20 @@ USagaCharacterStatComponent::ApplyDamage(float dmg)
 		{
 			OnHpZero.Broadcast();
 		}
-
-#if WITH_EDITOR
-		const FString name = GetParentNativeClass(GetClass())->GetName();
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaCharacterStatComponent] '%s' is dead."), *name);
-#endif
 	}
 
 	return remain_hp;
 }
 
 void
-USagaCharacterStatComponent::ResetHp()
+USagaCharacterStatComponent::ResetHp(bool execute_event)
 {
-	CurrentHp = MaxHp;
+	if (execute_event)
+	{
+		SetCurrentHp(MaxHp);
+	}
+	else
+	{
+		CurrentHp = MaxHp;
+	}
 }

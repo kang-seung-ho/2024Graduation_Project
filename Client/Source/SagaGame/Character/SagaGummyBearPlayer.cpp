@@ -77,8 +77,6 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	Dbox_Lleg->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DismCollisionBox.Add(Dbox_Lleg);
 
-
-
 	//*/
 	r_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_arm"));
 	r_arm->SetupAttachment(Dbox_Rarm);
@@ -270,14 +268,12 @@ void ASagaGummyBearPlayer::InitializeTransform(T component, FVector Location, FR
 	component->SetRelativeScale3D(Scale);
 }
 
-
 void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
 {
 
 	OnTakeDamage(Hitlocation, HitNormal);
 
 }
-
 
 
 void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)

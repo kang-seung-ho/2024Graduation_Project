@@ -140,12 +140,12 @@ public:
 	virtual void ExecuteRespawn();
 #pragma endregion
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationSpeed() const noexcept
 	{
 		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
 	}
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationAngle() const noexcept
 	{
 		return animationMoveAngle;
@@ -196,4 +196,7 @@ protected:
 	int strafeMoveDirection;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	bool isRunning;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TSubclassOf<UUserWidget> healthbarWidgetClass;
 };

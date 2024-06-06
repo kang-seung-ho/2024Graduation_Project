@@ -46,7 +46,7 @@ public:
 	UFUNCTION()
 	float ApplyDamage(float dmg);
 	UFUNCTION()
-	void ResetHp();
+	void ResetHp(bool execute_event = false);
 
 	UFUNCTION()
 	FORCEINLINE float GetMaxHp() const { return MaxHp; }

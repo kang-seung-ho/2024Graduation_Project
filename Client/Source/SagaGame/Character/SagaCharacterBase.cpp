@@ -7,6 +7,7 @@
 #include <Containers/Map.h>
 #include <Templates/UnrealTemplate.h>
 #include <Templates/Casts.h>
+#include <Components/ProgressBar.h>
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 #include <Animation/AnimInstance.h>
@@ -35,6 +36,7 @@ ASagaCharacterBase::ASagaCharacterBase()
 	, myCameraComponent(), myCameraSpringArmComponent()
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning()
+	, healthbarWidgetClass()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -77,6 +79,8 @@ ASagaCharacterBase::ASagaCharacterBase()
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
 	if (HpBarWidgetRef.Succeeded())
 	{
+		healthbarWidgetClass = HpBarWidgetRef.Class;
+
 		myHealthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
 		myHealthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 		myHealthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
@@ -115,8 +119,6 @@ ASagaCharacterBase::ASagaCharacterBase()
 void ASagaCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
 void
@@ -124,25 +126,50 @@ ASagaCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// BeginPlay 호출되기 전에 SkeletalMeshComponent에 지정된
-	// AnimInstance 클래스를 사용하기 위한 객체 만들어놨음.
-	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
-
 	if (not HasValidOwnerId())
 	{
 		SetTeam(ESagaPlayerTeam::Blue);
 	}
 
+	// 호출되기 전에 SkeletalMeshComponent에 지정된
+	// AnimInstance 클래스를 사용하기 위한 객체 만들어놨음.
+	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
+
 	if (IsValid(myHealthIndicatorBarWidget))
 	{
 		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
 
-		healthbar->SetMaxHp(myGameStat->GetMaxHp());
-		healthbar->UpdateHpBar(myGameStat->GetCurrentHp());
+		if (IsValid(healthbar))
+		{
+#if WITH_EDITOR
+			const auto name = GetName();
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][BeginPlay] '%s' is setting up the hp bar widget..."), *name);
+#endif
 
-		myGameStat->OnHpChanged.AddUniqueDynamic(healthbar, &USagaHpBarWidget::UpdateHpBar);
+			healthbar->SetMaxHp(myGameStat->GetMaxHp());
+			healthbar->UpdateHpBar(myGameStat->GetCurrentHp());
+
+			myGameStat->OnHpChanged.AddDynamic(healthbar, &USagaHpBarWidget::UpdateHpBar);
+		}
+		else
+		{
+#if WITH_EDITOR
+			const auto name = GetName();
+			UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar widget."), *name);
+#endif
+		}
 	}
+	else
+	{
+#if WITH_EDITOR
+		const auto name = GetName();
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar ui component."), *name);
+#endif
+	}
+
+	myGameStat->ResetHp(true);
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
 void
@@ -266,7 +293,7 @@ ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController
 
 #if WITH_EDITOR
 	const auto name = GetName();
-	UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
 #endif
 
 	return actual_dmg;

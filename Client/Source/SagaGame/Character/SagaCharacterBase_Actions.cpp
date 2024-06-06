@@ -117,6 +117,11 @@ ASagaCharacterBase::ExecuteHurt(const float dmg)
 void
 ASagaCharacterBase::ExecuteDeath()
 {
+#if WITH_EDITOR
+	const auto name = GetName();
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
+#endif
+
 	isRunning = false;
 	TerminateStraightWalk();
 	TerminateStrafeWalk();

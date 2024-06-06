@@ -4,10 +4,7 @@
 #include <Particles/ParticleSystem.h>
 #include <Particles/ParticleSystemComponent.h>
 
-#include "Player/SagaPlayerWeaponTypes.h"
 #include "Character/SagaCharacterBase.h"
-#include "Item/SagaWeaponData.h"
-#include "Interface/SagaCharacterItemInterface.h"
 #include "SagaPlayableCharacter.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -42,9 +39,6 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-	UPROPERTY()
-	FTimerHandle respawnTimerHandle;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<class UAnimInstance> humanCharacterAnimation;
 
@@ -59,4 +53,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase* DeadSoundEffect;
+
+	UPROPERTY()
+	FTimerHandle respawnTimerHandle;
 };

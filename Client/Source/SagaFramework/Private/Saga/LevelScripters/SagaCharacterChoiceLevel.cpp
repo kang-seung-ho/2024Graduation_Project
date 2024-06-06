@@ -114,7 +114,7 @@ ASagaCharacterChoiceLevel::HandleClickedCharacter(ASagaSelectCharacter* characte
 void
 ASagaCharacterChoiceLevel::HandleStartGame()
 {
-	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][OnRpc] Let's start game!"));
+	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaCharacterChoiceLevel][HandleStartGame] Let's start game!"));
 
 	GotoNextLevel();
 }
