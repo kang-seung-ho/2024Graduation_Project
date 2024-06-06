@@ -11,8 +11,6 @@ void
 USagaCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetActive(true, true);
 }
 
 void
@@ -49,9 +47,9 @@ USagaCharacterStatComponent::SetMaxHp(float maxhp, ESagaMaxHealthUpdatePolicy cu
 }
 
 void
-USagaCharacterStatComponent::SetCurrentHp(float NewHp)
+USagaCharacterStatComponent::SetCurrentHp(float hp)
 {
-	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
+	CurrentHp = FMath::Clamp<float>(hp, 0.0f, MaxHp);
 
 	if (OnHpChanged.IsBound())
 	{
@@ -67,7 +65,7 @@ USagaCharacterStatComponent::ApplyDamage(float dmg)
 
 	SetCurrentHp(remain_hp);
 
-	if (remain_hp <= KINDA_SMALL_NUMBER)
+	if (0 < remain_hp and remain_hp <= KINDA_SMALL_NUMBER)
 	{
 		if (OnHpZero.IsBound())
 		{

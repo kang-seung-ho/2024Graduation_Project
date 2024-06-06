@@ -144,6 +144,13 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 }
 
 void
+ASagaGummyBearPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	ActiveIndx.Init(DismThreshold, 4);
+}
+
+void
 ASagaGummyBearPlayer::Attack()
 {
 	//공격과 충돌되는 물체 여부 판단
@@ -193,13 +200,6 @@ ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAc
 }
 
 void
-ASagaGummyBearPlayer::BeginPlay()
-{
-	Super::BeginPlay();
-	ActiveIndx.Init(DismThreshold, 4);
-}
-
-void
 ASagaGummyBearPlayer::PlayAttackAnimation()
 {
 	if (IsValid(mBearAnimInst))
@@ -215,6 +215,22 @@ ASagaGummyBearPlayer::PlayAttackAnimation()
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] mBearAnimInst is null."));
 	}
+}
+
+
+template<typename T>
+void ASagaGummyBearPlayer::InitializeTransform(T component, FVector Location, FRotator Rotation, FVector Scale)
+{
+	component->SetRelativeLocation(Location);
+	component->SetRelativeRotation(Rotation);
+	component->SetRelativeScale3D(Scale);
+}
+
+void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
+{
+
+	OnTakeDamage(Hitlocation, HitNormal);
+
 }
 
 float
@@ -259,48 +275,34 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 }
 
-
-template<typename T>
-void ASagaGummyBearPlayer::InitializeTransform(T component, FVector Location, FRotator Rotation, FVector Scale)
+void
+ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
 {
-	component->SetRelativeLocation(Location);
-	component->SetRelativeRotation(Rotation);
-	component->SetRelativeScale3D(Scale);
-}
-
-void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
-{
-
-	OnTakeDamage(Hitlocation, HitNormal);
-
-}
-
-
-void ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
-{
-	for (int32 i = 0; i < DismCollisionBox.Num(); i++)
+	if (IsAlive())
 	{
-
-		if (IsPointInsideBox(DismCollisionBox[i], Location))
+		for (int32 i = 0; i < DismCollisionBox.Num(); i++)
 		{
-			ActiveIndx[i]--;
-			if (ActiveIndx[i] == 0)
+			if (IsPointInsideBox(DismCollisionBox[i], Location))
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
-				DismPartID = i;
+				ActiveIndx[i]--;
+				if (ActiveIndx[i] == 0)
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+					DismPartID = i;
 
-				FVector Impulse = -Normal * 250.0f; // Example impulse calculation
-				CheckValidBone(Impulse, DismPartID);
+					FVector Impulse = -Normal * 250.0f; // Example impulse calculation
+					CheckValidBone(Impulse, DismPartID);
 
-				break;
+					break;
+				}
 			}
+			UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
-	}
 
-	if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
-	{
-		ExecuteHurt(GetHealth());
+		if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
+		{
+			ExecuteHurt(GetHealth());
+		}
 	}
 }
 
