@@ -21,7 +21,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UStaticMesh*> TargetMeshes;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	bool isCanRide = false;
+	bool isCanRide;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem * NiagaraSystemTemplate;
 
@@ -42,6 +42,10 @@ public:
 	UStaticMesh* GetTargetMesh(int32 Index);
 
 protected:
+	virtual void BeginPlay() override;
+
+	virtual void PlayAttackAnimation() override;
+
 	// 오버랩 박스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBoxComponent* InteractionBox;
@@ -89,13 +93,9 @@ protected:
 
 	void InitTargetMeshes();
 
-
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	virtual void BeginPlay() override;
-
 };

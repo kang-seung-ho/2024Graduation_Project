@@ -15,6 +15,7 @@ class USagaCharacterDismComponent;
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
+	, isCanRide(false)
 {
 	myGameStat->SetMaxHp(500.0f);
 
@@ -195,6 +196,24 @@ ASagaGummyBearPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	ActiveIndx.Init(DismThreshold, 4);
+}
+
+void
+ASagaGummyBearPlayer::PlayAttackAnimation()
+{
+	if (IsValid(mBearAnimInst))
+	{
+#if WITH_EDITOR
+		const auto name = GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer][PlayAttackAnimation] '%s' is a bear character."), *name);
+#endif
+
+		mBearAnimInst->PlayAttackMontage();
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] mBearAnimInst is null."));
+	}
 }
 
 float

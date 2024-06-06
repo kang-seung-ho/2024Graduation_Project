@@ -5,6 +5,7 @@
 #include <Engine/DamageEvents.h>
 #include <Containers/Map.h>
 #include <Templates/UnrealTemplate.h>
+#include <Templates/Casts.h>
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 #include <Animation/AnimInstance.h>
@@ -18,8 +19,6 @@
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
-
-#include "Saga/Network/SagaNetworkSubSystem.h"
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
 
@@ -359,40 +358,18 @@ ASagaCharacterBase::SetupCharacterWidget(USagaUserWidget* InUserWidget)
 void
 ASagaCharacterBase::PlayAttackAnimation()
 {
-	UE_LOG(LogSagaGame, Warning, TEXT("Entered PlayAttackAnimation"));
-
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	const int32 CharacterMode = system->GetCurrentMode();
-	UE_LOG(LogSagaGame, Warning, TEXT("Character Mode : %d"), CharacterMode);
-
-	if (CharacterMode == 1)
+	if (IsValid(mAnimInst))
 	{
-		if (mAnimInst != nullptr)
-		{
-			mAnimInst->PlayAttackMontage();
-			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaPlayableCharacter"));
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("mAnimInst is null"));
-		}
-	}
-	else if (CharacterMode == 2)
-	{
-		if (mBearAnimInst != nullptr)
-		{
-			mBearAnimInst->PlayAttackMontage();
-			UE_LOG(LogSagaGame, Warning, TEXT("This character is a SagaBear"));
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("mBearAnimInst is null"));
-		}
+#if WITH_EDITOR
+		const auto name = GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][PlayAttackAnimation] '%s' is a human character."), *name);
+#endif
+
+		mAnimInst->PlayAttackMontage();
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("Invalid Character Mode."));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase] mAnimInst is null."));
 	}
 }
 
