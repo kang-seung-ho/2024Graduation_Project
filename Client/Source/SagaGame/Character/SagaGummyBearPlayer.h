@@ -1,11 +1,7 @@
 #pragma once
-#include <CoreMinimal.h>
+#include "SagaGame.h"
 
 #include "Character/SagaCharacterBase.h"
-#include "GeometryCollection/GeometryCollectionComponent.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
-
 #include "SagaGummyBearPlayer.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -15,7 +11,7 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterBase
 
 public:
 	UPROPERTY(EditAnywhere)
-	int32 BearNum = 0;
+	int32 BearNum;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 DismThreshold;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -23,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool isCanRide;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraSystem * NiagaraSystemTemplate;
+	class UNiagaraSystem * NiagaraSystemTemplate;
 
 	ASagaGummyBearPlayer();
 
@@ -36,10 +32,10 @@ public:
 	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
 
 	UFUNCTION(BlueprintCallable)
-	FTransform SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index);
+	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
 
 	UFUNCTION(BlueprintCallable)
-	UStaticMesh* GetTargetMesh(int32 Index);
+	class UStaticMesh* GetTargetMesh(int32 Index);
 
 protected:
 	virtual void BeginPlay() override;
@@ -50,52 +46,52 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBoxComponent* InteractionBox;
 
-	UBoxComponent* Dbox_Rarm;
-	UBoxComponent* Dbox_Larm;
-	UBoxComponent* Dbox_Rleg;
-	UBoxComponent* Dbox_Lleg;
+	class UBoxComponent* Dbox_Rarm;
+	class UBoxComponent* Dbox_Larm;
+	class UBoxComponent* Dbox_Rleg;
+	class UBoxComponent* Dbox_Lleg;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TArray<UBoxComponent*> DismCollisionBox;
+	TArray<class UBoxComponent*> DismCollisionBox;
 
-	UGeometryCollectionComponent* r_arm;
-	UGeometryCollectionComponent* l_arm;
-	UGeometryCollectionComponent* r_leg;
-	UGeometryCollectionComponent* l_leg;
+	class UGeometryCollectionComponent* r_arm;
+	class UGeometryCollectionComponent* l_arm;
+	class UGeometryCollectionComponent* r_leg;
+	class UGeometryCollectionComponent* l_leg;
 
-	TArray<UGeometryCollectionComponent*> GeometryCollections;
+	TArray<class UGeometryCollectionComponent*> GeometryCollections;
 
 	int32 DismPartID;
 
 	TArray<int32> ActiveIndx;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UNiagaraComponent* NiagaraComponentTemplate;
+	class UNiagaraComponent* NiagaraComponentTemplate;
 
 	template<typename T>
 	void InitializeTransform(T component, FVector Location, FRotator Rotation, FVector Scale);
 
 	void OnTakeDamage(FVector Location, FVector Normal);
 
-	UGeometryCollectionComponent* GetGeometryCollectionByName(const FString& CollectionName);
+	class UGeometryCollectionComponent* GetGeometryCollectionByName(const FString& CollectionName);
 
-	FVector GetPieceWorldPosition(UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
+	FVector GetPieceWorldPosition(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 
-	FQuat GetPieceWorldRotation(UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
+	FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 
-	bool IsPointInsideBox(UBoxComponent* Box, const FVector& Point);
+	bool IsPointInsideBox(class UBoxComponent* Box, const FVector& Point);
 
 	void CheckValidBone(const FVector& Impulse, int32 Index);
 
 	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
 
-	void HideTargetPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
+	void HideTargetPiece(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 
 	void InitTargetMeshes();
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

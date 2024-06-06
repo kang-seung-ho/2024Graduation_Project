@@ -1,20 +1,23 @@
 #include "SagaGummyBearPlayer.h"
-#include "SagaGummyBearAnimInstance.h"
-#include "../Effect/SagaSwordEffect.h"
+#include <GeometryCollection/GeometryCollectionComponent.h>
+#include <GeometryCollection/GeometryCollectionObject.h>
+#include <GeometryCollection/GeometryCollection.h>
+#include <GeometryCollection/GeometryCollectionAlgo.h>
+#include <NiagaraComponent.h>
+#include <NiagaraFunctionLibrary.h>
 
-#include "SagaGame/Player/SagaPlayerTeam.h"
+#include "Player/SagaPlayerTeam.h"
+#include "Character/SagaPlayableCharacter.h"
+#include "Character/SagaGummyBearAnimInstance.h"
+#include "Effect/SagaSwordEffect.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include "SagaPlayableCharacter.h"
-#include "GeometryCollection/GeometryCollectionObject.h"
-#include "GeometryCollection/GeometryCollection.h"
-#include "GeometryCollection/GeometryCollectionAlgo.h"
 
 class USagaCharacterDismComponent;
 
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
+	, BearNum(0)
 	, isCanRide(false)
 {
 	myGameStat->SetMaxHp(500.0f);

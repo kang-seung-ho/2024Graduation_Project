@@ -1,19 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/SagaGummyBearSmall.h"
 #include "SagaGummyBearAnimInstance.h"
 
-#include "Saga/Network/SagaNetworkSettings.h"
-#include "Saga/Network/SagaNetworkSubSystem.h"
-
 #include "AI/SagaMonsterAIController.h"
+
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 // Sets default values
 ASagaGummyBearSmall::ASagaGummyBearSmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
 	if (MeshAsset.Succeeded())
