@@ -7,7 +7,6 @@
 #include <EnhancedInputComponent.h>
 
 #include "Input/SagaInputSystem.h"
-#include "Character/SagaCharacterBase.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
@@ -91,7 +90,7 @@ ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
-	const auto pawn = GetPawn<ASagaCharacterBase>();
+	const auto pawn = GetPawn();
 	if (not IsValid(pawn))
 	{
 		return;
