@@ -150,9 +150,9 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 
 	// Reset the position
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const FVector SpawnLocation = FVector(0, 0, 330.0f);
 		const FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
@@ -161,7 +161,7 @@ ASagaCharacterBase::ExecuteRespawn()
 
 		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
 	}
-	else if (system->IsConnected())
+	else if (net->IsConnected())
 	{
 		FVector spawn_pos;
 		FRotator spawn_rot;

@@ -17,17 +17,17 @@ void
 ASagaInGameMode::OnLeftRoom(int32 user_id)
 {
 	const auto world = GetWorld();
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
 	FSagaVirtualUser user{};
 
-	if (system->FindUser(user_id, user))
+	if (net->FindUser(user_id, user))
 	{
 		const auto character = user.GetCharacterHandle();
 
 		if (IsValid(character))
 		{
-			system->SetCharacterHandle(user_id, nullptr);
+			net->SetCharacterHandle(user_id, nullptr);
 			character->Destroy();
 		}
 	}
@@ -52,13 +52,13 @@ void
 ASagaInGameMode::OnGameStarted()
 {
 	const auto world = GetWorld();
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[OnGameStarted] Game is started."));
 
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][OnGameStarted] Starting periodic timers."));
 
@@ -80,18 +80,18 @@ ASagaInGameMode::OnGameStarted()
 void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon)
 {
 	const auto world = GetWorld();
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 	const auto controller = world->GetFirstPlayerController<ASagaInGamePlayerController>();
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (not system->IsConnected())
+		if (not net->IsConnected())
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Client is not connected."));
 			return;
 		}
 
-		const auto local_id = system->GetLocalUserId();
+		const auto local_id = net->GetLocalUserId();
 		if (-1 == local_id)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Local user could not create a playable character."));
@@ -106,7 +106,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 
 			// NOTICE: 여기서 로컬 캐릭터 할당
 			character = controller->GetPawn<ASagaCharacterBase>();
-			system->SetCharacterHandle(local_id, character);
+			net->SetCharacterHandle(local_id, character);
 
 			// The id was stored on LobbyLevel
 			character->SetUserId(user_id);
@@ -123,7 +123,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			const auto rot = spawn_transform.GetRotation();
 
 			// store the initial spawn point (local)
-			system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
+			net->StorePosition(user_id, pos.X, pos.Y, pos.Z);
 
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` created a spawn point at (%f,%f,%f)"), user_id, pos.X, pos.Y, pos.Z);
 
@@ -138,7 +138,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			memcpy(reinterpret_cast<char*>(&arg1), &z, 4);
 
 			// let others know this
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
 		}
 		else
 		{
@@ -159,7 +159,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 
 			if (IsValid(character))
 			{
-				system->SetCharacterHandle(user_id, character);
+				net->SetCharacterHandle(user_id, character);
 
 				// The id was stored on LobbyLevel
 				character->SetUserId(user_id);
@@ -171,7 +171,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 
 				// store the initial spawn point (remote)
 				const auto pos = spawn_transform.GetLocation();
-				system->StorePosition(user_id, pos.X, pos.Y, pos.Z);
+				net->StorePosition(user_id, pos.X, pos.Y, pos.Z);
 			}
 			else
 			{
@@ -184,7 +184,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character. (Offline Mode)"), user_id);
 
 		const auto character = controller->GetPawn<ASagaCharacterBase>();
-		system->SetCharacterHandle(user_id, character);
+		net->SetCharacterHandle(user_id, character);
 
 		character->SetUserId(user_id);
 		character->SetTeam(team);

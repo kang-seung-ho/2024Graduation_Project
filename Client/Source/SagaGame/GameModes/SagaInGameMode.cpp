@@ -77,14 +77,14 @@ ASagaInGameMode::InitGame(const FString& mapname, const FString& optios, FString
 		UE_LOG(LogSagaGame, Log, TEXT("An automatic spawner is generated."));
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		system->OnLeftRoom.AddDynamic(this, &ASagaInGameMode::OnLeftRoom);
-		system->OnGameStarted.AddDynamic(this, &ASagaInGameMode::OnGameStarted);
-		system->OnCreatingCharacter.AddDynamic(this, &ASagaInGameMode::OnCreatingCharacter);
-		system->OnRpc.AddDynamic(this, &ASagaInGameMode::OnRpc);
+		net->OnLeftRoom.AddDynamic(this, &ASagaInGameMode::OnLeftRoom);
+		net->OnGameStarted.AddDynamic(this, &ASagaInGameMode::OnGameStarted);
+		net->OnCreatingCharacter.AddDynamic(this, &ASagaInGameMode::OnCreatingCharacter);
+		net->OnRpc.AddDynamic(this, &ASagaInGameMode::OnRpc);
 	}
 }
 
@@ -92,9 +92,9 @@ void
 ASagaInGameMode::StartPlay()
 {
 	const auto world = GetWorld();
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
 	}
@@ -112,7 +112,7 @@ ASagaInGameMode::StartPlay()
 		localPlayerController = controller;
 		localPlayerController->SetAsLocalPlayerController();
 
-		switch (system->GetLocalUserTeam())
+		switch (net->GetLocalUserTeam())
 		{
 		case ESagaPlayerTeam::Red:
 		{
@@ -134,18 +134,18 @@ ASagaInGameMode::StartPlay()
 		}
 	}
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
-			system->SendGameIsLoadedPacket();
+			net->SendGameIsLoadedPacket();
 
 		}
 	}
 	else
 	{
-		OnCreatingCharacter(system->GetLocalUserId(), system->GetLocalUserTeam(), system->GetLocalUserWeapon());
+		OnCreatingCharacter(net->GetLocalUserId(), net->GetLocalUserTeam(), net->GetLocalUserWeapon());
 	}
 
 	// First find the local controller and enumerate actors' BeginPlay
@@ -155,9 +155,9 @@ ASagaInGameMode::StartPlay()
 AActor*
 ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	switch (system->GetLocalUserTeam())
+	switch (net->GetLocalUserTeam())
 	{
 	case ESagaPlayerTeam::Red:
 	{
@@ -237,9 +237,9 @@ void
 ASagaInGameMode::HandleUpdateTransform()
 {
 	const auto world = GetWorld();
-	const auto system = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (system->IsConnected())
+	if (net->IsConnected())
 	{
 		const auto controller = world->GetFirstPlayerController<ASagaInGamePlayerController>();
 		const auto pawn = controller->GetPawn<ASagaCharacterBase>();
@@ -254,8 +254,8 @@ ASagaInGameMode::HandleUpdateTransform()
 
 				SerializePosition(loc, arg0, arg1);
 
-				//system->SendPositionPacket(loc.X, loc.Y, loc.Z);
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+				//net->SendPositionPacket(loc.X, loc.Y, loc.Z);
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
 
 				lastCharacterPosition = loc;
 			}
@@ -268,8 +268,8 @@ ASagaInGameMode::HandleUpdateTransform()
 
 				SerializePosition(FVector{ rot.Pitch, rot.Yaw, rot.Roll }, arg0, arg1);
 
-				//system->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
+				//net->SendRotationPacket(rot.Pitch, rot.Yaw, rot.Roll);
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_ROTATION, arg0, arg1);
 
 				lastCharacterRotation = rot;
 			}

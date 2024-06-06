@@ -60,23 +60,23 @@ ASagaLobbyLevel::BeginPlay()
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaLobbyLevel][BeginPlay] Could not create user interface for lobby."));
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->OnDisconnected.AddDynamic(this, &ASagaLobbyLevel::OnDisconnected);
-	system->OnRoomCreated.AddDynamic(this, &ASagaLobbyLevel::OnRoomCreated);
-	system->OnJoinedRoom.AddDynamic(this, &ASagaLobbyLevel::OnJoinedRoom);
-	system->OnUpdateRoomList.AddDynamic(this, &ASagaLobbyLevel::OnUpdateRoomList);
+	net->OnDisconnected.AddDynamic(this, &ASagaLobbyLevel::OnDisconnected);
+	net->OnRoomCreated.AddDynamic(this, &ASagaLobbyLevel::OnRoomCreated);
+	net->OnJoinedRoom.AddDynamic(this, &ASagaLobbyLevel::OnJoinedRoom);
+	net->OnUpdateRoomList.AddDynamic(this, &ASagaLobbyLevel::OnUpdateRoomList);
 }
 
 void
 ASagaLobbyLevel::BeginDestroy()
 {
 	/*
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	system->OnDisconnected.RemoveDynamic(this, &ASagaLobbyLevel::OnDisconnected);
-	system->OnRoomCreated.RemoveDynamic(this, &ASagaLobbyLevel::OnRoomCreated);
-	system->OnJoinedRoom.RemoveDynamic(this, &ASagaLobbyLevel::OnJoinedRoom);
-	system->OnUpdateRoomList.RemoveDynamic(this, &ASagaLobbyLevel::OnUpdateRoomList);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	net->OnDisconnected.RemoveDynamic(this, &ASagaLobbyLevel::OnDisconnected);
+	net->OnRoomCreated.RemoveDynamic(this, &ASagaLobbyLevel::OnRoomCreated);
+	net->OnJoinedRoom.RemoveDynamic(this, &ASagaLobbyLevel::OnJoinedRoom);
+	net->OnUpdateRoomList.RemoveDynamic(this, &ASagaLobbyLevel::OnUpdateRoomList);
 	*/
 
 	Super::BeginDestroy();
@@ -85,9 +85,9 @@ ASagaLobbyLevel::BeginDestroy()
 void
 ASagaLobbyLevel::HandleOnClose()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsConnected() or system->IsOfflineMode())
+	if (not net->IsConnected() or net->IsOfflineMode())
 	{
 		GotoPrevLevel();
 	}

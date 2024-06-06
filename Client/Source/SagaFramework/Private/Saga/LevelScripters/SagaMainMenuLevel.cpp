@@ -61,19 +61,19 @@ ASagaMainMenuLevel::BeginPlay()
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaMainMenuController][BeginPlay] Could not create user interface for main menu."));
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->OnFailedToConnect.AddDynamic(this, &ASagaMainMenuLevel::OnFailedToConnect);
-	system->OnSignedIn.AddDynamic(this, &ASagaMainMenuLevel::OnSignedIn);
+	net->OnFailedToConnect.AddDynamic(this, &ASagaMainMenuLevel::OnFailedToConnect);
+	net->OnSignedIn.AddDynamic(this, &ASagaMainMenuLevel::OnSignedIn);
 }
 
 void
 ASagaMainMenuLevel::BeginDestroy()
 {
 	/*
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	system->OnFailedToConnect.RemoveDynamic(this, &ASagaMainMenuLevel::OnFailedToConnect);
-	system->OnSignedIn.RemoveDynamic(this, &ASagaMainMenuLevel::OnSignedIn);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	net->OnFailedToConnect.RemoveDynamic(this, &ASagaMainMenuLevel::OnFailedToConnect);
+	net->OnSignedIn.RemoveDynamic(this, &ASagaMainMenuLevel::OnSignedIn);
 	*/
 
 	Super::BeginDestroy();
@@ -82,9 +82,9 @@ ASagaMainMenuLevel::BeginDestroy()
 void
 ASagaMainMenuLevel::HandleStartPressed()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		GotoNextLevel();
 	}

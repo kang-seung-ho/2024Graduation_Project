@@ -54,13 +54,13 @@ ASagaCharacterChoiceLevel::BeginPlay()
 		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaCharacterChoiceLevel] No selector controller"));
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		system->OnDisconnected.AddDynamic(this, &ASagaCharacterChoiceLevel::OnDisconnected);
-		system->OnFailedToStartGame.AddDynamic(this, &ASagaCharacterChoiceLevel::OnFailedToStartGame);
-		system->OnRpc.AddDynamic(this, &ASagaCharacterChoiceLevel::OnRpc);
+		net->OnDisconnected.AddDynamic(this, &ASagaCharacterChoiceLevel::OnDisconnected);
+		net->OnFailedToStartGame.AddDynamic(this, &ASagaCharacterChoiceLevel::OnFailedToStartGame);
+		net->OnRpc.AddDynamic(this, &ASagaCharacterChoiceLevel::OnRpc);
 
 		levelUiInstance = CreateWidget<USagaCharacterSelectWidget>(GetWorld(), levelUiClass);
 		if (nullptr == levelUiInstance)
@@ -81,20 +81,20 @@ ASagaCharacterChoiceLevel::BeginPlay()
 void
 ASagaCharacterChoiceLevel::HandlePeriodicUpdate()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsConnected())
+	if (net->IsConnected())
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
 	}
 }
 
 void
 ASagaCharacterChoiceLevel::HandleClickedCharacter(ASagaSelectCharacter* character)
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
 		if (IsValid(character))
 		{
@@ -130,9 +130,9 @@ ASagaCharacterChoiceLevel::OnDisconnected()
 void
 ASagaCharacterChoiceLevel::OnFailedToStartGame(ESagaGameContract reason)
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsConnected() and -1 != system->GetCurrentRoomId())
+	if (net->IsConnected() and -1 != net->GetCurrentRoomId())
 	{
 		SetPrevLevelName(TEXT("LobbyLevel"));
 		GotoPrevLevel();

@@ -158,11 +158,11 @@ USagaLobbyLevelUiWidget::NativeTick(const FGeometry& geometry, float delta_time)
 {
 	Super::NativeTick(geometry, delta_time);
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		const bool connection = system->IsConnected();
+		const bool connection = net->IsConnected();
 
 		if (nullptr != myCreateButton)
 		{
@@ -184,11 +184,11 @@ USagaLobbyLevelUiWidget::NativeTick(const FGeometry& geometry, float delta_time)
 void
 USagaLobbyLevelUiWidget::HandleCreatingRoomClick()
 {
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget][HandleCreatingRoomClick] The client is trying to create a room."));
 
@@ -208,15 +208,15 @@ USagaLobbyLevelUiWidget::HandleTryJoinRoom()
 	{
 		const auto& room_data = selectedRoom->virtualRoom;
 
-		auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (not system->IsOfflineMode())
+		if (not net->IsOfflineMode())
 		{
-			if (system->IsConnected())
+			if (net->IsConnected())
 			{
 				UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget][HandleTryJoinRoom] The client is trying to join to room '%d'."), room_data.myID);
 
-				system->SendJoinRoomPacket(room_data.myID);
+				net->SendJoinRoomPacket(room_data.myID);
 			}
 			else
 			{
@@ -229,13 +229,13 @@ USagaLobbyLevelUiWidget::HandleTryJoinRoom()
 void
 USagaLobbyLevelUiWidget::HandleRefreshRoomList()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
-			system->SendRequestRoomsPacket();
+			net->SendRequestRoomsPacket();
 		}
 		else
 		{
@@ -254,24 +254,24 @@ USagaLobbyLevelUiWidget::HandleCreateRoom(FText title)
 		return;
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget][HandleCreateRoom] Creating a room... (Offline Mode)"));
 
-		system->SetCurrentRoomId(22);
-		system->SetCurrentRoomTitle(title);
+		net->SetCurrentRoomId(22);
+		net->SetCurrentRoomTitle(title);
 	}
 	else
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget][HandleCreateRoom] Sending a room creation request..."));
 
-			if (0 < system->SendCreateRoomPacket(title))
+			if (0 < net->SendCreateRoomPacket(title))
 			{
-				system->SetCurrentRoomTitle(title);
+				net->SetCurrentRoomTitle(title);
 			}
 		}
 		else
@@ -284,12 +284,12 @@ USagaLobbyLevelUiWidget::HandleCreateRoom(FText title)
 void
 USagaLobbyLevelUiWidget::HandleQuitButtonClick()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	Close();
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		system->Close();
+		net->Close();
 	}
 }
 
@@ -367,7 +367,7 @@ const
 	}
 	else
 	{
-		return system->GetLocalUserName();
+		return net->GetLocalUserName();
 	}
 }
 
@@ -394,7 +394,7 @@ const
 	}
 	else
 	{
-		return system->GetLocalUserId();
+		return net->GetLocalUserId();
 	}
 }
 
@@ -421,7 +421,7 @@ const
 	}
 	else
 	{
-		return not system->IsOfflineMode() and system->IsConnected();
+		return not net->IsOfflineMode() and net->IsConnected();
 	}
 }
 
@@ -449,11 +449,11 @@ const
 	{
 		return back_text;
 	}
-	else if (system->IsOfflineMode())
+	else if (net->IsOfflineMode())
 	{
 		return back_text;
 	}
-	else if (system->IsConnected())
+	else if (net->IsConnected())
 	{
 		return quit_text;
 	}
@@ -486,11 +486,11 @@ const
 	{
 		return err_text;
 	}
-	else if (system->IsOfflineMode())
+	else if (net->IsOfflineMode())
 	{
 		return FText::FromString(TEXT("오프라인 모드"));
 	}
-	else if (system->IsConnected())
+	else if (net->IsConnected())
 	{
 		return FText::GetEmpty();
 	}
@@ -521,11 +521,11 @@ const
 	{
 		return ESlateVisibility::Collapsed;
 	}
-	else if (system->IsOfflineMode())
+	else if (net->IsOfflineMode())
 	{
 		return ESlateVisibility::Visible;
 	}
-	else if (system->IsConnected())
+	else if (net->IsConnected())
 	{
 		return ESlateVisibility::Collapsed;
 	}

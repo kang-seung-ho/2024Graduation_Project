@@ -103,9 +103,9 @@ USagaRoomSessionLevelUiWidget::NativeConstruct()
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaRoomSessionLevelUiWidget] '%s' found the quit button in children."), *my_name);
 	}
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->OnUpdateMembers.AddDynamic(this, &USagaRoomSessionLevelUiWidget::OnUpdateMembers);
+	net->OnUpdateMembers.AddDynamic(this, &USagaRoomSessionLevelUiWidget::OnUpdateMembers);
 }
 
 void
@@ -114,9 +114,9 @@ USagaRoomSessionLevelUiWidget::NativeDestruct()
 	Super::NativeDestruct();
 
 	/*
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->OnUpdateMembers.RemoveDynamic(this, &USagaRoomSessionLevelUiWidget::OnUpdateMembers);
+	net->OnUpdateMembers.RemoveDynamic(this, &USagaRoomSessionLevelUiWidget::OnUpdateMembers);
 	*/
 }
 
@@ -221,7 +221,7 @@ const
 	}
 	else
 	{
-		return system->GetCurrentRoomTitle();
+		return net->GetCurrentRoomTitle();
 	}
 }
 
@@ -248,7 +248,7 @@ const
 	}
 	else
 	{
-		return system->GetCurrentRoomMemberCount();
+		return net->GetCurrentRoomMemberCount();
 	}
 }
 
@@ -273,9 +273,9 @@ const
 	{
 		return 0;
 	}
-	else if (system->IsOfflineMode())
+	else if (net->IsOfflineMode())
 	{
-		const ESagaPlayerTeam team = system->GetLocalUserTeam();
+		const ESagaPlayerTeam team = net->GetLocalUserTeam();
 
 		return (team == ESagaPlayerTeam::Unknown) ? -1 : ((team == ESagaPlayerTeam::Red) ? 1 : 0);
 	}
@@ -306,9 +306,9 @@ const
 	{
 		return 0;
 	}
-	else if (system->IsOfflineMode())
+	else if (net->IsOfflineMode())
 	{
-		const ESagaPlayerTeam team = system->GetLocalUserTeam();
+		const ESagaPlayerTeam team = net->GetLocalUserTeam();
 
 		return (team == ESagaPlayerTeam::Unknown) ? -1 : ((team == ESagaPlayerTeam::Blue) ? 1 : 0);
 	}

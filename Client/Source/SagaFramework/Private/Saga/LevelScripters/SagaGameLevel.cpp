@@ -39,14 +39,14 @@ ASagaGameLevel::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		system->OnDisconnected.AddDynamic(this, &ASagaGameLevel::OnDisconnected);
-		system->OnLeftRoomBySelf.AddDynamic(this, &ASagaGameLevel::OnLeftRoomBySelf);
-		system->OnGameStarted.AddDynamic(this, &ASagaGameLevel::OnGameStarted);
-		system->OnRpc.AddDynamic(this, &ASagaGameLevel::OnRpc);
+		net->OnDisconnected.AddDynamic(this, &ASagaGameLevel::OnDisconnected);
+		net->OnLeftRoomBySelf.AddDynamic(this, &ASagaGameLevel::OnLeftRoomBySelf);
+		net->OnGameStarted.AddDynamic(this, &ASagaGameLevel::OnGameStarted);
+		net->OnRpc.AddDynamic(this, &ASagaGameLevel::OnRpc);
 	}
 
 	GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &ASagaGameLevel::HandleCountdown, 1.0f, true);
@@ -77,9 +77,9 @@ ASagaGameLevel::OnDisconnected()
 void
 ASagaGameLevel::OnLeftRoomBySelf()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsConnected())
+	if (net->IsConnected())
 	{
 		SetPrevLevelName(TEXT("LobbyLevel"));
 	}
@@ -136,24 +136,24 @@ ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 void
 ASagaGameLevel::HandleCountdown()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		if (--storedGameTime <= 0)
 		{
 			GotoNextLevel();
 		}
 	}
-	else if (system->IsConnected())
+	else if (net->IsConnected())
 	{
 		if (not choosenWeapon)
 		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_WEAPON_TIMER);
 		}
 		else
 		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_GAME_TIMER);
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_GAME_TIMER);
 		}
 	}
 	else

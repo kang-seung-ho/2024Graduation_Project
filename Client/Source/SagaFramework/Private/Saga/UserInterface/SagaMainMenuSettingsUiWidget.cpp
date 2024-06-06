@@ -290,21 +290,21 @@ USagaMainMenuSettingsUiWidget::HandleConnectionOption(FName item, ESelectInfo::T
 
 	if (name == TEXT("Local"))
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		system->SetConnectionOption(ESagaNetworkConnectionCategory::Local);
+		net->SetConnectionOption(ESagaNetworkConnectionCategory::Local);
 	}
 	else if (name == TEXT("Host"))
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		system->SetConnectionOption(ESagaNetworkConnectionCategory::Host);
+		net->SetConnectionOption(ESagaNetworkConnectionCategory::Host);
 	}
 	else if (name == TEXT("Remote"))
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		system->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
+		net->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
 	}
 	else
 	{
@@ -323,8 +323,8 @@ USagaMainMenuSettingsUiWidget::HandleOnIpAddressCommitted(const FText& text, ETe
 {
 	if (method == ETextCommit::OnEnter)
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-		system->SetRemoteAddress(text.ToString());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		net->SetRemoteAddress(text.ToString());
 	}
 }
 
@@ -365,7 +365,7 @@ USagaMainMenuSettingsUiWidget::HandleOnPortNumberCommitted(const FText& text, ET
 {
 	if (method == ETextCommit::OnEnter)
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		if (text.IsEmpty())
 		{
 			UE_LOG(LogSagaFramework, Warning, TEXT("[USagaMainMenuSettingsUiWidget] The port label is cleared."));
@@ -381,7 +381,7 @@ USagaMainMenuSettingsUiWidget::HandleOnPortNumberCommitted(const FText& text, ET
 			const auto str = text.ToString();
 			const auto port = FCString::Atoi(*str);
 
-			system->SetRemotePort(port);
+			net->SetRemotePort(port);
 		}
 	}
 }
@@ -395,28 +395,28 @@ USagaMainMenuSettingsUiWidget::HandleOnResetEverything()
 	myIpAddressInputBox->SetText(FText::GetEmpty());
 	myPortInputBox->SetText(FText::GetEmpty());
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->SetOfflineMode(false);
-	system->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
-	system->SetRemoteAddress(TEXT("127.0.0.1"));
-	system->SetRemotePort(40000);
+	net->SetOfflineMode(false);
+	net->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
+	net->SetRemoteAddress(TEXT("127.0.0.1"));
+	net->SetRemotePort(40000);
 }
 
 void
 USagaMainMenuSettingsUiWidget::HandleOnResetOfflineMode()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->SetOfflineMode(false);
+	net->SetOfflineMode(false);
 }
 
 void
 USagaMainMenuSettingsUiWidget::HandleOnResetConnectionOption()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
+	net->SetConnectionOption(ESagaNetworkConnectionCategory::Remote);
 }
 
 void
@@ -425,9 +425,9 @@ USagaMainMenuSettingsUiWidget::HandleOnResetRemoteIpAddress()
 	storedIpAddress = FText::FromString(TEXT("127.0.0.1"));
 	myIpAddressInputBox->SetText(FText::GetEmpty());
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->SetRemoteAddress(TEXT("127.0.0.1"));
+	net->SetRemoteAddress(TEXT("127.0.0.1"));
 }
 
 void
@@ -436,9 +436,9 @@ USagaMainMenuSettingsUiWidget::HandleOnResetRemotePortNumber()
 	storedPortNumber = FText::FromString(TEXT("40000"));
 	myPortInputBox->SetText(FText::GetEmpty());
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->SetRemotePort(40000);
+	net->SetRemotePort(40000);
 }
 
 void
@@ -456,10 +456,10 @@ USagaMainMenuSettingsUiWidget::HandleOnClosed()
 void
 USagaMainMenuSettingsUiWidget::SetOfflineModeChecker(bool is_checked)
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	UE_LOG(LogSagaFramework, Log, TEXT("[USagaMainMenuSettingsUiWidget] Offline Mode: %s"), is_checked ? TEXT("True") : TEXT("False"));
-	system->SetOfflineMode(is_checked);
+	net->SetOfflineMode(is_checked);
 }
 
 bool
@@ -515,7 +515,7 @@ const
 	}
 	else
 	{
-		return system->IsOfflineMode();
+		return net->IsOfflineMode();
 	}
 }
 
@@ -545,7 +545,7 @@ const
 	}
 	else
 	{
-		return system->GetConnectionOption();
+		return net->GetConnectionOption();
 	}
 }
 
@@ -575,7 +575,7 @@ const
 	}
 	else
 	{
-		return system->GetRemoteAddress();
+		return net->GetRemoteAddress();
 	}
 }
 
@@ -605,6 +605,6 @@ const
 	}
 	else
 	{
-		return system->GetRemotePort();
+		return net->GetRemotePort();
 	}
 }

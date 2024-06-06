@@ -13,12 +13,12 @@
 void
 ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	bool is_remote{};
 	FSagaVirtualUser user{};
 
-	if (not system->FindUser(id, user))
+	if (not net->FindUser(id, user))
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[RPC] Cannot find remote user %d."), id);
 		return;
@@ -26,7 +26,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	ASagaCharacterBase* character = user.GetCharacterHandle();
 
-	if (id == system->GetLocalUserId()) // 로컬 클라이언트
+	if (id == net->GetLocalUserId()) // 로컬 클라이언트
 	{
 #pragma region RPC from Local Client
 		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] This is my rpc message."));
@@ -204,7 +204,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			// 혹시 character를 쓸 일이 있으면 대입해줘야 함
 			character = bear;
 
-			system->SetCharacterHandle(id, bear);
+			net->SetCharacterHandle(id, bear);
 		}
 		else
 		{
@@ -247,7 +247,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
 			std::memcpy(&z, &arg1, 4);
 
-			system->StorePosition(id, x, y, z);
+			net->StorePosition(id, x, y, z);
 		}
 		else if (is_remote)
 		{
@@ -394,7 +394,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	case ESagaRpcProtocol::RPC_MAIN_WEAPON:
 	{
 		const auto new_weapon = static_cast<EPlayerWeapon>(arg0);
-		system->SetWeapon(id, new_weapon);
+		net->SetWeapon(id, new_weapon);
 
 		const auto name = UEnum::GetValueAsString(new_weapon);
 
@@ -492,12 +492,12 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		character->ExecuteDeath();
 
 		ESagaPlayerTeam user_team{};
-		if (system->GetTeam(id, user_team))
+		if (net->GetTeam(id, user_team))
 		{
 			const auto team_name = UEnum::GetValueAsString(user_team);
 
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DEAD] Give a score to team '%s'."), *team_name);
-			system->AddScore(user_team == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			net->AddScore(user_team == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 		}
 	}
 	break;

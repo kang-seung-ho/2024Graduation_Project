@@ -59,9 +59,9 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -70,7 +70,7 @@ ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -91,9 +91,9 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	walkDirection.Y = input.Get<FVector>().Y;
 	PrintVector(walkDirection);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -102,7 +102,7 @@ ASagaInGamePlayerController::EndForwardWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -114,9 +114,9 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -125,7 +125,7 @@ ASagaInGamePlayerController::BeginStrafeWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -146,9 +146,9 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	walkDirection.X = input.Get<FVector>().X;
 	PrintVector(walkDirection);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -157,7 +157,7 @@ ASagaInGamePlayerController::EndStrafeWalk(const FInputActionValue& input)
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_WALK, walkDirection.X, walkDirection.Y);
 	}
 }
 
@@ -166,9 +166,9 @@ ASagaInGamePlayerController::BeginRun()
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Running"));
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -176,7 +176,7 @@ ASagaInGamePlayerController::BeginRun()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RUN);
 	}
 }
 
@@ -185,9 +185,9 @@ ASagaInGamePlayerController::EndRun()
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Running"));
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -195,7 +195,7 @@ ASagaInGamePlayerController::EndRun()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RUN);
 	}
 }
 
@@ -204,9 +204,9 @@ ASagaInGamePlayerController::BeginJump()
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Jumping"));
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -214,7 +214,7 @@ ASagaInGamePlayerController::BeginJump()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_JUMP);
 	}
 }
 
@@ -223,9 +223,9 @@ ASagaInGamePlayerController::EndJump()
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Jumping"));
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto pawn = GetPawn<ASagaCharacterBase>();
 
@@ -233,7 +233,7 @@ ASagaInGamePlayerController::EndJump()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_JUMP);
 	}
 }
 
@@ -258,18 +258,18 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 
 	if (not isAttacking)
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 		const auto pawn = GetPawn<ASagaCharacterBase>();
 
 		if (pawn->IsAlive())
 		{
-			if (system->IsOfflineMode())
+			if (net->IsOfflineMode())
 			{
 				pawn->ExecuteAttack();
 			}
 			else
 			{
-				system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
 			}
 		}
 
@@ -286,14 +286,14 @@ ASagaInGamePlayerController::EndAttack()
 	{
 		auto character = GetPawn<ASagaCharacterBase>();
 
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (system->IsOfflineMode())
+		if (net->IsOfflineMode())
 		{
 		}
 		else
 		{
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
 		}
 
 		isAttacking = false;
@@ -305,9 +305,9 @@ ASagaInGamePlayerController::BeginRide()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Ride"));
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		auto character = GetPawn<ASagaCharacterBase>();
 
@@ -315,16 +315,16 @@ ASagaInGamePlayerController::BeginRide()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
 	}
 }
 
 void
 ASagaInGamePlayerController::EndRide()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (system->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
 		const auto character = GetPawn<ASagaCharacterBase>();
 
@@ -332,6 +332,6 @@ ASagaInGamePlayerController::EndRide()
 	}
 	else
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, 0);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, 0);
 	}
 }

@@ -80,9 +80,9 @@ float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
 	// TODO: ASagaPlayableCharacter의 ExecuteHurt 구조 갈아엎기
-	//const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	//const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	//if (system->IsOfflineMode() or not HasValidOwnerId())
+	//if (net->IsOfflineMode() or not HasValidOwnerId())
 	{
 		//ExecuteHurt(actual_dmg);
 	}
@@ -92,7 +92,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 		//memcpy(&arg0, reinterpret_cast<const char*>(&actual_dmg), 4);
 
 		// NOTICE: Don't do ExecuteHurt now
-		//system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0);
+		//net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0);
 	}
 
 	const auto current_health = Super::ExecuteHurt(dmg);
@@ -175,12 +175,12 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 	if (HasValidOwnerId())
 	{
-		const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (system->IsOfflineMode())
+		if (net->IsOfflineMode())
 		{
 			// 상대 팀 점수 증가 실행
-			system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
@@ -188,11 +188,11 @@ ASagaPlayableCharacter::ExecuteDeath()
 		}
 		else
 		{
-			//system->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
+			//net->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
 
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
-			system->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			net->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
@@ -202,11 +202,11 @@ ASagaPlayableCharacter::ExecuteDeath()
 void
 ASagaPlayableCharacter::BeginRespawn()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode() and system->IsConnected())
+	if (not net->IsOfflineMode() and net->IsConnected())
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN, 0, GetUserId());
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN, 0, GetUserId());
 	}
 }
 
@@ -225,11 +225,11 @@ ASagaPlayableCharacter::ExecuteRespawn()
 void
 ASagaPlayableCharacter::HandleRespawnCountdown()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode() and system->IsConnected())
+	if (not net->IsOfflineMode() and net->IsConnected())
 	{
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN_TIMER);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN_TIMER);
 	}
 }
 

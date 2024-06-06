@@ -117,10 +117,10 @@ USagaMainMenuUiWidget::NativeConstruct()
 
 	mySettingButton->OnClicked.AddDynamic(this, &USagaMainMenuUiWidget::HandleOpenSetting);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	system->OnConnected.AddDynamic(this, &USagaMainMenuUiWidget::OnConnected);
-	system->OnFailedToConnect.AddDynamic(this, &USagaMainMenuUiWidget::OnFailedToConnect);
+	net->OnConnected.AddDynamic(this, &USagaMainMenuUiWidget::OnConnected);
+	net->OnFailedToConnect.AddDynamic(this, &USagaMainMenuUiWidget::OnFailedToConnect);
 }
 
 void
@@ -149,7 +149,7 @@ USagaMainMenuUiWidget::HandleSigningIn()
 			const auto nickname_str = transientNickname.ToString();
 			UE_LOG(LogSagaFramework, Warning, TEXT("[USagaMainMenuUiWidget] Nickname: %s"), *nickname_str);
 
-			(void)system->ConnectToServer(transientNickname);
+			(void)net->ConnectToServer(transientNickname);
 		}
 	);
 }

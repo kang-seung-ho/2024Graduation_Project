@@ -62,11 +62,11 @@ noexcept
 void
 ASagaRoomSessionLevel::UpdateRoomSessionUI()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		const auto& list = system->GetUserList();
+		const auto& list = net->GetUserList();
 
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] %d users would be listed."), list.Num());
 
@@ -80,9 +80,9 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 		{
 			const auto& user_id = user.myID;
 
-			if (system->GetLocalUserId() == user_id)
+			if (net->GetLocalUserId() == user_id)
 			{
-				system->SetTeam(user_id, user.myTeam);
+				net->SetTeam(user_id, user.myTeam);
 			}
 
 			switch (user.myTeam)
@@ -140,7 +140,7 @@ ASagaRoomSessionLevel::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(teamUpdateTimer, this, &ASagaRoomSessionLevel::HandlePeriodicUpdate, 10.0f, true, 0.1f);
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	levelUiInstance = CreateWidget<USagaRoomSessionLevelUiWidget>(GetWorld(), levelUiClass);
 	if (IsValid(levelUiInstance))
@@ -162,29 +162,29 @@ ASagaRoomSessionLevel::BeginPlay()
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][BeginPlay] Could not create user interface for lobby."));
 	}
 
-	system->OnDisconnected.AddDynamic(this, &ASagaRoomSessionLevel::OnDisconnected);
-	system->OnJoinedRoom.AddDynamic(this, &ASagaRoomSessionLevel::OnJoinedRoom);
-	system->OnLeftRoomBySelf.AddDynamic(this, &ASagaRoomSessionLevel::OnLeftRoomBySelf);
-	system->OnLeftRoom.AddDynamic(this, &ASagaRoomSessionLevel::OnLeftRoom);
-	system->OnUpdateMembers.AddDynamic(this, &ASagaRoomSessionLevel::OnUpdateUserList);
-	system->OnTeamChanged.AddDynamic(this, &ASagaRoomSessionLevel::OnTeamChanged);
-	system->OnFailedToStartGame.AddDynamic(this, &ASagaRoomSessionLevel::OnFailedToStartGame);
-	system->OnGetPreparedGame.AddDynamic(this, &ASagaRoomSessionLevel::OnGetPreparedGame);
+	net->OnDisconnected.AddDynamic(this, &ASagaRoomSessionLevel::OnDisconnected);
+	net->OnJoinedRoom.AddDynamic(this, &ASagaRoomSessionLevel::OnJoinedRoom);
+	net->OnLeftRoomBySelf.AddDynamic(this, &ASagaRoomSessionLevel::OnLeftRoomBySelf);
+	net->OnLeftRoom.AddDynamic(this, &ASagaRoomSessionLevel::OnLeftRoom);
+	net->OnUpdateMembers.AddDynamic(this, &ASagaRoomSessionLevel::OnUpdateUserList);
+	net->OnTeamChanged.AddDynamic(this, &ASagaRoomSessionLevel::OnTeamChanged);
+	net->OnFailedToStartGame.AddDynamic(this, &ASagaRoomSessionLevel::OnFailedToStartGame);
+	net->OnGetPreparedGame.AddDynamic(this, &ASagaRoomSessionLevel::OnGetPreparedGame);
 }
 
 void
 ASagaRoomSessionLevel::BeginDestroy()
 {
 	/*
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	system->OnDisconnected.RemoveDynamic(this, &ASagaRoomSessionLevel::OnDisconnected);
-	system->OnJoinedRoom.RemoveDynamic(this, &ASagaRoomSessionLevel::OnJoinedRoom);
-	system->OnLeftRoomBySelf.RemoveDynamic(this, &ASagaRoomSessionLevel::OnLeftRoomBySelf);
-	system->OnLeftRoom.RemoveDynamic(this, &ASagaRoomSessionLevel::OnLeftRoom);
-	system->OnUpdateMembers.RemoveDynamic(this, &ASagaRoomSessionLevel::OnUpdateUserList);
-	system->OnTeamChanged.RemoveDynamic(this, &ASagaRoomSessionLevel::OnTeamChanged);
-	system->OnFailedToStartGame.RemoveDynamic(this, &ASagaRoomSessionLevel::OnFailedToStartGame);
-	system->OnGetPreparedGame.RemoveDynamic(this, &ASagaRoomSessionLevel::OnGetPreparedGame);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	net->OnDisconnected.RemoveDynamic(this, &ASagaRoomSessionLevel::OnDisconnected);
+	net->OnJoinedRoom.RemoveDynamic(this, &ASagaRoomSessionLevel::OnJoinedRoom);
+	net->OnLeftRoomBySelf.RemoveDynamic(this, &ASagaRoomSessionLevel::OnLeftRoomBySelf);
+	net->OnLeftRoom.RemoveDynamic(this, &ASagaRoomSessionLevel::OnLeftRoom);
+	net->OnUpdateMembers.RemoveDynamic(this, &ASagaRoomSessionLevel::OnUpdateUserList);
+	net->OnTeamChanged.RemoveDynamic(this, &ASagaRoomSessionLevel::OnTeamChanged);
+	net->OnFailedToStartGame.RemoveDynamic(this, &ASagaRoomSessionLevel::OnFailedToStartGame);
+	net->OnGetPreparedGame.RemoveDynamic(this, &ASagaRoomSessionLevel::OnGetPreparedGame);
 	*/
 
 	Super::BeginDestroy();
@@ -279,15 +279,15 @@ ASagaRoomSessionLevel::HandleStartButton()
 {
 	PauseTimer();
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleStartButton"));
 
-			system->SendGameStartPacket();
+			net->SendGameStartPacket();
 		}
 		else
 		{
@@ -311,15 +311,15 @@ ASagaRoomSessionLevel::HandleQuitButton()
 {
 	PauseTimer();
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleQuitButton"));
 
-			system->SendLeaveRoomPacket();
+			net->SendLeaveRoomPacket();
 
 			levelUiInstance->Close();
 		}
@@ -343,15 +343,15 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 {
 	PauseTimer();
 
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to red..."));
 
-			system->SendChangeTeamPacket(true);
+			net->SendChangeTeamPacket(true);
 		}
 		else
 		{
@@ -364,7 +364,7 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
 
-		system->SetTeam(system->GetLocalUserId(), ESagaPlayerTeam::Red);
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
 	}
 
 	UnPauseTimer();
@@ -375,15 +375,15 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 {
 	PauseTimer();
 
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to blue..."));
 
-			system->SendChangeTeamPacket(false);
+			net->SendChangeTeamPacket(false);
 		}
 		else
 		{
@@ -396,7 +396,7 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
 
-		system->SetTeam(system->GetLocalUserId(), ESagaPlayerTeam::Blue);
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
 	}
 
 	UnPauseTimer();
@@ -405,15 +405,15 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 void
 ASagaRoomSessionLevel::HandlePeriodicUpdate()
 {
-	const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not system->IsOfflineMode())
+	if (not net->IsOfflineMode())
 	{
-		if (system->IsConnected())
+		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandlePeriodicUpdate"));
 
-			system->SendRequestMembersPacket();
+			net->SendRequestMembersPacket();
 		}
 		else
 		{

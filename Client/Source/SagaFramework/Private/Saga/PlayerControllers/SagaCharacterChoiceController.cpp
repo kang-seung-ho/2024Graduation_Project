@@ -79,18 +79,18 @@ ASagaCharacterChoiceController::OnClick(const FInputActionValue& Value)
 			UE_LOG(LogSagaFramework, Warning, TEXT("Selected weapon: %s"), *name);
 #endif
 
-			const auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+			const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-			if (not system->IsOfflineMode())
+			if (not net->IsOfflineMode())
 			{
-				if (system->IsConnected())
+				if (net->IsConnected())
 				{
-					system->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, static_cast<int64>(weapon));
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_MAIN_WEAPON, static_cast<int64>(weapon));
 				}
 			}
 			else
 			{
-				system->SetLocalUserWeapon(weapon);
+				net->SetLocalUserWeapon(weapon);
 			}
 		}
 
