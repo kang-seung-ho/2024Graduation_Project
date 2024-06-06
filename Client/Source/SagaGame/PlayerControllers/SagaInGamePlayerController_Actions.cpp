@@ -5,6 +5,7 @@
 #include <InputActionValue.h>
 
 #include "Character/SagaCharacterBase.h"
+#include "Character/SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"

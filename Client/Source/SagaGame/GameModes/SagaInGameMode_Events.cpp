@@ -1,12 +1,13 @@
 #include "SagaInGameMode.h"
 #include <Logging/LogMacros.h>
+#include <UObject/Object.h>
 #include <Engine/World.h>
 #include <EngineUtils.h>
-#include <UObject/Object.h>
 #include <GameFramework/Actor.h>
 
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterBase.h"
+#include "Character/SagaPlayableCharacter.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
