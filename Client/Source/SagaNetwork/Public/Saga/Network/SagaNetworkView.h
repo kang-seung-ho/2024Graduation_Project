@@ -16,21 +16,11 @@ class USagaNetworkView : public UInterface
 	GENERATED_BODY()
 };
 
-#define SagaRegisterView(system, class_name, target)
-
-#define SagaDeregisterView(system, class_name, target)
-
 class SAGANETWORK_API ISagaNetworkView
 {
 	GENERATED_BODY()
 
 public:
-	static void RegisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
-	//static void RegisterView(class USagaNetworkSubSystem* system, const FName& class_name, TScriptInterface<ISagaNetworkView> target);
-	static void DeregisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
-	static bool TryRegisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
-	static bool TryDeregisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
-
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "CandyLandSaga|Network|Event")
 	void OnNetworkInitialized(bool succeed);
 
