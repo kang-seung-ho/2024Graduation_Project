@@ -125,6 +125,11 @@ ASagaCharacterBase::ExecuteDeath()
 
 	GetCharacterMovement()->StopActiveMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (OnCharacterDeath.IsBound())
+	{
+		OnCharacterDeath.Broadcast(this);
+	}
 }
 
 void
@@ -177,5 +182,10 @@ ASagaCharacterBase::ExecuteRespawn()
 	else
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[ExecuteRespawn] Network subsystem is not ready."));
+	}
+
+	if (OnCharacterRespawned.IsBound())
+	{
+		OnCharacterRespawned.Broadcast(this);
 	}
 }

@@ -40,7 +40,7 @@ public:
 	FSagaEventOnHpChanged OnHpChanged;
 
 	UFUNCTION()
-	void SetMaxHp(float maxhp, ESagaMaxHealthUpdatePolicy current_health_policy = ESagaMaxHealthUpdatePolicy::Default);
+	void SetMaxHp(float max_hp, ESagaMaxHealthUpdatePolicy current_health_policy = ESagaMaxHealthUpdatePolicy::Default);
 	UFUNCTION()
 	void SetCurrentHp(float hp);
 	UFUNCTION()

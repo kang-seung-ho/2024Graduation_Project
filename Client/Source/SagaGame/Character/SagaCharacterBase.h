@@ -8,6 +8,10 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "SagaCharacterBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class ASagaCharacterBase*, character);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterRespawned, class ASagaCharacterBase*, character);
+
 UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterWidgetInterface
 {
@@ -43,6 +47,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TObjectPtr<class USagaWidgetComponent> myHealthIndicatorBarWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
+	FSagaEventOnCharacterDeath OnCharacterDeath;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
+	FSagaEventOnCharacterRespawned OnCharacterRespawned;
 
 	ASagaCharacterBase();
 
