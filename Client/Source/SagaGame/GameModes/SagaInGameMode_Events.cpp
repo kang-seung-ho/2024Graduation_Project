@@ -5,6 +5,7 @@
 #include <EngineUtils.h>
 #include <GameFramework/Actor.h>
 
+#include "SagaGameSubsystem.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
@@ -81,6 +82,8 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 {
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto sys = USagaGameSubsystem::GetSubSystem(world);
+
 	const auto controller = world->GetFirstPlayerController<ASagaInGamePlayerController>();
 
 	if (not net->IsOfflineMode())
@@ -117,7 +120,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			character->AttachWeapon();
 
 			// Making a spawn point
-			const AActor* spawner = controller->GetLocalPlayerSpawner();
+			const AActor* spawner = sys->GetLocalPlayerSpawner();
 			const auto& spawn_transform = spawner->GetTransform();
 			const auto pos = spawn_transform.GetLocation();
 			const auto rot = spawn_transform.GetRotation();

@@ -10,6 +10,7 @@
 #include <Containers/Array.h>
 #include <Templates/Casts.h>
 
+#include "SagaGameSubsystem.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Player/SagaPlayerTeam.h"
 #include "Character/SagaCharacterSpawner.h"
@@ -93,6 +94,7 @@ ASagaInGameMode::StartPlay()
 {
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 	if (not net->IsOfflineMode())
 	{
@@ -103,6 +105,28 @@ ASagaInGameMode::StartPlay()
 		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
 	}
 
+	switch (net->GetLocalUserTeam())
+	{
+	case ESagaPlayerTeam::Red:
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
+		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
+	}
+
+	case ESagaPlayerTeam::Blue:
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
+		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
+	}
+
+	default:
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
+		sys->AssignLocalPlayerSpawner(world->GetWorldSettings());
+	}
+	break;
+	}
+
 	// Find the local controller
 	// At first, there is only an ASagaInGamePlayerController
 	for (TActorIterator<ASagaInGamePlayerController> it{ world }; it; ++it)
@@ -111,27 +135,6 @@ ASagaInGameMode::StartPlay()
 
 		localPlayerController = controller;
 		localPlayerController->SetAsLocalPlayerController();
-
-		switch (net->GetLocalUserTeam())
-		{
-		case ESagaPlayerTeam::Red:
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
-			localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
-		}
-
-		case ESagaPlayerTeam::Blue:
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
-			localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
-		}
-
-		default:
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
-			localPlayerController->AssignPlayerSpawner(world->GetWorldSettings());
-		}
-		}
 	}
 
 	if (not net->IsOfflineMode())

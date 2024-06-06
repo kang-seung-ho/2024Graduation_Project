@@ -27,12 +27,6 @@ public:
 	UFUNCTION()
 	void RideNPCCallFunction();
 
-	UFUNCTION()
-	void AssignPlayerSpawner(class AActor* spawner) noexcept;
-
-	UFUNCTION()
-	const AActor* GetLocalPlayerSpawner() const noexcept;
-
 	/* Actions */
 #pragma region =========================
 	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
@@ -82,6 +76,4 @@ private:
 	FVector walkDirection;
 	UPROPERTY()
 	bool isAttacking;
-	UPROPERTY()
-	TObjectPtr<class AActor> mySpawner;
 };

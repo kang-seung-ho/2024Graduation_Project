@@ -14,7 +14,6 @@ noexcept
 	, OnRideNPC()
 	, walkDirection()
 	, isAttacking()
-	, mySpawner()
 {}
 
 void
@@ -125,18 +124,4 @@ ASagaInGamePlayerController::Tick(float delta_time)
 	{
 		pawn->SetActorLocation(pos);
 	}
-}
-
-void
-ASagaInGamePlayerController::AssignPlayerSpawner(AActor* spawner)
-noexcept
-{
-	mySpawner = spawner;
-}
-
-const AActor*
-ASagaInGamePlayerController::GetLocalPlayerSpawner()
-const noexcept
-{
-	return mySpawner;
 }
