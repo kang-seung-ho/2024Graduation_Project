@@ -11,4 +11,8 @@
 
   <Import Project="..\CSharpUtility\CSharpUtility.projitems" Label="Shared" />
 
+  <ItemGroup>
+    <ProjectReference Include="..\UserDatabase\UserDatabase.sqlproj" />
+  </ItemGroup>
+
 </Project>
