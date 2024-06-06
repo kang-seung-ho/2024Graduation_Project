@@ -99,40 +99,40 @@ ASagaInGameMode::StartPlay()
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
 	}
 	else
-		{
+	{
 		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
 	}
 
-			// Find the local controller
-			// At first, there is only an ASagaInGamePlayerController
-			for (TActorIterator<ASagaInGamePlayerController> it{ world }; it; ++it)
-			{
-				const auto controller = *it;
+	// Find the local controller
+	// At first, there is only an ASagaInGamePlayerController
+	for (TActorIterator<ASagaInGamePlayerController> it{ world }; it; ++it)
+	{
+		const auto controller = *it;
 
-				localPlayerController = controller;
-				localPlayerController->SetAsLocalPlayerController();
+		localPlayerController = controller;
+		localPlayerController->SetAsLocalPlayerController();
 
-				switch (system->GetLocalUserTeam())
-				{
-				case ESagaPlayerTeam::Red:
-				{
-					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
-					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
-				}
+		switch (system->GetLocalUserTeam())
+		{
+		case ESagaPlayerTeam::Red:
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
+			localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
+		}
 
-				case ESagaPlayerTeam::Blue:
-				{
-					UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
-					localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
-				}
+		case ESagaPlayerTeam::Blue:
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
+			localPlayerController->AssignPlayerSpawner(GetSpawner(SagaRedTeamName));
+		}
 
-				default:
-				{
-					UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
-					localPlayerController->AssignPlayerSpawner(world->GetWorldSettings());
-				}
-				}
-			}
+		default:
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
+			localPlayerController->AssignPlayerSpawner(world->GetWorldSettings());
+		}
+		}
+	}
 
 	if (not system->IsOfflineMode())
 	{
@@ -145,7 +145,7 @@ ASagaInGameMode::StartPlay()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
+		OnCreatingCharacter(system->GetLocalUserId(), system->GetLocalUserTeam(), system->GetLocalUserWeapon());
 	}
 
 	// First find the local controller and enumerate actors' BeginPlay
