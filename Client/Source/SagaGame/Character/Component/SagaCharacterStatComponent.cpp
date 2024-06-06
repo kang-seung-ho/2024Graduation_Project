@@ -61,11 +61,13 @@ float
 USagaCharacterStatComponent::ApplyDamage(float dmg)
 {
 	const float actual_dmg = FMath::Max(0, dmg);
-	const float remain_hp = CurrentHp - actual_dmg;
+
+	const auto prior_hp = CurrentHp;
+	const float remain_hp = prior_hp - actual_dmg;
 
 	SetCurrentHp(remain_hp);
 
-	if (0 < remain_hp and remain_hp <= KINDA_SMALL_NUMBER)
+	if (0 < prior_hp and remain_hp <= KINDA_SMALL_NUMBER)
 	{
 		if (OnHpZero.IsBound())
 		{

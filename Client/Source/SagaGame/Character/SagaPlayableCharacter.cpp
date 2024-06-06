@@ -368,6 +368,8 @@ ASagaPlayableCharacter::PostInitializeComponents()
 void
 ASagaPlayableCharacter::BeginPlay()
 {
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaPlayableCharacter::ExecuteDeath);
+
 	Super::BeginPlay();
 }
 

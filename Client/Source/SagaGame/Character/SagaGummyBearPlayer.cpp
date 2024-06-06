@@ -147,8 +147,11 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 void
 ASagaGummyBearPlayer::BeginPlay()
 {
-	Super::BeginPlay();
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaGummyBearPlayer::ExecuteDeath);
+
 	ActiveIndx.Init(DismThreshold, 4);
+
+	Super::BeginPlay();
 }
 
 void

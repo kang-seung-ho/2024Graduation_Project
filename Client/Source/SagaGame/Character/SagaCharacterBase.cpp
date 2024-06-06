@@ -169,7 +169,7 @@ ASagaCharacterBase::BeginPlay()
 	}
 
 	myGameStat->ResetHp(true);
-	myGameStat->OnHpZero.AddDynamic(this, &ASagaCharacterBase::ExecuteDeath);
+	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
 void
