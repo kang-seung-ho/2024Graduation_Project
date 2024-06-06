@@ -9,7 +9,7 @@
 #include "Saga/PlayerControllers/SagaCharacterChoiceController.h"
 
 #include "SagaGame/UI/SagaCharacterSelectWidget.h"
-#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
+#include "SagaGame/CharacterChoice/SagaSelectCharacter.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 

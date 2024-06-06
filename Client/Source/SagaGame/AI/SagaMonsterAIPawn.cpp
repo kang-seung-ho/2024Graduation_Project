@@ -1,4 +1,4 @@
-#include "Character/AI/SagaMonsterAIPawn.h"
+#include "AI/SagaMonsterAIPawn.h"
 #include "SagaGameInfo.h"
 #include "SagaMonsterAIController.h"
 

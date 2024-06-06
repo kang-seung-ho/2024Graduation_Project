@@ -1,9 +1,8 @@
 #pragma once
-#include <CoreMinimal.h>
+#include "SagaGame.h"
 #include <Animation/AnimInstance.h>
 
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
-#include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")

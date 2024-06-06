@@ -1,6 +1,6 @@
 #pragma once
 #include "SagaGame.h"
-#include <Character/AI/SagaAIPawn.h>
+#include "AI/SagaAIPawn.h"
 
 #include "SagaMonsterAIPawn.generated.h"
 

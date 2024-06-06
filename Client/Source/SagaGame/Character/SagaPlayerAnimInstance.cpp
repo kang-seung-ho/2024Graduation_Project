@@ -1,5 +1,5 @@
-#include "SagaPlayerAnimInstance.h"
-#include "SagaPlayableCharacter.h"
+#include "Character/SagaPlayerAnimInstance.h"
+#include "Character/SagaPlayableCharacter.h"
 
 void
 USagaPlayerAnimInstance::NativeInitializeAnimation()

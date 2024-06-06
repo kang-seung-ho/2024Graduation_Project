@@ -14,9 +14,9 @@
 #include <EnhancedInputSubsystems.h>
 #include <Templates/Casts.h>
 
-#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "SagaGame/Input/SagaInputSystem.h"
+#include "SagaGame/CharacterChoice/SagaSelectCharacter.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"

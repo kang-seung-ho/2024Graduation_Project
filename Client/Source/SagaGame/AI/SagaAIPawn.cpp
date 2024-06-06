@@ -1,4 +1,4 @@
-#include "Character/AI/SagaAIPawn.h"
+#include "AI/SagaAIPawn.h"
 #include "SagaGameInfo.h"
 
 ASagaAIPawn::ASagaAIPawn()

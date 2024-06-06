@@ -1,4 +1,4 @@
-#include "Character/CharacterSelect/SagaSelectCharacter.h"
+#include "CharacterChoice/SagaSelectCharacter.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/SkeletalMeshComponent.h>
@@ -6,6 +6,9 @@
 
 ASagaSelectCharacter::ASagaSelectCharacter()
 	: Super()
+	, mBody(), mMesh()
+	, humanCharacterAnimation()
+	, mWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -16,7 +19,6 @@ ASagaSelectCharacter::ASagaSelectCharacter()
 
 	mMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	mMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	mMesh->SetupAttachment(mBody);
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/PlayerAssets/Animation/AB_SagaPlayer.AB_SagaPlayer_C'"));

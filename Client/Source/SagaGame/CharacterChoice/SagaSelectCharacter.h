@@ -18,11 +18,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Character Choice Level")
 	TObjectPtr<class USkeletalMeshComponent> mMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Character Choice Level")
-	EPlayerWeapon mWeapon;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Character Choice Level")
 	TSoftClassPtr<UAnimInstance> humanCharacterAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Character Choice Level")
+	EPlayerWeapon mWeapon;
 
 	ASagaSelectCharacter();
 

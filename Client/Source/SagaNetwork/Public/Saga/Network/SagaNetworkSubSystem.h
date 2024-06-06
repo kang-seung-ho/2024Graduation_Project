@@ -15,13 +15,10 @@
 #include "SagaVirtualRoom.h"
 #include "SagaVirtualUser.h"
 #include "SagaRpcProtocol.h"
-#include "SagaSerializedPacket.h"
 
 // SagaGame
 #include "SagaGame/Player/SagaPlayerTeam.h"
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
-#include "SagaGame/Character/SagaPlayableCharacter.h"
-#include "SagaGame/Character/CharacterSelect/SagaSelectCharacter.h"
 
 #include "SagaNetworkSubSystem.generated.h"
 
