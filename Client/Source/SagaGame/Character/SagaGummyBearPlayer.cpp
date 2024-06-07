@@ -81,7 +81,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	//*/
 	r_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_arm"));
 	r_arm->SetupAttachment(Dbox_Rarm);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_armAsset(TEXT("GeometryCollection'/Game/works/meshes/GC_r_arm.GC_r_arm'"));
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_arm.GC_r_arm'"));
 	if (r_armAsset.Succeeded())
 	{
 		r_arm->RestCollection = r_armAsset.Object;
@@ -91,7 +91,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 
 	r_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_leg"));
 	r_leg->SetupAttachment(Dbox_Rleg);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_legAsset(TEXT("GeometryCollection'/Game/works/meshes/GC_r_leg.GC_r_leg'"));
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_leg.GC_r_leg'"));
 	if (r_legAsset.Succeeded())
 	{
 		r_leg->RestCollection = r_legAsset.Object;
@@ -101,7 +101,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 
 	l_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_arm"));
 	l_arm->SetupAttachment(Dbox_Larm);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_armAsset(TEXT("GeometryCollection'/Game/works/meshes/GC_l_arm.GC_l_arm'"));
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_arm.GC_l_arm'"));
 	if (l_armAsset.Succeeded())
 	{
 		l_arm->RestCollection = l_armAsset.Object;
@@ -111,7 +111,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 
 	l_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_leg"));
 	l_leg->SetupAttachment(Dbox_Lleg);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_legAsset(TEXT("GeometryCollection'/Game/works/meshes/GC_l_leg.GC_l_leg'"));
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_leg.GC_l_leg'"));
 	if (l_legAsset.Succeeded())
 	{
 		l_leg->RestCollection = l_legAsset.Object;
@@ -131,7 +131,7 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	DismThreshold = 1;
 
 	NiagaraComponentTemplate = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MorphNiagaraComponent"));
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NSAsset(TEXT("NiagaraSystem'/Game/works/NS_MeshMorph.NS_MeshMorph'"));
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NSAsset(TEXT("NiagaraSystem'/Game/NPCAssets/NS_MeshMorph.NS_MeshMorph'"));
 	if (NSAsset.Succeeded())
 	{
 		NiagaraSystemTemplate = NSAsset.Object;
@@ -509,25 +509,25 @@ UStaticMesh* ASagaGummyBearPlayer::GetTargetMesh(int32 Index)
 
 void ASagaGummyBearPlayer::InitTargetMeshes()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh1Asset(TEXT("StaticMesh'/Game/works/meshes/rarm_13.rarm_13'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh1Asset(TEXT("StaticMesh'/Game/NPCAssets/meshes/rarm_13.rarm_13'"));
 	if (Mesh1Asset.Succeeded())
 	{
 		TargetMeshes.Add(Mesh1Asset.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh2Asset(TEXT("StaticMesh'/Game/works/meshes/rleg_10.rleg_10'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh2Asset(TEXT("StaticMesh'/Game/NPCAssets/meshes/rleg_10.rleg_10'"));
 	if (Mesh2Asset.Succeeded())
 	{
 		TargetMeshes.Add(Mesh2Asset.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh3Asset(TEXT("StaticMesh'/Game/works/meshes/larm_6.larm_6'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh3Asset(TEXT("StaticMesh'/Game/NPCAssets/meshes/larm_6.larm_6'"));
 	if (Mesh3Asset.Succeeded())
 	{
 		TargetMeshes.Add(Mesh3Asset.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh4Asset(TEXT("StaticMesh'/Game/works/meshes/lleg_4.lleg_4'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh4Asset(TEXT("StaticMesh'/Game/NPCAssets/meshes/lleg_4.lleg_4'"));
 	if (Mesh3Asset.Succeeded())
 	{
 		TargetMeshes.Add(Mesh4Asset.Object);
