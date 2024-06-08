@@ -1,5 +1,6 @@
 #include "Worker.hpp"
 #include "Framework.hpp"
+#include "IoContext.hpp"
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -12,21 +13,9 @@ import <print>;
 void
 Worker(std::stop_token&& canceller
 	, const size_t index
-	, Framework& framework
-	, class Pipeline& pipeline)
+	, Framework& framework)
 {
 	std::println("Worker {} is generated.", index);
-
-	SOCKADDR_IN address{};
-	//std::once_flag workerInitializedFlag{};
-
-	auto first_recv = framework.ReceiveFrom(pipeline, address);
-	if (not first_recv)
-	{
-		std::println("Error when generating worker {}: {}", index, first_recv.error());
-
-		return framework.ArriveWorkersIntialized();
-	}
 
 	framework.ArriveWorkersIntialized();
 
@@ -56,17 +45,61 @@ Worker(std::stop_token&& canceller
 			break;
 		}
 
-		const auto recv = framework.ReceiveFrom(pipeline, address);
+		const auto ctx = static_cast<IoContext*>(overlapped);
+		if (nullptr == ctx)
+		{
+			std::println("A task error occured at worker {}. The context is not `IoContext`.", index);
 
-		if (recv)
+			goto finished;
+		}
+
+		switch (ctx->myCategory)
+		{
+		case IoCategory::None:
+		{
+			std::println("A task error occured at worker {}. The context has `None` task category.", index);
+
+			framework.NotifyWork();
+
+			delete ctx;
+		}
+		break;
+
+		case IoCategory::Recv:
 		{
 			framework.NotifyWork();
-		}
-		else
-		{
-			std::println("A receive error occured, error code: {}", recv.error());
 
-			break;
+			delete ctx;
+		}
+		break;
+
+		case IoCategory::Send:
+		{
+			framework.NotifyWork();
+
+			delete ctx;
+		}
+		break;
+
+		case IoCategory::CheckUser:
+		{
+			framework.NotifyWork();
+
+			delete ctx;
+		}
+		break;
+
+		default:
+		{
+			std::println("A task error occured at worker {}. The context has a invalid task category.", index);
+
+			delete ctx;
+
+			goto finished;
+		}
 		}
 	}
+
+finished:
+	;
 }
