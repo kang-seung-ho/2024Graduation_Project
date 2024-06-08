@@ -84,7 +84,7 @@ int main()
 
 	std::srand((unsigned int)std::time(NULL));
 
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		char send_data[33]{};
 		::DWORD sent_bytes{};

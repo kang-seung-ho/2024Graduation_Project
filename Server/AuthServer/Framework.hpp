@@ -26,31 +26,51 @@ namespace auth
 	class Server
 	{
 	public:
+		using Result = std::expected<void, int>;
+
 		void* iocpHandle{ nullptr };
 
 		Server() = default;
 
-		std::expected<void, int> Initialize();
-		std::expected<void, int> Startup();
+		Result Initialize();
+		Result Startup();
 		void Cleanup();
 
+		Result InitializeNetwork();
+		Result InitializeSockets();
+		Result InitializeIocp();
+		bool InitializeBuffers();
+		Result InitializeWorkers();
+		bool InitializeExitHandlers();
 		void ArriveWorkersIntialized() noexcept;
 
-		std::expected<void, int> BeginReceive();
+		Result BeginReceive();
 		void EndReceive();
+		Result BeginSend();
+		void EndSend(class SendContext* context);
+
+		void OnReceived(unsigned long bytes);
+		void OnSent(class SendContext* context);
+
+		Result RegisterSocket(std::uintptr_t socket, std::uintptr_t key) noexcept;
 
 		friend void ReceiveHandler(std::stop_token&& canceller, auth::Server& instance);
 		friend void DatabaseHandler(std::stop_token&& canceller, auth::Server& instance);
 		friend void ExitHandler() noexcept;
 
 	private:
+		void PrintReceivedData() const;
+
 		std::uintptr_t serverSocket{ invalidSocket };
 		std::uintptr_t fileIoSocket{ invalidSocket };
 		std::uintptr_t databaseSocket{ invalidSocket };
 
 		std::array<std::jthread, iocpWorkerCount> myThreads;
+		static std::latch workerInitializationSynchronizer;
 
+		class IoContext* recvContext;
 		std::unique_ptr<char[]> recvBuffer;
+		unsigned long recvBytes;
 		struct ::sockaddr_in* recvAddress;
 	};
 

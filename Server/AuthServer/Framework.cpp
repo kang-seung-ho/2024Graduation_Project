@@ -6,120 +6,69 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <WinSock2.h>
-#include <WS2tcpip.h>
 #pragma warning(pop)
 
 #include "Worker.hpp"
-#include "IoContext.hpp"
 
+import <type_traits>;
 import <span>;
 import <print>;
 
-constinit std::latch workerInitializationSynchronizer{ auth::iocpWorkerCount };
+std::latch auth::Server::workerInitializationSynchronizer{ auth::iocpWorkerCount };
 
 std::expected<void, int>
 auth::Server::Initialize()
 {
-	std::println("Authenticator server is initiated.");
-
-	::WSADATA version_data{};
-	const int startup = ::WSAStartup(MAKEWORD(2, 2), std::addressof(version_data));
-	if (0 != startup)
+	if (auto job = InitializeNetwork(); not job)
 	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when startup the system: {}", error_code);
+		std::println("Error when startup the system: {}", job.error());
 
-		return std::unexpected{ error_code };
+		return std::move(job);
+	}
+	else
+	{
+		std::println("Authenticator server is initiated.");
 	}
 
-	constexpr std::uint32_t flags = WSA_FLAG_OVERLAPPED;
-	//constexpr std::uint32_t flags = 0;
-	serverSocket = ::WSASocket(AF_INET, SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
-	if (INVALID_SOCKET == serverSocket)
+	if (auto job = InitializeSockets(); not job)
 	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when creating the listen socket: {}", error_code);
+		std::println("Error when startup the system: {}", job.error());
 
-		return std::unexpected{ error_code };
+		return std::move(job);
+	}
+	else
+	{
+		std::println("Sockets are established.");
+	}
+	
+	if (auto job = InitializeIocp(); not job)
+	{
+		std::println("Error when creating the iocp: {}", job.error());
+
+		return std::move(job);
+	}
+	else
+	{
+		std::println("The iocp is created.");
 	}
 
-	std::println("The listen socket is created.");
-
-	constexpr int reuse_address = true;
-	if (0 != ::setsockopt(serverSocket
-		, SOL_SOCKET
-		, SO_REUSEADDR
-		, reinterpret_cast<const char*>(&reuse_address), sizeof(int)))
+	if (auto job = RegisterSocket(serverSocket, iocpMasterKey); not job)
 	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when setting up the listen socket: {}", error_code);
+		std::println("Error when registering the listen socket to iocp: {}", job.error());
 
-		return std::unexpected{ error_code };
+		return std::move(job);
+	}
+	else
+	{
+		std::println("The listen socket is registered to the iocp.");
 	}
 
-	const ::SOCKADDR_IN ipv4_sockaddr
+	if (not InitializeBuffers())
 	{
-		.sin_family = AF_INET,
-		.sin_port = ::htons(serverPort),
-		.sin_addr = ::in4addr_any,
-		.sin_zero{}
-	};
+		std::println("Error when creating buffers.");
 
-	if (0 != ::bind(serverSocket, reinterpret_cast<const SOCKADDR*>(std::addressof(ipv4_sockaddr)), sizeof(ipv4_sockaddr)))
-	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when bindig the listen socket to any address: {}", error_code);
-
-		return std::unexpected{ error_code };
+		return std::unexpected{ 0 };
 	}
-
-	std::println("The listen socket is established.");
-	iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, iocpMasterKey, iocpWorkerCount);
-
-	if (nullptr == iocpHandle)
-	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when creating the iocp: {}", error_code);
-
-		return std::unexpected{ error_code };
-	}
-
-	std::println("The iocp is created.");
-
-	//*
-	const auto target = reinterpret_cast<::HANDLE>(serverSocket);
-	const auto port = ::CreateIoCompletionPort(target, iocpHandle, iocpMasterKey, 0);
-
-	if (nullptr == port)
-	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when registering the listen socket to iocp: {}", error_code);
-
-		return std::unexpected{ error_code };
-	}
-
-	std::println("The listen socket is registered to the iocp.");
-	//*/
-
-	if (0 != std::atexit(&ExitHandler))
-	{
-		std::println("Error when registering a exit handler.");
-
-		return std::unexpected{ EXIT_FAILURE };
-	}
-
-	if (0 != std::at_quick_exit(&ExitHandler))
-	{
-		std::println("Error when registering a emergency exit handler.");
-
-		return std::unexpected{ EXIT_FAILURE };
-	}
-
-	//recvContext = new IoContext{ IoCategory::Recv };
-	//recvContext->Clear();
-
-	recvBuffer = std::make_unique<char[]>(maxRecvSize);
-	recvAddress = new SOCKADDR_IN{};
 
 	std::println("Generating workers...", iocpWorkerCount);
 
@@ -154,6 +103,13 @@ auth::Server::Initialize()
 	workerInitializationSynchronizer.wait();
 
 	std::println("Workers are generated.");
+
+	if (not InitializeExitHandlers())
+	{
+		std::println("Error when registering a exit handler.");
+
+		return std::unexpected{ 0 };
+	}
 
 	return std::expected<void, int>{};
 }
@@ -220,9 +176,35 @@ auth::Server::Cleanup()
 	std::println("Authenticator server is terminated.");
 }
 
-void
-auth::Server::ArriveWorkersIntialized()
+auth::Server::Result
+auth::Server::RegisterSocket(std::uintptr_t socket, std::uintptr_t key)
 noexcept
 {
-	return workerInitializationSynchronizer.arrive_and_wait();
+	const auto target = reinterpret_cast<::HANDLE>(socket);
+
+	const auto port = ::CreateIoCompletionPort(target, iocpHandle, key, 0);
+
+	if (nullptr != port)
+	{
+		return Result{};
+	}
+	else
+	{
+		return std::unexpected{ ::WSAGetLastError() };
+	}
+}
+
+void
+auth::Server::PrintReceivedData()
+const
+{
+	std::println("[Receive] {} bytes\n"
+		"Address: [{}]{}:{}\n"
+		"Received data: {}"
+
+		, recvBytes
+		, recvAddress->sin_family
+		, recvAddress->sin_addr.S_un.S_addr
+		, ::ntohs(recvAddress->sin_port)
+		, recvBuffer.get());
 }

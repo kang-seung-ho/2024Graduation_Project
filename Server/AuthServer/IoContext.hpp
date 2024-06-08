@@ -3,36 +3,54 @@
 #define NOMINMAX
 #include <WinSock2.h>
 
-enum class IoCategory
+import <new>;
+import <memory>;
+
+namespace auth
 {
-	None = 0,
-
-	Recv,
-	Send,
-
-	CheckUser,
-};
-
-class IoContext : public _OVERLAPPED
-{
-public:
-	using Super = _OVERLAPPED;
-
-	IoContext() noexcept = default;
-
-	IoContext(IoCategory cat) noexcept
-		: Super()
-		, myCategory(cat)
-	{}
-
-	void Clear() noexcept
+	enum class IoCategory
 	{
-		this->Internal = 0;
-		this->InternalHigh = 0;
-		this->Offset = 0;
-		this->OffsetHigh = 0;
-	}
+		None = 0,
 
-	IoCategory myCategory;
-};
+		Recv,
+		Send,
 
+		CheckUser,
+	};
+
+	class IoContext : public _OVERLAPPED
+	{
+	public:
+		using Super = _OVERLAPPED;
+
+		IoContext() noexcept = default;
+
+		constexpr IoContext(IoCategory cat) noexcept
+			: Super()
+			, myCategory(cat)
+		{}
+
+		constexpr void Clear() noexcept
+		{
+			this->Internal = 0;
+			this->InternalHigh = 0;
+			this->Offset = 0;
+			this->OffsetHigh = 0;
+		}
+
+		IoCategory myCategory;
+	};
+
+	class SendContext : public IoContext
+	{
+	public:
+		using Super = IoContext;
+
+		constexpr SendContext() noexcept
+			: IoContext(IoCategory::Send)
+			, myBuffer(nullptr)
+		{}
+
+		std::unique_ptr<char[]> myBuffer;
+	};
+}

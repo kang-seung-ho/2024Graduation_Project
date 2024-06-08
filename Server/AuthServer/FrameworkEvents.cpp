@@ -3,13 +3,15 @@
 #define NOMINMAX
 #include <WinSock2.h>
 
+#include "IoContext.hpp"
+
 import <cstdlib>;
 import <memory>;
 import <span>;
 import <print>;
 import <atomic>;
 
-std::expected<void, int>
+auth::Server::Result
 auth::Server::BeginReceive()
 {
 	const auto buffer = recvBuffer.get();
@@ -17,9 +19,8 @@ auth::Server::BeginReceive()
 	::WSABUF recv_wbuffer
 	{
 		.len = maxRecvSize,
-		.buf = buffer
+		.buf = recvBuffer.get()
 	};
-	::DWORD recv_bytes{};
 	::DWORD recv_flags{ 0 };
 
 	const auto& address = *recvAddress;
@@ -27,71 +28,99 @@ auth::Server::BeginReceive()
 
 	const auto result = ::WSARecvFrom(serverSocket
 		, &recv_wbuffer, 1U
-		, &recv_bytes
+		, &recvBytes
 		, &recv_flags
 		, reinterpret_cast<SOCKADDR*>(recvAddress), &sockaddr_length
-		, nullptr, nullptr);
+		, recvContext, nullptr);
 
 	if (SOCKET_ERROR == result) UNLIKELY
 	{
 		const auto error_code = WSAGetLastError();
 
-		if (WSAEWOULDBLOCK != error_code and WSA_IO_PENDING != error_code)
+		if (WSAEWOULDBLOCK == error_code or WSA_IO_PENDING == error_code)
+		{
+			return Result{};
+		}
+		else
 		{
 			return std::unexpected{ error_code };
 		}
-	};
+	}
+	else
+	{
+		return Result{};
+	}
+}
 
-	std::println("[Receive] {} bytes\n"
-		"Address family: {}\n"
-		"Address: {}\n"
-		"Address port: {}\n"
-		"Received data: {}"
+void
+auth::Server::EndReceive()
+{
+	recvContext->Clear();
+}
 
-		, recv_bytes
-		, address.sin_family
-		, address.sin_addr.S_un.S_addr
-		, ::ntohs(address.sin_port)
-		, buffer);
+auth::Server::Result
+auth::Server::BeginSend()
+{
+	const auto sender = new SendContext{};
+	sender->Clear();
+	sender->myBuffer = std::make_unique<char[]>(recvBytes);
 
-	std::println("Echoing the data.");
+	const auto& send_buffer = sender->myBuffer;
+	std::memcpy(send_buffer.get(), recvBuffer.get(), recvBytes);
 
 	::WSABUF send_wbuffer
 	{
-		.len = recv_bytes,
-		.buf = buffer
+		.len = recvBytes,
+		.buf = send_buffer.get()
 	};
 	::DWORD sent_bytes{};
 
 	const auto sent = ::WSASendTo(serverSocket
 		, &send_wbuffer, 1, &sent_bytes
 		, 0
-		, reinterpret_cast<const SOCKADDR*>(&address), sockaddr_length
-		, nullptr, nullptr);
+		, reinterpret_cast<const SOCKADDR*>(recvAddress), sizeof(sockaddr_in)
+		, sender, nullptr);
 
 	if (SOCKET_ERROR == sent) UNLIKELY
 	{
 		const auto error_code = WSAGetLastError();
 
-		if (WSAEWOULDBLOCK != error_code and WSA_IO_PENDING != error_code)
+		if (WSAEWOULDBLOCK == error_code or WSA_IO_PENDING == error_code)
 		{
-			std::println(" Error when sending echo data. Error code is {}.", error_code);
-
-			std::memset(buffer, 0, maxRecvSize);
-
+			return std::expected<void, int>{};
+		}
+		else
+		{
 			return std::unexpected{ error_code };
 		}
 	}
 	else
 	{
-		std::println("Echo data are sent.");
+		return Result{};
 	}
-
-	std::memset(buffer, 0, maxRecvSize);
-
-	return std::expected<void, int>{};
 }
 
 void
-auth::Server::EndReceive()
-{}
+auth::Server::EndSend(SendContext* context)
+{
+	if (context != nullptr)
+	{
+		delete context;
+	}
+}
+
+void
+auth::Server::OnReceived(unsigned long bytes)
+{
+	recvBytes = bytes;
+
+	BeginSend();
+
+	PrintReceivedData();
+}
+
+void
+auth::Server::OnSent(SendContext* context)
+{
+	std::println("Echoing the data...");
+}

@@ -6,6 +6,7 @@
 #include "Framework.hpp"
 #include "IoContext.hpp"
 
+import <new>;
 import <print>;
 //import <mutex>;
 
@@ -42,7 +43,7 @@ Worker(std::stop_token&& canceller
 			break;
 		}
 
-		const auto ctx = static_cast<IoContext*>(overlapped);
+		const auto ctx = static_cast<auth::IoContext*>(overlapped);
 		if (nullptr == ctx)
 		{
 			std::println("A task error occured at worker {}. The context is not `IoContext`.", index);
@@ -52,7 +53,7 @@ Worker(std::stop_token&& canceller
 
 		switch (ctx->myCategory)
 		{
-		case IoCategory::None:
+		case auth::IoCategory::None:
 		{
 			std::println("A task error occured at worker {}. The context has `None` task category.", index);
 
@@ -60,19 +61,31 @@ Worker(std::stop_token&& canceller
 		}
 		break;
 
-		case IoCategory::Recv:
+		case auth::IoCategory::Recv:
 		{
-			delete ctx;
+			instance.OnReceived(bytes);
+			instance.EndReceive();
+
+			// restart
+			if (const auto recv = instance.BeginReceive(); not recv)
+			{
+				std::println("A receiving error occured, error code: {}", recv.error());
+
+				goto finished;
+			}
 		}
 		break;
 
-		case IoCategory::Send:
+		case auth::IoCategory::Send:
 		{
-			delete ctx;
+			const auto context = static_cast<auth::SendContext*>(ctx);
+
+			instance.OnSent(context);
+			instance.EndSend(context);
 		}
 		break;
 
-		case IoCategory::CheckUser:
+		case auth::IoCategory::CheckUser:
 		{
 			delete ctx;
 		}
