@@ -127,39 +127,6 @@ noexcept
 }
 
 void
-auth::ReceiveHandler(std::stop_token&& canceller, auth::Server& instance)
-{
-	std::println("Receive worker is generated.");
-
-	instance.ArriveWorkersIntialized();
-
-	if (canceller.stop_requested())
-	{
-		goto finished;
-	}
-
-	if (auto first_recv = instance.BeginReceive(); not first_recv)
-	{
-		std::println("A receive error occured at first, error code: {}", first_recv.error());
-
-		goto finished;
-	}
-
-	while (true)
-	{
-		if (canceller.stop_requested()) UNLIKELY
-		{
-			goto finished;
-		};
-
-
-	}
-
-finished:
-	std::println("Receive worker is terminated.");
-}
-
-void
 auth::DatabaseHandler(std::stop_token&& canceller, auth::Server& instance)
 {
 	std::println("Database worker is generated.");

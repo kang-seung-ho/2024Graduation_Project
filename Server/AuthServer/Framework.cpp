@@ -76,7 +76,8 @@ auth::Server::Initialize()
 
 	myThreads[0] = std::jthread
 	{
-		ReceiveHandler,
+		Worker,
+		++index,
 		std::ref(*this)
 	};
 

@@ -54,7 +54,6 @@ namespace auth
 
 		Result RegisterSocket(std::uintptr_t socket, std::uintptr_t key) noexcept;
 
-		friend void ReceiveHandler(std::stop_token&& canceller, auth::Server& instance);
 		friend void DatabaseHandler(std::stop_token&& canceller, auth::Server& instance);
 		friend void ExitHandler() noexcept;
 
@@ -74,7 +73,6 @@ namespace auth
 		struct ::sockaddr_in* recvAddress;
 	};
 
-	void ReceiveHandler(std::stop_token&& canceller, auth::Server& instance);
 	void DatabaseHandler(std::stop_token&& canceller, auth::Server& instance);
 	void ExitHandler() noexcept;
 };
