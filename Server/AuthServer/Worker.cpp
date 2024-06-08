@@ -1,11 +1,10 @@
 #include "Worker.hpp"
-#include "Framework.hpp"
-#include "IoContext.hpp"
-
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <WinSock2.h>
-#include <MSWSock.h>
+
+#include "Framework.hpp"
+#include "IoContext.hpp"
 
 import <print>;
 //import <mutex>;
@@ -13,20 +12,18 @@ import <print>;
 void
 Worker(std::stop_token&& canceller
 	, const size_t index
-	, Framework& framework)
+	, class auth::Server& instance)
 {
 	std::println("Worker {} is generated.", index);
 
-	framework.ArriveWorkersIntialized();
+	instance.ArriveWorkersIntialized();
 
 	while (true)
 	{
-		if (canceller.stop_requested())
+		if (canceller.stop_requested()) UNLIKELY
 		{
 			break;
 		}
-
-		framework.AwaitWork();
 
 		std::println("Worker {}'s turn.", index);
 
@@ -34,7 +31,7 @@ Worker(std::stop_token&& canceller
 		::DWORD bytes{};
 		::ULONG_PTR key{};
 
-		const ::BOOL result = ::GetQueuedCompletionStatus(framework.iocpHandle
+		const ::BOOL result = ::GetQueuedCompletionStatus(instance.iocpHandle
 			, std::addressof(bytes)
 			, std::addressof(key)
 			, std::addressof(overlapped)
@@ -59,32 +56,24 @@ Worker(std::stop_token&& canceller
 		{
 			std::println("A task error occured at worker {}. The context has `None` task category.", index);
 
-			framework.NotifyWork();
-
 			delete ctx;
 		}
 		break;
 
 		case IoCategory::Recv:
 		{
-			framework.NotifyWork();
-
 			delete ctx;
 		}
 		break;
 
 		case IoCategory::Send:
 		{
-			framework.NotifyWork();
-
 			delete ctx;
 		}
 		break;
 
 		case IoCategory::CheckUser:
 		{
-			framework.NotifyWork();
-
 			delete ctx;
 		}
 		break;
@@ -101,5 +90,5 @@ Worker(std::stop_token&& canceller
 	}
 
 finished:
-	;
+	std::println("Worker {} is terminated.", index);
 }

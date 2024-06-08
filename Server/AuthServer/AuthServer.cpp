@@ -1,18 +1,27 @@
 ﻿#include "Framework.hpp"
 
-Framework serverInstance{};
+auth::Server framework{};
 
 int main()
 {
-	serverInstance.Initialize();
-	serverInstance.Startup();
+	if (auto init = framework.Initialize(); not init)
+	{
+		return init.error();
+	}
+	
+	if (auto start = framework.Startup(); not start)
+	{
+		return start.error();
+	}
+
+	framework.Cleanup();
 
 	return 0;
 }
 
 void
-ExitHandler()
+auth::ExitHandler()
 noexcept
 {
-	serverInstance.Cleanup();
+	framework.Cleanup();
 }
