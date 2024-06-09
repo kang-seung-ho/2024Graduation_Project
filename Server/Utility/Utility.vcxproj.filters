@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Public">
+      <UniqueIdentifier>{761b7020-25b4-4934-90b4-cdcc54ec5b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{aeaa2e7a-80a9-4e76-ac26-73c49fe6828b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TypeTraits.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="File.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Atomic.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="MovableAtomic.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
