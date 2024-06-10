@@ -156,6 +156,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ExampleServer.cpp" />
+    <ClCompile Include="Framework.cpp" />
+    <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">
@@ -164,6 +166,10 @@
     <ProjectReference Include="..\Utility\Utility.vcxproj">
       <Project>{e0d992a6-1a55-4809-b7ba-801c41557327}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Framework.hpp" />
+    <ClInclude Include="Worker.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

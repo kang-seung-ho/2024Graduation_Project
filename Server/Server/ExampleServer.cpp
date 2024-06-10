@@ -1,16 +1,30 @@
+#include "Framework.hpp"
+#include "Worker.hpp"
+
 import Iconer.Net;
 import Iconer.Net.EndPoint;
 import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import <cstdio>;
 import <cstdlib>;
+import <utility>;
+import <atomic>;
+import <array>;
+import <thread>;
+import <latch>;
 import <print>;
 
 using namespace iconer;
 using namespace iconer::net;
 
+Framework serverSystem{};
+
 constinit Socket serverSocket;
 constinit IoCompletionPort ioPort;
+
+inline constexpr size_t workerCount = 4;
+std::array<std::jthread, workerCount> myThreads;
+std::latch workerInitializationSynchronizer{ workerCount };
 
 inline constexpr std::uint16_t serverPort = 40000;
 
@@ -65,7 +79,7 @@ int main()
 
 		return 1;
 	}
-	
+
 	if (auto io = IoCompletionPort::Create(); io)
 	{
 		std::println("The iocp is created.");
@@ -90,6 +104,28 @@ int main()
 		return 1;
 	}
 
+	std::println("Generating {} workers...", workerCount);
+
+	try
+	{
+		size_t index{};
+		for (auto& th : myThreads)
+		{
+			th = std::jthread
+			{
+				Worker,
+				std::ref(serverSystem),
+				++index
+			};
+		}
+	}
+	catch (...)
+	{
+		std::println("An error occured when generating workers!");
+
+		throw;
+	}
+
 	std::println("Server is started.");
 
 	char input_buffer[128]{};
@@ -109,6 +145,13 @@ int main()
 	}
 
 	std::println("Closing server...");
+
+	for (auto& th : myThreads)
+	{
+		th.request_stop();
+	}
+
+	ioPort.Destroy();
 
 	Cleanup();
 
