@@ -13,6 +13,9 @@ import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
 #undef WSANO_DATA
 
+iconer::net::Socket::IoResult
+RawSendEx(const std::uintptr_t& socket, ::WSABUF& buffer, void* context, ::LPWSAOVERLAPPED_COMPLETION_ROUTINE routine) noexcept;
+
 iconer::net::Socket::SyncIoResult
 iconer::net::Socket::Send(std::span<const std::byte> memory)
 const

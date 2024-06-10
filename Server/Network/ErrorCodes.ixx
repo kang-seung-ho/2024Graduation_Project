@@ -7,13 +7,13 @@ export namespace iconer::net
 	enum class [[nodiscard]] ErrorCode : std::int32_t
 	{
 		PendedIoOperation = 997,
-		WSA_IO_INCOMPLETE = 996,
-		WSA_INVALID_HANDLE = 6,
-		WSA_INVALID_PARAMETER = 87,
-		WSA_NOT_ENOUGH_MEMORY = 8,
+		IO_INCOMPLETE = 996,
+		INVALID_HANDLE = 6,
+		INVALID_PARAMETER = 87,
+		NOT_ENOUGH_MEMORY = 8,
 		OPERATION_ABORTED = 995,
-		WSA_WAIT_EVENT_0 = 0,
-		WSA_WAIT_IO_COMPLETION = 192,
+		WAIT_EVENT_0 = 0,
+		WAIT_IO_COMPLETION = 192,
 		WSABASEERR = 10000,
 		BlockingCallsInterrupted = 10004,
 		WSAEBADF = 10009,
@@ -70,42 +70,42 @@ export namespace iconer::net
 		WSASYSCALLFAILURE = 10107,
 		WSASERVICE_NOT_FOUND = 10108,
 		WSATYPE_NOT_FOUND = 10109,
-		WSA_E_NO_MORE = 10110,
-		WSA_E_CANCELLED = 10111,
+		E_NO_MORE = 10110,
+		E_CANCELLED = 10111,
 		WSAEREFUSED = 10112,
 		WSAHOST_NOT_FOUND = 11001,
 		WSATRY_AGAIN = 11002,
 		WSANO_RECOVERY = 11003,
 		WSANO_DATA = 11004,
-		WSA_QOS_RECEIVERS = 11005,
-		WSA_QOS_SENDERS = 11006,
-		WSA_QOS_NO_SENDERS = 11007,
-		WSA_QOS_NO_RECEIVERS = 11008,
-		WSA_QOS_REQUEST_CONFIRMED = 11009,
-		WSA_QOS_ADMISSION_FAILURE = 11010,
-		WSA_QOS_POLICY_FAILURE = 11011,
-		WSA_QOS_BAD_STYLE = 11012,
-		WSA_QOS_BAD_OBJECT = 11013,
-		WSA_QOS_TRAFFIC_CTRL_ERROR = 11014,
-		WSA_QOS_GENERIC_ERROR = 11015,
-		WSA_QOS_ESERVICETYPE = 11016,
-		WSA_QOS_EFLOWSPEC = 11017,
-		WSA_QOS_EPROVSPECBUF = 11018,
-		WSA_QOS_EFILTERSTYLE = 11019,
-		WSA_QOS_EFILTERTYPE = 11020,
-		WSA_QOS_EFILTERCOUNT = 11021,
-		WSA_QOS_EOBJLENGTH = 11022,
-		WSA_QOS_EFLOWCOUNT = 11023,
-		WSA_QOS_EUNKOWNPSOBJ = 11024,
-		WSA_QOS_EPOLICYOBJ = 11025,
-		WSA_QOS_EFLOWDESC = 11026,
-		WSA_QOS_EPSFLOWSPEC = 11027,
-		WSA_QOS_EPSFILTERSPEC = 11028,
-		WSA_QOS_ESDMODEOBJ = 11029,
-		WSA_QOS_ESHAPERATEOBJ = 11030,
-		WSA_QOS_RESERVED_PETYPE = 11031,
-		WSA_SECURE_HOST_NOT_FOUND = 11032,
-		WSA_IPSEC_NAME_POLICY_ERROR = 11033,
+		QOS_RECEIVERS = 11005,
+		QOS_SENDERS = 11006,
+		QOS_NO_SENDERS = 11007,
+		QOS_NO_RECEIVERS = 11008,
+		QOS_REQUEST_CONFIRMED = 11009,
+		QOS_ADMISSION_FAILURE = 11010,
+		QOS_POLICY_FAILURE = 11011,
+		QOS_BAD_STYLE = 11012,
+		QOS_BAD_OBJECT = 11013,
+		QOS_TRAFFIC_CTRL_ERROR = 11014,
+		QOS_GENERIC_ERROR = 11015,
+		QOS_ESERVICETYPE = 11016,
+		QOS_EFLOWSPEC = 11017,
+		QOS_EPROVSPECBUF = 11018,
+		QOS_EFILTERSTYLE = 11019,
+		QOS_EFILTERTYPE = 11020,
+		QOS_EFILTERCOUNT = 11021,
+		QOS_EOBJLENGTH = 11022,
+		QOS_EFLOWCOUNT = 11023,
+		QOS_EUNKOWNPSOBJ = 11024,
+		QOS_EPOLICYOBJ = 11025,
+		QOS_EFLOWDESC = 11026,
+		QOS_EPSFLOWSPEC = 11027,
+		QOS_EPSFILTERSPEC = 11028,
+		QOS_ESDMODEOBJ = 11029,
+		QOS_ESHAPERATEOBJ = 11030,
+		QOS_RESERVED_PETYPE = 11031,
+		SECURE_HOST_NOT_FOUND = 11032,
+		IPSEC_NAME_POLICY_ERROR = 11033,
 	};
 
 	[[nodiscard]] ErrorCode AcquireNetworkError() noexcept;
@@ -123,13 +123,13 @@ export namespace std
 		switch (code)
 		{
 		case iconer::net::ErrorCode::PendedIoOperation: return "PendedIoOperation";
-		case iconer::net::ErrorCode::WSA_IO_INCOMPLETE: return "WSA_IO_INCOMPLETE";
-		case iconer::net::ErrorCode::WSA_INVALID_HANDLE: return "WSA_INVALID_HANDLE";
-		case iconer::net::ErrorCode::WSA_INVALID_PARAMETER: return "WSA_INVALID_PARAMETER";
-		case iconer::net::ErrorCode::WSA_NOT_ENOUGH_MEMORY: return "WSA_NOT_ENOUGH_MEMORY";
+		case iconer::net::ErrorCode::IO_INCOMPLETE: return "WSA_IO_INCOMPLETE";
+		case iconer::net::ErrorCode::INVALID_HANDLE: return "WSA_INVALID_HANDLE";
+		case iconer::net::ErrorCode::INVALID_PARAMETER: return "WSA_INVALID_PARAMETER";
+		case iconer::net::ErrorCode::NOT_ENOUGH_MEMORY: return "WSA_NOT_ENOUGH_MEMORY";
 		case iconer::net::ErrorCode::OPERATION_ABORTED: return "OPERATION_ABORTED";
-		case iconer::net::ErrorCode::WSA_WAIT_EVENT_0: return "WSA_WAIT_EVENT_0";
-		case iconer::net::ErrorCode::WSA_WAIT_IO_COMPLETION: return "WSA_WAIT_IO_COMPLETION";
+		case iconer::net::ErrorCode::WAIT_EVENT_0: return "WSA_WAIT_EVENT_0";
+		case iconer::net::ErrorCode::WAIT_IO_COMPLETION: return "WSA_WAIT_IO_COMPLETION";
 		case iconer::net::ErrorCode::WSABASEERR: return "WSABASEERR";
 		case iconer::net::ErrorCode::BlockingCallsInterrupted: return "BlockingCallsInterrupted";
 		case iconer::net::ErrorCode::WSAEBADF: return "WSAEBADF";
@@ -186,42 +186,42 @@ export namespace std
 		case iconer::net::ErrorCode::WSASYSCALLFAILURE: return "WSASYSCALLFAILURE";
 		case iconer::net::ErrorCode::WSASERVICE_NOT_FOUND: return "WSASERVICE_NOT_FOUND";
 		case iconer::net::ErrorCode::WSATYPE_NOT_FOUND: return "WSATYPE_NOT_FOUND";
-		case iconer::net::ErrorCode::WSA_E_NO_MORE: return "WSA_E_NO_MORE";
-		case iconer::net::ErrorCode::WSA_E_CANCELLED: return "WSA_E_CANCELLED";
+		case iconer::net::ErrorCode::E_NO_MORE: return "WSA_E_NO_MORE";
+		case iconer::net::ErrorCode::E_CANCELLED: return "WSA_E_CANCELLED";
 		case iconer::net::ErrorCode::WSAEREFUSED: return "WSAEREFUSED";
 		case iconer::net::ErrorCode::WSAHOST_NOT_FOUND: return "WSAHOST_NOT_FOUND";
 		case iconer::net::ErrorCode::WSATRY_AGAIN: return "WSATRY_AGAIN";
 		case iconer::net::ErrorCode::WSANO_RECOVERY: return "WSANO_RECOVERY";
 		case iconer::net::ErrorCode::WSANO_DATA: return "WSANO_DATA";
-		case iconer::net::ErrorCode::WSA_QOS_RECEIVERS: return "WSA_QOS_RECEIVERS";
-		case iconer::net::ErrorCode::WSA_QOS_SENDERS: return "WSA_QOS_SENDERS";
-		case iconer::net::ErrorCode::WSA_QOS_NO_SENDERS: return "WSA_QOS_NO_SENDERS";
-		case iconer::net::ErrorCode::WSA_QOS_NO_RECEIVERS: return "WSA_QOS_NO_RECEIVERS";
-		case iconer::net::ErrorCode::WSA_QOS_REQUEST_CONFIRMED: return "WSA_QOS_REQUEST_CONFIRMED";
-		case iconer::net::ErrorCode::WSA_QOS_ADMISSION_FAILURE: return "WSA_QOS_ADMISSION_FAILURE";
-		case iconer::net::ErrorCode::WSA_QOS_POLICY_FAILURE: return "WSA_QOS_POLICY_FAILURE";
-		case iconer::net::ErrorCode::WSA_QOS_BAD_STYLE: return "WSA_QOS_BAD_STYLE";
-		case iconer::net::ErrorCode::WSA_QOS_BAD_OBJECT: return "WSA_QOS_BAD_OBJECT";
-		case iconer::net::ErrorCode::WSA_QOS_TRAFFIC_CTRL_ERROR: return "WSA_QOS_TRAFFIC_CTRL_ERROR";
-		case iconer::net::ErrorCode::WSA_QOS_GENERIC_ERROR: return "WSA_QOS_GENERIC_ERROR";
-		case iconer::net::ErrorCode::WSA_QOS_ESERVICETYPE: return "WSA_QOS_ESERVICETYPE";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWSPEC: return "WSA_QOS_EFLOWSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_EPROVSPECBUF: return "WSA_QOS_EPROVSPECBUF";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERSTYLE: return "WSA_QOS_EFILTERSTYLE";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERTYPE: return "WSA_QOS_EFILTERTYPE";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERCOUNT: return "WSA_QOS_EFILTERCOUNT";
-		case iconer::net::ErrorCode::WSA_QOS_EOBJLENGTH: return "WSA_QOS_EOBJLENGTH";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWCOUNT: return "WSA_QOS_EFLOWCOUNT";
-		case iconer::net::ErrorCode::WSA_QOS_EUNKOWNPSOBJ: return "WSA_QOS_EUNKOWNPSOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_EPOLICYOBJ: return "WSA_QOS_EPOLICYOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWDESC: return "WSA_QOS_EFLOWDESC";
-		case iconer::net::ErrorCode::WSA_QOS_EPSFLOWSPEC: return "WSA_QOS_EPSFLOWSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_EPSFILTERSPEC: return "WSA_QOS_EPSFILTERSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_ESDMODEOBJ: return "WSA_QOS_ESDMODEOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_ESHAPERATEOBJ: return "WSA_QOS_ESHAPERATEOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_RESERVED_PETYPE: return "WSA_QOS_RESERVED_PETYPE";
-		case iconer::net::ErrorCode::WSA_SECURE_HOST_NOT_FOUND: return "WSA_SECURE_HOST_NOT_FOUND";
-		case iconer::net::ErrorCode::WSA_IPSEC_NAME_POLICY_ERROR: return "WSA_IPSEC_NAME_POLICY_ERROR";
+		case iconer::net::ErrorCode::QOS_RECEIVERS: return "WSA_QOS_RECEIVERS";
+		case iconer::net::ErrorCode::QOS_SENDERS: return "WSA_QOS_SENDERS";
+		case iconer::net::ErrorCode::QOS_NO_SENDERS: return "WSA_QOS_NO_SENDERS";
+		case iconer::net::ErrorCode::QOS_NO_RECEIVERS: return "WSA_QOS_NO_RECEIVERS";
+		case iconer::net::ErrorCode::QOS_REQUEST_CONFIRMED: return "WSA_QOS_REQUEST_CONFIRMED";
+		case iconer::net::ErrorCode::QOS_ADMISSION_FAILURE: return "WSA_QOS_ADMISSION_FAILURE";
+		case iconer::net::ErrorCode::QOS_POLICY_FAILURE: return "WSA_QOS_POLICY_FAILURE";
+		case iconer::net::ErrorCode::QOS_BAD_STYLE: return "WSA_QOS_BAD_STYLE";
+		case iconer::net::ErrorCode::QOS_BAD_OBJECT: return "WSA_QOS_BAD_OBJECT";
+		case iconer::net::ErrorCode::QOS_TRAFFIC_CTRL_ERROR: return "WSA_QOS_TRAFFIC_CTRL_ERROR";
+		case iconer::net::ErrorCode::QOS_GENERIC_ERROR: return "WSA_QOS_GENERIC_ERROR";
+		case iconer::net::ErrorCode::QOS_ESERVICETYPE: return "WSA_QOS_ESERVICETYPE";
+		case iconer::net::ErrorCode::QOS_EFLOWSPEC: return "WSA_QOS_EFLOWSPEC";
+		case iconer::net::ErrorCode::QOS_EPROVSPECBUF: return "WSA_QOS_EPROVSPECBUF";
+		case iconer::net::ErrorCode::QOS_EFILTERSTYLE: return "WSA_QOS_EFILTERSTYLE";
+		case iconer::net::ErrorCode::QOS_EFILTERTYPE: return "WSA_QOS_EFILTERTYPE";
+		case iconer::net::ErrorCode::QOS_EFILTERCOUNT: return "WSA_QOS_EFILTERCOUNT";
+		case iconer::net::ErrorCode::QOS_EOBJLENGTH: return "WSA_QOS_EOBJLENGTH";
+		case iconer::net::ErrorCode::QOS_EFLOWCOUNT: return "WSA_QOS_EFLOWCOUNT";
+		case iconer::net::ErrorCode::QOS_EUNKOWNPSOBJ: return "WSA_QOS_EUNKOWNPSOBJ";
+		case iconer::net::ErrorCode::QOS_EPOLICYOBJ: return "WSA_QOS_EPOLICYOBJ";
+		case iconer::net::ErrorCode::QOS_EFLOWDESC: return "WSA_QOS_EFLOWDESC";
+		case iconer::net::ErrorCode::QOS_EPSFLOWSPEC: return "WSA_QOS_EPSFLOWSPEC";
+		case iconer::net::ErrorCode::QOS_EPSFILTERSPEC: return "WSA_QOS_EPSFILTERSPEC";
+		case iconer::net::ErrorCode::QOS_ESDMODEOBJ: return "WSA_QOS_ESDMODEOBJ";
+		case iconer::net::ErrorCode::QOS_ESHAPERATEOBJ: return "WSA_QOS_ESHAPERATEOBJ";
+		case iconer::net::ErrorCode::QOS_RESERVED_PETYPE: return "WSA_QOS_RESERVED_PETYPE";
+		case iconer::net::ErrorCode::SECURE_HOST_NOT_FOUND: return "WSA_SECURE_HOST_NOT_FOUND";
+		case iconer::net::ErrorCode::IPSEC_NAME_POLICY_ERROR: return "WSA_IPSEC_NAME_POLICY_ERROR";
 		default: return "Unknown";
 		}
 	}
@@ -232,13 +232,13 @@ export namespace std
 		switch (code)
 		{
 		case iconer::net::ErrorCode::PendedIoOperation: return L"PendedIoOperation";
-		case iconer::net::ErrorCode::WSA_IO_INCOMPLETE: return L"WSA_IO_INCOMPLETE";
-		case iconer::net::ErrorCode::WSA_INVALID_HANDLE: return L"WSA_INVALID_HANDLE";
-		case iconer::net::ErrorCode::WSA_INVALID_PARAMETER: return L"WSA_INVALID_PARAMETER";
-		case iconer::net::ErrorCode::WSA_NOT_ENOUGH_MEMORY: return L"WSA_NOT_ENOUGH_MEMORY";
+		case iconer::net::ErrorCode::IO_INCOMPLETE: return L"WSA_IO_INCOMPLETE";
+		case iconer::net::ErrorCode::INVALID_HANDLE: return L"WSA_INVALID_HANDLE";
+		case iconer::net::ErrorCode::INVALID_PARAMETER: return L"WSA_INVALID_PARAMETER";
+		case iconer::net::ErrorCode::NOT_ENOUGH_MEMORY: return L"WSA_NOT_ENOUGH_MEMORY";
 		case iconer::net::ErrorCode::OPERATION_ABORTED: return L"OPERATION_ABORTED";
-		case iconer::net::ErrorCode::WSA_WAIT_EVENT_0: return L"WSA_WAIT_EVENT_0";
-		case iconer::net::ErrorCode::WSA_WAIT_IO_COMPLETION: return L"WSA_WAIT_IO_COMPLETION";
+		case iconer::net::ErrorCode::WAIT_EVENT_0: return L"WSA_WAIT_EVENT_0";
+		case iconer::net::ErrorCode::WAIT_IO_COMPLETION: return L"WSA_WAIT_IO_COMPLETION";
 		case iconer::net::ErrorCode::WSABASEERR: return L"WSABASEERR";
 		case iconer::net::ErrorCode::BlockingCallsInterrupted: return L"BlockingCallsInterrupted";
 		case iconer::net::ErrorCode::WSAEBADF: return L"WSAEBADF";
@@ -295,42 +295,42 @@ export namespace std
 		case iconer::net::ErrorCode::WSASYSCALLFAILURE: return L"WSASYSCALLFAILURE";
 		case iconer::net::ErrorCode::WSASERVICE_NOT_FOUND: return L"WSASERVICE_NOT_FOUND";
 		case iconer::net::ErrorCode::WSATYPE_NOT_FOUND: return L"WSATYPE_NOT_FOUND";
-		case iconer::net::ErrorCode::WSA_E_NO_MORE: return L"WSA_E_NO_MORE";
-		case iconer::net::ErrorCode::WSA_E_CANCELLED: return L"WSA_E_CANCELLED";
+		case iconer::net::ErrorCode::E_NO_MORE: return L"WSA_E_NO_MORE";
+		case iconer::net::ErrorCode::E_CANCELLED: return L"WSA_E_CANCELLED";
 		case iconer::net::ErrorCode::WSAEREFUSED: return L"WSAEREFUSED";
 		case iconer::net::ErrorCode::WSAHOST_NOT_FOUND: return L"WSAHOST_NOT_FOUND";
 		case iconer::net::ErrorCode::WSATRY_AGAIN: return L"WSATRY_AGAIN";
 		case iconer::net::ErrorCode::WSANO_RECOVERY: return L"WSANO_RECOVERY";
 		case iconer::net::ErrorCode::WSANO_DATA: return L"WSANO_DATA";
-		case iconer::net::ErrorCode::WSA_QOS_RECEIVERS: return L"WSA_QOS_RECEIVERS";
-		case iconer::net::ErrorCode::WSA_QOS_SENDERS: return L"WSA_QOS_SENDERS";
-		case iconer::net::ErrorCode::WSA_QOS_NO_SENDERS: return L"WSA_QOS_NO_SENDERS";
-		case iconer::net::ErrorCode::WSA_QOS_NO_RECEIVERS: return L"WSA_QOS_NO_RECEIVERS";
-		case iconer::net::ErrorCode::WSA_QOS_REQUEST_CONFIRMED: return L"WSA_QOS_REQUEST_CONFIRMED";
-		case iconer::net::ErrorCode::WSA_QOS_ADMISSION_FAILURE: return L"WSA_QOS_ADMISSION_FAILURE";
-		case iconer::net::ErrorCode::WSA_QOS_POLICY_FAILURE: return L"WSA_QOS_POLICY_FAILURE";
-		case iconer::net::ErrorCode::WSA_QOS_BAD_STYLE: return L"WSA_QOS_BAD_STYLE";
-		case iconer::net::ErrorCode::WSA_QOS_BAD_OBJECT: return L"WSA_QOS_BAD_OBJECT";
-		case iconer::net::ErrorCode::WSA_QOS_TRAFFIC_CTRL_ERROR: return L"WSA_QOS_TRAFFIC_CTRL_ERROR";
-		case iconer::net::ErrorCode::WSA_QOS_GENERIC_ERROR: return L"WSA_QOS_GENERIC_ERROR";
-		case iconer::net::ErrorCode::WSA_QOS_ESERVICETYPE: return L"WSA_QOS_ESERVICETYPE";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWSPEC: return L"WSA_QOS_EFLOWSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_EPROVSPECBUF: return L"WSA_QOS_EPROVSPECBUF";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERSTYLE: return L"WSA_QOS_EFILTERSTYLE";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERTYPE: return L"WSA_QOS_EFILTERTYPE";
-		case iconer::net::ErrorCode::WSA_QOS_EFILTERCOUNT: return L"WSA_QOS_EFILTERCOUNT";
-		case iconer::net::ErrorCode::WSA_QOS_EOBJLENGTH: return L"WSA_QOS_EOBJLENGTH";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWCOUNT: return L"WSA_QOS_EFLOWCOUNT";
-		case iconer::net::ErrorCode::WSA_QOS_EUNKOWNPSOBJ: return L"WSA_QOS_EUNKOWNPSOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_EPOLICYOBJ: return L"WSA_QOS_EPOLICYOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_EFLOWDESC: return L"WSA_QOS_EFLOWDESC";
-		case iconer::net::ErrorCode::WSA_QOS_EPSFLOWSPEC: return L"WSA_QOS_EPSFLOWSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_EPSFILTERSPEC: return L"WSA_QOS_EPSFILTERSPEC";
-		case iconer::net::ErrorCode::WSA_QOS_ESDMODEOBJ: return L"WSA_QOS_ESDMODEOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_ESHAPERATEOBJ: return L"WSA_QOS_ESHAPERATEOBJ";
-		case iconer::net::ErrorCode::WSA_QOS_RESERVED_PETYPE: return L"WSA_QOS_RESERVED_PETYPE";
-		case iconer::net::ErrorCode::WSA_SECURE_HOST_NOT_FOUND: return L"WSA_SECURE_HOST_NOT_FOUND";
-		case iconer::net::ErrorCode::WSA_IPSEC_NAME_POLICY_ERROR: return L"WSA_IPSEC_NAME_POLICY_ERROR";
+		case iconer::net::ErrorCode::QOS_RECEIVERS: return L"WSA_QOS_RECEIVERS";
+		case iconer::net::ErrorCode::QOS_SENDERS: return L"WSA_QOS_SENDERS";
+		case iconer::net::ErrorCode::QOS_NO_SENDERS: return L"WSA_QOS_NO_SENDERS";
+		case iconer::net::ErrorCode::QOS_NO_RECEIVERS: return L"WSA_QOS_NO_RECEIVERS";
+		case iconer::net::ErrorCode::QOS_REQUEST_CONFIRMED: return L"WSA_QOS_REQUEST_CONFIRMED";
+		case iconer::net::ErrorCode::QOS_ADMISSION_FAILURE: return L"WSA_QOS_ADMISSION_FAILURE";
+		case iconer::net::ErrorCode::QOS_POLICY_FAILURE: return L"WSA_QOS_POLICY_FAILURE";
+		case iconer::net::ErrorCode::QOS_BAD_STYLE: return L"WSA_QOS_BAD_STYLE";
+		case iconer::net::ErrorCode::QOS_BAD_OBJECT: return L"WSA_QOS_BAD_OBJECT";
+		case iconer::net::ErrorCode::QOS_TRAFFIC_CTRL_ERROR: return L"WSA_QOS_TRAFFIC_CTRL_ERROR";
+		case iconer::net::ErrorCode::QOS_GENERIC_ERROR: return L"WSA_QOS_GENERIC_ERROR";
+		case iconer::net::ErrorCode::QOS_ESERVICETYPE: return L"WSA_QOS_ESERVICETYPE";
+		case iconer::net::ErrorCode::QOS_EFLOWSPEC: return L"WSA_QOS_EFLOWSPEC";
+		case iconer::net::ErrorCode::QOS_EPROVSPECBUF: return L"WSA_QOS_EPROVSPECBUF";
+		case iconer::net::ErrorCode::QOS_EFILTERSTYLE: return L"WSA_QOS_EFILTERSTYLE";
+		case iconer::net::ErrorCode::QOS_EFILTERTYPE: return L"WSA_QOS_EFILTERTYPE";
+		case iconer::net::ErrorCode::QOS_EFILTERCOUNT: return L"WSA_QOS_EFILTERCOUNT";
+		case iconer::net::ErrorCode::QOS_EOBJLENGTH: return L"WSA_QOS_EOBJLENGTH";
+		case iconer::net::ErrorCode::QOS_EFLOWCOUNT: return L"WSA_QOS_EFLOWCOUNT";
+		case iconer::net::ErrorCode::QOS_EUNKOWNPSOBJ: return L"WSA_QOS_EUNKOWNPSOBJ";
+		case iconer::net::ErrorCode::QOS_EPOLICYOBJ: return L"WSA_QOS_EPOLICYOBJ";
+		case iconer::net::ErrorCode::QOS_EFLOWDESC: return L"WSA_QOS_EFLOWDESC";
+		case iconer::net::ErrorCode::QOS_EPSFLOWSPEC: return L"WSA_QOS_EPSFLOWSPEC";
+		case iconer::net::ErrorCode::QOS_EPSFILTERSPEC: return L"WSA_QOS_EPSFILTERSPEC";
+		case iconer::net::ErrorCode::QOS_ESDMODEOBJ: return L"WSA_QOS_ESDMODEOBJ";
+		case iconer::net::ErrorCode::QOS_ESHAPERATEOBJ: return L"WSA_QOS_ESHAPERATEOBJ";
+		case iconer::net::ErrorCode::QOS_RESERVED_PETYPE: return L"WSA_QOS_RESERVED_PETYPE";
+		case iconer::net::ErrorCode::SECURE_HOST_NOT_FOUND: return L"WSA_SECURE_HOST_NOT_FOUND";
+		case iconer::net::ErrorCode::IPSEC_NAME_POLICY_ERROR: return L"WSA_IPSEC_NAME_POLICY_ERROR";
 		default: return L"Unknown";
 		}
 	}

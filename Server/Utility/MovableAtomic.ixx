@@ -122,14 +122,14 @@ export namespace iconer::util
 
 		template<typename U> requires assignable_from<integral_type, U>
 		integral_type FetchAdd(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
-			noexcept(nothrow_addable_with<integral_type, U>)
+			noexcept
 		{
 			return myValue.fetch_add(operand, std::forward<U>(order));
 		}
 
 		template<typename U> requires assignable_from<integral_type, U>
 		integral_type FetchSubtract(U&& operand, const std::memory_order order = std::memory_order_seq_cst)
-			noexcept(nothrow_subtractable_with<integral_type, U>)
+			noexcept
 		{
 			return myValue.fetch_sub(operand, std::forward<U>(order));
 		}

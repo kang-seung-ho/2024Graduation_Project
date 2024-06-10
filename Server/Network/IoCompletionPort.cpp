@@ -41,7 +41,7 @@ net::IoCompletionPort::Register(net::Socket& socket, std::uintptr_t id)
 noexcept
 {
 #if _DEBUG
-	const HANDLE target = reinterpret_cast<::HANDLE>(socket.myHandle);
+	const HANDLE target = reinterpret_cast<::HANDLE>(socket.GetNativeHandle());
 
 	const auto port = ::CreateIoCompletionPort(target, myHandle, id, 0);
 #else

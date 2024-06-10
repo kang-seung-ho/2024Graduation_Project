@@ -199,7 +199,7 @@ export namespace iconer::net
 		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
 		/// </summary>
 		/// <param name="context">- The io context object</param>
-		/// <param name="memory">-A pointer to the send data buffer</param>
+		/// <param name="memory">- A pointer to the send data buffer</param>
 		/// <param name="size">- Size of the send data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
@@ -208,51 +208,182 @@ export namespace iconer::net
 		bool Send(iconer::net::IoContext& context, std::span<const std::byte> memory, size_t size, iconer::net::ErrorCode& outpin) const;
 		bool Send(iconer::net::IoContext& context, const std::byte* const& memory, size_t size, iconer::net::ErrorCode& outpin) const;
 
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- The receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		SyncIoResult Receive(std::span<std::byte> memory) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		SyncIoResult Receive(std::span<std::byte> memory, size_t size) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- A pointer to the receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		SyncIoResult Receive(std::byte* memory, size_t size) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(std::span<std::byte> memory, ErrorCode& outpin) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(std::span<std::byte> memory, size_t size, ErrorCode& outpin) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- A pointer to the receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(std::byte* memory, size_t size, ErrorCode& outpin) const;
 
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- The receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		IoResult Receive(IoContext& context, std::span<std::byte> memory) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		IoResult Receive(IoContext& context, std::span<std::byte> memory, size_t size) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- A pointer to the receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		IoResult Receive(IoContext& context, std::byte* memory, size_t size) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(IoContext& context, std::span<std::byte> memory, ErrorCode& outpin) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- The receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(IoContext& context, std::span<std::byte> memory, size_t size, ErrorCode& outpin) const;
+		/// <summary>
+		/// Receive data into the memory buffer
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- A pointer to the receive data buffer</param>
+		/// <param name="size">- Size of the receive data buffer</param>
+		/// <param name="outpin">- The failsafe output pin for error code</param>
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(IoContext& context, std::byte* memory, size_t size, ErrorCode& outpin) const;
 
+		[[nodiscard]]
+		constexpr const std::uintptr_t& GetNativeHandle() const& noexcept
+		{
+			return myHandle;
+		}
+
+		[[nodiscard]]
+		constexpr std::uintptr_t&& GetNativeHandle() && noexcept
+		{
+			return std::move(myHandle);
+		}
+
+		[[nodiscard]]
+		constexpr iconer::net::InternetProtocol GetInternetProtocol() const noexcept
+		{
+			return myProtocol;
+		}
+
+		[[nodiscard]]
+		constexpr iconer::net::IpAddressFamily GetIpAddressFamily() const noexcept
+		{
+			return myFamily;
+		}
+
+		[[nodiscard]]
+		constexpr explicit operator bool() const noexcept
+		{
+			return (0 != myHandle and invalidHandle != myHandle);
+		}
+
 		constexpr Socket(Socket&& other) noexcept
 			: myHandle(std::exchange(other.myHandle, invalidHandle))
+			, myProtocol(other.myProtocol)
+			, myFamily(other.myFamily)
 		{}
 
 		constexpr Socket& operator=(Socket&& other) noexcept
 		{
 			myHandle = std::exchange(other.myHandle, invalidHandle);
+			myProtocol = other.myProtocol;
+			myFamily = other.myFamily;
 
 			return *this;
 		}
@@ -261,22 +392,22 @@ export namespace iconer::net
 		constexpr bool operator==(const Socket&) const noexcept = default;
 
 		[[nodiscard]]
-		static std::expected<Socket, iconer::net::ErrorCode> Create(iconer::net::SocketCategory type, const iconer::net::InternetProtocol& protocol, const iconer::net::IpAddressFamily& family) noexcept;
+		static std::expected<Socket, iconer::net::ErrorCode> Create(iconer::net::SocketCategory type, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family) noexcept;
 
 		[[nodiscard]]
-		static bool TryCreate(iconer::net::SocketCategory type, const iconer::net::InternetProtocol& protocol, const iconer::net::IpAddressFamily& family, iconer::net::ErrorCode& error_code) noexcept;
+		static bool TryCreate(iconer::net::SocketCategory type, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family, iconer::net::Socket& result, iconer::net::ErrorCode& outpin) noexcept;
 
 		[[nodiscard]]
-		static Socket CreateTcpSocket(iconer::net::SocketCategory type, const iconer::net::IpAddressFamily& family = iconer::net::IpAddressFamily::IPv4) noexcept;
+		static Socket CreateTcpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
 		[[nodiscard]]
-		static Socket CreateUdpSocket(iconer::net::SocketCategory type, const iconer::net::IpAddressFamily& family = iconer::net::IpAddressFamily::IPv4) noexcept;
+		static Socket CreateUdpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
+	private:
 		std::uintptr_t myHandle = invalidHandle;
 		iconer::net::InternetProtocol myProtocol = iconer::net::InternetProtocol::Unknown;
 		iconer::net::IpAddressFamily myFamily = iconer::net::IpAddressFamily::Unknown;
 
-	private:
 		using AsyncAcceptFunction = std_function_t<int, std::uintptr_t, std::uintptr_t, void*, unsigned long, unsigned long, unsigned long, unsigned long*, struct _OVERLAPPED*>;
 
 		using AsyncCloseFunction = std_function_t<int, std::uintptr_t, void*, unsigned long, unsigned long, struct _OVERLAPPED*, struct _TRANSMIT_FILE_BUFFERS*, unsigned long>;

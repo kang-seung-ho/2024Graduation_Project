@@ -19,6 +19,14 @@ constinit static inline ::RIO_EXTENSION_FUNCTION_TABLE rioFunctions{};
 constinit static inline std::once_flag internalInitFlag{};
 static inline constexpr unsigned long DEFAULT_ACCEPT_SIZE = sizeof(::sockaddr_in) + 16UL;
 
+iconer::net::Socket::Socket(std::uintptr_t sock, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family)
+noexcept
+	: myHandle(sock)
+	, myProtocol(protocol), myFamily(family)
+{
+	std::call_once(internalInitFlag, &Socket::InternalFunctionInitializer, sock);
+}
+
 iconer::net::Socket::IoResult
 iconer::net::Socket::Bind(const iconer::net::IpAddress& address, std::uint16_t port)
 const noexcept
@@ -635,24 +643,24 @@ const noexcept
 
 std::expected<iconer::net::Socket, iconer::net::ErrorCode>
 iconer::net::Socket::Create(iconer::net::SocketCategory type
-	, const iconer::net::InternetProtocol& protocol
-	, const iconer::net::IpAddressFamily& family)
+	, iconer::net::InternetProtocol protocol
+	, iconer::net::IpAddressFamily family)
 	noexcept
 {
 	const auto flags = std::to_underlying(type);
 
-	std::uintptr_t result;
+	std::uintptr_t native;
 	switch (protocol)
 	{
 	case InternetProtocol::TCP:
 	{
-		result = ::WSASocket(static_cast<int>(family), SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, flags);
+		native = ::WSASocket(static_cast<int>(family), SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, flags);
 	}
 	break;
 
 	case InternetProtocol::UDP:
 	{
-		result = ::WSASocket(static_cast<int>(family), SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
+		native = ::WSASocket(static_cast<int>(family), SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
 	}
 	break;
 
@@ -662,48 +670,91 @@ iconer::net::Socket::Create(iconer::net::SocketCategory type
 	}
 	}
 
-	if (INVALID_SOCKET == result)
+	if (INVALID_SOCKET == native)
 	{
 		return std::unexpected{ AcquireNetworkError() };
 	}
 	else
 	{
-		return Socket{ result, protocol, family };
+		return Socket{ native, protocol, family };
 	}
-}
-
-iconer::net::Socket::Socket(std::uintptr_t sock, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family)
-noexcept
-	: myHandle(sock)
-	, myProtocol(protocol), myFamily(family)
-{
-	std::call_once(internalInitFlag, &Socket::InternalFunctionInitializer, sock);
 }
 
 bool
 iconer::net::Socket::TryCreate(iconer::net::SocketCategory type
-	, const iconer::net::InternetProtocol& protocol
-	, const iconer::net::IpAddressFamily& family
-	, iconer::net::ErrorCode& error_code)
+	, iconer::net::InternetProtocol protocol
+	, iconer::net::IpAddressFamily family
+	, iconer::net::Socket& result
+	, iconer::net::ErrorCode& outpin)
 	noexcept
 {
-	return false;
+	const auto flags = std::to_underlying(type);
+
+	std::uintptr_t native;
+	switch (protocol)
+	{
+	case InternetProtocol::TCP:
+	{
+		native = ::WSASocket(static_cast<int>(family), SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, flags);
+	}
+	break;
+
+	case InternetProtocol::UDP:
+	{
+		native = ::WSASocket(static_cast<int>(family), SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
+	}
+	break;
+
+	case InternetProtocol::Unknown:
+	{
+		outpin = AcquireNetworkError();
+
+		return false;
+	}
+	}
+
+	if (INVALID_SOCKET == native)
+	{
+		outpin = AcquireNetworkError();
+
+		return false;
+	}
+	else
+	{
+		result = Socket{ native, protocol, family };
+
+		return true;
+	}
 }
 
 iconer::net::Socket
 iconer::net::Socket::CreateTcpSocket(iconer::net::SocketCategory type
-	, const iconer::net::IpAddressFamily& family)
+	, iconer::net::IpAddressFamily family)
 	noexcept
 {
-	return Socket();
+	if (auto result = Socket::Create(type, InternetProtocol::TCP, family); result)
+	{
+		return std::move(result.value());
+	}
+	else
+	{
+		return Socket{};
+	}
 }
 
 iconer::net::Socket
 iconer::net::Socket::CreateUdpSocket(SocketCategory type
-	, const IpAddressFamily& family)
+	, IpAddressFamily family)
 	noexcept
 {
-	return Socket();
+	if (auto result = Socket::Create(type, InternetProtocol::UDP, family); result)
+	{
+		return std::move(result.value());
+	}
+	else
+	{
+		return Socket{};
+	}
 }
 
 void
@@ -749,7 +800,7 @@ bool
 TrySerializeIpAddress(const iconer::net::IpAddress& ip_address, void* const& out)
 noexcept
 {
-	if (1 != ::inet_pton((int)ip_address.GetFamily()
+	if (1 != ::inet_pton((int) ip_address.GetFamily()
 		, ip_address.GetAddressString().data()
 		, out)) UNLIKELY
 	{
