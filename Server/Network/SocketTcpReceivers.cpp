@@ -103,7 +103,8 @@ const
 }
 
 bool
-iconer::net::Socket::Receive(IoContext& context, std::span<std::byte> memory, ErrorCode& outpin) const
+iconer::net::Socket::Receive(IoContext& context, std::span<std::byte> memory, ErrorCode& outpin)
+const
 {
 	return false;
 }
