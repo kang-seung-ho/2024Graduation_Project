@@ -1,10 +1,11 @@
 export module Iconer.Net.Socket;
+import Iconer.Utility.TypeTraits;
+import Iconer.Utility.Property;
 export import :SocketOption;
 export import :SocketCategory;
 export import Iconer.Net.ErrorCode;
 export import Iconer.Net.InternetProtocol;
 export import Iconer.Net.IpAddressFamily;
-import Iconer.Utility.TypeTraits;
 import <cstddef>;
 import <cstdint>;
 import <utility>;
@@ -403,6 +404,8 @@ export namespace iconer::net
 		[[nodiscard]]
 		static Socket CreateUdpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
+		iconer::util::Property reuseAddress{ this, false, &Socket::ReuseAddressImplementation };
+
 	private:
 		std::uintptr_t myHandle = invalidHandle;
 		iconer::net::InternetProtocol myProtocol = iconer::net::InternetProtocol::Unknown;
@@ -422,6 +425,8 @@ export namespace iconer::net
 
 			iconer::net::ErrorCode& errorOutput;
 		};
+
+		void ReuseAddressImplementation(bool flag) const noexcept;
 
 		static inline constinit AsyncAcceptFunction asyncAcceptFnPtr = nullptr;
 		static inline constinit AsyncCloseFunction asyncTransmitFnPtr = nullptr;

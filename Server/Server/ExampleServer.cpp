@@ -1,159 +1,29 @@
 #include "Framework.hpp"
-#include "Worker.hpp"
 
 import Iconer.Net;
 import Iconer.Net.EndPoint;
 import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
-import <cstdio>;
-import <cstdlib>;
-import <utility>;
-import <atomic>;
-import <array>;
-import <thread>;
-import <latch>;
 import <print>;
-
-using namespace iconer;
-using namespace iconer::net;
 
 Framework serverSystem{};
 
-constinit Socket serverSocket;
-constinit IoCompletionPort ioPort;
-
-inline constexpr size_t workerCount = 4;
-std::array<std::jthread, workerCount> myThreads;
-std::latch workerInitializationSynchronizer{ workerCount };
-
-inline constexpr std::uint16_t serverPort = 40000;
-
 int main()
 {
-	std::println("Starting server...");
-
-	if (const auto startup_state = Startup(); startup_state)
+	if (auto init = serverSystem.Initialize(); init)
 	{
 		std::println("Server is Initiated.");
 	}
 	else
 	{
-		std::println("Could not initialize this server, due to {}.", std::to_string(startup_state.error()));
-
-		return 1;
+		std::println("Could not initialize this server, due to {}.", std::to_string(init.error()));
 	}
 
-	//
-
-	serverSocket = Socket::CreateUdpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
-
-	if (serverSocket)
-	{
-		std::println("The listen socket is created.");
-	}
-	else
-	{
-		std::println("The listen socket was not created, due to {}.", std::to_string(AcquireNetworkError()));
-
-		return 1;
-	}
-
-	if (const auto io = serverSocket.BindToHost(serverPort); io)
-	{
-		std::println("The listen socket is bound to host:({}).", serverPort);
-	}
-	else
-	{
-		std::println("The listen socket could not be bound to host, due to {}.", std::to_string(io.error()));
-
-		return 1;
-	}
-
-	if (const auto io = serverSocket.ReusableAddress(true); io)
-	{
-		std::println("The listen socket now would recycle its address.");
-	}
-	else
-	{
-		std::println("The listen socket could not be set to re-use its address, due to {}.", std::to_string(io.error()));
-
-		return 1;
-	}
-
-	if (auto io = IoCompletionPort::Create(); io)
-	{
-		std::println("The iocp is created.");
-
-		ioPort = std::move(io.value());
-	}
-	else
-	{
-		std::println("Could not create iocp, due to {}.", std::to_string(io.error()));
-
-		return 1;
-	}
-
-	if (auto io = ioPort.Register(serverSocket, 0); io)
-	{
-		std::println("The listen socket is registered to the iocp.");
-	}
-	else
-	{
-		std::println("The listen socket was not able to be registered to the iocp, due to {}.", std::to_string(io.error()));
-
-		return 1;
-	}
-
-	std::println("Generating {} workers...", workerCount);
-
-	try
-	{
-		size_t index{};
-		for (auto& th : myThreads)
-		{
-			th = std::jthread
-			{
-				Worker,
-				std::ref(serverSystem),
-				++index
-			};
-		}
-	}
-	catch (...)
-	{
-		std::println("An error occured when generating workers!");
-
-		throw;
-	}
-
-	std::println("Server is started.");
-
-	char input_buffer[128]{};
-	constexpr uint32_t input_length = sizeof(input_buffer);
-
-	while (true)
-	{
-		const auto input = scanf_s("%s", input_buffer, input_length);
-
-		if (EOF != input)
-		{
-			if (input_buffer[0] == 'q')
-			{
-				break;
-			}
-		}
-	}
+	serverSystem.Startup();
 
 	std::println("Closing server...");
 
-	for (auto& th : myThreads)
-	{
-		th.request_stop();
-	}
-
-	ioPort.Destroy();
-
-	Cleanup();
+	serverSystem.Cleanup();
 
 	return 0;
 }

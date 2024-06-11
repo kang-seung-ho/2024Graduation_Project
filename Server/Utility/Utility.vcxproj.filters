@@ -24,5 +24,28 @@
     <ClCompile Include="MovableAtomic.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Property.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyArithmetics.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IProperty.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyBoolean.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyCharacters.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PropertyBoolean.hpp">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyArithmetics.hpp">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
