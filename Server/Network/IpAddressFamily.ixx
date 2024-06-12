@@ -1,9 +1,10 @@
 export module Iconer.Net.IpAddressFamily;
+import <cstdint>;
 import <string>;
 
 export namespace iconer::net
 {
-	enum class [[nodiscard]] IpAddressFamily
+	enum class [[nodiscard]] IpAddressFamily : std::uint16_t
 	{
 		Unknown, IPv4 = 2, IPv6 = 23
 	};

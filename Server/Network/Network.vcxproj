@@ -180,6 +180,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EndPoint.cpp" />
     <ClCompile Include="EndPoint.ixx" />
     <ClCompile Include="InternetProtocol.ixx" />
     <ClCompile Include="IoCompletionPort.cpp" />
@@ -192,12 +193,14 @@
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="Socket.ixx" />
     <ClCompile Include="ErrorCodes.ixx" />
+    <ClCompile Include="SerializedSocketAddress.ixx" />
     <ClCompile Include="SocketCategories.ixx" />
     <ClCompile Include="SocketOptions.ixx" />
     <ClCompile Include="SocketTcpReceivers.cpp" />
     <ClCompile Include="SocketTcpSenders.cpp" />
     <ClCompile Include="SocketUdpReceivers.cpp" />
     <ClCompile Include="SocketUdpSenders.cpp" />
+    <ClCompile Include="SocketUtilities.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

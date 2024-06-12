@@ -14,9 +14,6 @@ import Iconer.Net.IoContext;
 import <mutex>;
 import <print>;
 
-::SOCKADDR_STORAGE SerializeEndpoint(const iconer::net::EndPoint& endpoint) noexcept;
-
-constinit static inline ::RIO_EXTENSION_FUNCTION_TABLE rioFunctions{};
 constinit static inline std::once_flag internalInitFlag{};
 static inline constexpr unsigned long DEFAULT_ACCEPT_SIZE = sizeof(::sockaddr_in) + 16UL;
 
@@ -46,9 +43,9 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::Bind(const iconer::net::EndPoint& endpoint)
 const noexcept
 {
-	const auto sockaddr_storage = ::SerializeEndpoint(endpoint);
-	const auto ptr = std::addressof(sockaddr_storage);
-	const auto address = reinterpret_cast<const ::SOCKADDR*>(ptr);
+	const auto sockaddr = endpoint.Serialize();
+	const auto sockaddr_ptr = std::addressof(sockaddr);
+	const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
 
 	if (0 == ::bind(myHandle, address, sizeof(::sockaddr_in))) LIKELY
 	{
@@ -64,11 +61,11 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::Bind(iconer::net::EndPoint&& endpoint)
 const noexcept
 {
-	const auto sockaddr_storage = ::SerializeEndpoint(std::move(endpoint));
-	const auto ptr = std::addressof(sockaddr_storage);
-	const auto address = reinterpret_cast<const ::SOCKADDR*>(ptr);
+	const auto sockaddr = endpoint.Serialize();
+	const auto sockaddr_ptr = std::addressof(sockaddr);
+	const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
 
-	if (0 == ::bind(myHandle, reinterpret_cast<const ::SOCKADDR*>(ptr), sizeof(sockaddr_in))) LIKELY
+	if (0 == ::bind(myHandle, address, sizeof(::sockaddr_in))) LIKELY
 	{
 		return {};
 	}
@@ -206,8 +203,8 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::Connect(const iconer::net::EndPoint& endpoint)
 const noexcept
 {
-	const SOCKADDR_STORAGE sockaddr = SerializeEndpoint(endpoint);
-	const SOCKADDR_STORAGE* ptr = std::addressof(sockaddr);
+	const auto sockaddr = endpoint.Serialize();
+	const auto ptr = std::addressof(sockaddr);
 
 	if (0 != ::WSAConnect(myHandle
 		, reinterpret_cast<const SOCKADDR*>(ptr), sizeof(sockaddr)
@@ -227,15 +224,15 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::Connect(iconer::net::EndPoint&& endpoint)
 const noexcept
 {
-	const SOCKADDR_STORAGE sockaddr = SerializeEndpoint(std::move(endpoint));
-	const SOCKADDR_STORAGE* ptr = std::addressof(sockaddr);
+	const auto sockaddr = endpoint.Serialize();
+	const auto ptr = std::addressof(sockaddr);
 
 	if (0 != ::WSAConnect(myHandle
 		, reinterpret_cast<const SOCKADDR*>(ptr), sizeof(sockaddr)
 		, nullptr, nullptr
 		, nullptr, nullptr)) UNLIKELY
 	{
-		if (const auto error_code = AcquireNetworkError(); error_code != ErrorCode::NonBlockedOperation)
+		if (const auto error_code = AcquireNetworkError(); error_code != ErrorCode::NonBlockedOperation) UNLIKELY
 		{
 			return std::unexpected{ AcquireNetworkError() };
 		}
@@ -334,7 +331,7 @@ const noexcept
 	if (0 == ::getsockopt(myHandle
 		, SOL_SOCKET
 		, std::to_underlying(SocketOption::Recyclable)
-		, reinterpret_cast<char*>(&opt_val), &opt_len))
+		, reinterpret_cast<char*>(&opt_val), &opt_len)) LIKELY
 	{
 		return opt_val != 0;
 	}
@@ -392,7 +389,7 @@ const noexcept
 	}
 
 	const auto client = ::accept(myHandle, rawaddr, std::addressof(address_blen));
-	if (INVALID_SOCKET == client)
+	if (INVALID_SOCKET == client) UNLIKELY
 	{
 		return std::unexpected{ AcquireNetworkError() };
 	}
@@ -446,12 +443,12 @@ const noexcept
 		wchar_t ip_wbuffer[32]{};
 		::DWORD wblen = sizeof(ip_wbuffer);
 
-		if (SOCKET_ERROR == WSAAddressToString(rawaddr, sizeof(address), nullptr, ip_wbuffer, std::addressof(wblen)))
+		if (SOCKET_ERROR == WSAAddressToString(rawaddr, sizeof(address), nullptr, ip_wbuffer, std::addressof(wblen))) UNLIKELY
 		{
 			return std::unexpected{ AcquireNetworkError() };
 		}
 
-		try
+			try
 		{
 			size_t mb_result = 0;
 			char ip_buffer[32]{};
@@ -475,7 +472,7 @@ const noexcept
 	endpoint = EndPoint{ std::move(ip), port };
 
 	const auto client = ::WSAAccept(myHandle, rawaddr, std::addressof(address_blen), nullptr, 0);
-	if (INVALID_SOCKET == client)
+	if (INVALID_SOCKET == client) UNLIKELY
 	{
 		return std::unexpected{ AcquireNetworkError() };
 	}
@@ -501,7 +498,7 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, iconer::net::Socket& client)
 const
 {
-	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle)
+	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle) UNLIKELY
 	{
 		return std::unexpected{ ErrorCode::NotASocket };
 	}
@@ -517,7 +514,7 @@ const
 		, static_cast<::LPWSAOVERLAPPED>(context))
 		)
 	{
-		if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+		if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation) UNLIKELY
 		{
 			return std::unexpected{ std::move(error) };
 		}
@@ -530,7 +527,7 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, iconer::net::Socket& client, std::span<std::byte> accept_buffer)
 const
 {
-	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle)
+	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle) UNLIKELY
 	{
 		return std::unexpected{ ErrorCode::NotASocket };
 	}
@@ -545,7 +542,7 @@ const
 		, static_cast<::LPWSAOVERLAPPED>(context))
 		)
 	{
-		if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+		if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation) UNLIKELY
 		{
 			return std::unexpected{ std::move(error) };
 		}
@@ -565,11 +562,11 @@ bool
 iconer::net::Socket::Close()
 const noexcept
 {
-	if (myHandle != invalidHandle)
+	if (myHandle != invalidHandle) LIKELY
 	{
 		return (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET));
 	}
-	else
+	else UNLIKELY
 	{
 		return false;
 	}
@@ -581,11 +578,11 @@ const noexcept
 {
 	if (myHandle != invalidHandle)
 	{
-		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET))
+		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET)) LIKELY
 		{
 			return true;
 		}
-		else
+		else UNLIKELY
 		{
 			error_code = AcquireNetworkError();
 
@@ -617,11 +614,11 @@ bool
 iconer::net::Socket::AsyncClose(IoContext* const context)
 const noexcept
 {
-	if (myHandle != invalidHandle)
+	if (myHandle != invalidHandle) LIKELY
 	{
 		return (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET));
 	}
-	else
+	else UNLIKELY
 	{
 		return false;
 	}
@@ -631,253 +628,22 @@ bool
 iconer::net::Socket::AsyncClose(IoContext* const context, ErrorCode& error_code)
 const noexcept
 {
-	if (myHandle != invalidHandle)
+	if (myHandle != invalidHandle) LIKELY
 	{
-		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET))
+		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET)) LIKELY
 		{
 			return true;
 		}
-		else
+		else UNLIKELY
 		{
 			error_code = AcquireNetworkError();
 
 			return false;
 		}
 	}
-	else
+	else UNLIKELY
 	{
 		error_code = ErrorCode::NotASocket;
 		return false;
 	}
-}
-
-std::expected<iconer::net::Socket, iconer::net::ErrorCode>
-iconer::net::Socket::Create(iconer::net::SocketCategory type
-	, iconer::net::InternetProtocol protocol
-	, iconer::net::IpAddressFamily family)
-	noexcept
-{
-	const auto flags = std::to_underlying(type);
-
-	std::uintptr_t native;
-	switch (protocol)
-	{
-	case InternetProtocol::TCP:
-	{
-		native = ::WSASocket(static_cast<int>(family), SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, flags);
-	}
-	break;
-
-	case InternetProtocol::UDP:
-	{
-		native = ::WSASocket(static_cast<int>(family), SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
-	}
-	break;
-
-	case InternetProtocol::Unknown:
-	{
-		return std::unexpected{ AcquireNetworkError() };
-	}
-	}
-
-	if (INVALID_SOCKET == native)
-	{
-		return std::unexpected{ AcquireNetworkError() };
-	}
-	else
-	{
-		return Socket{ native, protocol, family };
-	}
-}
-
-bool
-iconer::net::Socket::TryCreate(iconer::net::SocketCategory type
-	, iconer::net::InternetProtocol protocol
-	, iconer::net::IpAddressFamily family
-	, iconer::net::Socket& result
-	, iconer::net::ErrorCode& outpin)
-	noexcept
-{
-	const auto flags = std::to_underlying(type);
-
-	std::uintptr_t native;
-	switch (protocol)
-	{
-	case InternetProtocol::TCP:
-	{
-		native = ::WSASocket(static_cast<int>(family), SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, flags);
-	}
-	break;
-
-	case InternetProtocol::UDP:
-	{
-		native = ::WSASocket(static_cast<int>(family), SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, flags);
-	}
-	break;
-
-	case InternetProtocol::Unknown:
-	{
-		outpin = AcquireNetworkError();
-
-		return false;
-	}
-	}
-
-	if (INVALID_SOCKET == native)
-	{
-		outpin = AcquireNetworkError();
-
-		return false;
-	}
-	else
-	{
-		result = Socket{ native, protocol, family };
-
-		return true;
-	}
-}
-
-iconer::net::Socket
-iconer::net::Socket::CreateTcpSocket(iconer::net::SocketCategory type
-	, iconer::net::IpAddressFamily family)
-	noexcept
-{
-	if (auto result = Socket::Create(type, InternetProtocol::TCP, family); result)
-	{
-		return std::move(result.value());
-	}
-	else
-	{
-		return Socket{};
-	}
-}
-
-iconer::net::Socket
-iconer::net::Socket::CreateUdpSocket(SocketCategory type
-	, IpAddressFamily family)
-	noexcept
-{
-	if (auto result = Socket::Create(type, InternetProtocol::UDP, family); result)
-	{
-		return std::move(result.value());
-	}
-	else
-	{
-		return Socket{};
-	}
-}
-
-void
-iconer::net::Socket::InternalFunctionInitializer(std::uintptr_t socket)
-{
-	::GUID fntable_id = WSAID_MULTIPLE_RIO;
-	::DWORD temp_bytes = 0;
-
-	::GUID* fntable_addr = std::addressof(fntable_id);
-	::DWORD* bytes_addr = std::addressof(temp_bytes);
-
-#if _DEBUG
-	int result =
-#endif // _DEBUG
-		::WSAIoctl(socket, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER
-			, fntable_addr, sizeof(GUID)
-			, reinterpret_cast<void**>(std::addressof(rioFunctions)), sizeof(rioFunctions)
-			, bytes_addr
-			, nullptr, nullptr);
-
-	fntable_id = WSAID_ACCEPTEX;
-#if _DEBUG
-	result =
-#endif // _DEBUG
-		::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER
-			, fntable_addr, sizeof(GUID)
-			, std::addressof(asyncAcceptFnPtr), sizeof(asyncAcceptFnPtr)
-			, bytes_addr
-			, nullptr, nullptr);
-
-	fntable_id = WSAID_TRANSMITFILE;
-#if _DEBUG
-	result =
-#endif // _DEBUG
-		::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER
-			, fntable_addr, sizeof(GUID)
-			, std::addressof(asyncTransmitFnPtr), sizeof(asyncTransmitFnPtr)
-			, bytes_addr
-			, nullptr, nullptr);
-}
-
-bool
-TrySerializeIpAddress(const iconer::net::IpAddress& ip_address, void* const& out)
-noexcept
-{
-	if (1 != ::inet_pton((int) ip_address.GetFamily()
-		, ip_address.GetAddressString().data()
-		, out)) UNLIKELY
-	{
-		return false;
-	}
-	else LIKELY
-	{
-		return true;
-	}
-}
-
-::SOCKADDR_STORAGE
-SerializeEndpoint(const iconer::net::EndPoint& endpoint)
-noexcept
-{
-	const auto& ip = endpoint.GetIpAddress();
-	const auto& port = endpoint.GetPort();
-
-	::SOCKADDR_STORAGE result{};
-	::SOCKADDR_STORAGE* sockaddr_ptr = std::addressof(result);
-
-	switch (endpoint.GetAddressFamily())
-	{
-	case iconer::net::IpAddressFamily::IPv4:
-	{
-		::IN_ADDR sk_addr{};
-		if (not TrySerializeIpAddress(ip, std::addressof(sk_addr.s_addr)))
-		{
-			break;
-		}
-
-		::SOCKADDR_IN ipv4_addr
-		{
-			.sin_family = AF_INET,
-			.sin_port = port,
-			.sin_addr = std::move(sk_addr),
-		};
-
-		result = *reinterpret_cast<const ::SOCKADDR_STORAGE*>(std::addressof(ipv4_addr));
-	}
-	break;
-
-	case iconer::net::IpAddressFamily::IPv6:
-	{
-		::IN6_ADDR sk_addr{};
-		if (not TrySerializeIpAddress(ip, std::addressof(sk_addr.s6_addr)))
-		{
-			break;
-		}
-
-		::SOCKADDR_IN6 ipv6_addr
-		{
-			.sin6_family = AF_INET6,
-			.sin6_port = port,
-			.sin6_flowinfo = 0,
-			.sin6_addr = std::move(sk_addr),
-			.sin6_scope_id = 0,
-		};
-
-		result = *reinterpret_cast<const ::SOCKADDR_STORAGE*>(std::addressof(ipv6_addr));
-	}
-	break;
-
-	case iconer::net::IpAddressFamily::Unknown:
-	{}
-	break;
-	}
-
-	return result;
 }

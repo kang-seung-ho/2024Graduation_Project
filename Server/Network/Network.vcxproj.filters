@@ -63,5 +63,14 @@
     <ClCompile Include="SocketUdpReceivers.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="SocketUtilities.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SerializedSocketAddress.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="EndPoint.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

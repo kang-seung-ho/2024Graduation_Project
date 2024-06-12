@@ -1,6 +1,7 @@
 export module Iconer.Net.EndPoint;
 export import Iconer.Net.IpAddressFamily;
 export import Iconer.Net.IpAddress;
+export import Iconer.Net.SerializedSocketAddress;
 import <cstdint>;
 import <string_view>;
 
@@ -17,6 +18,9 @@ export namespace iconer::net
 		explicit constexpr EndPoint(iconer::net::IpAddress&& ip_address, std::uint16_t port)
 			: myAddress(std::move(ip_address)), myPort(port)
 		{}
+
+		[[nodiscard]]
+		SerializedSocketAddress Serialize() const noexcept;
 
 		[[nodiscard]]
 		constexpr const iconer::net::IpAddressFamily& GetAddressFamily() const& noexcept
