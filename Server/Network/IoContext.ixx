@@ -6,12 +6,16 @@ import <cstdint>;
 import <new>;
 import <utility>;
 
+export using ::WSAOVERLAPPED;
+
 export namespace iconer::net
 {
-	class [[nodiscard]] IoContext : public WSAOVERLAPPED
+	export using NativeContext = ::WSAOVERLAPPED;
+
+	class [[nodiscard]] IoContext : public ::WSAOVERLAPPED
 	{
 	public:
-		using Super = WSAOVERLAPPED;
+		using Super = ::WSAOVERLAPPED;
 
 		explicit constexpr IoContext() noexcept
 			: Super()
