@@ -12,6 +12,7 @@ import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
 import <mutex>;
+import <print>;
 
 ::SOCKADDR_STORAGE SerializeEndpoint(const iconer::net::EndPoint& endpoint) noexcept;
 
@@ -348,6 +349,15 @@ const noexcept
 	::BOOL iflag = static_cast<::BOOL>(flag);
 
 	return SetOption(SocketOption::Recyclable, std::addressof(iflag), sizeof(iflag));
+}
+
+void
+iconer::net::Socket::ReuseAddressImplementation(bool flag)
+const noexcept
+{
+	std::println("Socket::ReuseAddressImplementation({}) called", flag);
+
+	(void)ReusableAddress(flag);
 }
 
 std::expected<iconer::net::Socket, iconer::net::ErrorCode>

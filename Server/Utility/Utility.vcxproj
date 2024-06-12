@@ -30,10 +30,6 @@
     <ClCompile Include="PropertyCharacters.ixx" />
     <ClCompile Include="TypeTraits.ixx" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PropertyArithmetics.hpp" />
-    <ClInclude Include="PropertyBoolean.hpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

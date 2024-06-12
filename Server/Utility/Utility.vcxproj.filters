@@ -40,12 +40,4 @@
       <Filter>Public</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PropertyBoolean.hpp">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyArithmetics.hpp">
-      <Filter>Public</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>

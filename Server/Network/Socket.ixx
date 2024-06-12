@@ -404,7 +404,7 @@ export namespace iconer::net
 		[[nodiscard]]
 		static Socket CreateUdpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
-		iconer::util::Property reuseAddress{ this, false, &Socket::ReuseAddressImplementation };
+		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
 
 	private:
 		std::uintptr_t myHandle = invalidHandle;
