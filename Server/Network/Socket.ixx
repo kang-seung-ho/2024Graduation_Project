@@ -205,8 +205,40 @@ export namespace iconer::net
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		IoResult Send(iconer::net::IoContext& context, const std::byte* const& memory, size_t size) const;
+		/// <summary>
+		/// Send data through this socket
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- The send data buffer</param>
+		/// <exception cref="std::overflow_error"/>
+		/// <exception cref="std::system_error"/>
 		bool Send(iconer::net::IoContext& context, std::span<const std::byte> memory, iconer::net::ErrorCode& outpin) const;
+		/// <summary>
+		/// Send data through this socket
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- The send data buffer</param>
+		/// <param name="size">- Size of the send data buffer</param>
+		/// <exception cref="std::overflow_error"/>
+		/// <exception cref="std::system_error"/>
 		bool Send(iconer::net::IoContext& context, std::span<const std::byte> memory, size_t size, iconer::net::ErrorCode& outpin) const;
+		/// <summary>
+		/// Send data through this socket
+		/// <para><b>(Asynchronous IO)</b></para>
+		/// <para>-------------------------------------------------------------------------------</para>
+		/// <para>throws <see cref="std::system_error"/> when <paramref name="memory"/> is <value>nullptr</value></para>
+		/// </summary>
+		/// <param name="context">- The io context object</param>
+		/// <param name="memory">- A pointer to the send data buffer</param>
+		/// <param name="size">- Size of the send data buffer</param>
+		/// <exception cref="std::overflow_error"/>
+		/// <exception cref="std::system_error"/>
 		bool Send(iconer::net::IoContext& context, const std::byte* const& memory, size_t size, iconer::net::ErrorCode& outpin) const;
 
 		/// <summary>
