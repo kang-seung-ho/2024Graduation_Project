@@ -75,5 +75,8 @@
     <ClCompile Include="SocketProperties.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadPool.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

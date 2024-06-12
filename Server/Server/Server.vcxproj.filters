@@ -18,18 +18,18 @@
     <ClCompile Include="ExampleServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Worker.cpp">
+    <ClCompile Include="Framework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework.cpp">
+    <ClCompile Include="ThreadPool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Worker.hpp">
+    <ClInclude Include="Framework.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework.hpp">
+    <ClInclude Include="ThreadPool.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

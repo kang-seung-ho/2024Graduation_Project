@@ -6,7 +6,7 @@ import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import <print>;
 
-Framework serverSystem{};
+ServerFramework serverSystem{};
 
 int main()
 {

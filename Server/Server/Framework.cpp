@@ -1,5 +1,4 @@
 #include "Framework.hpp"
-#include "Worker.hpp"
 
 import Iconer.Net;
 import <cstdio>;
@@ -11,7 +10,7 @@ using namespace iconer;
 using namespace iconer::net;
 
 std::expected<void, iconer::net::ErrorCode>
-Framework::Initialize()
+ServerFramework::Initialize()
 {
 	std::println("Starting server...");
 
@@ -74,26 +73,24 @@ Framework::Initialize()
 		return std::move(io);
 	}
 
-	if (auto io = IoCompletionPort::Create(); io)
+	if (auto io = myTaskPool.Initialize(); io)
 	{
-		std::println("The iocp is created.");
-
-		completionPort = std::move(io.value());
+		std::println("The task pool is created.");
 	}
 	else
 	{
-		std::println("Could not create iocp, due to {}.", std::to_string(io.error()));
+		std::println("Could not create task pool, due to {}.", std::to_string(io.error()));
 
 		return std::unexpected{ io.error() };
 	}
 
-	if (auto io = completionPort.Register(listenSocket, 0); io)
+	if (auto io = myTaskPool.Register(listenSocket, 0); io)
 	{
-		std::println("The listen socket is registered to the iocp.");
+		std::println("The listen socket is registered to the task pool.");
 	}
 	else
 	{
-		std::println("The listen socket was not able to be registered to the iocp, due to {}.", std::to_string(io.error()));
+		std::println("The listen socket was not able to be registered to the task pool, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
@@ -102,22 +99,13 @@ Framework::Initialize()
 }
 
 void
-Framework::Startup()
+ServerFramework::Startup()
 {
 	std::println("Generating {} workers...", workerCount);
 
 	try
 	{
-		size_t index{};
-		for (auto& th : myWorkers)
-		{
-			th = std::jthread
-			{
-				Worker,
-				std::ref(*this),
-				++index
-			};
-		}
+		myTaskPool.Startup(*this);
 	}
 	catch (std::exception& e)
 	{
@@ -125,8 +113,6 @@ Framework::Startup()
 
 		throw;
 	}
-
-	workerInitializationSynchronizer.wait();
 
 	std::println("Server is started.");
 
@@ -148,36 +134,17 @@ Framework::Startup()
 }
 
 void
-Framework::Cleanup()
+ServerFramework::Cleanup()
 {
-	for (auto& th : myWorkers)
-	{
-		th.request_stop();
-	}
+	myTaskPool.Cleanup();
 
 	listenSocket.Close();
-
-	completionPort.Destroy();
 
 	iconer::net::Cleanup();
 }
 
-void
-Framework::ArriveWorker()
-noexcept
-{
-	workerInitializationSynchronizer.arrive_and_wait();
-}
-
-iconer::net::IoEvent
-Framework::AwaitForTask()
-noexcept
-{
-	return completionPort.WaitForIoResult();
-}
-
 bool
-Framework::ProcessTask(iconer::net::IoEvent task)
+ServerFramework::ProcessTask(iconer::net::IoEvent task)
 {
 	if (task.isSucceed) LIKELY
 	{

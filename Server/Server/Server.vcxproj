@@ -173,7 +173,7 @@
   <ItemGroup>
     <ClCompile Include="ExampleServer.cpp" />
     <ClCompile Include="Framework.cpp" />
-    <ClCompile Include="Worker.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">
@@ -188,7 +188,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp" />
-    <ClInclude Include="Worker.hpp" />
+    <ClInclude Include="ThreadPool.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
