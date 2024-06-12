@@ -28,6 +28,10 @@ export namespace iconer::net
 
 		static inline constexpr std::uintptr_t invalidHandle = -1;
 
+		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
+
+		iconer::util::Property<bool, Socket> tcpNoDelay{ this, &Socket::TcpNoDelayImplementation, false };
+
 		explicit Socket() noexcept = default;
 
 		IoResult Bind(const iconer::net::IpAddress& address, std::uint16_t port) const noexcept;
@@ -46,9 +50,11 @@ export namespace iconer::net
 
 		IoResult SetOption(SocketOption option, const void* opt_buffer, const size_t opt_size) const noexcept;
 
-		[[nodiscard]]
-		bool ReusableAddress() const noexcept;
+		[[nodiscard]] bool ReusableAddress() const noexcept;
 		IoResult ReusableAddress(bool flag) const noexcept;
+
+		[[nodiscard]] bool IsTcpNoDelay() const noexcept;
+		IoResult SetTcpNoDelay(bool flag) const noexcept;
 
 		[[nodiscard]]
 		std::expected<Socket, iconer::net::ErrorCode> Accept() const noexcept;
@@ -436,8 +442,6 @@ export namespace iconer::net
 		[[nodiscard]]
 		static Socket CreateUdpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
-		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
-
 	private:
 		std::uintptr_t myHandle = invalidHandle;
 		iconer::net::InternetProtocol myProtocol = iconer::net::InternetProtocol::Unknown;
@@ -459,6 +463,7 @@ export namespace iconer::net
 		};
 
 		void ReuseAddressImplementation(bool flag) const noexcept;
+		void TcpNoDelayImplementation(bool flag) const noexcept;
 
 		static inline constinit AsyncAcceptFunction asyncAcceptFnPtr = nullptr;
 		static inline constinit AsyncCloseFunction asyncTransmitFnPtr = nullptr;

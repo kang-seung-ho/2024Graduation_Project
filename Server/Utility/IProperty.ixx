@@ -114,12 +114,12 @@ export namespace iconer::util
 		{
 			constexpr void operator()(std::monostate) const noexcept {}
 
-			constexpr void operator()(const auto& fun) const noexcept
+			constexpr void operator()(const auto& fun) const
 			{
 				fun(value);
 			}
 
-			constexpr void operator()(const std::unique_ptr<invoker_t>& fun) const noexcept
+			constexpr void operator()(const std::unique_ptr<invoker_t>& fun) const
 			{
 				(*fun.get())(value);
 			}
@@ -130,8 +130,6 @@ export namespace iconer::util
 		static inline constexpr bool defaultInitializable = default_initializable<value_type>;
 
 	public:
-		value_type myValue;
-
 		constexpr IProperty()
 			noexcept(nothrow_default_constructibles<value_type, storage_t>)
 			requires (defaultInitializable)
@@ -171,6 +169,7 @@ export namespace iconer::util
 		{}
 
 	protected:
+		value_type myValue;
 		storage_t myDelegates;
 
 		constexpr void SetValue(const value_type& value) requires (copy_assignables<value_type>)
@@ -246,8 +245,6 @@ export namespace iconer::util
 		static inline constexpr bool defaultInitializable = default_initializable<value_type>;
 
 	public:
-		value_type myValue;
-
 		constexpr ~IProperty()
 			noexcept(nothrow_destructibles<value_type, storage_t>) = default;
 
@@ -278,6 +275,7 @@ export namespace iconer::util
 		{}
 
 	protected:
+		value_type myValue;
 		context_pointer myContext;
 		storage_t myDelegates;
 

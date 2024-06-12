@@ -26,7 +26,7 @@ Framework::Initialize()
 		return std::move(io);
 	}
 
-	listenSocket = Socket::CreateUdpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
+	listenSocket = Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
 
 	if (listenSocket)
 	{
@@ -59,6 +59,17 @@ Framework::Initialize()
 	else
 	{
 		std::println("The listen socket could not be set to re-use its address, due to {}.", std::to_string(io.error()));
+
+		return std::move(io);
+	}
+	
+	if (const auto io = listenSocket.SetTcpNoDelay(false); io)
+	{
+		std::println("The listen socket would not use Nagle algorithm. ({})", listenSocket.IsTcpNoDelay());
+	}
+	else
+	{
+		std::println("The listen socket could not set Nagle algorithm, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
