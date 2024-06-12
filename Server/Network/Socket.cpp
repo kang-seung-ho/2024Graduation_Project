@@ -43,36 +43,88 @@ iconer::net::Socket::IoResult
 iconer::net::Socket::Bind(const iconer::net::EndPoint& endpoint)
 const noexcept
 {
-	const auto sockaddr = endpoint.Serialize();
-	const auto sockaddr_ptr = std::addressof(sockaddr);
-	const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
+	switch (myFamily)
+	{
+	case IpAddressFamily::IPv4:
+	{
+		const auto sockaddr = endpoint.Serialize();
+		const auto sockaddr_ptr = std::addressof(sockaddr);
+		const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
 
-	if (0 == ::bind(myHandle, address, sizeof(::sockaddr_in))) LIKELY
-	{
-		return {};
+		if (0 == ::bind(myHandle, address, sizeof(::SOCKADDR_IN))) LIKELY
+		{
+			return {};
+		}
+		else UNLIKELY
+		{
+			return std::unexpected{ AcquireNetworkError() };
+		}
 	}
-	else UNLIKELY
+	break;
+
+	case IpAddressFamily::IPv6:
 	{
-		return std::unexpected{ AcquireNetworkError() };
+		const auto sockaddr = endpoint.Serialize();
+		const auto sockaddr_ptr = std::addressof(sockaddr);
+		const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
+
+		if (0 == ::bind(myHandle, address, sizeof(::SOCKADDR_IN6))) LIKELY
+		{
+			return {};
+		}
+		else UNLIKELY
+		{
+			return std::unexpected{ AcquireNetworkError() };
+		}
 	}
+	break;
+	}
+
+	return std::unexpected{ AcquireNetworkError() };
 }
 
 iconer::net::Socket::IoResult
 iconer::net::Socket::Bind(iconer::net::EndPoint&& endpoint)
 const noexcept
 {
-	const auto sockaddr = endpoint.Serialize();
-	const auto sockaddr_ptr = std::addressof(sockaddr);
-	const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
+	switch (myFamily)
+	{
+	case IpAddressFamily::IPv4:
+	{
+		const auto sockaddr = endpoint.Serialize();
+		const auto sockaddr_ptr = std::addressof(sockaddr);
+		const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
 
-	if (0 == ::bind(myHandle, address, sizeof(::sockaddr_in))) LIKELY
-	{
-		return {};
+		if (0 == ::bind(myHandle, address, sizeof(::SOCKADDR_IN))) LIKELY
+		{
+			return {};
+		}
+		else UNLIKELY
+		{
+			return std::unexpected{ AcquireNetworkError() };
+		}
 	}
-	else UNLIKELY
+	break;
+
+	case IpAddressFamily::IPv6:
 	{
-		return std::unexpected{ AcquireNetworkError() };
+		const auto sockaddr = endpoint.Serialize();
+		const auto sockaddr_ptr = std::addressof(sockaddr);
+		const auto address = reinterpret_cast<const ::SOCKADDR*>(sockaddr_ptr);
+
+		if (0 == ::bind(myHandle, address, sizeof(::SOCKADDR_IN6))) LIKELY
+		{
+			return {};
+		}
+		else UNLIKELY
+		{
+			return std::unexpected{ AcquireNetworkError() };
+		}
 	}
+	break;
+	}
+
+	return std::unexpected{ AcquireNetworkError() };
 }
 
 iconer::net::Socket::IoResult
