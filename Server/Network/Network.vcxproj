@@ -196,6 +196,7 @@
     <ClCompile Include="SerializedSocketAddress.ixx" />
     <ClCompile Include="SocketCategories.ixx" />
     <ClCompile Include="SocketOptions.ixx" />
+    <ClCompile Include="SocketProperties.cpp" />
     <ClCompile Include="SocketTcpReceivers.cpp" />
     <ClCompile Include="SocketTcpSenders.cpp" />
     <ClCompile Include="SocketUdpReceivers.cpp" />

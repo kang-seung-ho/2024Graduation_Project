@@ -72,5 +72,8 @@
     <ClCompile Include="EndPoint.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="SocketProperties.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
