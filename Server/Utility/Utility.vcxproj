@@ -31,6 +31,9 @@
     <ClCompile Include="Property.ixx" />
     <ClCompile Include="TypeTraits.ixx" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="atomic_queue_defs.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

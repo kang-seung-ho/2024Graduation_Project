@@ -27,17 +27,25 @@
     <ClCompile Include="Property.ixx">
       <Filter>Public</Filter>
     </ClCompile>
-    <ClCompile Include="PropertyArithmetics.ixx">
+    <ClCompile Include="IProperty.ixx">
       <Filter>Public</Filter>
     </ClCompile>
-    <ClCompile Include="IProperty.ixx">
+    <ClCompile Include="AtomicQueue.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyDefinitions.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyArithmetics.ixx">
       <Filter>Public</Filter>
     </ClCompile>
     <ClCompile Include="PropertyBoolean.ixx">
       <Filter>Public</Filter>
     </ClCompile>
-    <ClCompile Include="PropertyCharacters.ixx">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="atomic_queue_defs.h">
       <Filter>Public</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>
