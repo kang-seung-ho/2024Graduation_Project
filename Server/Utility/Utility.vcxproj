@@ -20,14 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Atomic.ixx" />
+    <ClCompile Include="AtomicQueue.ixx" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="File.ixx" />
     <ClCompile Include="IProperty.ixx" />
-    <ClCompile Include="MovableAtomic.ixx" />
-    <ClCompile Include="Property.ixx" />
     <ClCompile Include="PropertyArithmetics.ixx" />
     <ClCompile Include="PropertyBoolean.ixx" />
-    <ClCompile Include="PropertyCharacters.ixx" />
+    <ClCompile Include="PropertyDefinitions.ixx" />
+    <ClCompile Include="MovableAtomic.ixx" />
+    <ClCompile Include="Property.ixx" />
     <ClCompile Include="TypeTraits.ixx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -144,6 +144,27 @@ export namespace iconer
 			return false;
 		}
 	}
+
+	template<typename Fn, typename Ctx, typename R, typename... Args>
+	concept invocable_mutable_methods = any_type_of<Fn
+		, method_t<Ctx, R, Args...>
+		, method_t<Ctx, R, std::add_lvalue_reference_t<Args>...>
+		, method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>...>
+		, nothrow_method_t<Ctx, R, Args...>
+		, nothrow_method_t<Ctx, R, std::add_lvalue_reference_t<Args>...>
+		, nothrow_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>...>
+		, const_method_t<Ctx, R, Args...>
+		, const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>...>
+		, nothrow_const_method_t<Ctx, R, Args...>
+		, nothrow_const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>>...>;
+
+	template<typename Fn, typename Ctx, typename R, typename... Args>
+	concept invocable_immutable_methods = any_type_of<Fn
+		, method_t<Ctx, R, Args...>
+		, method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>...>
+		, const_method_t<Ctx, R, Args...>
+		, const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<Args>>>...>;
+
 	template<typename T>
 	concept finalized = classes<T> && std::is_final_v<clean_t<T>>;
 

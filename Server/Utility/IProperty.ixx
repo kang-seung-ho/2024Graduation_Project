@@ -8,23 +8,8 @@ module;
 export module Iconer.Utility.IProperty;
 import Iconer.Utility.TypeTraits;
 
-namespace iconer::util::detail
+export namespace iconer::util::detail
 {
-	template<typename Delegate>
-	struct DelegateArgHelper;
-
-	template<typename R, typename Arg0, typename... Rests>
-	struct DelegateArgHelper<function_t<R, Arg0, Rests...>>
-	{
-		using type = Arg0;
-	};
-
-	template<typename R, typename Arg0, typename... Rests>
-	struct DelegateArgHelper<nothrow_function_t<R, Arg0, Rests...>>
-	{
-		using type = Arg0;
-	};
-
 	template<typename T>
 	struct IInvoker
 	{
@@ -49,45 +34,115 @@ namespace iconer::util::detail
 	template<typename Delegate>
 	ILambdaInvoker(Delegate) -> ILambdaInvoker<Delegate>;
 
-	struct Empty
-	{
-		template<typename T>
-		constexpr void operator()(T&&) noexcept {}
-	};
-
-	enum class InvokeStrategie : char
-	{
-		basic = 0,
-		fun, ref_fun,
-		method, const_method,
-		custom
-	};
-
-	template<typename Fn, typename Ctx, typename R, typename T>
-	concept MutMethodAssignable = any_type_of<Fn
-		, method_t<Ctx, R, T>
-		, method_t<Ctx, R, std::add_lvalue_reference_t<T>>
-		, method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>
-		, nothrow_method_t<Ctx, R, T>
-		, nothrow_method_t<Ctx, R, std::add_lvalue_reference_t<T>>
-		, nothrow_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>
-		, const_method_t<Ctx, R, T>
-		, const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>
-		, nothrow_const_method_t<Ctx, R, T>
-		, nothrow_const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>>;
-
-	template<typename Fn, typename Ctx, typename R, typename T>
-	concept ImmutMethodAssignable = any_type_of<Fn
-		, method_t<Ctx, R, T>
-		, method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>
-		, const_method_t<Ctx, R, T>
-		, const_method_t<Ctx, R, std::add_lvalue_reference_t<std::add_const_t<T>>>>;
-}
-
-export namespace iconer::util
-{
 	template<notvoids T, typename Context>
 	class IProperty;
+
+	template<notvoids T, typename Context>
+	class IProperty
+	{
+	public:
+		using value_type = T;
+		using reference_type = std::add_lvalue_reference_t<value_type>;
+		using const_reference_type = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
+		using context_type = Context;
+		using context_pointer = std::add_pointer_t<context_type>;
+		using const_context_pointer = std::add_pointer_t<std::add_const_t<context_type>>;
+
+	protected:
+		using invoke_met_t = method_t<context_type, void, value_type>;
+		using invoke_ref_met_t = method_t<context_type, void, reference_type>;
+		using invoke_cref_met_t = method_t<context_type, void, const_reference_type>;
+		using invoke_const_met_t = const_method_t<context_type, void, value_type>;
+		using invoke_const_cref_met_t = const_method_t<context_type, void, const_reference_type>;
+
+		using storage_t = std::variant<std::monostate,
+			invoke_met_t, invoke_ref_met_t, invoke_cref_met_t,
+			invoke_const_met_t, invoke_const_cref_met_t>;
+
+		struct Visitor
+		{
+			constexpr void operator()(std::monostate) const noexcept {}
+
+			constexpr void operator()(const auto& fun) const
+			{
+				((*context).*fun)(value);
+			}
+
+			Context* context;
+			value_type& value;
+		};
+
+		static inline constexpr bool defaultInitializable = default_initializable<value_type>;
+
+	public:
+		constexpr ~IProperty()
+			noexcept(nothrow_destructibles<value_type, storage_t>) = default;
+
+		template<invocable_mutable_methods<context_type, void, value_type> Method>
+		constexpr IProperty(context_pointer ctx, const Method& method) requires (defaultInitializable)
+			: IProperty(ctx, method, value_type{})
+		{}
+
+		template<invocable_immutable_methods<context_type, void, value_type> Method>
+		constexpr IProperty(const_context_pointer ctx, const Method& method) requires (defaultInitializable)
+			: IProperty(ctx, method, value_type{})
+		{}
+
+		template<invocable_mutable_methods<context_type, void, value_type> Method, typename U>
+			requires (constructible_from<value_type, U>)
+		constexpr IProperty(context_pointer owner, const Method& method, U&& init)
+			: myValue(std::forward<U>(init))
+			, myContext(owner)
+			, myDelegates(method)
+		{}
+
+		template<invocable_immutable_methods<context_type, void, value_type> Method, typename U>
+			requires (constructible_from<value_type, U>)
+		constexpr IProperty(const_context_pointer owner, const Method& method, U&& init)
+			: myValue(std::forward<U>(init))
+			, myContext(owner)
+			, myDelegates(method)
+		{}
+
+	protected:
+		value_type myValue;
+		context_pointer myContext;
+		storage_t myDelegates;
+
+		constexpr void SetValue(const value_type& value) requires (copy_assignables<value_type>)
+		{
+			myValue = value;
+
+			std::visit(Visitor{ myValue }, myDelegates);
+		}
+
+		constexpr void SetValue(value_type&& value) requires (move_assignables<value_type>)
+		{
+			myValue = std::move(value);
+
+			std::visit(Visitor{ myContext, myValue }, myDelegates);
+		}
+
+		constexpr value_type& GetValue() & noexcept
+		{
+			return myValue;
+		}
+
+		constexpr value_type const& GetValue() const& noexcept
+		{
+			return myValue;
+		}
+
+		constexpr value_type&& GetValue() && noexcept
+		{
+			return std::move(myValue);
+		}
+
+		constexpr value_type const&& GetValue() const&& noexcept
+		{
+			return std::move(myValue);
+		}
+	};
 
 	template<notvoids T>
 	class IProperty<T, void>
@@ -207,113 +262,6 @@ export namespace iconer::util
 		}
 	};
 
-	template<notvoids T, classes Context>
-	class IProperty<T, Context>
-	{
-	public:
-		using value_type = T;
-		using reference_type = std::add_lvalue_reference_t<value_type>;
-		using const_reference_type = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
-		using context_type = Context;
-		using context_pointer = std::add_pointer_t<context_type>;
-		using const_context_pointer = std::add_pointer_t<std::add_const_t<context_type>>;
-
-	protected:
-		using invoke_met_t = method_t<context_type, void, value_type>;
-		using invoke_ref_met_t = method_t<context_type, void, reference_type>;
-		using invoke_cref_met_t = method_t<context_type, void, const_reference_type>;
-		using invoke_const_met_t = const_method_t<context_type, void, value_type>;
-		using invoke_const_cref_met_t = const_method_t<context_type, void, const_reference_type>;
-
-		using storage_t = std::variant<std::monostate,
-			invoke_met_t, invoke_ref_met_t, invoke_cref_met_t,
-			invoke_const_met_t, invoke_const_cref_met_t>;
-
-		struct Visitor
-		{
-			constexpr void operator()(std::monostate) const noexcept {}
-
-			constexpr void operator()(const auto& fun) const
-			{
-				((*context).*fun)(value);
-			}
-
-			Context* context;
-			value_type& value;
-		};
-
-		static inline constexpr bool defaultInitializable = default_initializable<value_type>;
-
-	public:
-		constexpr ~IProperty()
-			noexcept(nothrow_destructibles<value_type, storage_t>) = default;
-
-		template<detail::MutMethodAssignable<context_type, void, value_type> Method>
-		constexpr IProperty(context_pointer ctx, const Method& method) requires (defaultInitializable)
-			: IProperty(ctx, method, value_type{})
-		{}
-
-		template<detail::ImmutMethodAssignable<context_type, void, value_type> Method>
-		constexpr IProperty(const_context_pointer ctx, const Method& method) requires (defaultInitializable)
-			: IProperty(ctx, method, value_type{})
-		{}
-
-		template<detail::MutMethodAssignable<context_type, void, value_type> Method, typename U>
-			requires (constructible_from<value_type, U>)
-		constexpr IProperty(context_pointer owner, const Method& method, U&& init)
-			: myValue(std::forward<U>(init))
-			, myContext(owner)
-			, myDelegates(method)
-		{}
-
-		template<detail::ImmutMethodAssignable<context_type, void, value_type> Method, typename U>
-			requires (constructible_from<value_type, U>)
-		constexpr IProperty(const_context_pointer owner, const Method& method, U&& init)
-			: myValue(std::forward<U>(init))
-			, myContext(owner)
-			, myDelegates(method)
-		{}
-
-	protected:
-		value_type myValue;
-		context_pointer myContext;
-		storage_t myDelegates;
-
-		constexpr void SetValue(const value_type& value) requires (copy_assignables<value_type>)
-		{
-			myValue = value;
-
-			std::visit(Visitor{ myValue }, myDelegates);
-		}
-
-		constexpr void SetValue(value_type&& value) requires (move_assignables<value_type>)
-		{
-			myValue = std::move(value);
-
-			std::visit(Visitor{ myContext, myValue }, myDelegates);
-		}
-
-		constexpr value_type& GetValue() & noexcept
-		{
-			return myValue;
-		}
-
-		constexpr value_type const& GetValue() const& noexcept
-		{
-			return myValue;
-		}
-
-		constexpr value_type&& GetValue() && noexcept
-		{
-			return std::move(myValue);
-		}
-
-		constexpr value_type const&& GetValue() const&& noexcept
-		{
-			return std::move(myValue);
-		}
-	};
-
 	template<typename L, typename R, typename CL, typename CR>
 		requires std::equality_comparable_with<L, R>
 	[[nodiscard]]
@@ -328,5 +276,24 @@ export namespace iconer::util
 	constexpr bool operator==(const IProperty<L, CL>& lhs, const U& rhs) noexcept
 	{
 		return lhs.myValue == rhs;
+	}
+
+	template<typename L, typename R, typename CL, typename CR>
+		requires std::totally_ordered_with<L, R>
+	[[nodiscard]]
+	constexpr auto operator<=>(const IProperty<L, CL>& lhs, const IProperty<R, CR>& rhs)
+		noexcept(noexcept(std::declval<const L&>() <=> std::declval<const R&>()))
+	{
+		return static_cast<const L&>(lhs) <=> static_cast<const R&>(rhs);
+	}
+
+	template<typename L, typename CL, typename U>
+		requires std::totally_ordered_with<L, U>
+	[[nodiscard]]
+	constexpr auto operator<=>(const IProperty<L, CL>& lhs, const U& rhs)
+		noexcept(noexcept(std::declval<const L&>() <=> std::declval<const U&>()))
+		-> decltype(std::declval<const L&>() <=> std::declval<const U&>())
+	{
+		return static_cast<const L&>(lhs) <=> rhs;
 	}
 }
