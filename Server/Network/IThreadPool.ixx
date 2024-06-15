@@ -4,7 +4,7 @@ module;
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
 
-export module Iconer.Net.ThreadPool;
+export module Iconer.Net.IThreadPool;
 export import Iconer.Net.Socket;
 export import Iconer.Net.IoContext;
 export import Iconer.Net.IoCompletionPort;
@@ -20,23 +20,23 @@ import <print>;
 export namespace iconer::net
 {
 	template<typename Self, typename IManager, size_t WorkerCount>
-	class ThreadPool
+	class IThreadPool
 	{
 	public:
-		using this_class = ThreadPool<Self, IManager, WorkerCount>;
+		using this_class = IThreadPool<Self, IManager, WorkerCount>;
 		using manger_type = IManager;
 
-		ThreadPool() = default;
-		~ThreadPool() = default;
+		IThreadPool() = default;
+		~IThreadPool() = default;
 
 		std::expected<void, iconer::net::ErrorCode>
 			Initialize()
 		{
-			if (auto io = IoCompletionPort::Create(); io)
+			if (auto io = IoCompletionPort::Create(); io) LIKELY
 			{
 				ioCompletionPort = std::move(io.value());
 			}
-			else
+			else UNLIKELY
 			{
 				return std::unexpected{ io.error() };
 			}
@@ -79,7 +79,7 @@ export namespace iconer::net
 			return ioCompletionPort.Register(socket, std::move(id));
 		}
 
-		bool TryRegister(net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code) noexcept
+		bool TryRegister(iconer::net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code) noexcept
 		{
 			return ioCompletionPort.TryRegister(socket, id, error_code);
 		}
@@ -169,7 +169,7 @@ export namespace iconer::net
 					if (not framework.ProcessTask(framework.AwaitForTask())) UNLIKELY
 					{
 						break;
-				}
+					}
 #endif
 			}
 
@@ -248,9 +248,9 @@ export namespace iconer::net
 			return ioCompletionPort.WaitForIoResult();
 		}
 
-		ThreadPool(const ThreadPool&) = delete;
-		ThreadPool& operator=(const ThreadPool&) = delete;
-		ThreadPool(ThreadPool&&) = delete;
-		ThreadPool& operator=(ThreadPool&&) = delete;
+		IThreadPool(const IThreadPool&) = delete;
+		IThreadPool& operator=(const IThreadPool&) = delete;
+		IThreadPool(IThreadPool&&) = delete;
+		IThreadPool& operator=(IThreadPool&&) = delete;
 	};
 }

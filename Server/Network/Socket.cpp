@@ -20,6 +20,8 @@ iconer::net::Socket::Socket(std::uintptr_t sock, iconer::net::InternetProtocol p
 noexcept
 	: myHandle(sock)
 	, myProtocol(protocol), myFamily(family)
+	, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
+	, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
 {
 	std::call_once(internalInitFlag, &Socket::InternalFunctionInitializer, sock);
 }

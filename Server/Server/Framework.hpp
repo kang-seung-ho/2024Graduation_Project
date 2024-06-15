@@ -22,8 +22,6 @@ class ServerFramework
 public:
 	static inline constexpr std::uint16_t serverPort = 40000;
 
-	static inline constexpr size_t workerCount = 4;
-
 	ServerFramework() = default;
 	~ServerFramework() = default;
 

@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClCompile Include="ExampleServer.cpp" />
     <ClCompile Include="Framework.cpp" />
+    <ClCompile Include="Tests.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>

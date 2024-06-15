@@ -182,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="EndPoint.cpp" />
     <ClCompile Include="EndPoint.ixx" />
+    <ClCompile Include="IListener.ixx" />
     <ClCompile Include="InternetProtocol.ixx" />
     <ClCompile Include="IoCompletionPort.cpp" />
     <ClCompile Include="IoCompletionPort.ixx" />
@@ -202,7 +203,7 @@
     <ClCompile Include="SocketUdpReceivers.cpp" />
     <ClCompile Include="SocketUdpSenders.cpp" />
     <ClCompile Include="SocketUtilities.cpp" />
-    <ClCompile Include="ThreadPool.ixx" />
+    <ClCompile Include="IThreadPool.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -101,7 +101,7 @@ ServerFramework::Initialize()
 void
 ServerFramework::Startup()
 {
-	std::println("Generating {} workers...", workerCount);
+	std::println("Generating {} workers...", myTaskPool.workerCount);
 
 	try
 	{

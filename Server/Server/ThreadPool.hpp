@@ -1,11 +1,13 @@
 #pragma once
 import Iconer.Net.IoCompletionPort;
-import Iconer.Net.ThreadPool;
+import Iconer.Net.IThreadPool;
 import <print>;
 
-class ServerThreadPool : public iconer::net::ThreadPool<ServerThreadPool, class ServerFramework, 4>
+class ServerThreadPool : public iconer::net::IThreadPool<ServerThreadPool, class ServerFramework, 4>
 {
 public:
+	static inline constexpr size_t workerCount = 4;
+
 	[[nodiscard]]
 	bool OnProcessTask(ServerFramework& framework, iconer::net::IoEvent task);
 

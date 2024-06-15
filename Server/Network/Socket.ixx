@@ -28,11 +28,18 @@ export namespace iconer::net
 
 		static inline constexpr std::uintptr_t invalidHandle = -1;
 
-		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
+		iconer::util::Property<bool, Socket> reuseAddress;
+		iconer::util::Property<bool, Socket> tcpNoDelay;
 
-		iconer::util::Property<bool, Socket> tcpNoDelay{ this, &Socket::TcpNoDelayImplementation, false };
+		explicit constexpr Socket() noexcept
+			: myHandle(invalidHandle)
+			, myProtocol(iconer::net::InternetProtocol::Unknown)
+			, myFamily(iconer::net::IpAddressFamily::Unknown)
+			, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
+			, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
+		{}
 
-		explicit Socket() noexcept = default;
+		constexpr ~Socket() noexcept = default;
 
 		IoResult Bind(const iconer::net::IpAddress& address, std::uint16_t port) const noexcept;
 		IoResult Bind(iconer::net::IpAddress&& address, std::uint16_t port) const noexcept;
@@ -416,6 +423,8 @@ export namespace iconer::net
 			: myHandle(std::exchange(other.myHandle, invalidHandle))
 			, myProtocol(other.myProtocol)
 			, myFamily(other.myFamily)
+			, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
+			, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
 		{}
 
 		constexpr Socket& operator=(Socket&& other) noexcept
@@ -443,9 +452,9 @@ export namespace iconer::net
 		static Socket CreateUdpSocket(iconer::net::SocketCategory type, iconer::net::IpAddressFamily family = iconer::net::IpAddressFamily::IPv4) noexcept;
 
 	private:
-		std::uintptr_t myHandle = invalidHandle;
-		iconer::net::InternetProtocol myProtocol = iconer::net::InternetProtocol::Unknown;
-		iconer::net::IpAddressFamily myFamily = iconer::net::IpAddressFamily::Unknown;
+		std::uintptr_t myHandle;
+		iconer::net::InternetProtocol myProtocol;
+		iconer::net::IpAddressFamily myFamily;
 
 		using AsyncAcceptFunction = std_function_t<int, std::uintptr_t, std::uintptr_t, void*, unsigned long, unsigned long, unsigned long, unsigned long*, struct _OVERLAPPED*>;
 
