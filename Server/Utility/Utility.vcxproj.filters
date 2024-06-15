@@ -42,6 +42,15 @@
     <ClCompile Include="PropertyBoolean.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Delegate.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="InvokeTraits.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Invoker.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atomic_queue_defs.h">

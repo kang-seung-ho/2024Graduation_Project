@@ -21,8 +21,11 @@
   <ItemGroup>
     <ClCompile Include="Atomic.ixx" />
     <ClCompile Include="AtomicQueue.ixx" />
+    <ClCompile Include="Delegate.ixx" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="File.ixx" />
+    <ClCompile Include="Invoker.ixx" />
+    <ClCompile Include="InvokeTraits.ixx" />
     <ClCompile Include="IProperty.ixx" />
     <ClCompile Include="PropertyArithmetics.ixx" />
     <ClCompile Include="PropertyBoolean.ixx" />

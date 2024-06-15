@@ -265,11 +265,14 @@ export namespace iconer
 
 	using std::invocable;
 
+	template<typename T, typename Result, typename... Args>
+	concept invocable_r = std::is_invocable_r_v<Result, T, Args...>;
+
 	template<typename T, typename... Args>
 	concept nothrow_invocable = std::is_nothrow_invocable_v<T, Args...>;
 
 	template<typename T, typename Result, typename... Args>
-	concept nothrow_r_invocable = std::is_nothrow_invocable_r_v<Result, T, Args...>;
+	concept nothrow_invocable_r = std::is_nothrow_invocable_r_v<Result, T, Args...>;
 
 	template<typename Special, template<typename...> typename Template>
 	concept specializations = is_specialization_v<clean_t<Special>, Template>;

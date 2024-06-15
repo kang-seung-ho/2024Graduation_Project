@@ -7,53 +7,31 @@ module;
 
 export module Iconer.Utility.IProperty;
 import Iconer.Utility.TypeTraits;
+import Iconer.Utility.InvokeTraits;
+//import Iconer.Utility.Invoker;
 
 export namespace iconer::util::detail
 {
-	template<typename T>
-	struct IInvoker
-	{
-		using value_type = T;
-
-		constexpr IInvoker() noexcept = default;
-		constexpr virtual ~IInvoker() noexcept = default;
-
-		constexpr virtual void operator()(const T& value) = 0;
-	};
-
-	template<typename Delegate>
-	struct ILambdaInvoker : public Delegate
-	{
-		template<typename T>
-		constexpr void operator()(const T& value)
-		{
-			Delegate::operator()(value);
-		}
-	};
-
-	template<typename Delegate>
-	ILambdaInvoker(Delegate) -> ILambdaInvoker<Delegate>;
-
-	template<notvoids T, typename Context>
+	template<notvoids T, typename Context, typename Traits = InvokeTraits<T, void, Context>>
 	class IProperty;
 
-	template<notvoids T, typename Context>
+	template<notvoids T, typename Context, typename Traits>
 	class IProperty
 	{
 	public:
-		using value_type = T;
-		using reference_type = std::add_lvalue_reference_t<value_type>;
-		using const_reference_type = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
-		using context_type = Context;
-		using context_pointer = std::add_pointer_t<context_type>;
-		using const_context_pointer = std::add_pointer_t<std::add_const_t<context_type>>;
+		using value_type = Traits::value_type;
+		using reference_type = Traits::reference_type;
+		using const_reference_type = Traits::const_reference_type;
+		using context_type = Traits::context_type;
+		using context_pointer = Traits::context_pointer;
+		using const_context_pointer = Traits::const_context_pointer;
 
 	protected:
-		using invoke_met_t = method_t<context_type, void, value_type>;
-		using invoke_ref_met_t = method_t<context_type, void, reference_type>;
-		using invoke_cref_met_t = method_t<context_type, void, const_reference_type>;
-		using invoke_const_met_t = const_method_t<context_type, void, value_type>;
-		using invoke_const_cref_met_t = const_method_t<context_type, void, const_reference_type>;
+		using invoke_met_t = Traits::invoke_met_t;
+		using invoke_ref_met_t = Traits::invoke_ref_met_t;
+		using invoke_cref_met_t = Traits::invoke_cref_met_t;
+		using invoke_const_met_t = Traits::invoke_const_met_t;
+		using invoke_const_cref_met_t = Traits::invoke_const_cref_met_t;
 
 		using storage_t = std::variant<std::monostate,
 			invoke_met_t, invoke_ref_met_t, invoke_cref_met_t,
@@ -144,26 +122,23 @@ export namespace iconer::util::detail
 		}
 	};
 
-	template<notvoids T>
-	class IProperty<T, void>
+	template<notvoids T, typename Traits>
+	class IProperty<T, void, Traits>
 	{
 	public:
-		using value_type = T;
-		using reference_type = std::add_lvalue_reference_t<value_type>;
-		using const_reference_type = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
-		using context_type = void;
+		using value_type = Traits::value_type;
+		using reference_type = Traits::reference_type;
+		using const_reference_type = Traits::const_reference_type;
 
 	protected:
-		using invoke_fun_t = function_t<void, value_type>;
-		using invoke_cref_fun_t = function_t<void, const_reference_type>;
-		using invoke_nt_fun_t = nothrow_function_t<void, value_type>;
-		using invoke_nt_cref_fun_t = nothrow_function_t<void, const_reference_type>;
-		using invoker_t = iconer::util::detail::IInvoker<value_type>;
+		using invoke_fun_t = Traits::invoke_fun_t;
+		using invoke_ref_fun_t = Traits::invoke_ref_fun_t;
+		using invoke_cref_fun_t = Traits::invoke_cref_fun_t;
+		//using invoker_t = iconer::util::IInvoker<value_type>;
 
 		using storage_t = std::variant<std::monostate,
-			invoke_fun_t, invoke_nt_fun_t,
-			invoke_cref_fun_t, invoke_nt_cref_fun_t,
-			std::unique_ptr<invoker_t>>;
+			invoke_fun_t,
+			invoke_ref_fun_t, invoke_cref_fun_t>;
 
 		struct Visitor
 		{
@@ -174,10 +149,10 @@ export namespace iconer::util::detail
 				fun(value);
 			}
 
-			constexpr void operator()(const std::unique_ptr<invoker_t>& fun) const
-			{
-				(*fun.get())(value);
-			}
+			//constexpr void operator()(const std::unique_ptr<invoker_t>& fun) const
+			//{
+			//	(*fun.get())(value);
+			//}
 
 			value_type& value;
 		};
