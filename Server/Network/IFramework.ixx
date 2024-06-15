@@ -1,14 +1,6 @@
-module;
-#define LIKELY   [[likely]]
-#define UNLIKELY [[unlikely]]
-
 export module Iconer.Net.IFramework;
-import Iconer.Utility.TypeTraits;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
-import Iconer.Net.IoContext;
-import Iconer.Net.IoCompletionPort;
-import <cstdint>;
 import <expected>;
 
 export namespace iconer::net
