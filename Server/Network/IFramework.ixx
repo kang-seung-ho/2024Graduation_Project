@@ -29,7 +29,7 @@ export namespace iconer::net
 	private:
 		IFramework(const IFramework&) = delete;
 		IFramework& operator=(const IFramework&) = delete;
-		IFramework(IFramework&&) = default;
-		IFramework& operator=(IFramework&&) = default;
+		IFramework(IFramework&&) = delete;
+		IFramework& operator=(IFramework&&) = delete;
 	};
 }

@@ -76,7 +76,7 @@ export namespace iconer::net
 		/// <param name="context"/>
 		/// <param name="client">- Client socket</param>
 		/// <exception cref="std::system_error"/>
-		IoResult BeginAccept(iconer::net::IoContext& context, Socket& client) const;
+		IoResult BeginAccept(iconer::net::IoContext& context, const Socket& client) const;
 		/// <summary>
 		/// Reserve an acceptance of <paramref name="client"/>
 		/// <para>-------------------------------------------------------------------------------</para>
@@ -86,7 +86,7 @@ export namespace iconer::net
 		/// <param name="client">- Client socket</param>
 		/// <param name="accept_buffer">- Received datas from beginning would be written here</param>
 		/// <exception cref="std::system_error"/>
-		IoResult BeginAccept(iconer::net::IoContext& context, Socket& client, std::span<std::byte> accept_buffer) const;
+		IoResult BeginAccept(iconer::net::IoContext& context, const Socket& client, std::span<std::byte> accept_buffer) const;
 		/// <summary>
 		/// Reserve an acceptance of <paramref name="client"/>
 		/// <para>-------------------------------------------------------------------------------</para>
@@ -95,7 +95,7 @@ export namespace iconer::net
 		/// <param name="context"/>
 		/// <param name="client">- Client socket</param>
 		/// <exception cref="std::system_error"/>
-		IoResult BeginAccept(iconer::net::IoContext* context, Socket& client) const;
+		IoResult BeginAccept(iconer::net::IoContext* context, const Socket& client) const;
 		/// <summary>
 		/// Reserve an acceptance of <paramref name="client"/>
 		/// <para>-------------------------------------------------------------------------------</para>
@@ -105,7 +105,7 @@ export namespace iconer::net
 		/// <param name="client">- Client socket</param>
 		/// <param name="accept_buffer">- Received datas from beginning would be written here</param>
 		/// <exception cref="std::system_error"/>
-		IoResult BeginAccept(iconer::net::IoContext* context, Socket& client, std::span<std::byte> accept_buffer) const;
+		IoResult BeginAccept(iconer::net::IoContext* context, const Socket& client, std::span<std::byte> accept_buffer) const;
 		/// <summary>
 		/// Finish the acceptance of <paramref name="client"/>
 		/// <para>It should be called by client</para>

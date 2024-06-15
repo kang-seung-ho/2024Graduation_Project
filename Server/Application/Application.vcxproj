@@ -20,9 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ISession.ixx" />
+    <ClCompile Include="ISessionManager.ixx" />
     <ClCompile Include="PacketProtocols.ixx" />
     <ClCompile Include="TaskContext.ixx" />
     <ClCompile Include="User.ixx" />
+    <ClCompile Include="UserManager.cpp" />
+    <ClCompile Include="UserManager.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Network\Network.vcxproj">

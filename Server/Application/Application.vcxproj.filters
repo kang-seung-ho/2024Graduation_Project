@@ -16,6 +16,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{97dc0d3e-4122-46d4-93c8-315705214bdf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{63b936f5-ed4c-46e9-8197-875711f54c03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ISession.ixx">
@@ -29,6 +32,15 @@
     </ClCompile>
     <ClCompile Include="TaskContext.ixx">
       <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="ISessionManager.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="UserManager.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="UserManager.cpp">
+      <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ import Iconer.Utility.TypeTraits;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.App.PacketProtocol;
+import Iconer.App.UserManager;
 import <cstdint>;
 import <expected>;
 import <array>;
@@ -32,6 +33,7 @@ public:
 	void Cleanup() override;
 
 private:
+	iconer::app::UserManager userManager;
 	std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors;
 
 	ServerThreadPool myTaskPool;

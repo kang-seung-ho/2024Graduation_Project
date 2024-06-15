@@ -5,7 +5,7 @@ export namespace iconer::app
 {
 	class [[nodiscard]] ISession
 	{
-	protected:
+	public:
 		using id_type = std::uintptr_t;
 
 		explicit ISession() noexcept = default;

@@ -498,21 +498,21 @@ const noexcept
 }
 
 iconer::net::Socket::IoResult
-iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, iconer::net::Socket& client)
+iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, const iconer::net::Socket& client)
 const
 {
 	return BeginAccept(std::addressof(context), client);
 }
 
 iconer::net::Socket::IoResult
-iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, Socket& client, std::span<std::byte> accept_buffer)
+iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, const Socket& client, std::span<std::byte> accept_buffer)
 const
 {
 	return BeginAccept(std::addressof(context), client, std::move(accept_buffer));
 }
 
 iconer::net::Socket::IoResult
-iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, iconer::net::Socket& client)
+iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, const iconer::net::Socket& client)
 const
 {
 	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle) UNLIKELY
@@ -541,7 +541,7 @@ const
 }
 
 iconer::net::Socket::IoResult
-iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, iconer::net::Socket& client, std::span<std::byte> accept_buffer)
+iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, const iconer::net::Socket& client, std::span<std::byte> accept_buffer)
 const
 {
 	if (context == nullptr or myHandle == invalidHandle or client.myHandle == invalidHandle) UNLIKELY

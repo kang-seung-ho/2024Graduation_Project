@@ -76,13 +76,33 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	return {};
+	if (userManager.Initialize(myTaskPool.ioCompletionPort))
+	{
+		return {};
+	}
+	else
+	{
+		std::println("The user manager has failed to initialize.");
+
+		return std::unexpected{ ErrorCode::WSAEUSERS };
+	}
 }
 
 void
 ServerFramework::Startup()
 {
 	super::Startup();
+
+	if (auto io = listenSocket.Open(); io)
+	{
+		std::println("The listen socket is opened.");
+	}
+	else
+	{
+		std::println("The listen socket could not be opened, due to {}.", std::to_string(io.error()));
+
+		return;
+	}
 
 	std::println("Generating {} workers...", myTaskPool.GetMaxWorkerNumber());
 
@@ -97,7 +117,13 @@ ServerFramework::Startup()
 		throw;
 	}
 
+	std::println("Reserving {} users...", userManager.maxUserCount);
+
+	userManager.Startup(listenSocket);
+
 	std::println("Server is started.");
+
+	myTaskPool.Schedule((IoContext*)nullptr, 0, 535334434);
 
 	super::PostStartup();
 
@@ -122,6 +148,7 @@ void
 ServerFramework::Cleanup()
 {
 	myTaskPool.Cleanup();
+	userManager.Cleanup();
 
 	super::Cleanup();
 
