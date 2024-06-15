@@ -24,15 +24,9 @@ public:
 		return {};
 	}
 
-	void OnStartWorker(size_t index)
-	{
-		std::println("Worker {} is generated.", index);
-	}
+	void OnStartWorker(size_t index);
 
-	void OnTerminateWorker() const
-	{
-		std::println("Worker is terminated.");
-	}
+	void OnTerminateWorker() const;
 
 	void OnTaskFailed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const
 	{

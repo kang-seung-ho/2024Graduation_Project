@@ -17,12 +17,6 @@ export namespace iconer::net
 
 		IoCompletionPort ioCompletionPort;
 
-		iconer::util::Delegate<void> eventOnInitialied;
-		iconer::util::Delegate<void> eventOnPostInitialied;
-		iconer::util::Delegate<void> eventOnPreStarted;
-		iconer::util::Delegate<void> eventOnStarted;
-		iconer::util::Delegate<void> eventOnDestructed;
-
 		iconer::util::Delegate<void, size_t> eventOnWorkerInitialized;
 		iconer::util::Delegate<void, size_t> eventOnWorkerAnnihilated;
 
@@ -33,9 +27,7 @@ export namespace iconer::net
 			: ioCompletionPort()
 			, maxWorkerNumber(concurrency)
 			, myWorkers(), workerInitializationSynchronizer(concurrency)
-			, eventOnInitialied(), eventOnPostInitialied()
-			, eventOnPreStarted(), eventOnStarted()
-			, eventOnDestructed()
+			, eventOnWorkerInitialized(), eventOnWorkerAnnihilated()
 			, eventOnTaskSucceed(), eventOnTaskFailure()
 		{
 			myWorkers.reserve(concurrency);
@@ -80,6 +72,17 @@ export namespace iconer::net
 		bool Schedule(volatile IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) noexcept
 		{
 			return ioCompletionPort.Schedule(context, id, infobytes);
+		}
+
+		void StopWorkers() noexcept
+		{
+			if (0 < myWorkers.size())
+			{
+				for (auto& th : myWorkers)
+				{
+					th.request_stop();
+				}
+			}
 		}
 
 		[[nodiscard]]

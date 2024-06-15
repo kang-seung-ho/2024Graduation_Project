@@ -14,30 +14,11 @@ ServerFramework::Initialize()
 {
 	std::println("Starting server...");
 
-	if (const auto io = iconer::net::Startup(); io)
-	{
-		std::println("The network system is Initiated.");
-	}
-	else
+	if (const auto io = super::Initialize(); not io)
 	{
 		std::println("Could not initialize network system, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
-	}
-
-	super::listenSocket = Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
-
-	if (super::listenSocket)
-	{
-		std::println("The listen socket is created.");
-	}
-	else
-	{
-		const auto error = AcquireNetworkError();
-
-		std::println("The listen socket was not created, due to {}.", std::to_string(error));
-
-		return std::unexpected{ error };
 	}
 
 	if (const auto io = super::listenSocket.BindToHost(serverPort); io)
@@ -101,6 +82,8 @@ ServerFramework::Initialize()
 void
 ServerFramework::Startup()
 {
+	super::Startup();
+
 	std::println("Generating {} workers...", myTaskPool.GetMaxWorkerNumber());
 
 	try
@@ -115,6 +98,8 @@ ServerFramework::Startup()
 	}
 
 	std::println("Server is started.");
+
+	super::PostStartup();
 
 	char input_buffer[128]{};
 	constexpr std::uint32_t input_length = sizeof(input_buffer);

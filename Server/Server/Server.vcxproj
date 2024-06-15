@@ -177,11 +177,11 @@
     <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.vcxproj">
+      <Project>{148fec5c-a9bb-4d65-859d-f8095c5430a6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Network\Network.vcxproj">
       <Project>{de9efc78-7399-4132-ae78-1bd61b5fc424}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Session\Session.vcxproj">
-      <Project>{5c7945ac-0262-4258-b99f-f79ae8f7836a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Utility\Utility.vcxproj">
       <Project>{e0d992a6-1a55-4809-b7ba-801c41557327}</Project>

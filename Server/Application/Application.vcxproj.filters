@@ -13,5 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Public">
+      <UniqueIdentifier>{97dc0d3e-4122-46d4-93c8-315705214bdf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ISession.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketProtocols.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="User.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

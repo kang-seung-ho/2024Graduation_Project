@@ -18,27 +18,12 @@ iconer::net::IThreadPool::Initialize()
 		return std::unexpected{ io.error() };
 	};
 
-	if (eventOnInitialied.IsBound())
-	{
-		eventOnInitialied.Broadcast();
-	}
-
-	if (eventOnPostInitialied.IsBound())
-	{
-		eventOnPostInitialied.Broadcast();
-	}
-
 	return {};
 }
 
 void
 iconer::net::IThreadPool::Startup()
 {
-	if (eventOnPreStarted.IsBound())
-	{
-		eventOnPreStarted.Broadcast();
-	}
-
 	size_t index{};
 
 	const auto cap = GetMaxWorkerNumber();
@@ -52,25 +37,12 @@ iconer::net::IThreadPool::Startup()
 			}
 		);
 	}
-
-	if (eventOnStarted.IsBound())
-	{
-		eventOnStarted.Broadcast();
-	}
 }
 
 void
 iconer::net::IThreadPool::Cleanup()
 {
-	if (eventOnDestructed.IsBound())
-	{
-		eventOnDestructed.Broadcast();
-	}
-
-	for (auto& th : myWorkers)
-	{
-		th.request_stop();
-	}
+	StopWorkers();
 
 	ioCompletionPort.Destroy();
 }

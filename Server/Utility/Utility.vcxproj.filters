@@ -51,6 +51,9 @@
     <ClCompile Include="Invoker.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="ReadOnly.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atomic_queue_defs.h">

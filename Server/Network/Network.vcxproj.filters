@@ -87,5 +87,11 @@
     <ClCompile Include="IThreadPool.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="SocketWrapper.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpReceiver.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
