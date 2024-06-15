@@ -24,6 +24,21 @@ namespace
 	{
 		return ZipFrontImpl(std::forward<T>(value), tuple, std::index_sequence_for<Ts...>{});
 	}
+
+	template <typename Callable, typename Method, typename Tuple, size_t... Indices>
+	constexpr decltype(auto) ApplyImpl(Callable&& context, const Method& method, Tuple&& params, std::index_sequence<Indices...>)
+	{
+		return ((context).*method)(std::get<Indices>(std::forward<Tuple>(params))...);
+	}
+
+	template <typename Context, typename Method, typename Tuple>
+	constexpr decltype(auto) Apply(Context&& context, const Method& method, Tuple&& params)
+	{
+		return ApplyImpl(std::forward<Context>(context)
+			, method
+			, std::forward<Tuple>(params)
+			, std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{});
+	}
 }
 
 export namespace iconer::util
@@ -41,27 +56,13 @@ export namespace iconer::util
 			const auto ptr = (&IInvoker<R>::operator());
 			if constexpr (0 < sizeof...(Args))
 			{
-				auto parameters = std::forward_as_tuple(std::forward<Args>(args)...);
+				std::tuple<clean_t<Args>...> parameters = std::make_tuple(args...);
 
-				if constexpr (same_as<R, void>)
-				{
-					std::invoke(ptr, this, static_cast<void*>(std::addressof(parameters)));
-				}
-				else
-				{
-					return std::invoke(ptr, this, static_cast<void*>(std::addressof(parameters)));
-				}
+				return (*this)(static_cast<void*>(std::addressof(parameters)));
 			}
 			else
 			{
-				if constexpr (same_as<R, void>)
-				{
-					std::invoke(ptr, nullptr);
-				}
-				else
-				{
-					return std::invoke(ptr, nullptr);
-				}
+				return (*this)(nullptr);
 			}
 		}
 
@@ -91,13 +92,13 @@ export namespace iconer::util
 	private:
 		constexpr R operator()(void* data) const override
 		{
-			if constexpr (same_as<R, void>)
-			{
-				std::apply(myFun, *static_cast<std::tuple<Args...>*>(data));
-			}
-			else
+			if constexpr (0 < sizeof...(Args))
 			{
 				return std::apply(myFun, *static_cast<std::tuple<Args...>*>(data));
+			}
+			else // no parameter
+			{
+				return myFun();
 			}
 		}
 
@@ -131,19 +132,24 @@ export namespace iconer::util
 	private:
 		constexpr R operator()(void* data) const override
 		{
-			std::tuple<context_type, Args...> tuple = ZipFront(myContext, *static_cast<std::tuple<Args...>*>(data));
+			if constexpr (0 < sizeof...(Args))
+			{
+				const std::tuple<Args...>& tuple = *static_cast<std::tuple<Args...>*>(data);
 
-			std::visit([=](const auto& fun) -> R
-				{
-					if constexpr (same_as<R, void>)
+				std::visit([=](const auto& fun) -> R
 					{
-						std::apply(fun, std::move(tuple));
+						return Apply(*myContext, fun, tuple);
 					}
-					else
+				, myFuns);
+			}
+			else // no parameter
+			{
+				std::visit([=](const auto& fun) -> R
 					{
-						return std::apply(fun, std::move(tuple));
+						return ((*myContext).*fun)();
 					}
-				}, myFuns);
+				, myFuns);
+			}
 		}
 
 		context_type myContext{ nullptr };
@@ -176,15 +182,15 @@ export namespace iconer::util
 	private:
 		constexpr R operator()(void* data) const override
 		{
-			std::tuple<context_type, Args...> tuple = ZipFront(myContext, *static_cast<std::tuple<Args...>*>(data));
+			if constexpr (0 < sizeof...(Args))
+			{
+				const std::tuple<Args...>& tuple = *static_cast<std::tuple<Args...>*>(data);
 
-			if constexpr (same_as<R, void>)
-			{
-				std::apply(myFun, std::move(tuple));
+				return Apply(*myContext, myFun, tuple);
 			}
-			else
+			else // no parameter
 			{
-				return std::apply(myFun, std::move(tuple));
+				return ((*myContext).*myFun)();
 			}
 		}
 
@@ -279,6 +285,34 @@ export namespace iconer::util
 	template<classes Context, typename R = void, typename... Args>
 	ImmutableMethodInvoker(const Context*, const_method_t<Context, R, Args...>) -> ImmutableMethodInvoker<Context, R, Args...>;
 
+	template<typename R, typename ...Args>
+	[[nodiscard]]
+	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(const function_t<R, Args...>& fun)
+	{
+		return std::unique_ptr<IInvoker<R>>(new NativeInvoker{ fun });
+	}
+
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(Context* ctx, method_t<Context, R, Args...> method)
+	{
+		return std::unique_ptr<IInvoker<R>>(new MethodInvoker{ ctx, method });
+	}
+
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(Context* ctx, const_method_t<Context, R, Args...> method)
+	{
+		return std::unique_ptr<IInvoker<R>>(new ImmutableMethodInvoker{ ctx, method });
+	}
+	
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(const Context* ctx, const_method_t<Context, R, Args...> method)
+	{
+		return std::unique_ptr<IInvoker<R>>(new ImmutableMethodInvoker{ ctx, method });
+	}
+
 	template<typename ...Args>
 	[[nodiscard]]
 	constexpr auto MakeLambdaInvoker(auto&& lambda)
@@ -286,7 +320,7 @@ export namespace iconer::util
 		using lambda_t = decltype(lambda);
 		using r = std::invoke_result_t<lambda_t, Args...>;
 
-		return LambdaInvoker<lambda_t, r, Args...>{ std::forward<lambda_t>(lambda) };
+		return LambdaInvoker<r, Args...>{ std::forward<lambda_t>(lambda) };
 	}
 }
 
