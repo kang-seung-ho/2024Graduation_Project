@@ -6,19 +6,33 @@ import <print>;
 class ServerThreadPool : public iconer::net::IThreadPool<ServerThreadPool, class ServerFramework, 4>
 {
 public:
-	static inline constexpr size_t workerCount = 4;
+	using super = iconer::net::IThreadPool<ServerThreadPool, class ServerFramework, 4>;
 
-	[[nodiscard]]
-	bool OnProcessTask(ServerFramework& framework, iconer::net::IoEvent task);
+	size_t myIndex;
 
-	void OnInitializeWorker(size_t index)
+	ServerThreadPool()
+		: super()
+		, myIndex()
+	{}
+
+	std::expected<void, iconer::net::ErrorCode> Initialize()
 	{
-		std::println("Worker {} is generated.", index);
+		eventOnStarted.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnStartWorker));
+		eventOnDestructed.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTerminateWorker));
+
+		return super::Initialize();
 	}
 
-	void OnTerminateWorker(size_t index)
+	void OnStartWorker(size_t index)
 	{
-		std::println("Worker {} is terminated.", index);
+		std::println("Worker {} is generated.", index);
+
+		myIndex = index;
+	}
+
+	void OnTerminateWorker() const
+	{
+		std::println("Worker {} is terminated.", myIndex);
 	}
 };
 

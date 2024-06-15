@@ -5,6 +5,7 @@ module;
 #define UNLIKELY [[unlikely]]
 
 export module Iconer.Net.IThreadPool;
+import Iconer.Utility.Delegate;
 export import Iconer.Net.Socket;
 export import Iconer.Net.IoContext;
 export import Iconer.Net.IoCompletionPort;
@@ -26,11 +27,20 @@ export namespace iconer::net
 		using this_class = IThreadPool<Self, IManager, WorkerCount>;
 		using manger_type = IManager;
 
+		static inline constexpr size_t workerCount = WorkerCount;
+
+		IoCompletionPort ioCompletionPort;
+
+		iconer::util::Delegate<void> eventOnInitialied;
+		iconer::util::Delegate<void, size_t> eventOnStarted;
+		iconer::util::Delegate<void> eventOnDestructed;
+		iconer::util::Delegate<void, IoContext*, std::uint64_t, std::uint32_t> eventOnTaskSucceed;
+		iconer::util::Delegate<void, IoContext*, std::uint64_t, std::uint32_t> eventOnTaskFailure;
+
 		IThreadPool() = default;
 		~IThreadPool() = default;
 
-		std::expected<void, iconer::net::ErrorCode>
-			Initialize()
+		std::expected<void, iconer::net::ErrorCode> Initialize()
 		{
 			if (auto io = IoCompletionPort::Create(); io) LIKELY
 			{
@@ -39,6 +49,11 @@ export namespace iconer::net
 			else UNLIKELY
 			{
 				return std::unexpected{ io.error() };
+			};
+
+			if (eventOnInitialied.IsBound())
+			{
+				eventOnInitialied.Broadcast();
 			}
 
 			return {};
@@ -107,42 +122,12 @@ export namespace iconer::net
 	protected:
 		static void Worker(std::stop_token&& cancel_token, Self& self, IManager& framework, size_t index)
 		{
-			static_assert(requires { std::declval<Self&>().OnProcessTask(std::declval<IManager&>(), std::declval<iconer::net::IoEvent>()); });
-
-			if constexpr (requires{ std::declval<Self&>().OnInitializeWorker(std::declval<IManager&>(), size_t{}); })
-			{
-				self.OnInitializeWorker(framework, index);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnInitializeWorker(std::declval<IManager&>()); })
-			{
-				self.OnInitializeWorker(framework);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnInitializeWorker(size_t{}); })
-			{
-				self.OnInitializeWorker(index);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnInitializeWorker(); })
-			{
-				self.OnInitializeWorker();
-			}
-			else if constexpr (requires { Self::OnInitializeWorker(std::declval<IManager&>(), size_t{}); })
-			{
-				Self::OnInitializeWorker(framework, index);
-			}
-			else if constexpr (requires { Self::OnInitializeWorker(std::declval<IManager&>()); })
-			{
-				Self::OnInitializeWorker(framework);
-			}
-			else if constexpr (requires { Self::OnInitializeWorker(size_t{}); })
-			{
-				Self::OnInitializeWorker(index);
-			}
-			else if constexpr (requires { Self::OnInitializeWorker(); })
-			{
-				Self::OnInitializeWorker();
-			}
-
 			self.ArriveWorker();
+
+			if (self.eventOnStarted.IsBound())
+			{
+				self.eventOnStarted.Broadcast(index);
+			}
 
 			while (true)
 			{
@@ -156,7 +141,7 @@ export namespace iconer::net
 				std::println("[Task({})] id={} ({} bytes)"
 					, task.isSucceed, task.eventId, task.ioBytes);
 
-				if (not self.OnProcessTask(framework, std::move(task))) UNLIKELY
+				if (not self.ProcessTask(std::move(task))) UNLIKELY
 				{
 					if (not cancel_token.stop_requested()) UNLIKELY
 					{
@@ -166,44 +151,16 @@ export namespace iconer::net
 					break;
 				}
 #else
-					if (not framework.ProcessTask(framework.AwaitForTask())) UNLIKELY
+					if (not ProcessTask(framework.AwaitForTask())) UNLIKELY
 					{
 						break;
 					}
 #endif
 			}
 
-			if constexpr (requires{ std::declval<Self&>().OnTerminateWorker(std::declval<IManager&>(), size_t{}); })
+			if (self.eventOnDestructed.IsBound())
 			{
-				self.OnTerminateWorker(framework, index);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnTerminateWorker(std::declval<IManager&>()); })
-			{
-				self.OnTerminateWorker(framework);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnTerminateWorker(size_t{}); })
-			{
-				self.OnTerminateWorker(index);
-			}
-			else if constexpr (requires{ std::declval<Self&>().OnTerminateWorker(); })
-			{
-				self.OnTerminateWorker();
-			}
-			else if constexpr (requires{ Self::OnTerminateWorker(std::declval<IManager&>(), size_t{}); })
-			{
-				Self::OnTerminateWorker(framework, index);
-			}
-			else if constexpr (requires{ Self::OnTerminateWorker(std::declval<IManager&>()); })
-			{
-				Self::OnTerminateWorker(framework);
-			}
-			else if constexpr (requires{ Self::OnTerminateWorker(size_t{}); })
-			{
-				Self::OnTerminateWorker(index);
-			}
-			else if constexpr (requires{ Self::OnTerminateWorker(); })
-			{
-				Self::OnTerminateWorker();
+				self.eventOnDestructed.Broadcast();
 			}
 		}
 
@@ -231,11 +188,29 @@ export namespace iconer::net
 			return static_cast<const Self&&>(*this);
 		}
 
-		IoCompletionPort ioCompletionPort;
-
 	private:
 		std::array<std::jthread, WorkerCount> myWorkers;
 		std::latch workerInitializationSynchronizer{ WorkerCount };
+
+		bool ProcessTask(iconer::net::IoEvent task)
+		{
+			if (task.isSucceed) LIKELY
+			{
+				if (eventOnTaskSucceed.IsBound())
+				{
+					eventOnTaskSucceed.Broadcast(task.ioContext, task.eventId, task.ioBytes);
+				}
+			}
+			else UNLIKELY
+			{
+				if (eventOnTaskFailure.IsBound())
+				{
+					eventOnTaskFailure.Broadcast(task.ioContext, task.eventId, task.ioBytes);
+				}
+			}
+
+			return task.isSucceed;
+		}
 
 		void ArriveWorker() noexcept
 		{

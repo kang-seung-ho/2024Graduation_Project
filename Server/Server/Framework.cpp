@@ -25,9 +25,9 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	listenSocket = Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
+	super::listenSocket = Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
 
-	if (listenSocket)
+	if (super::listenSocket)
 	{
 		std::println("The listen socket is created.");
 	}
@@ -40,7 +40,7 @@ ServerFramework::Initialize()
 		return std::unexpected{ error };
 	}
 
-	if (const auto io = listenSocket.BindToHost(serverPort); io)
+	if (const auto io = super::listenSocket.BindToHost(serverPort); io)
 	{
 		std::println("The listen socket is bound to host:({}).", serverPort);
 	}
@@ -51,9 +51,9 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (const auto io = listenSocket.ReusableAddress(true); io)
+	if (const auto io = super::listenSocket.ReusableAddress(true); io)
 	{
-		std::println("The listen socket now would recycle its address. ({})", listenSocket.ReusableAddress());
+		std::println("The listen socket now would recycle its address. ({})", super::listenSocket.ReusableAddress());
 	}
 	else
 	{
@@ -62,9 +62,9 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 	
-	if (const auto io = listenSocket.SetTcpNoDelay(false); io)
+	if (const auto io = super::listenSocket.SetTcpNoDelay(false); io)
 	{
-		std::println("The listen socket would not use Nagle algorithm. ({})", listenSocket.IsTcpNoDelay());
+		std::println("The listen socket would not use Nagle algorithm. ({})", super::listenSocket.IsTcpNoDelay());
 	}
 	else
 	{
@@ -84,7 +84,7 @@ ServerFramework::Initialize()
 		return std::unexpected{ io.error() };
 	}
 
-	if (auto io = myTaskPool.Register(listenSocket, 0); io)
+	if (auto io = myTaskPool.Register(super::listenSocket, 0); io)
 	{
 		std::println("The listen socket is registered to the task pool.");
 	}
@@ -141,21 +141,4 @@ ServerFramework::Cleanup()
 	listenSocket.Close();
 
 	iconer::net::Cleanup();
-}
-
-bool
-ServerFramework::ProcessTask(iconer::net::IoEvent task)
-{
-	if (task.isSucceed) LIKELY
-	{
-
-	}
-	else UNLIKELY
-	{
-
-	}
-
-	packetProcessors;
-
-	return task.isSucceed;
 }
