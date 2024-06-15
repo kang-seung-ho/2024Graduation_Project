@@ -47,17 +47,17 @@ const noexcept
 		, std::to_underlying(SocketOption::NoDelay)
 		, reinterpret_cast<char*>(&opt_val), &opt_len)) LIKELY
 	{
-		return opt_val != 0;
+		return opt_val == 0;
 	}
 
-	return false;
+	return true;
 }
 
 iconer::net::Socket::IoResult
 iconer::net::Socket::SetTcpNoDelay(bool flag)
 const noexcept
 {
-	::BOOL iflag = static_cast<::BOOL>(flag);
+	::BOOL iflag = static_cast<::BOOL>(!flag);
 
 	if (0 == ::setsockopt(myHandle
 		, ::IPPROTO::IPPROTO_TCP
