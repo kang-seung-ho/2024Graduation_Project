@@ -13,7 +13,7 @@ export namespace iconer::net
 
 		virtual std::expected<void, iconer::net::ErrorCode> Initialize() = 0;
 		virtual void Startup() = 0;
-		virtual void Cleanup() = 0;
+		virtual void Cleanup();
 
 	protected:
 		iconer::net::Socket listenSocket;

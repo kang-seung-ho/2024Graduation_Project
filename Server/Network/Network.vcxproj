@@ -182,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="EndPoint.cpp" />
     <ClCompile Include="EndPoint.ixx" />
+    <ClCompile Include="IFramework.cpp" />
     <ClCompile Include="IFramework.ixx" />
     <ClCompile Include="InternetProtocol.ixx" />
     <ClCompile Include="IoCompletionPort.cpp" />
@@ -189,6 +190,7 @@
     <ClCompile Include="IoContext.ixx" />
     <ClCompile Include="IpAddress.ixx" />
     <ClCompile Include="IpAddressFamily.ixx" />
+    <ClCompile Include="IThreadPool.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Network.ixx" />
     <ClCompile Include="Socket.cpp" />

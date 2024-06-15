@@ -3,36 +3,40 @@ import Iconer.Net.IoCompletionPort;
 import Iconer.Net.IThreadPool;
 import <print>;
 
-class ServerThreadPool : public iconer::net::IThreadPool<ServerThreadPool, class ServerFramework, 4>
+class ServerThreadPool : public iconer::net::IThreadPool
 {
 public:
-	using super = iconer::net::IThreadPool<ServerThreadPool, class ServerFramework, 4>;
-
-	size_t myIndex;
+	using super = iconer::net::IThreadPool;
 
 	ServerThreadPool()
-		: super()
-		, myIndex()
+		: super(4)
 	{}
 
-	std::expected<void, iconer::net::ErrorCode> Initialize()
+	std::expected<void, iconer::net::ErrorCode> Initialize() override
 	{
-		eventOnStarted.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnStartWorker));
-		eventOnDestructed.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTerminateWorker));
+		super::Initialize();
 
-		return super::Initialize();
+		eventOnWorkerInitialized.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnStartWorker));
+		eventOnWorkerAnnihilated.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTerminateWorker));
+
+		eventOnTaskFailure.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTaskFailed));
+
+		return {};
 	}
 
 	void OnStartWorker(size_t index)
 	{
 		std::println("Worker {} is generated.", index);
-
-		myIndex = index;
 	}
 
 	void OnTerminateWorker() const
 	{
-		std::println("Worker {} is terminated.", myIndex);
+		std::println("Worker is terminated.");
+	}
+
+	void OnTaskFailed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const
+	{
+		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
 	}
 };
 

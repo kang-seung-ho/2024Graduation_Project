@@ -81,5 +81,11 @@
     <ClCompile Include="IFramework.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="IFramework.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="IThreadPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -101,11 +101,11 @@ ServerFramework::Initialize()
 void
 ServerFramework::Startup()
 {
-	std::println("Generating {} workers...", myTaskPool.workerCount);
+	std::println("Generating {} workers...", myTaskPool.GetMaxWorkerNumber());
 
 	try
 	{
-		myTaskPool.Startup(*this);
+		myTaskPool.Startup();
 	}
 	catch (std::exception& e)
 	{
@@ -138,7 +138,7 @@ ServerFramework::Cleanup()
 {
 	myTaskPool.Cleanup();
 
-	listenSocket.Close();
+	super::Cleanup();
 
 	iconer::net::Cleanup();
 }
