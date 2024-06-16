@@ -73,6 +73,8 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		if (auto io = user->BeginReceive(); io)
 		{
 			std::println("User {} started receiving.", id);
+
+			user->SetConnected(true);
 		}
 		else
 		{
@@ -88,6 +90,21 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	}
 	break;
 
+	case OpRecv:
+	{
+		const auto user = userManager.FindSession(id);
+		if (nullptr == user)
+		{
+			std::println("Unknown Receive from id {} ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		user->EndReceive(bytes);
+	}
+	break;
+
 	default:
 	{
 		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
@@ -100,5 +117,49 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 void
 ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const
 {
-	std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
+	const auto task_ctx = static_cast<iconer::app::TaskContext*>(context);
+
+	if (nullptr == task_ctx)
+	{
+		std::println("[Null Task]id={} ({} bytes)", id, bytes);
+		return;
+	}
+
+	using namespace iconer::net;
+	using enum iconer::app::TaskCategory;
+
+	switch (task_ctx->myCategory)
+	{
+	case OpRecv:
+	{
+		const auto user = userManager.FindSession(id);
+		if (nullptr == user)
+		{
+			std::println("Unknown Receive from id {} ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		user->SetConnected(false);
+	}
+	break;
+
+	default:
+	{
+		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
+		task_ctx->ClearIoStatus();
+	}
+	break;
+	}
+}
+
+void
+ServerFramework::ReserveUser(iconer::app::User& user)
+const noexcept
+{
+	auto& ctx = user.mainContext;
+
+	ctx.SetOperation(iconer::app::TaskCategory::OpReserve);
+	myTaskPool.Schedule(ctx, user.GetID());
 }

@@ -6,7 +6,7 @@ import <print>;
 std::expected<void, iconer::net::ErrorCode>
 iconer::net::IFramework::Initialize()
 {
-	if (const auto io = iconer::net::Startup(); io)
+	if (auto io = iconer::net::Startup(); io)
 	{
 		std::println("The network system is Initiated.");
 	}

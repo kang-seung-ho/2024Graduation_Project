@@ -424,8 +424,8 @@ const noexcept
 	SOCKADDR* rawaddr = reinterpret_cast<::SOCKADDR*>(std::addressof(address));
 
 	IpAddress ip{ IpAddressFamily::Unknown, "" };
-	IpAddressFamily family;
-	std::uint16_t port;
+	IpAddressFamily family{ IpAddressFamily::Unknown };
+	std::uint16_t port{};
 
 	switch (address.ss_family)
 	{

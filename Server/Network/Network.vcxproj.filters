@@ -93,5 +93,8 @@
     <ClCompile Include="TcpReceiver.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="TcpReceiver.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,7 +7,6 @@ import <cstddef>;
 import <cstdint>;
 import <expected>;
 import <vector>;
-import <span>;
 
 export namespace iconer::net
 {
@@ -29,63 +28,17 @@ export namespace iconer::net
 			, recvBytes()
 		{}
 
-		[[nodiscard]]
-		std::expected<int, iconer::net::ErrorCode> Receive()
-		{
-			auto span = GetReceiveBuffer();
-			auto io = mySocket.Receive(span);
+		[[nodiscard]] std::expected<int, iconer::net::ErrorCode> Receive();
 
-			if (io)
-			{
-				recvBytes += static_cast<std::uint32_t>(io.value());
-			}
+		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext& context);
+		bool EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes);
 
-			return std::move(io);
-		}
+		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext* context);
+		bool EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes);
 
-		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext& context)
-		{
-			auto span = GetReceiveBuffer();
-			return mySocket.Receive(context, span);
-		}
-
-		bool EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes)
-		{
-			context.ClearIoStatus();
-
-			recvBytes += bytes;
-
-			return 0 != bytes;
-		}
-
-		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext* context)
-		{
-			auto span = GetCurrentReceiveBuffer();
-			return mySocket.Receive(*context, span);
-		}
-
-		bool EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes)
-		{
-			return EndReceive(*context, bytes);
-		}
-
-		[[nodiscard]]
-		std::span<std::byte> GetReceiveBuffer() noexcept
-		{
-			return std::span<std::byte>{ recvBuffer.data(), maxRecvSize };
-		}
-
-		[[nodiscard]]
-		std::span<const std::byte> GetReceiveBuffer() const noexcept
-		{
-			return std::span<const std::byte>{ recvBuffer.data(), maxRecvSize };
-		}
-
-		[[nodiscard]]
-		std::span<std::byte> GetCurrentReceiveBuffer() noexcept
-		{
-			return std::span<std::byte>{ recvBuffer.data() + recvBytes, maxRecvSize - recvBytes };
-		}
+		[[nodiscard]] std::span<std::byte> GetReceiveBuffer() noexcept;
+		[[nodiscard]] std::span<const std::byte> GetReceiveBuffer() const noexcept;
+		[[nodiscard]] std::span<std::byte> GetCurrentReceiveBuffer() noexcept;
 
 		TcpReceiver(TcpReceiver&&) = default;
 		TcpReceiver& operator=(TcpReceiver&&) = default;

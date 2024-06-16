@@ -15,14 +15,14 @@ ServerFramework::Initialize()
 {
 	std::println("Starting server...");
 
-	if (const auto io = super::Initialize(); not io)
+	if (auto io = super::Initialize(); not io)
 	{
 		std::println("Could not initialize network system, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
 
-	if (const auto io = super::listenSocket.BindToHost(serverPort); io)
+	if (auto io = super::listenSocket.BindToHost(serverPort); io)
 	{
 		std::println("The listen socket is bound to host:({}).", serverPort);
 	}
@@ -33,7 +33,7 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (const auto io = super::listenSocket.ReusableAddress(true); io)
+	if (auto io = super::listenSocket.ReusableAddress(true); io)
 	{
 		std::println("The listen socket now would recycle its address. ({})", super::listenSocket.ReusableAddress());
 	}
@@ -44,7 +44,7 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 	
-	if (const auto io = super::listenSocket.SetTcpNoDelay(false); io)
+	if (auto io = super::listenSocket.SetTcpNoDelay(false); io)
 	{
 		std::println("The listen socket would not use Nagle algorithm. ({})", super::listenSocket.IsTcpNoDelay());
 	}

@@ -41,6 +41,8 @@ private:
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
 
+	void ReserveUser(class iconer::app::User& user) const noexcept;
+
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;
 	ServerFramework(ServerFramework&&) = delete;

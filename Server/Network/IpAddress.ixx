@@ -58,7 +58,7 @@ export namespace iconer::net
 		[[nodiscard]] bool operator==(const IpAddress&) const noexcept = default;
 
 	private:
-		iconer::net::IpAddressFamily addressFamily;
-		std::string addressString;
+		iconer::net::IpAddressFamily addressFamily{ iconer::net::IpAddressFamily::Unknown };
+		std::string addressString{};
 	};
 }

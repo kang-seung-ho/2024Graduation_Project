@@ -42,5 +42,8 @@
     <ClCompile Include="UserManager.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

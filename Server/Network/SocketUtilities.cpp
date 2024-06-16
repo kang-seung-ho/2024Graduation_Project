@@ -19,7 +19,7 @@ iconer::net::Socket::Create(iconer::net::SocketCategory type
 {
 	const auto flags = std::to_underlying(type);
 
-	std::uintptr_t native;
+	std::uintptr_t native{ INVALID_SOCKET };
 	switch (protocol)
 	{
 	case InternetProtocol::TCP:
@@ -60,7 +60,7 @@ iconer::net::Socket::TryCreate(iconer::net::SocketCategory type
 {
 	const auto flags = std::to_underlying(type);
 
-	std::uintptr_t native;
+	std::uintptr_t native{ INVALID_SOCKET };
 	switch (protocol)
 	{
 	case InternetProtocol::TCP:

@@ -22,8 +22,8 @@ export namespace iconer::app
 		static inline constexpr id_type minUserUid = 1;
 		static inline constexpr id_type maxUserUid = minUserUid + maxUserCount;
 
-		UserManager() = default;
-		~UserManager() = default;
+		constexpr UserManager() noexcept = default;
+		constexpr ~UserManager() noexcept = default;
 
 		std::expected<void, iconer::net::ErrorCode> Initialize(iconer::net::IoCompletionPort& io_port);
 		void Startup(iconer::net::Socket& listener);
@@ -33,8 +33,8 @@ export namespace iconer::app
 		session_type* FindSession(id_type id) const noexcept;
 
 	private:
-		std::vector<pointer_type> everyUsers;
-		iconer::net::IoCompletionPort* ioCompletionPort;
+		std::vector<pointer_type> everyUsers{};
+		iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 
 		UserManager(const UserManager&) = delete;
 		UserManager& operator=(const UserManager&) = delete;
