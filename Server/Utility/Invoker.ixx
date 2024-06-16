@@ -89,6 +89,12 @@ export namespace iconer::util
 
 		using super::operator();
 
+		[[nodiscard]]
+		friend constexpr bool operator==(const this_class& lhs, const this_class& rhs) noexcept
+		{
+			return lhs.myFun == rhs.myFun;
+		}
+
 	private:
 		constexpr R operator()(void* data) const override
 		{
@@ -128,6 +134,19 @@ export namespace iconer::util
 		{}
 
 		using super::operator();
+
+		template<typename D>
+		[[nodiscard]]
+		constexpr bool IsBoundTo(const this_class& lhs, const D* context) const noexcept
+		{
+			return context == lhs.myContext;
+		}
+
+		[[nodiscard]]
+		friend constexpr bool operator==(const this_class& lhs, const this_class& rhs) noexcept
+		{
+			return lhs.myContext == rhs.myContext;
+		}
 
 	private:
 		constexpr R operator()(void* data) const override
@@ -178,6 +197,19 @@ export namespace iconer::util
 		{}
 
 		using super::operator();
+
+		template<typename D>
+		[[nodiscard]]
+		constexpr bool IsBoundTo(const this_class& lhs, const D* context) const noexcept
+		{
+			return context == lhs.myContext;
+		}
+
+		[[nodiscard]]
+		friend constexpr bool operator==(const this_class& lhs, const this_class& rhs) noexcept
+		{
+			return lhs.myContext == rhs.myContext and lhs.myFun == rhs.myFun;
+		}
 
 	private:
 		constexpr R operator()(void* data) const override
@@ -305,7 +337,7 @@ export namespace iconer::util
 	{
 		return std::unique_ptr<IInvoker<R>>(new ImmutableMethodInvoker{ ctx, method });
 	}
-	
+
 	template<classes Context, typename R, typename... Args>
 	[[nodiscard]]
 	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(const Context* ctx, const_method_t<Context, R, Args...> method)

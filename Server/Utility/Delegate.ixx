@@ -22,7 +22,7 @@ export namespace iconer::util
 		{
 			invocationList.emplace_back(invoker);
 		}
-		
+
 		constexpr void Add(std::unique_ptr<IInvoker<R>>&& handle)
 		{
 			invocationList.push_back(std::move(handle));
@@ -48,6 +48,41 @@ export namespace iconer::util
 					return invoker.Invoke(args...);
 				}
 			}
+		}
+
+		constexpr void Unbound(const function_t<R, Args...>& fun)
+		{
+			auto it = invocationList.begin();
+			for (; it != invocationList.end(); ++it)
+			{
+				std::unique_ptr<IInvoker<R>>& invoker = *it;
+				NativeInvoker<R, Args...>* native = dynamic_cast<NativeInvoker<R, Args...>*>(invoker.get());
+
+				if (nullptr != native and *native == fun)
+				{
+					it = std::remove(it, invocationList.end(), invoker);
+				}
+			}
+
+			invocationList.erase(it, invocationList.end());
+		}
+
+		template<classes Context>
+		constexpr void Unbound(const Context* context)
+		{
+			auto it = invocationList.begin();
+			for (; it != invocationList.end(); ++it)
+			{
+				std::unique_ptr<IInvoker<R>>& invoker = *it;
+				MethodInvoker<Context, R, Args...>* method = dynamic_cast<MethodInvoker<Context, R, Args...>*>(invoker.get());
+
+				if (nullptr != method and method->IsBoundTo(context))
+				{
+					it = std::remove(it, invocationList.end(), invoker);
+				}
+			}
+
+			invocationList.erase(it, invocationList.end());
 		}
 
 		[[nodiscard]]
