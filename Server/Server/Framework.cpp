@@ -1,5 +1,6 @@
 #include "Framework.hpp"
 
+import Iconer.Utility.Delegate;
 import Iconer.Net;
 import <cstdio>;
 import <cstdlib>;
@@ -75,6 +76,9 @@ ServerFramework::Initialize()
 
 		return std::move(io);
 	}
+
+	myTaskPool.eventOnTaskSucceed.Add(iconer::util::MakeInvoker(this, &ServerFramework::OnTaskSucceed));
+	myTaskPool.eventOnTaskFailure.Add(iconer::util::MakeInvoker(this, &ServerFramework::OnTaskFailure));
 
 	if (userManager.Initialize(myTaskPool.ioCompletionPort))
 	{

@@ -19,16 +19,10 @@ public:
 		eventOnWorkerInitialized.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnStartWorker));
 		eventOnWorkerAnnihilated.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTerminateWorker));
 
-		eventOnTaskSucceed.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTaskSucceed));
-		eventOnTaskFailure.Add(iconer::util::MakeInvoker(this, &ServerThreadPool::OnTaskFailure));
-
 		return {};
 	}
 
 	void OnStartWorker(size_t index);
 	void OnTerminateWorker() const;
-
-	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
-	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
 };
 

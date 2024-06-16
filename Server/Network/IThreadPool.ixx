@@ -39,37 +39,51 @@ export namespace iconer::net
 		virtual void Startup();
 		virtual void Cleanup();
 
-		std::expected<void, iconer::net::ErrorCode> Register(iconer::net::Socket& socket, const std::uintptr_t& id) noexcept
+		std::expected<void, iconer::net::ErrorCode>
+			Register(iconer::net::Socket& socket, const std::uintptr_t& id)
+			const noexcept
 		{
 			return ioCompletionPort.Register(socket, id);
 		}
 
-		std::expected<void, iconer::net::ErrorCode> Register(iconer::net::Socket& socket, std::uintptr_t&& id) noexcept
+		std::expected<void, iconer::net::ErrorCode>
+			Register(iconer::net::Socket& socket, std::uintptr_t&& id)
+			const noexcept
 		{
 			return ioCompletionPort.Register(socket, std::move(id));
 		}
 
-		bool TryRegister(iconer::net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code) noexcept
+		bool
+			TryRegister(iconer::net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code)
+			const noexcept
 		{
 			return ioCompletionPort.TryRegister(socket, id, error_code);
 		}
 
-		bool Schedule(IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) noexcept
+		bool
+			Schedule(IoContext& context, std::uintptr_t id, unsigned long infobytes = 0)
+			const noexcept
 		{
 			return ioCompletionPort.Schedule(context, id, infobytes);
 		}
 
-		bool Schedule(IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) noexcept
+		bool
+			Schedule(IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0)
+			const noexcept
 		{
 			return ioCompletionPort.Schedule(context, id, infobytes);
 		}
 
-		bool Schedule(volatile IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) noexcept
+		bool
+			Schedule(volatile IoContext& context, std::uintptr_t id, unsigned long infobytes = 0)
+			const noexcept
 		{
 			return ioCompletionPort.Schedule(context, id, infobytes);
 		}
 
-		bool Schedule(volatile IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) noexcept
+		bool
+			Schedule(volatile IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0)
+			const noexcept
 		{
 			return ioCompletionPort.Schedule(context, id, infobytes);
 		}
@@ -113,7 +127,7 @@ export namespace iconer::net
 		}
 
 		[[nodiscard]]
-		iconer::net::IoEvent AwaitForTask() noexcept
+		iconer::net::IoEvent AwaitForTask() const noexcept
 		{
 			return ioCompletionPort.WaitForIoResult();
 		}

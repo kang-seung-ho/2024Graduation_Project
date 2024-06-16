@@ -28,19 +28,19 @@ export namespace iconer::net
 		bool Destroy() noexcept;
 		bool Destroy(ErrorCode& error_code) noexcept;
 
-		std::expected<void, iconer::net::ErrorCode> Register(iconer::net::Socket& socket, std::uintptr_t id) noexcept;
-		bool TryRegister(net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code) noexcept;
+		std::expected<void, iconer::net::ErrorCode> Register(iconer::net::Socket& socket, std::uintptr_t id) const noexcept;
+		bool TryRegister(net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code) const noexcept;
 
-		bool Schedule(IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) noexcept;
+		bool Schedule(IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) const noexcept;
 
-		bool Schedule(IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) noexcept;
+		bool Schedule(IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) const noexcept;
 
-		bool Schedule(volatile IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) noexcept;
+		bool Schedule(volatile IoContext& context, std::uintptr_t id, unsigned long infobytes = 0) const noexcept;
 
-		bool Schedule(volatile IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) noexcept;
+		bool Schedule(volatile IoContext* const context, std::uintptr_t id, unsigned long infobytes = 0) const noexcept;
 
-		[[nodiscard]] IoEvent WaitForIoResult() noexcept;
-		[[nodiscard]] std::expected<void, iconer::net::ErrorCode> WaitForMultipleIoResults(std::span<IoEvent> dest, unsigned long max_count);
+		[[nodiscard]] IoEvent WaitForIoResult() const noexcept;
+		[[nodiscard]] std::expected<void, iconer::net::ErrorCode> WaitForMultipleIoResults(std::span<IoEvent> dest, unsigned long max_count) const;
 
 		[[nodiscard]]
 		constexpr bool IsAvailable() const noexcept

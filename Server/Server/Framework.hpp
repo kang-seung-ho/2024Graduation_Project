@@ -38,6 +38,9 @@ private:
 
 	ServerThreadPool myTaskPool;
 
+	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
+	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
+
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;
 	ServerFramework(ServerFramework&&) = delete;

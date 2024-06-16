@@ -18,7 +18,7 @@ export namespace iconer::app
 		using session_type = iconer::app::User;
 		using pointer_type = std::unique_ptr<iconer::app::User>;
 
-		static inline constexpr size_t maxUserCount = 100;
+		static inline constexpr size_t maxUserCount = 10;
 		static inline constexpr id_type minUserUid = 1;
 		static inline constexpr id_type maxUserUid = minUserUid + maxUserCount;
 

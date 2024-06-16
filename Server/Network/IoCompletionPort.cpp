@@ -38,7 +38,7 @@ noexcept
 
 std::expected<void, iconer::net::ErrorCode>
 net::IoCompletionPort::Register(net::Socket& socket, std::uintptr_t id)
-noexcept
+const noexcept
 {
 #if _DEBUG
 	const HANDLE target = reinterpret_cast<::HANDLE>(socket.GetNativeHandle());
@@ -58,7 +58,7 @@ noexcept
 
 bool
 net::IoCompletionPort::TryRegister(net::Socket& socket, std::uintptr_t id, net::ErrorCode& error_code)
-noexcept
+const noexcept
 {
 	if (auto result = Register(socket, id); result)
 	{
@@ -107,7 +107,7 @@ noexcept
 
 bool
 net::IoCompletionPort::Schedule(net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
-noexcept
+const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
 		, std::move(infobytes)
@@ -117,7 +117,7 @@ noexcept
 
 bool
 net::IoCompletionPort::Schedule(net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
-noexcept
+const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
 		, std::move(infobytes)
@@ -127,7 +127,7 @@ noexcept
 
 bool
 net::IoCompletionPort::Schedule(volatile net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
-noexcept
+const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
 		, infobytes
@@ -137,7 +137,7 @@ noexcept
 
 bool
 net::IoCompletionPort::Schedule(volatile net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
-noexcept
+const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
 		, std::move(infobytes)
@@ -147,7 +147,7 @@ noexcept
 
 net::IoEvent
 net::IoCompletionPort::WaitForIoResult()
-noexcept
+const noexcept
 {
 	net::IoEvent ev_handle{};
 
@@ -175,6 +175,7 @@ noexcept
 
 std::expected<void, iconer::net::ErrorCode>
 iconer::net::IoCompletionPort::WaitForMultipleIoResults(std::span<IoEvent> dest, unsigned long max_count)
+const
 {
 	std::vector<::OVERLAPPED_ENTRY> overlapped_entries{};
 

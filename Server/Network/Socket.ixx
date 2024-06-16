@@ -112,7 +112,7 @@ export namespace iconer::net
 		/// <para>-------------------------------------------------------------------------------</para>
 		/// </summary>
 		/// <param name="listener">- The listener socket</param>
-		IoResult EndAccept(Socket& listener) const noexcept;
+		IoResult EndAccept(const Socket& listener) const noexcept;
 
 		bool Close() const noexcept;
 		bool Close(iconer::net::ErrorCode& error_code) const noexcept;

@@ -569,7 +569,7 @@ const
 }
 
 iconer::net::Socket::IoResult
-iconer::net::Socket::EndAccept(Socket& listener)
+iconer::net::Socket::EndAccept(const Socket& listener)
 const noexcept
 {
 	return SetOption(SocketOption::UpdateContext, std::addressof(listener.myHandle), sizeof(myHandle));
