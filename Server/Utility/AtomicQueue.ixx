@@ -10,7 +10,7 @@ module;
 
 #define ATOMIC_QUEUE_LIKELY(expr) (expr)
 #define ATOMIC_QUEUE_UNLIKELY(expr) (expr)
-export module AtomicQueue;
+export module Iconer.Utility.Container.AtomicQueue;
 
 namespace
 {
@@ -31,7 +31,7 @@ namespace
 	auto constexpr AR = std::memory_order_acq_rel;
 } // namespace atomic_queue
 
-namespace atomic_queue::details
+namespace iconer::util::details
 {
 	template<size_t elements_per_cache_line> struct GetCacheLineIndexBits { static int constexpr value = 0; };
 	template<> struct GetCacheLineIndexBits<256> { static int constexpr value = 8; };
@@ -145,7 +145,7 @@ namespace atomic_queue::details
 	}
 }// namespace atomic_queue
 
-namespace atomic_queue
+export namespace iconer::util
 {
 	template<class Derived>
 	class AtomicQueueCommon
@@ -404,7 +404,7 @@ namespace atomic_queue
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	export template<class T, unsigned SIZE, T NIL = details::nil<T>(), bool MINIMIZE_CONTENTION = true, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
+	template<class T, unsigned SIZE, T NIL = details::nil<T>(), bool MINIMIZE_CONTENTION = true, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
 	class AtomicQueue
 		: public AtomicQueueCommon<AtomicQueue<T, SIZE, NIL, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>
 	{
@@ -447,7 +447,7 @@ namespace atomic_queue
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	export template<class T, unsigned SIZE, bool MINIMIZE_CONTENTION = true, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
+	template<class T, unsigned SIZE, bool MINIMIZE_CONTENTION = true, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
 	class AtomicQueue2 : public AtomicQueueCommon<AtomicQueue2<T, SIZE, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>> {
 		using Base = AtomicQueueCommon<AtomicQueue2<T, SIZE, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>;
 		using State = typename Base::State;
@@ -485,7 +485,7 @@ namespace atomic_queue
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	export template<class T, class A = std::allocator<T>, T NIL = details::nil<T>(), bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
+	template<class T, class A = std::allocator<T>, T NIL = details::nil<T>(), bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
 	class AtomicQueueB
 		: private std::allocator_traits<A>::template rebind_alloc<std::atomic<T>>
 		, public AtomicQueueCommon<AtomicQueueB<T, A, NIL, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>
@@ -582,7 +582,7 @@ namespace atomic_queue
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	export template<class T, class A = std::allocator<T>, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
+	template<class T, class A = std::allocator<T>, bool MAXIMIZE_THROUGHPUT = true, bool TOTAL_ORDER = false, bool SPSC = false>
 	class AtomicQueueB2
 		: private std::allocator_traits<A>::template rebind_alloc<unsigned char>
 		, public AtomicQueueCommon<AtomicQueueB2<T, A, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>

@@ -2,6 +2,7 @@
 
 import Iconer.Net;
 import Iconer.App.TaskContext;
+import Iconer.App.PacketContext;
 
 import <utility>;
 import <print>;
@@ -70,22 +71,14 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			throw "AcceptError!";
 		}
 
-		if (auto io = user->BeginReceive(); io)
+		if (auto io = TriggerUser(*user); io)
 		{
 			std::println("User {} started receiving.", id);
-
-			user->SetConnected(true);
 		}
 		else
 		{
+			// Would trigger OnTaskFailure
 			std::println("User {} has failed to start receiving, due to {}.", id, std::to_string(io.error()));
-
-			auto& recv_ctx = user->recvContext;
-			recv_ctx.ClearIoStatus();
-
-			// restart
-			task_ctx->SetOperation(OpReserve);
-			myTaskPool.Schedule(task_ctx, id);
 		}
 	}
 	break;
@@ -95,13 +88,38 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		const auto user = userManager.FindSession(id);
 		if (nullptr == user)
 		{
-			std::println("Unknown Receive from id {} ({} bytes)", id, bytes);
+			std::println("Unknown receive from id {} ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
 		}
 
 		user->EndReceive(bytes);
+
+		//auto buffer = user->AcquireReceivedData();
+		ProcessPacket(*user);
+
+		if (auto io = TriggerUser(*user); io)
+		{
+			std::println("User {} restarted receiving.", id);
+		}
+		else
+		{
+			// Would trigger OnTaskFailure
+			std::println("User {} has failed to restart receiving, due to {}.", id, std::to_string(io.error()));
+		}
+	}
+	break;
+
+	case OpSend:
+	{
+		delete task_ctx;
+	}
+	break;
+	
+	case OpPacketProcess:
+	{
+		delete task_ctx;
 	}
 	break;
 
@@ -135,13 +153,23 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 		const auto user = userManager.FindSession(id);
 		if (nullptr == user)
 		{
-			std::println("Unknown Receive from id {} ({} bytes)", id, bytes);
+			std::println("Unknown failed receive from id {} ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
 		}
 
-		user->SetConnected(false);
+		user->onDisconnected.Broadcast(user);
+		user->SetConnected(false); // release connection
+
+		// restart
+		ReserveUser(*user);
+	}
+	break;
+
+	case OpSend:
+	{
+		delete task_ctx;
 	}
 	break;
 
@@ -152,14 +180,4 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	}
 	break;
 	}
-}
-
-void
-ServerFramework::ReserveUser(iconer::app::User& user)
-const noexcept
-{
-	auto& ctx = user.mainContext;
-
-	ctx.SetOperation(iconer::app::TaskCategory::OpReserve);
-	myTaskPool.Schedule(ctx, user.GetID());
 }

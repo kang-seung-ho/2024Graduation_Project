@@ -15,6 +15,8 @@ export namespace iconer::util
 	class Delegate
 	{
 	public:
+		using this_class = Delegate<R, Args...>;
+
 		constexpr Delegate() noexcept = default;
 		constexpr ~Delegate() noexcept = default;
 
@@ -93,5 +95,91 @@ export namespace iconer::util
 
 	protected:
 		std::vector<std::unique_ptr<IInvoker<R>>> invocationList;
+	};
+
+	template<typename R, typename... Args>
+	class SharedDelegate
+	{
+	public:
+		using this_class = SharedDelegate<R, Args...>;
+
+		constexpr SharedDelegate() noexcept = default;
+
+		constexpr ~SharedDelegate() noexcept
+		{
+			for (IInvoker<R>* & ptr : invocationList)
+			{
+				delete std::exchange(ptr, nullptr);
+			}
+		}
+
+		constexpr void Add(IInvoker<R>* invoker)
+		{
+			invocationList.emplace_back(invoker);
+		}
+
+		constexpr void Clear() noexcept
+		{
+			invocationList.clear();
+		}
+
+		constexpr R Broadcast(Args... args)
+		{
+			for (IInvoker<R>*& invoker : invocationList)
+			{
+				if constexpr (std::same_as<void, R>)
+				{
+					invoker->Invoke(args...);
+				}
+				else
+				{
+					return invoker->Invoke(args...);
+				}
+			}
+		}
+
+		constexpr void Unbound(const function_t<R, Args...>& fun)
+		{
+			auto it = invocationList.begin();
+			for (; it != invocationList.end(); ++it)
+			{
+				IInvoker<R>* invoker = *it;
+				NativeInvoker<R, Args...>* native = dynamic_cast<NativeInvoker<R, Args...>*>(invoker);
+
+				if (nullptr != native and *native == fun)
+				{
+					it = std::remove(it, invocationList.end(), invoker);
+				}
+			}
+
+			invocationList.erase(it, invocationList.end());
+		}
+
+		template<classes Context>
+		constexpr void Unbound(const Context* context)
+		{
+			auto it = invocationList.begin();
+			for (; it != invocationList.end(); ++it)
+			{
+				IInvoker<R>* invoker = *it;
+				MethodInvoker<Context, R, Args...>* method = dynamic_cast<MethodInvoker<Context, R, Args...>*>(invoker);
+
+				if (nullptr != method and method->IsBoundTo(context))
+				{
+					it = std::remove(it, invocationList.end(), invoker);
+				}
+			}
+
+			invocationList.erase(it, invocationList.end());
+		}
+
+		[[nodiscard]]
+		constexpr bool IsBound() const noexcept
+		{
+			return not invocationList.empty();
+		}
+
+	protected:
+		std::vector<IInvoker<R>*> invocationList;
 	};
 }

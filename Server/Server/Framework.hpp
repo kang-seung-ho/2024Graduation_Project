@@ -3,6 +3,7 @@
 
 import Iconer.Net.IFramework;
 import Iconer.Utility.TypeTraits;
+import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.App.PacketProtocol;
@@ -15,6 +16,12 @@ import <thread>;
 
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
+
+namespace iconer::app
+{
+	class [[nodiscard]] TaskContext;
+	class [[nodiscard]] PacketContext;
+}
 
 using EventDelegate = iconer::function_t<void, class ServerFramework&, iconer::net::IoEvent&>;
 
@@ -33,15 +40,20 @@ public:
 	void Cleanup() override;
 
 private:
-	iconer::app::UserManager userManager;
-	std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors;
-
 	ServerThreadPool myTaskPool;
+	iconer::app::UserManager userManager;
+
+	iconer::util::AtomicQueue2<iconer::app::PacketContext*, 10000> storedPacketContexts{};
+
+	std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors;
 
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
 
 	void ReserveUser(class iconer::app::User& user) const noexcept;
+	iconer::net::Socket::IoResult TriggerUser(class iconer::app::User& user) const noexcept;
+	void CleanupUser(class iconer::app::User& user) const;
+	void ProcessPacket(class iconer::app::User& user) const;
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;

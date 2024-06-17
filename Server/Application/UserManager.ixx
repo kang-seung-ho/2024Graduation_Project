@@ -29,12 +29,57 @@ export namespace iconer::app
 		void Startup(iconer::net::Socket& listener);
 		void Cleanup();
 
-		void AddSession(session_type* session);
+		template<invocable<session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (const pointer_type& ptr : everyUsers)
+			{
+				session_type* user = ptr.get();
+
+				std::forward<Callable>(fun)(*user);
+			}
+		}
+
+		template<invocable<const session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		{
+			for (const pointer_type& ptr : everyUsers)
+			{
+				const session_type* user = ptr.get();
+
+				std::forward<Callable>(fun)(*user);
+			}
+		}
+
+		template<invocable<session_type*> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (const pointer_type& ptr : everyUsers)
+			{
+				session_type* user = ptr.get();
+
+				std::forward<Callable>(fun)(user);
+			}
+		}
+
+		template<invocable<const session_type*> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		{
+			for (const pointer_type& ptr : everyUsers)
+			{
+				const session_type* user = ptr.get();
+
+				std::forward<Callable>(fun)(user);
+			}
+		}
+
 		session_type* FindSession(id_type id) const noexcept;
 
 	private:
 		std::vector<pointer_type> everyUsers{};
 		iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
+
+		void AddSession(session_type* session);
 
 		UserManager(const UserManager&) = delete;
 		UserManager& operator=(const UserManager&) = delete;

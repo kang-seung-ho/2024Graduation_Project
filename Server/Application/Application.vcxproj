@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="ISession.ixx" />
     <ClCompile Include="ISessionManager.ixx" />
+    <ClCompile Include="PacketContext.ixx" />
     <ClCompile Include="PacketProtocols.ixx" />
     <ClCompile Include="TaskContext.ixx" />
     <ClCompile Include="User.cpp" />

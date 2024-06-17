@@ -31,9 +31,9 @@ iconer::app::UserManager::Initialize(iconer::net::IoCompletionPort& io_port)
 		}
 
 		iconer::app::User* user = new iconer::app::User{ id, std::move(socket) };
-		user->mainContext.ClearIoStatus();
-		user->mainContext.SetOperation(iconer::app::TaskCategory::OpReserve);
-		user->recvContext.ClearIoStatus();
+		user->mainContext->ClearIoStatus();
+		user->mainContext->SetOperation(iconer::app::TaskCategory::OpReserve);
+		user->recvContext->ClearIoStatus();
 
 		everyUsers.emplace_back(user);
 	}

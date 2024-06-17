@@ -319,28 +319,64 @@ export namespace iconer::util
 
 	template<typename R, typename ...Args>
 	[[nodiscard]]
-	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(const function_t<R, Args...>& fun)
+	constexpr IInvoker<R>*
+		MakeSharedInvoker(const function_t<R, Args...>& fun)
+	{
+		return new NativeInvoker{ fun };
+	}
+
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr IInvoker<R>*
+		MakeSharedInvoker(Context* ctx, const method_t<Context, R, Args...>& method)
+	{
+		return new MethodInvoker{ ctx, method };
+	}
+
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr IInvoker<R>*
+		MakeSharedInvoker(Context* ctx, const const_method_t<Context, R, Args...>& method)
+	{
+		return new ImmutableMethodInvoker{ ctx, method };
+	}
+
+	template<classes Context, typename R, typename... Args>
+	[[nodiscard]]
+	constexpr IInvoker<R>*
+		MakeSharedInvoker(const Context* ctx, const const_method_t<Context, R, Args...>& method)
+	{
+		return new ImmutableMethodInvoker{ ctx, method };
+	}
+
+	template<typename R, typename ...Args>
+	[[nodiscard]]
+	constexpr std::unique_ptr<IInvoker<R>>
+		MakeInvoker(const function_t<R, Args...>& fun)
 	{
 		return std::unique_ptr<IInvoker<R>>(new NativeInvoker{ fun });
 	}
 
 	template<classes Context, typename R, typename... Args>
 	[[nodiscard]]
-	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(Context* ctx, method_t<Context, R, Args...> method)
+	constexpr std::unique_ptr<IInvoker<R>>
+		MakeInvoker(Context* ctx, const method_t<Context, R, Args...>& method)
 	{
 		return std::unique_ptr<IInvoker<R>>(new MethodInvoker{ ctx, method });
 	}
 
 	template<classes Context, typename R, typename... Args>
 	[[nodiscard]]
-	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(Context* ctx, const_method_t<Context, R, Args...> method)
+	constexpr std::unique_ptr<IInvoker<R>>
+		MakeInvoker(Context* ctx, const const_method_t<Context, R, Args...>& method)
 	{
 		return std::unique_ptr<IInvoker<R>>(new ImmutableMethodInvoker{ ctx, method });
 	}
 
 	template<classes Context, typename R, typename... Args>
 	[[nodiscard]]
-	constexpr std::unique_ptr<IInvoker<R>> MakeInvoker(const Context* ctx, const_method_t<Context, R, Args...> method)
+	constexpr std::unique_ptr<IInvoker<R>>
+		MakeInvoker(const Context* ctx, const const_method_t<Context, R, Args...>& method)
 	{
 		return std::unique_ptr<IInvoker<R>>(new ImmutableMethodInvoker{ ctx, method });
 	}

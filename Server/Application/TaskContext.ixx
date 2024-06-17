@@ -26,20 +26,24 @@ export namespace iconer::app
 		OpRecv, OpSend, OpSendBorrowed,
 
 		/// <summary>Phase 5 </summary>
-		OpReserveRoom, OpCreateRoom, OpEnterRoom, OpLeaveRoom, OpCloseRoom,
+		OpPacketProcess,
 
 		/// <summary>Phase 6 </summary>
-		OpNotifyMember, OpNotifyRoom, OpNotifyTeam,
+		OpReserveRoom, OpCreateRoom, OpEnterRoom, OpLeaveRoom, OpCloseRoom,
 
 		/// <summary>Phase 7 </summary>
+		OpNotifyMember, OpNotifyRoom, OpNotifyTeam,
+
+		/// <summary>Phase 8 </summary>
 		OpCreateGame, OpSpreadGameTicket, OpReadyGame, OpGameTicketing, OpStartGame, OpLeaveGame, OpCloseGame,
 
-		/// <summary>Phase 8 ~ </summary>
+		/// <summary>Phase 9 ~ </summary>
 		OpCreateCharacters, OpUpdateRoom, OpCheckGuardian, OpCheckDead,
-		/// <summary>Phase 8 ~ </summary>
+
+		/// <summary>Phase 10 ~ </summary>
 		OpRpc, OpSendRpc, OpCleanRpc,
 
-		/// <summary>Phase 10 - Sign out (Quit)</summary>
+		/// <summary>Phase 11 - Sign out (Quit)</summary>
 		OpDisconnect,
 
 		/// <summary>Extras</summary>
@@ -49,6 +53,9 @@ export namespace iconer::app
 	class [[nodiscard]] TaskContext : public iconer::net::IoContext
 	{
 	public:
+		using super = iconer::net::IoContext;
+		using this_class = TaskContext;
+
 		std::atomic<TaskCategory> myCategory;
 		std::atomic_bool isOccupied;
 
