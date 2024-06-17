@@ -7,121 +7,166 @@
 #include <EnhancedInputComponent.h>
 
 #include "Input/SagaInputSystem.h"
+#include "Blueprint/UserWidget.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
-	: APlayerController(initializer)
-	, OnRideNPC()
-	, walkDirection()
-	, isAttacking()
-{}
-
-void
-ASagaInGamePlayerController::BeginPlay()
+    : APlayerController(initializer)
+    , OnRideNPC()
+    , walkDirection()
+    , isAttacking()
 {
-	Super::BeginPlay();
-
-	FInputModeGameOnly mode{};
-	SetInputMode(mode);
-
-	UGameplayStatics::SetViewportMouseCaptureMode(this, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
-	SetShowMouseCursor(false);
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-
-	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
-	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
-
-	//if (GetPawn())
-	//{
-	//	mArm->SetupAttachment(GetPawn()->GetRootComponent());
-	//	mCamera->SetupAttachment(mArm);
-
-	//	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	//	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
-	//	mArm->TargetArmLength = 150.f;
-	//}
-
-	//// Make sure the camera components are correctly initialized
-	//if (GetPawn())
-	//{
-	//	mArm->AttachToComponent(GetPawn()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//	mCamera->AttachToComponent(mArm, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//}
-	//
+    static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_Inventory.UI_Inventory_C'"));
+    if (InventoryWidgetRef.Class != nullptr)
+    {
+        InventoryWidgetClass = InventoryWidgetRef.Class;
+    }
 }
 
-void
-ASagaInGamePlayerController::SetupInputComponent()
+void ASagaInGamePlayerController::BeginPlay()
 {
-	Super::SetupInputComponent();
+    Super::BeginPlay();
 
-	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
-	ensure(Input);
+    FInputModeGameOnly mode{};
+    SetInputMode(mode);
 
-	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
+    UGameplayStatics::SetViewportMouseCaptureMode(this, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
+    SetShowMouseCursor(false);
 
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidForwardWalk);
-	Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidStrafeWalk);
-	Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
-
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
-	Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
-
-	Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
-
-	Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
-
-	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
-	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
-
-	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
-
-	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
+    const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
+    Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
 }
 
-void
-ASagaInGamePlayerController::Tick(float delta_time)
+void ASagaInGamePlayerController::SetupInputComponent()
 {
-	Super::Tick(delta_time);
+    Super::SetupInputComponent();
 
-	const auto pawn = GetPawn();
-	if (not IsValid(pawn))
-	{
-		return;
-	}
+    UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+    ensure(Input);
 
-	auto pos = pawn->GetActorLocation();
+    const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
 
-	bool out_of_boundary = false;
-	if (pos.X < -4500)
-	{
-		pos.X = -4500;
-		out_of_boundary = true;
-	}
-	else if (4500 < pos.X)
-	{
-		pos.X = 4500;
-		out_of_boundary = true;
-	}
+    Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginForwardWalk);
+    Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidForwardWalk);
+    Input->BindAction(InputSystem->ForwardBackMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndForwardWalk);
 
-	if (pos.Y < -4500)
-	{
-		pos.Y = -4500;
-		out_of_boundary = true;
-	}
-	else if (4500 < pos.Y)
-	{
-		pos.Y = 4500;
-		out_of_boundary = true;
-	}
+    Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginStrafeWalk);
+    Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::MidStrafeWalk);
+    Input->BindAction(InputSystem->StrafeMove, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndStrafeWalk);
 
-	if (out_of_boundary)
-	{
-		pawn->SetActorLocation(pos);
-	}
+    Input->BindAction(InputSystem->Sprint, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginRun);
+    Input->BindAction(InputSystem->Sprint, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndRun);
+
+    Input->BindAction(InputSystem->Jump, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginJump);
+
+    Input->BindAction(InputSystem->Rotate, ETriggerEvent::Triggered, this, &ASagaInGamePlayerController::BeginRotate);
+
+    Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
+    Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
+
+    Input->BindAction(InputSystem->Inventory, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ToggleInventory);
+
+    OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
+}
+
+void ASagaInGamePlayerController::ToggleInventory()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Toggle Inventory called"));
+
+    if (!InventoryWidget && InventoryWidgetClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Creating Inventory Widget"));
+        InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+        if (InventoryWidget)
+        {
+            InventoryWidget->AddToViewport();
+            InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    }
+
+    if (InventoryWidget)
+    {
+        bIsInventoryVisible = InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+
+        bIsInventoryVisible = !bIsInventoryVisible;
+        InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+        UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
+
+        UpdateInputMode();
+    }
+}
+
+void ASagaInGamePlayerController::UpdateInputMode()
+{
+    if (bIsInventoryVisible)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Setting input mode to UI only"));
+        SetInputMode(FInputModeUIOnly());
+        bShowMouseCursor = true;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Setting input mode to Game only"));
+        SetInputMode(FInputModeGameOnly());
+        bShowMouseCursor = false;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Input mode and cursor visibility updated"));
+}
+
+void ASagaInGamePlayerController::SetInventoryVisibility(bool bVisible)
+{
+    if (InventoryWidget)
+    {
+        bIsInventoryVisible = bVisible;
+        InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+        UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
+
+        UpdateInputMode();
+    }
+}
+
+void ASagaInGamePlayerController::Tick(float delta_time)
+{
+    Super::Tick(delta_time);
+
+    const auto pawn = GetPawn();
+    if (!IsValid(pawn))
+    {
+        return;
+    }
+
+    auto pos = pawn->GetActorLocation();
+
+    bool out_of_boundary = false;
+    if (pos.X < -4500)
+    {
+        pos.X = -4500;
+        out_of_boundary = true;
+    }
+    else if (4500 < pos.X)
+    {
+        pos.X = 4500;
+        out_of_boundary = true;
+    }
+
+    if (pos.Y < -4500)
+    {
+        pos.Y = -4500;
+        out_of_boundary = true;
+    }
+    else if (4500 < pos.Y)
+    {
+        pos.Y = 4500;
+        out_of_boundary = true;
+    }
+
+    if (out_of_boundary)
+    {
+        pawn->SetActorLocation(pos);
+    }
 }

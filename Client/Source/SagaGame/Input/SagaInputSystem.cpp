@@ -67,6 +67,13 @@ USagaInputSystem::USagaInputSystem()
 		if (Asset.Succeeded())
 			Activate = Asset.Object;
 	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Inventory.IA_Inventory'"));
+
+		if (Asset.Succeeded())
+			Inventory = Asset.Object;
+	}
 }
 
 USagaCharacterSelectInputSystem::USagaCharacterSelectInputSystem()

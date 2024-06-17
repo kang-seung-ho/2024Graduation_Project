@@ -76,4 +76,17 @@ private:
 	FVector walkDirection;
 	UPROPERTY()
 	bool isAttacking;
+
+public:
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UUserWidget* InventoryWidget;
+
+	void ToggleInventory();
+
+	bool bIsInventoryVisible = false;
+
+	void UpdateInputMode();
+	void SetInventoryVisibility(bool bVisible);
 };
