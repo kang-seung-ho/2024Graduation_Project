@@ -19,7 +19,7 @@ noexcept
 	, storedGameTime(defaultGameSecondsPeriod)
 	, choosenWeapon(false)
 {
-	SetNextLevelName(TEXT("GameVictoryLevel"));
+	SetNextLevelName(TEXT("GameEndLevel"));
 	SetPrevLevelName(TEXT("MainMenuLevel"));
 
 	static ConstructorHelpers::FClassFinder<USagaGameLevelUiWidget> level_ui{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_ScoreBoard.UI_ScoreBoard_C'") };
