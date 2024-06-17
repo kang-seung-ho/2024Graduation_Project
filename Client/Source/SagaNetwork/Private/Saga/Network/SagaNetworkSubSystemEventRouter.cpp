@@ -344,20 +344,6 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 	}
 	break;
 
-	case EPacketProtocol::SC_REMOVE_PLAYER:
-	{
-		saga::SC_DestroyPlayerPacket pk{};
-		pk.Read(alt_buffer);
-
-		UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame] A client %d is destroyed(disconnected)"), pk.clientId);
-
-		CallFunctionOnGameThread([this, pk]()
-			{
-			}
-		);
-	}
-	break;
-
 	case EPacketProtocol::SC_MOVE_CHARACTER:
 	{
 		int32 client_id{};

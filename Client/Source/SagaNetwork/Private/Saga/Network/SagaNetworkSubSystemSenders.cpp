@@ -78,9 +78,3 @@ USagaNetworkSubSystem::SendRpcPacket(ESagaRpcProtocol category, int64 argument0,
 {
 	return saga::SendRpcPacket(clientSocket, MoveTemp(category), GetLocalUserId(), MoveTemp(argument0), MoveTemp(argument1)).value_or(0);
 }
-
-int32
-USagaNetworkSubSystem::SendRoomUpdaterPacket()
-{
-	return saga::SendRoomUpdaterPacket(clientSocket).value_or(0);
-}

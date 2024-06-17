@@ -21,7 +21,6 @@ namespace saga
 	std::optional<int32> SendPositionPacket(FSocket* socket, float x, float y, float z);
 	std::optional<int32> SendRotationPacket(FSocket* socket, float r, float y, float p);
 	std::optional<int32> SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 arg0 = 0, int32 arg1 = 0);
-	std::optional<int32> SendRoomUpdaterPacket(FSocket* socket);
 }
 
 #endif // !SAGAFRAMEWORK_NET_PACKET_SENDERS_H
