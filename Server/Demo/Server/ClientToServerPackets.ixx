@@ -16,11 +16,6 @@ export namespace iconer::app::packets::inline cs
 {
 #pragma pack(push, 1)
 	/// <summary>
-	/// Room updater packet for client
-	/// </summary>
-	/// <remarks>Client would send it to the server</remarks>
-	MAKE_EMPTY_PACKET(CS_UpdateRoomPacket, PacketProtocol::CS_UPDATE_ROOM);
-	/// <summary>
 	/// RPC packet for client
 	/// </summary>
 	/// <param name="rpc">- The category of rpc msg</param>

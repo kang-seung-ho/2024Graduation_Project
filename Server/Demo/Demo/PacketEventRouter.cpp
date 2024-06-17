@@ -161,26 +161,6 @@ demo::PacketProcessor(demo::Framework& framework
 		}
 		break;
 
-		case PacketProtocol::CS_MY_INPUT_PRESS:
-		{
-		}
-		break;
-
-		case PacketProtocol::CS_MY_INPUT_RELEASE:
-		{
-		}
-		break;
-
-		case PacketProtocol::CS_MY_ANIMATION_START:
-		{
-		}
-		break;
-
-		case PacketProtocol::CS_MY_ANIMATION_END:
-		{
-		}
-		break;
-
 		case PacketProtocol::CS_CHAT:
 		{
 		}
@@ -207,13 +187,6 @@ demo::PacketProcessor(demo::Framework& framework
 			packets::Deserialize(last_buf, category, arg0, arg1);
 
 			OnRpc(framework, user, category, arg0, arg1);
-		}
-		break;
-
-		// Empty packet
-		case PacketProtocol::CS_UPDATE_ROOM:
-		{
-			OnUpdateRoom(framework, user);
 		}
 		break;
 

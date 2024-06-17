@@ -332,6 +332,7 @@ demo::OnRpc(Framework& framework, const User& user, RpcProtocol cat, std::int64_
 	}
 }
 
+/*
 void
 demo::OnUpdateRoom(demo::Framework& framework, iconer::app::User& user)
 {
@@ -360,3 +361,4 @@ demo::OnUpdateRoom(demo::Framework& framework, iconer::app::User& user)
 		user.myRoomId.CompareAndSet(room_id, -1);
 	}
 }
+*/

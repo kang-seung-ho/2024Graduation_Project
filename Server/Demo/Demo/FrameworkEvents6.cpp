@@ -157,9 +157,17 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		auto& guardian = room->sagaGuardians[arg0];
 
-		if (guardian.CanRide())
+		if (guardian.CanRide() and guardian.TryRide(user_id))
 		{
-			myLogger.Log(L"\tUser {} would ride the Guardian {}\n", user_id, arg0);
+			myLogger.Log(L"\tUser {} ride the Guardian {}\n", user_id, arg0);
+
+			room->ForEach
+			(
+				[&](User& member)
+				{
+					SEND(member, SendRpcPacket, user_id, RPC_BEG_RIDE, arg0, arg1);
+				}
+			);
 		}
 		else
 		{
@@ -362,7 +370,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		const auto gap = room->gamePhaseTime - now;
 		const auto cnt = gap.count();
-		//myLogger.Log(L"\tRoom {}'s game time: {}\n", room_id, cnt);
 
 
 		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);

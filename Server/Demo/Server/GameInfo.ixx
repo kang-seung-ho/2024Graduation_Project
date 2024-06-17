@@ -87,7 +87,7 @@ export namespace iconer::app::game
 
 	struct SagaGuardian : public TransformUnit
 	{
-		static inline constexpr float maxHp = 5000;
+		static inline constexpr float maxHp = 500;
 
 		void Update()
 		{
@@ -116,13 +116,14 @@ export namespace iconer::app::game
 		{
 			bool was_ridden = isRidingByAnyone.load(std::memory_order_acquire);
 
-			//if (riderId.compare_exchange_strong(-1, user_id))
-			{
-
-			}
-			//else
+			std::int32_t expected{ -1 };
+			if (riderId.compare_exchange_strong(expected, user_id))
 			{
 				return true;
+			}
+			else
+			{
+				return false;
 			}
 		}
 
