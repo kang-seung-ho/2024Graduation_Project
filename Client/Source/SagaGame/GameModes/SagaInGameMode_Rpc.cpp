@@ -160,7 +160,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
-	// 수호자 탑승
+	// 수호자 상하차
 	case ESagaRpcProtocol::RPC_BEG_RIDE:
 	{
 		if (not IsValid(character))
@@ -209,9 +209,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		else
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] Ride guardian"));
-		}
 
-		//character->ExecuteRide();
+			//character->ExecuteRide();
+		}
 	}
 	break;
 
@@ -301,11 +301,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		if (is_remote)
-		{
-		}
-
-		character->ExecuteAttack();
+		character->ExecuteAttackAnimation();
 	}
 	break;
 

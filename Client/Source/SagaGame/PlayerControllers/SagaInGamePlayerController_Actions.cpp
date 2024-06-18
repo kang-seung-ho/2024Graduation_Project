@@ -265,7 +265,7 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 		{
 			if (net->IsOfflineMode())
 			{
-				pawn->ExecuteAttack();
+				pawn->ExecuteAttackAnimation();
 			}
 			else
 			{

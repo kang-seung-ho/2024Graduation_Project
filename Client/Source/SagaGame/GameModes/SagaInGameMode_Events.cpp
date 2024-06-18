@@ -117,7 +117,6 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			character->SetTeam(team);
 			// The weapon was stored on CharacterSelectLevel
 			character->SetWeapon(weapon);
-			character->AttachWeapon();
 
 			// Making a spawn point
 			const AActor* spawner = sys->GetLocalPlayerSpawner();
@@ -170,7 +169,6 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 				character->SetTeam(team);
 				// The weapon was stored on CharacterSelectLevel
 				character->SetWeapon(weapon);
-				character->AttachWeapon();
 
 				// store the initial spawn point (remote)
 				const auto pos = spawn_transform.GetLocation();
@@ -192,6 +190,5 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		character->SetUserId(user_id);
 		character->SetTeam(team);
 		character->SetWeapon(weapon);
-		character->AttachWeapon();
 	}
 }
