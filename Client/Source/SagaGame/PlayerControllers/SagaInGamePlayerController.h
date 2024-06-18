@@ -1,13 +1,10 @@
 #pragma once
 #include "SagaGame.h"
-#include "SagaGameInfo.h"
 #include <UObject/ObjectPtr.h>
 #include <GameFramework/PlayerController.h>
 #include <InputActionValue.h>
 
 #include "SagaInGamePlayerController.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRideNPCDelegate);
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
 class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
@@ -15,56 +12,56 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	FOnRideNPCDelegate OnRideNPC;
 
 	ASagaInGamePlayerController(const FObjectInitializer& initializer) noexcept;
 
 	virtual void Tick(float delta_time) override;
 
-	UFUNCTION()
-	void TriggerRideNPC(const FInputActionValue& Value);
+	void ToggleInventory();
+
+	void UpdateInputMode();
+	void SetInventoryVisibility(bool bVisible);
+	
 	UFUNCTION()
 	void RideNPCCallFunction();
 
 	/* Actions */
 #pragma region =========================
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginForwardWalk(const FInputActionValue& input);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void MidForwardWalk(const FInputActionValue& input);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void EndForwardWalk(const FInputActionValue& input);
 
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginStrafeWalk(const FInputActionValue& input);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void MidStrafeWalk(const FInputActionValue& input);
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void EndStrafeWalk(const FInputActionValue& input);
 
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginRun();
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void EndRun();
 
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginJump();
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void EndJump();
 
-	UFUNCTION(Category = "CandyLandSaga|Game|Character", meta = (CallableWithoutWorldContext, NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginRotate(const FInputActionValue& input);
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	UFUNCTION()
 	void BeginAttack(const FInputActionValue& Value);
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
+	UFUNCTION()
 	void EndAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void BeginRide();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character", meta = (NotBlueprintThreadSafe))
-	void EndRide();
+	/* 수호자 탑승 혹은 하차 */
+	UFUNCTION()
+	void BeginGuardianAction();
 #pragma endregion
 
 protected:
@@ -76,17 +73,12 @@ private:
 	FVector walkDirection;
 	UPROPERTY()
 	bool isAttacking;
-
-public:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
-
+	UPROPERTY()
 	UUserWidget* InventoryWidget;
-
-	void ToggleInventory();
-
-	bool bIsInventoryVisible = false;
-
-	void UpdateInputMode();
-	void SetInventoryVisibility(bool bVisible);
+	UPROPERTY()
+	bool bIsInventoryVisible;
+	UPROPERTY()
+	TObjectPtr<class ASagaPlayableCharacter> storedLocalCharacter;
 };

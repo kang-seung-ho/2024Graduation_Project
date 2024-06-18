@@ -45,8 +45,4 @@ USagaHpBarWidget::UpdateHpBar(float hp)
 
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaHpBarWidget] Health: %f/%f (Percentage: %f)"), hp, MaxHp, ratio);
 	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[USagaHpBarWidget] No progress bar."));
-	}
 }
