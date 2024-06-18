@@ -29,6 +29,9 @@ public:
 	virtual void NativeBeginPlay();
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EPlayerWeapon mWeaponTypes;
+
 	UFUNCTION()
 	void PlayAttackMontage();
 
@@ -41,11 +44,6 @@ public:
 	UFUNCTION()
 	void Revive();
 
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	EPlayerWeapon mWeaponTypes;
-
-public:
 	UFUNCTION()
 	void AnimNotify_Attack();
 
@@ -91,4 +89,7 @@ protected:
 
 	UPROPERTY()
 	bool mAttackEnable = true;
+
+	UFUNCTION()
+	class ASagaPlayableCharacter* GetPawnOwner() const;
 };

@@ -24,6 +24,181 @@
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
 
+void
+ASagaCharacterBase::StopMovement()
+{
+	isRunning = false;
+	TerminateStraightWalk();
+	TerminateStrafeWalk();
+
+	GetCharacterMovement()->StopActiveMovement();
+}
+
+void
+ASagaCharacterBase::SetUserId(const int32& id)
+noexcept
+{
+	ownerData.myID = id;
+}
+
+void
+ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
+{
+	ownerData.myTeam = team;
+
+	if (team == ESagaPlayerTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+}
+
+void
+ASagaCharacterBase::SetWeapon(const EPlayerWeapon& weapon, bool attach_now)
+noexcept
+{
+	ownerData.myWeapon = weapon;
+
+	if (attach_now)
+	{
+#if WITH_EDITOR
+		const auto name = GetName();
+		const auto weapon_name = UEnum::GetValueAsString(weapon);
+
+		UE_LOG(LogSagaGame, Log, TEXT("[SetWeapon] '%s''s weapon: %s"), *name, *weapon_name);
+#endif
+
+		// Set the weapon mesh from its handled weapon
+		if (WeaponMeshes.Contains(weapon))
+		{
+#if WITH_EDITOR
+			UE_LOG(LogSagaGame, Log, TEXT("[SetWeapon] '%s' has found its weapon mesh (%s)."), *name, *weapon_name);
+#endif
+
+			myWeapon->SetStaticMesh(WeaponMeshes[weapon]);
+
+			switch (weapon)
+			{
+			case EPlayerWeapon::LightSabor:
+			{
+				myWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+				myWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
+				myWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
+			}
+			break;
+
+			case EPlayerWeapon::WaterGun:
+			{
+				myWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
+				myWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
+				myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			}
+			break;
+
+			case EPlayerWeapon::Hammer:
+			{
+				myWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
+				myWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
+				myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
+			}
+			break;
+
+			default:
+			{
+#if WITH_EDITOR
+				UE_LOG(LogSagaGame, Error, TEXT("[SetWeapon] '%s' has a invalid weapon '%d'"), *name, static_cast<int32>(weapon));
+#endif
+			}
+			break;
+			}
+		}
+		else
+		{
+#if WITH_EDITOR
+			UE_LOG(LogSagaGame, Error, TEXT("[SetWeapon] No weapon mesh has found for the selected weapon."));
+#endif
+		}
+	}
+}
+
+void
+ASagaCharacterBase::SetHealth(const float hp)
+noexcept
+{
+	myGameStat->SetCurrentHp(hp);
+}
+
+void
+ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
+const
+{
+	if (not IsValid(other))
+	{
+#if WITH_EDITOR
+		UE_LOG(LogSagaGame, Error, TEXT("[TranslateProperties] Invalid character handle."));
+#endif
+
+		return;
+	}
+
+	if (other == this)
+	{
+#if WITH_EDITOR
+		UE_LOG(LogSagaGame, Warning, TEXT("[TranslateProperties] Invalid property transitioning."));
+#endif
+
+		return;
+	}
+
+	other->ownerData = ownerData;
+	//other->ownerData.myID = ownerData.myID;
+}
+
+int32
+ASagaCharacterBase::GetUserId()
+const noexcept
+{
+	return ownerData.myID;
+}
+
+ESagaPlayerTeam
+ASagaCharacterBase::GetTeam()
+const noexcept
+{
+	return ownerData.myTeam;
+}
+
+EPlayerWeapon
+ASagaCharacterBase::GetWeapon()
+const noexcept
+{
+	return ownerData.myWeapon;
+}
+
+float
+ASagaCharacterBase::GetHealth()
+const noexcept
+{
+	return myGameStat->GetCurrentHp();
+}
+
+bool
+ASagaCharacterBase::HasValidOwnerId()
+const noexcept
+{
+	return -1 != ownerData.myID;
+}
+
+bool
+ASagaCharacterBase::IsAlive()
+const noexcept
+{
+	return 0 < myGameStat->GetCurrentHp();
+}
+
 ASagaCharacterBase::ASagaCharacterBase()
 	: Super()
 	, ownerData()
@@ -114,11 +289,6 @@ ASagaCharacterBase::ASagaCharacterBase()
 	{
 		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
-}
-
-void ASagaCharacterBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }
 
 void
@@ -279,12 +449,6 @@ ASagaCharacterBase::Tick(float delta_time)
 	}
 }
 
-void
-ASagaCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
 float
 ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
@@ -297,180 +461,4 @@ ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController
 #endif
 
 	return actual_dmg;
-}
-
-void
-ASagaCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-void
-ASagaCharacterBase::TranslateProperties(ASagaCharacterBase* other)
-const
-{
-	if (not IsValid(other))
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[TranslateProperties] Invalid character handle."));
-		return;
-	}
-
-	if (other == this)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[TranslateProperties] Invalid property transitioning."));
-		return;
-	}
-
-	other->ownerData = ownerData;
-}
-
-void
-ASagaCharacterBase::AttachWeapon()
-{
-	const auto name = GetName();
-	const auto weapon = GetWeapon();
-	const auto weapon_name = UEnum::GetValueAsString(weapon);
-
-	UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] '%s''s weapon: %s"), *name, *weapon_name);
-
-	// Set the weapon mesh from its handled weapon
-	if (WeaponMeshes.Contains(weapon))
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[AttachWeapon] '%s' has found its weapon mesh (%s)."), *name, *weapon_name);
-
-		myWeapon->SetStaticMesh(WeaponMeshes[weapon]);
-
-		switch (weapon)
-		{
-		case EPlayerWeapon::LightSabor:
-		{
-			myWeapon->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-			myWeapon->SetRelativeRotation(FRotator(0.0, 70.0, 0.0));
-			myWeapon->SetRelativeScale3D(FVector(1.0, 1.0, 1.0));
-		}
-		break;
-
-		case EPlayerWeapon::WaterGun:
-		{
-			myWeapon->SetRelativeLocation(FVector(-0.585, -4.04, 0.09));
-			myWeapon->SetRelativeRotation(FRotator(-74.24, 51.12, -86.08));
-			myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-		break;
-
-		case EPlayerWeapon::Hammer:
-		{
-			myWeapon->SetRelativeLocation(FVector(0.34, -2.57, -2.66));
-			myWeapon->SetRelativeRotation(FRotator(-79.2, -24.29, -102.96));
-			myWeapon->SetRelativeScale3D(FVector(0.7, 0.7, 0.7));
-		}
-		break;
-
-		default:
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] '%s' has a invalid weapon '%d'"), *name, static_cast<int32>(weapon));
-		}
-		break;
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[AttachWeapon] No weapon mesh has found for the selected weapon."));
-	}
-}
-
-void
-ASagaCharacterBase::PlayAttackAnimation()
-{
-	if (IsValid(mAnimInst))
-	{
-#if WITH_EDITOR
-		const auto name = GetName();
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][PlayAttackAnimation] '%s' is a human character."), *name);
-#endif
-
-		mAnimInst->PlayAttackMontage();
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase] mAnimInst is null."));
-	}
-}
-
-void
-ASagaCharacterBase::SetUserId(const int32& id)
-noexcept
-{
-	ownerData.myID = id;
-}
-
-void
-ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
-{
-	ownerData.myTeam = team;
-
-	if (team == ESagaPlayerTeam::Red)
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
-	}
-	else
-	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
-	}
-}
-
-void
-ASagaCharacterBase::SetWeapon(const EPlayerWeapon& weapon)
-noexcept
-{
-	ownerData.myWeapon = weapon;
-}
-
-void
-ASagaCharacterBase::SetHealth(const float hp)
-noexcept
-{
-	myGameStat->SetCurrentHp(hp);
-}
-
-int32
-ASagaCharacterBase::GetUserId()
-const noexcept
-{
-	return ownerData.myID;
-}
-
-ESagaPlayerTeam
-ASagaCharacterBase::GetTeam()
-const noexcept
-{
-	return ownerData.myTeam;
-}
-
-EPlayerWeapon
-ASagaCharacterBase::GetWeapon()
-const noexcept
-{
-	return ownerData.myWeapon;
-}
-
-float
-ASagaCharacterBase::GetHealth()
-const noexcept
-{
-	return myGameStat->GetCurrentHp();
-}
-
-bool
-ASagaCharacterBase::HasValidOwnerId()
-const noexcept
-{
-	return -1 != ownerData.myID;
-}
-
-bool
-ASagaCharacterBase::IsAlive()
-const noexcept
-{
-	return 0 < myGameStat->GetCurrentHp();
 }

@@ -1,8 +1,5 @@
 #pragma once
 #include "SagaGame.h"
-#include <Misc/OutputDeviceNull.h>
-#include <Particles/ParticleSystem.h>
-#include <Particles/ParticleSystemComponent.h>
 
 #include "Character/SagaCharacterBase.h"
 #include "SagaPlayableCharacter.generated.h"
@@ -15,45 +12,61 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterBase
 public:
 	ASagaPlayableCharacter();
 
-	virtual void Attack() override;
-
-	UFUNCTION()
-	void BeginRespawn();
-
-	virtual float ExecuteHurt(const float dmg) override;
-	virtual void ExecuteDeath() override;
-
-	virtual void ExecuteRespawn() override;
-
-	UFUNCTION()
-	void HandleRespawnCountdown();
-
 	UFUNCTION()
 	void RideNPC();
 	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
 	//void RidingFunction();
 
-protected:
-	virtual void PostInitializeComponents() override;
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+	UFUNCTION()
+	void BeginRespawn();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	// UFUNCTION()
+	virtual void ExecuteGuardianAction(ASagaCharacterBase* target) override;
+	// UFUNCTION()
+	virtual void TerminateGuardianAction() override;
+	// UFUNCTION()
+	virtual void ExecuteAttackAnimation() override;
+	// UFUNCTION()
+	virtual void ExecuteAttack() override;
+	// UFUNCTION()
+	virtual float ExecuteHurt(const float dmg) override;
+	// UFUNCTION()
+	virtual void ExecuteDeath() override;
+	// UFUNCTION()
+	virtual void ExecuteRespawn() override;
+
+	UFUNCTION()
+	class ASagaGummyBearPlayer* GetNeareastCollidedBear() const;
+	UFUNCTION()
+	bool HasCollidedBear() const noexcept;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
 	TSoftClassPtr<class UAnimInstance> humanCharacterAnimation;
 
 	UPROPERTY()
-	UParticleSystem* HitCascadeEffect;
+	TArray<TObjectPtr<class ASagaGummyBearPlayer>> collideBears;
 
 	UPROPERTY()
-	UParticleSystem* GunHitCascadeEffect;
+	class UParticleSystem* HitCascadeEffect;
+	UPROPERTY()
+	class UParticleSystem* GunHitCascadeEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase* HitSoundEffect;
-
+	class USoundBase* HitSoundEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
-	USoundBase* DeadSoundEffect;
+	class USoundBase* DeadSoundEffect;
 
 	UPROPERTY()
 	FTimerHandle respawnTimerHandle;
+
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void HandleBeginCollision(AActor* self, AActor* other_actor);
+	UFUNCTION()
+	void HandleEndCollision(AActor* self, AActor* other_actor);
+	UFUNCTION()
+	void HandleRespawnCountdown();
 };
