@@ -7,14 +7,22 @@
 #include <EnhancedInputComponent.h>
 
 #include "Input/SagaInputSystem.h"
+#include "Blueprint/UserWidget.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
 	: APlayerController(initializer)
-	, OnRideNPC()
-	, walkDirection()
-	, isAttacking()
-{}
+	, InventoryWidgetClass(), InventoryWidget(nullptr)
+	, bIsInventoryVisible(false)
+	, walkDirection(), isAttacking()
+	, storedLocalCharacter()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetRef{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_Inventory.UI_Inventory_C'") };
+	if (InventoryWidgetRef.Succeeded())
+	{
+		InventoryWidgetClass = InventoryWidgetRef.Class;
+	}
+}
 
 void
 ASagaInGamePlayerController::BeginPlay()
@@ -31,24 +39,6 @@ ASagaInGamePlayerController::BeginPlay()
 
 	const USagaInputSystem* InputSystem = GetDefault<USagaInputSystem>();
 	Subsystem->AddMappingContext(InputSystem->DefaultContext, 0);
-
-	//if (GetPawn())
-	//{
-	//	mArm->SetupAttachment(GetPawn()->GetRootComponent());
-	//	mCamera->SetupAttachment(mArm);
-
-	//	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	//	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
-	//	mArm->TargetArmLength = 150.f;
-	//}
-
-	//// Make sure the camera components are correctly initialized
-	//if (GetPawn())
-	//{
-	//	mArm->AttachToComponent(GetPawn()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//	mCamera->AttachToComponent(mArm, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//}
-	//
 }
 
 void
@@ -79,18 +69,75 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
 
-	//Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::TriggerRideNPC);
-
-	OnRideNPC.AddDynamic(this, &ASagaInGamePlayerController::RideNPCCallFunction);
+	Input->BindAction(InputSystem->Inventory, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ToggleInventory);
+	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginGuardianAction);
 }
 
-void
-ASagaInGamePlayerController::Tick(float delta_time)
+void ASagaInGamePlayerController::ToggleInventory()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Toggle Inventory called"));
+
+	if (!InventoryWidget && InventoryWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Creating Inventory Widget"));
+		InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+		if (InventoryWidget)
+		{
+			InventoryWidget->AddToViewport();
+			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	if (InventoryWidget)
+	{
+		bIsInventoryVisible = InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+
+		bIsInventoryVisible = !bIsInventoryVisible;
+		InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+		UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
+
+		UpdateInputMode();
+	}
+}
+
+void ASagaInGamePlayerController::UpdateInputMode()
+{
+	if (bIsInventoryVisible)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Setting input mode to UI only"));
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Setting input mode to Game only"));
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Input mode and cursor visibility updated"));
+}
+
+void ASagaInGamePlayerController::SetInventoryVisibility(bool bVisible)
+{
+	if (InventoryWidget)
+	{
+		bIsInventoryVisible = bVisible;
+		InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+		UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
+
+		UpdateInputMode();
+	}
+}
+
+void ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 
 	const auto pawn = GetPawn();
-	if (not IsValid(pawn))
+	if (!IsValid(pawn))
 	{
 		return;
 	}

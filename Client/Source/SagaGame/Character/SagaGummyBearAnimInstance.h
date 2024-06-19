@@ -1,6 +1,6 @@
 #pragma once
-#include <CoreMinimal.h>
-#include "Animation/AnimInstance.h"
+#include "SagaGame.h"
+#include <Animation/AnimInstance.h>
 
 #include "SagaGummyBearAnimInstance.generated.h"
 
@@ -31,7 +31,7 @@ public:
 public:
 	void PlayAttackMontage();
 	void Death();
-public:
+
 	UFUNCTION()
 	void AnimNotify_Attack();
 
@@ -65,4 +65,7 @@ protected:
 
 	UPROPERTY()
 	bool mAttackEnable = true;
+
+	UFUNCTION()
+	class ASagaGummyBearPlayer* GetPawnOwner() const;
 };

@@ -55,27 +55,21 @@ public:
 
 	ASagaCharacterBase();
 
-	virtual void PostInitializeComponents() override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float delta_time) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	UFUNCTION()
-	virtual void Attack() {};
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	/* SetTeamColorAndCollision과 통합 */
 	UFUNCTION()
 	void SetTeam(const ESagaPlayerTeam& team);
+	/* AttachWeapon과 통합 */
 	UFUNCTION()
-	void SetWeapon(const EPlayerWeapon& weapon) noexcept;
-	UFUNCTION()
-	virtual void AttachWeapon();
+	void SetWeapon(const EPlayerWeapon& weapon, bool attach_now = true) noexcept;
 	UFUNCTION()
 	void SetHealth(const float hp) noexcept;
-	// 다른 사가 캐릭터에게 속성 전달
+	/* 다른 사가 캐릭터에게 속성 전달 */
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterBase* other) const;
 
@@ -114,23 +108,34 @@ public:
 	UFUNCTION()
 	void ExecuteRotate(const float pitch);
 
+	/* 수호자 탑승(사람) 혹은 하차 (곰) */
 	UFUNCTION()
-	virtual void ExecuteAttack();
+	virtual void ExecuteGuardianAction(ASagaCharacterBase* target);
+	/* 수호자 탑승 혹은 하차 후 처리 */
 	UFUNCTION()
-	virtual void TerminateAttack();
+	virtual void TerminateGuardianAction();
 
-	/*
-	* 수호자 승차
+	/* 공격 시전 시작
+
+	* PlayAttackAnimation과 통합
 	*/
 	UFUNCTION()
-	virtual void ExecuteRide();
-	/*
-	* 수호자 하차
-	*/
+	virtual void ExecuteAttackAnimation() {}
+	/* 공격 시전 종료 */
 	UFUNCTION()
-	virtual void TerminateRide();
+	virtual void TerminateAttack() {}
 
-	// TODO: ExecuteHurt에 맞은 무기 종류를 전달하도록 추가
+	/* 공격 수행 */
+	UFUNCTION()
+	virtual void ExecuteAttack() {}
+	/* 다른 캐릭터를 타격했을 경우 */
+	UFUNCTION()
+	virtual void ExecuteActualDamageTo(ASagaCharacterBase* other) {}
+
+	/* 자기 자신이 피격당했을 경우
+
+	* TODO: ExecuteHurt에 맞은 무기 종류를 전달하도록 추가
+	*/
 	UFUNCTION()
 	virtual float ExecuteHurt(const float dmg);
 	UFUNCTION()
@@ -156,10 +161,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION()
-	virtual void PlayAttackAnimation();
+	void StopMovement();
 
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept

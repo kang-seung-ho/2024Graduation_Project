@@ -3,15 +3,14 @@
 #include <UObject/Object.h>
 #include <GameFramework/CharacterMovementComponent.h>
 
+#include "Player/SagaPlayerTeam.h"
 #include "UI/SagaWidgetComponent.h"
-
-#include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
 ASagaCharacterBase::ExecuteStraightWalk(const int& direction)
 noexcept
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
+	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
 
 	straightMoveDirection = direction;
 }
@@ -20,7 +19,7 @@ void
 ASagaCharacterBase::ExecuteStrafeWalk(const int& direction)
 noexcept
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
+	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
 
 	strafeMoveDirection = direction;
 }
@@ -81,30 +80,18 @@ ASagaCharacterBase::ExecuteRotate(const float pitch)
 }
 
 void
-ASagaCharacterBase::ExecuteRide()
+ASagaCharacterBase::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
-	isRunning = false;
-	TerminateStraightWalk();
-	TerminateStrafeWalk();
+	StopMovement();
+
+	TranslateProperties(target);
 }
 
 void
-ASagaCharacterBase::TerminateRide()
+ASagaCharacterBase::TerminateGuardianAction()
 {
-	isRunning = false;
-	TerminateStraightWalk();
-	TerminateStrafeWalk();
+	StopMovement();
 }
-
-void
-ASagaCharacterBase::ExecuteAttack()
-{
-	PlayAttackAnimation();
-}
-
-void
-ASagaCharacterBase::TerminateAttack()
-{}
 
 float
 ASagaCharacterBase::ExecuteHurt(const float dmg)
@@ -122,13 +109,9 @@ ASagaCharacterBase::ExecuteDeath()
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
 #endif
 
-	isRunning = false;
-	TerminateStraightWalk();
-	TerminateStrafeWalk();
-
 	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 
-	GetCharacterMovement()->StopActiveMovement();
+	StopMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (OnCharacterDeath.IsBound())
@@ -150,44 +133,23 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 
 	// Reset the position
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	FVector spawn_pos;
+	FRotator spawn_rot;
 
-	if (net->IsOfflineMode())
+	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
-		const FVector SpawnLocation = FVector(0, 0, 330.0f);
-		const FRotator SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
-
-		SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at Location: %s (Offline Mode)"), *SpawnLocation.ToString());
+		spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
+		spawn_rot = FRotator::ZeroRotator;
 	}
-	else if (net->IsConnected())
+	else // blue team
 	{
-		FVector spawn_pos;
-		FRotator spawn_rot;
-
-		if (GetTeam() == ESagaPlayerTeam::Red)
-		{
-			spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
-			spawn_rot = FRotator::ZeroRotator;
-		}
-		else // blue team
-		{
-			spawn_pos = FVector{ -3892.0, -3540.0, 320.0 };
-			//spawn_rot = FRotator{ 0, -129.0, 0 };
-			spawn_rot = FRotator::ZeroRotator;
-		}
-
-		// TODO
-
-		SetActorLocationAndRotation(spawn_pos, spawn_rot);
-
-		UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
+		spawn_pos = FVector{ -3892.0, -3540.0, 320.0 };
+		//spawn_rot = FRotator{ 0, -129.0, 0 };
+		spawn_rot = FRotator::ZeroRotator;
 	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ExecuteRespawn] Network subsystem is not ready."));
-	}
+
+	SetActorLocationAndRotation(spawn_pos, spawn_rot);
+	UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
 
 	if (OnCharacterRespawned.IsBound())
 	{

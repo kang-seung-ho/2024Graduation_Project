@@ -14,148 +14,32 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-class USagaCharacterDismComponent;
-
-ASagaGummyBearPlayer::ASagaGummyBearPlayer()
-	: Super()
-	, BearNum(0)
-	, isCanRide(false)
+void
+ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
-	myGameStat->SetMaxHp(500.0f);
-
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
-	if (MeshAsset.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
-	}
-
-	GetCapsuleComponent()->SetCapsuleSize(90.0f, 96.0f);
-	SetRootComponent(GetCapsuleComponent());
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
-	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
-
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/NPCAssets/Animation/AB_GummyBear.AB_GummyBear_C'"));
-	if (AnimAsset.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
-	}
-
-	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
-	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));
-	myCameraSpringArmComponent->TargetArmLength = 400.f;
-
-	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
-	InteractionBox->SetupAttachment(RootComponent);
-	InteractionBox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	InteractionBox->SetWorldScale3D(FVector(4.5f, 5.75f, 2.25f));
-	InteractionBox->SetRelativeLocation(FVector(70.0f, 0.0f, 40.0f));
-
-	//*/
-	Dbox_Rarm = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Rarm"));
-	Dbox_Rarm->SetupAttachment(GetMesh(), TEXT("arm_stretch_r"));
-	InitializeTransform(Dbox_Rarm, FVector(-50, -65, -7), FRotator(6, -50, 82), FVector(1.25, 1.25, 2.25));
-	Dbox_Rarm->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DismCollisionBox.Add(Dbox_Rarm);
-
-	Dbox_Rleg = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Rleg"));
-	Dbox_Rleg->SetupAttachment(GetMesh(), TEXT("thigh_stretch_r"));
-	InitializeTransform(Dbox_Rleg, FVector(2, -25, 10), FRotator(-30, 57, 72), FVector(1.5, 1.5, 2.0));
-	Dbox_Rleg->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DismCollisionBox.Add(Dbox_Rleg);
-
-	Dbox_Larm = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Larm"));
-	Dbox_Larm->SetupAttachment(GetMesh(), TEXT("arm_stretch_l"));
-	InitializeTransform(Dbox_Larm, FVector(40, -80, -15), FRotator(6, 40, 76), FVector(1.25, 1.25, 2.0));
-	Dbox_Larm->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DismCollisionBox.Add(Dbox_Larm);
-
-	Dbox_Lleg = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Lleg"));
-	Dbox_Lleg->SetupAttachment(GetMesh(), TEXT("thigh_stretch_l"));
-	InitializeTransform(Dbox_Lleg, FVector(-8, -15, 8), FRotator(-50, 100, -45), FVector(1.25, 1.25, 2.0));
-	Dbox_Lleg->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DismCollisionBox.Add(Dbox_Lleg);
-
-	//*/
-	r_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_arm"));
-	r_arm->SetupAttachment(Dbox_Rarm);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_arm.GC_r_arm'"));
-	if (r_armAsset.Succeeded())
-	{
-		r_arm->RestCollection = r_armAsset.Object;
-	}
-	InitializeTransform(r_arm, FVector(2, 2, 6), FRotator(80, 68, -50), FVector(0.8, 0.8, 0.44));
-	GeometryCollections.Add(r_arm);
-
-	r_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_leg"));
-	r_leg->SetupAttachment(Dbox_Rleg);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_leg.GC_r_leg'"));
-	if (r_legAsset.Succeeded())
-	{
-		r_leg->RestCollection = r_legAsset.Object;
-	}
-	InitializeTransform(r_leg, FVector(3.8, -3, -10), FRotator(-5, 41, 0), FVector(0.66, 0.66, 0.5));
-	GeometryCollections.Add(r_leg);
-
-	l_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_arm"));
-	l_arm->SetupAttachment(Dbox_Larm);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_arm.GC_l_arm'"));
-	if (l_armAsset.Succeeded())
-	{
-		l_arm->RestCollection = l_armAsset.Object;
-	}
-	InitializeTransform(l_arm, FVector(1, 3, 8), FRotator(-82, -141, 54), FVector(0.8, 0.8, 0.5));
-	GeometryCollections.Add(l_arm);
-
-	l_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_leg"));
-	l_leg->SetupAttachment(Dbox_Lleg);
-	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_leg.GC_l_leg'"));
-	if (l_legAsset.Succeeded())
-	{
-		l_leg->RestCollection = l_legAsset.Object;
-	}
-	InitializeTransform(l_leg, FVector(0, 2, -12), FRotator(2, 154, 2), FVector(0.8, 0.66, 0.5));
-	GeometryCollections.Add(l_leg);
-
-	for (int i = 0; i < GeometryCollections.Num(); i++)
-	{
-		GeometryCollections[i]->SetVisibility(false);
-		GeometryCollections[i]->SetSimulatePhysics(false);
-		GeometryCollections[i]->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	}
-	InitTargetMeshes();
-	//*/
-	DismPartID = -1;
-	DismThreshold = 1;
-
-	NiagaraComponentTemplate = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MorphNiagaraComponent"));
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NSAsset(TEXT("NiagaraSystem'/Game/NPCAssets/NS_MeshMorph.NS_MeshMorph'"));
-	if (NSAsset.Succeeded())
-	{
-		NiagaraSystemTemplate = NSAsset.Object;
-	}
-	NiagaraComponentTemplate->SetupAttachment(RootComponent);
-	NiagaraComponentTemplate->SetAutoActivate(false);
-
-	// 오버랩 이벤트 바인드
-	InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
-	InteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+	Super::ExecuteGuardianAction(target);
 }
 
 void
-ASagaGummyBearPlayer::BeginPlay()
+ASagaGummyBearPlayer::ExecuteAttackAnimation()
 {
-	myGameStat->OnHpZero.AddDynamic(this, &ASagaGummyBearPlayer::ExecuteDeath);
+	if (IsValid(mBearAnimInst))
+	{
+#if WITH_EDITOR
+		const auto name = GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer][ExecuteAttackAnimation] '%s' is a bear character."), *name);
+#endif
 
-	ActiveIndx.Init(DismThreshold, 4);
-
-	Super::BeginPlay();
+		mBearAnimInst->PlayAttackMontage();
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] mBearAnimInst is null."));
+	}
 }
 
 void
-ASagaGummyBearPlayer::Attack()
+ASagaGummyBearPlayer::ExecuteAttack()
 {
 	//공격과 충돌되는 물체 여부 판단
 	FHitResult Result{};
@@ -189,52 +73,6 @@ ASagaGummyBearPlayer::Attack()
 		Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
 		Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
 	}
-}
-
-void
-ASagaGummyBearPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-}
-
-void
-ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-
-}
-
-void
-ASagaGummyBearPlayer::PlayAttackAnimation()
-{
-	if (IsValid(mBearAnimInst))
-	{
-#if WITH_EDITOR
-		const auto name = GetName();
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer][PlayAttackAnimation] '%s' is a bear character."), *name);
-#endif
-
-		mBearAnimInst->PlayAttackMontage();
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] mBearAnimInst is null."));
-	}
-}
-
-
-template<typename T>
-void ASagaGummyBearPlayer::InitializeTransform(T component, FVector Location, FRotator Rotation, FVector Scale)
-{
-	component->SetRelativeLocation(Location);
-	component->SetRelativeRotation(Rotation);
-	component->SetRelativeScale3D(Scale);
-}
-
-void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
-{
-
-	OnTakeDamage(Hitlocation, HitNormal);
-
 }
 
 float
@@ -281,8 +119,13 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 }
 
+void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
+{
+	OnBodyPartGetDamaged(Hitlocation, HitNormal);
+}
+
 void
-ASagaGummyBearPlayer::OnTakeDamage(FVector Location, FVector Normal)
+ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {
 	if (IsAlive())
 	{
@@ -366,23 +209,8 @@ FQuat ASagaGummyBearPlayer::GetPieceWorldRotation(UGeometryCollectionComponent* 
 	return FQuat::Identity;
 }
 
-bool ASagaGummyBearPlayer::IsPointInsideBox(UBoxComponent* Box, const FVector& Point)
-{
-	if (!Box) return false;
-
-	FVector BoxOrigin = Box->GetComponentLocation();
-	FVector BoxExtent = Box->GetScaledBoxExtent();
-	FRotator BoxRotation = Box->GetComponentRotation();
-	FTransform BoxTransform(BoxRotation, BoxOrigin);
-
-	FVector LocalPoint = BoxTransform.InverseTransformPosition(Point);
-
-	return FMath::Abs(LocalPoint.X) <= BoxExtent.X &&
-		FMath::Abs(LocalPoint.Y) <= BoxExtent.Y &&
-		FMath::Abs(LocalPoint.Z) <= BoxExtent.Z;
-}
-
-void ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
+void
+ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
 {
 	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
 	UBoxComponent* BOX = DismCollisionBox[Index];
@@ -394,7 +222,8 @@ void ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
 	}
 }
 
-void ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index)
+void
+ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index)
 {
 	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
 	SkinnedMesh->HideBoneByName(BoneName, PBO_None);
@@ -429,16 +258,17 @@ void ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impul
 
 }
 
-void ASagaGummyBearPlayer::HideTargetPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
+void
+ASagaGummyBearPlayer::HideTargetPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
 {
 
 	TargetGC->SetVisibility(false, true);
 
 }
 
-FTransform ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index)
+FTransform
+ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index)
 {
-
 	TargetGC->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	int32 PieceIndex = 0;
 
@@ -501,11 +331,11 @@ FTransform ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* 
 
 }
 
-UStaticMesh* ASagaGummyBearPlayer::GetTargetMesh(int32 Index)
+UStaticMesh*
+ASagaGummyBearPlayer::GetTargetMesh(int32 Index)
 {
 	return TargetMeshes[Index];
 }
-
 
 void ASagaGummyBearPlayer::InitTargetMeshes()
 {
@@ -534,4 +364,188 @@ void ASagaGummyBearPlayer::InitTargetMeshes()
 	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
+}
+
+int32
+ASagaGummyBearPlayer::GetBearId(int32 Index)
+const noexcept
+{
+	return bearUniqueId;
+}
+
+ASagaGummyBearPlayer::ASagaGummyBearPlayer()
+	: Super()
+	, bearUniqueId(0)
+	, isCanRide(false)
+{
+	myGameStat->SetMaxHp(500.0f);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
+	if (MeshAsset.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
+	}
+
+	GetCapsuleComponent()->SetCapsuleSize(90.0f, 96.0f);
+	SetRootComponent(GetCapsuleComponent());
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
+	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/NPCAssets/Animation/AB_GummyBear.AB_GummyBear_C'"));
+	if (AnimAsset.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
+	}
+
+	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
+	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));
+	myCameraSpringArmComponent->TargetArmLength = 400.f;
+
+	myInteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionBox"));
+	myInteractionBox->SetupAttachment(RootComponent);
+	myInteractionBox->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	myInteractionBox->SetWorldScale3D(FVector(4.5f, 5.75f, 2.25f));
+	myInteractionBox->SetRelativeLocation(FVector(70.0f, 0.0f, 40.0f));
+
+	//*/
+	Dbox_Rarm = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Rarm"));
+	Dbox_Rarm->SetupAttachment(GetMesh(), TEXT("arm_stretch_r"));
+	InitializeTransform(Dbox_Rarm, FVector(-50, -65, -7), FRotator(6, -50, 82), FVector(1.25, 1.25, 2.25));
+	Dbox_Rarm->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DismCollisionBox.Add(Dbox_Rarm);
+
+	Dbox_Rleg = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Rleg"));
+	Dbox_Rleg->SetupAttachment(GetMesh(), TEXT("thigh_stretch_r"));
+	InitializeTransform(Dbox_Rleg, FVector(2, -25, 10), FRotator(-30, 57, 72), FVector(1.5, 1.5, 2.0));
+	Dbox_Rleg->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DismCollisionBox.Add(Dbox_Rleg);
+
+	Dbox_Larm = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Larm"));
+	Dbox_Larm->SetupAttachment(GetMesh(), TEXT("arm_stretch_l"));
+	InitializeTransform(Dbox_Larm, FVector(40, -80, -15), FRotator(6, 40, 76), FVector(1.25, 1.25, 2.0));
+	Dbox_Larm->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DismCollisionBox.Add(Dbox_Larm);
+
+	Dbox_Lleg = CreateDefaultSubobject<UBoxComponent>(TEXT("Dbox_Lleg"));
+	Dbox_Lleg->SetupAttachment(GetMesh(), TEXT("thigh_stretch_l"));
+	InitializeTransform(Dbox_Lleg, FVector(-8, -15, 8), FRotator(-50, 100, -45), FVector(1.25, 1.25, 2.0));
+	Dbox_Lleg->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DismCollisionBox.Add(Dbox_Lleg);
+
+	//*/
+	r_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_arm"));
+	r_arm->SetupAttachment(Dbox_Rarm);
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_arm.GC_r_arm'"));
+	if (r_armAsset.Succeeded())
+	{
+		r_arm->RestCollection = r_armAsset.Object;
+	}
+	InitializeTransform(r_arm, FVector(2, 2, 6), FRotator(80, 68, -50), FVector(0.8, 0.8, 0.44));
+	GeometryCollections.Add(r_arm);
+
+	r_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("r_leg"));
+	r_leg->SetupAttachment(Dbox_Rleg);
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> r_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_r_leg.GC_r_leg'"));
+	if (r_legAsset.Succeeded())
+	{
+		r_leg->RestCollection = r_legAsset.Object;
+	}
+	InitializeTransform(r_leg, FVector(3.8, -3, -10), FRotator(-5, 41, 0), FVector(0.66, 0.66, 0.5));
+	GeometryCollections.Add(r_leg);
+
+	l_arm = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_arm"));
+	l_arm->SetupAttachment(Dbox_Larm);
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_armAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_arm.GC_l_arm'"));
+	if (l_armAsset.Succeeded())
+	{
+		l_arm->RestCollection = l_armAsset.Object;
+	}
+	InitializeTransform(l_arm, FVector(1, 3, 8), FRotator(-82, -141, 54), FVector(0.8, 0.8, 0.5));
+	GeometryCollections.Add(l_arm);
+
+	l_leg = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("l_leg"));
+	l_leg->SetupAttachment(Dbox_Lleg);
+	static ConstructorHelpers::FObjectFinder<UGeometryCollection> l_legAsset(TEXT("GeometryCollection'/Game/NPCAssets/meshes/GC_l_leg.GC_l_leg'"));
+	if (l_legAsset.Succeeded())
+	{
+		l_leg->RestCollection = l_legAsset.Object;
+	}
+	InitializeTransform(l_leg, FVector(0, 2, -12), FRotator(2, 154, 2), FVector(0.8, 0.66, 0.5));
+	GeometryCollections.Add(l_leg);
+
+	for (int i = 0; i < GeometryCollections.Num(); i++)
+	{
+		GeometryCollections[i]->SetVisibility(false);
+		GeometryCollections[i]->SetSimulatePhysics(false);
+		GeometryCollections[i]->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	}
+
+	InitTargetMeshes();
+
+	//*/
+	DismPartID = -1;
+	DismThreshold = 1;
+
+	NiagaraComponentTemplate = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MorphNiagaraComponent"));
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NSAsset(TEXT("NiagaraSystem'/Game/NPCAssets/NS_MeshMorph.NS_MeshMorph'"));
+	if (NSAsset.Succeeded())
+	{
+		NiagaraSystemTemplate = NSAsset.Object;
+	}
+	NiagaraComponentTemplate->SetupAttachment(RootComponent);
+	NiagaraComponentTemplate->SetAutoActivate(false);
+
+	// 오버랩 이벤트 바인드
+	myInteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
+	myInteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+}
+
+void
+ASagaGummyBearPlayer::BeginPlay()
+{
+	myGameStat->OnHpZero.AddDynamic(this, &ASagaGummyBearPlayer::ExecuteDeath);
+
+	ActiveIndx.Init(DismThreshold, 4);
+
+	Super::BeginPlay();
+}
+
+void
+ASagaGummyBearPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+}
+
+void
+ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+}
+
+void
+ASagaGummyBearPlayer::InitializeTransform(USceneComponent* component, FVector Location, FRotator Rotation, FVector Scale)
+{
+	component->SetRelativeLocation(Location);
+	component->SetRelativeRotation(Rotation);
+	component->SetRelativeScale3D(Scale);
+}
+
+bool
+ASagaGummyBearPlayer::IsPointInsideBox(UBoxComponent* Box, const FVector& Point)
+{
+	if (!Box) return false;
+
+	FVector BoxOrigin = Box->GetComponentLocation();
+	FVector BoxExtent = Box->GetScaledBoxExtent();
+	FRotator BoxRotation = Box->GetComponentRotation();
+	FTransform BoxTransform(BoxRotation, BoxOrigin);
+
+	FVector LocalPoint = BoxTransform.InverseTransformPosition(Point);
+
+	return FMath::Abs(LocalPoint.X) <= BoxExtent.X &&
+		FMath::Abs(LocalPoint.Y) <= BoxExtent.Y &&
+		FMath::Abs(LocalPoint.Z) <= BoxExtent.Z;
 }
