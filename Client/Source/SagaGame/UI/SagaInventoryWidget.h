@@ -16,9 +16,10 @@ class SAGAGAME_API USagaInventoryWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	UButton* mCloseButton;
 	UListView* mInventory;
+	UInventoryItemData* mSelectionItem;
 	
 protected:
 	virtual void NativeConstruct();
@@ -27,4 +28,17 @@ protected:
 public:
 	UFUNCTION()
 	void CloseButtonClick();
+
+	UFUNCTION()
+	void OnListItemHover(UObject* Item, bool IsHovered);
+
+	UFUNCTION()
+	void OnListItemSelection(UObject* Item);
+
+	UFUNCTION()
+	void OnListItemClick(UObject* Item);
+
+	void UseEnergyDrink();
+	void UseGumball();
+	void UseSmokeBomb();
 };
