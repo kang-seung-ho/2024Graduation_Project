@@ -198,7 +198,7 @@ const noexcept
 		{
 			if (user.myID == user_id)
 			{
-				return user.remoteCharacter;
+				return user.GetCharacterHandle();
 			}
 		}
 	}

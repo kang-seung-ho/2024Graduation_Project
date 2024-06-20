@@ -24,10 +24,10 @@ const FString SagaBluTeamName = TEXT("Blue");
 
 ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	: Super(initializer)
-	, playerSpawners()
-	, localPlayerController()
+	, storedLocalPlayerController()
 	, readyTimerHandle()
 	, transformUpdateTimer()
+	, playerSpawners()
 	, lastCharacterPosition(), lastCharacterRotation()
 {
 	SetControllerClass(ASagaInGamePlayerController::StaticClass());

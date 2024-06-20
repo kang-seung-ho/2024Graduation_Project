@@ -19,21 +19,6 @@ PrintVector(const FVector& vector)
 }
 
 void
-ASagaInGamePlayerController::RideNPCCallFunction()
-{
-	ASagaPlayableCharacter* ControlledCharacter = GetPawn<ASagaPlayableCharacter>();
-
-	if (ControlledCharacter)
-	{
-		ControlledCharacter->RideNPC();
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("This Character is not ASagaPlayableCharacter Type."));
-	}
-}
-
-void
 ASagaInGamePlayerController::BeginForwardWalk(const FInputActionValue& input)
 {
 	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Walking Straight"));

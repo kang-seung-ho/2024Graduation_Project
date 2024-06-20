@@ -105,6 +105,7 @@ void
 ASagaCharacterBase::ExecuteDeath()
 {
 #if WITH_EDITOR
+
 	const auto name = GetName();
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
 #endif
@@ -149,7 +150,11 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 
 	SetActorLocationAndRotation(spawn_pos, spawn_rot);
+
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
+#endif
 
 	if (OnCharacterRespawned.IsBound())
 	{

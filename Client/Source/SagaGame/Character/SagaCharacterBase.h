@@ -57,7 +57,10 @@ public:
 
 	virtual void Tick(float delta_time) override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	UFUNCTION()
+	void StopMovement();
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;

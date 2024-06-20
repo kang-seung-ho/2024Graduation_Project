@@ -284,7 +284,7 @@ ASagaPlayableCharacter::BeginRespawn()
 {
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not net->IsOfflineMode() and net->IsConnected())
+	if (not net->IsOfflineMode())
 	{
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN, 0, GetUserId());
 	}
@@ -331,30 +331,6 @@ const
 	}
 
 	return result;
-}
-
-bool
-ASagaPlayableCharacter::HasCollidedBear()
-const noexcept
-{
-	return 0 < collideBears.Num();
-}
-
-void
-ASagaPlayableCharacter::RideNPC()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] Called"))
-		FOutputDeviceNull Ar;
-
-	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
-	if (ret)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Called"))
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Not Found"))
-	}
 }
 
 void

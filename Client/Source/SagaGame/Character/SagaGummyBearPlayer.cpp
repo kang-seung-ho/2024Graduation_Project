@@ -367,7 +367,7 @@ void ASagaGummyBearPlayer::InitTargetMeshes()
 }
 
 int32
-ASagaGummyBearPlayer::GetBearId(int32 Index)
+ASagaGummyBearPlayer::GetBearId()
 const noexcept
 {
 	return bearUniqueId;

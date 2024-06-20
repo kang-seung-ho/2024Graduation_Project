@@ -165,7 +165,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_RIDE] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] by user %d, has no character."), id);
 			break;
 		}
 
@@ -297,7 +297,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_ATTACK_0] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_ATTACK_0] by user %d, has no character."), id);
+
 			break;
 		}
 
@@ -313,7 +314,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_END_ATTACK_0] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_ATTACK_0] by user %d, has no character."), id);
 			break;
 		}
 
@@ -406,7 +407,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_PLYER] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_PLYER] by user %d, has no character."), id);
+
 			break;
 		}
 
@@ -433,7 +435,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] by user %d, has no character."), id);
+
 			break;
 		}
 
@@ -480,7 +483,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DEAD] User %d is dead, no character."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DEAD] User %d is dead, has no character."), id);
+
 			break;
 		}
 
@@ -497,12 +501,13 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN] User %d is respawning, no character."), id);
+				UE_LOG(LogSagaGame, Error, TEXT("[RPC_RESPAWN] User %d could not find its team!"), id);
+
+				return;
+			}
+
 			break;
 		}
-
-		// TODO: RPC_RESPAWN
-		character->ExecuteRespawn();
 	}
 	break;
 	

@@ -10,12 +10,11 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterBase
 	GENERATED_BODY()
 
 public:
+	/* 곰의 고유 번호
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	int32 DismThreshold;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UStaticMesh*> TargetMeshes;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	bool isCanRide;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	class UNiagaraSystem * NiagaraSystemTemplate;
 
@@ -42,15 +41,13 @@ public:
 	class UStaticMesh* GetTargetMesh(int32 Index);
 	
 	UFUNCTION()
-	int32 GetBearId(int32 Index) const noexcept;
+	int32 GetBearId() const noexcept;
 
 protected:
-	/* 곰의 고유 번호
-
-	*  서버, 클라 모두 같게 동기화됨
-	*/
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	int32 bearUniqueId;
+	UPROPERTY()
+	bool isCanRide;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UArrowComponent> playerUnridePosition;
 
 	/* 오버랩 박스 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")

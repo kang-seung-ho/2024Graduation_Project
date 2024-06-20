@@ -22,9 +22,7 @@ class SAGAGAME_API ASagaInGameMode : public ASagaGameModeBase
 
 public:
 	UPROPERTY()
-	TArray<TObjectPtr<class ASagaCharacterSpawner>> playerSpawners;
-	UPROPERTY()
-	TObjectPtr<class ASagaInGamePlayerController> localPlayerController;
+	TObjectPtr<class ASagaInGamePlayerController> storedLocalPlayerController;
 
 	ASagaInGameMode(const FObjectInitializer& initializer);
 
@@ -41,6 +39,19 @@ public:
 	virtual AActor* FindPlayerStart_Implementation(AController* player, const FString& tag) override;
 
 private:
+	UPROPERTY()
+	FTimerHandle readyTimerHandle;
+	UPROPERTY()
+	FTimerHandle transformUpdateTimer;
+	UPROPERTY()
+	TArray<TObjectPtr<class ASagaCharacterSpawner>> playerSpawners;
+	UPROPERTY()
+	FVector lastCharacterPosition;
+	UPROPERTY()
+	FRotator lastCharacterRotation;
+	UPROPERTY()
+	TArray<TObjectPtr<class ASagaGummyBearPlayer>> everyBears;
+
 	UFUNCTION()
 	void OnLeftRoom(int32 user_id);
 	UFUNCTION()
@@ -52,16 +63,6 @@ private:
 
 	UFUNCTION()
 	void HandleUpdateTransform();
-
-	UPROPERTY()
-	FTimerHandle readyTimerHandle;
-
-	UPROPERTY()
-	FTimerHandle transformUpdateTimer;
-	UPROPERTY()
-	FVector lastCharacterPosition;
-	UPROPERTY()
-	FRotator lastCharacterRotation;
 };
 
 extern const FString SagaRedTeamName;

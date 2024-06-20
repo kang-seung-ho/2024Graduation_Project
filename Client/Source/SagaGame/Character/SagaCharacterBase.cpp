@@ -452,13 +452,16 @@ ASagaCharacterBase::Tick(float delta_time)
 float
 ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
+#if WITH_EDITOR
+
 	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
 	const float current_hp = ExecuteHurt(actual_dmg);
 
-#if WITH_EDITOR
 	const auto name = GetName();
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
-#endif
-
 	return actual_dmg;
+#else
+
+	return ExecuteHurt(Super::TakeDamage(dmg, event, instigator, causer));
+#endif
 }

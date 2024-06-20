@@ -12,10 +12,7 @@ class SAGAGAME_API ASagaPlayableCharacter : public ASagaCharacterBase
 public:
 	ASagaPlayableCharacter();
 
-	UFUNCTION()
-	void RideNPC();
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Blueprint")
-	//void RidingFunction();
+	/* 데미지 처리
 
 	UFUNCTION()
 	void BeginRespawn();
@@ -37,8 +34,6 @@ public:
 
 	UFUNCTION()
 	class ASagaGummyBearPlayer* GetNeareastCollidedBear() const;
-	UFUNCTION()
-	bool HasCollidedBear() const noexcept;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")

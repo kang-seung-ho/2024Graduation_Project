@@ -22,9 +22,6 @@ public:
 	void UpdateInputMode();
 	void SetInventoryVisibility(bool bVisible);
 	
-	UFUNCTION()
-	void RideNPCCallFunction();
-
 	/* Actions */
 #pragma region =========================
 	UFUNCTION()
