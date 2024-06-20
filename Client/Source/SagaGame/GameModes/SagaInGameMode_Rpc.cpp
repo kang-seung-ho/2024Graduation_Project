@@ -1,9 +1,12 @@
 #include "SagaInGameMode.h"
 #include <Engine/World.h>
+#include <Engine/DamageEvents.h>
 #include <UObject/Object.h>
 #include <Templates/Casts.h>
 
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterBase.h"
+#include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
@@ -16,15 +19,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	bool is_remote{};
-	FSagaVirtualUser user{};
 
-	if (not net->FindUser(id, user))
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[RPC] Cannot find remote user %d."), id);
-		return;
-	}
-
-	ASagaCharacterBase* character = user.GetCharacterHandle();
+	ASagaCharacterBase* character = net->GetCharacterHandle(id);
 
 	if (id == net->GetLocalUserId()) // 로컬 클라이언트
 	{
@@ -169,48 +165,62 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		const auto guardian_id = arg0;
-		const auto guardian_info = arg1;
+		const auto human = Cast<ASagaPlayableCharacter>(character);
 
-		//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Ride"));
-		if (is_remote)
+		if (not IsValid(human))
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] user '%d' Begin ride guardian '%d'"), id, guardian_id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] User %d's character is not a human."), id);
+			break;
+		}
 
-			FActorSpawnParameters SpawnParams{};
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; // 충돌 처리 설정
+		const auto guardian_info = arg0;
+		const auto guardian_id = arg1;
 
-			const auto World = GetWorld();
+		const auto guardian = FindBear(guardian_id);
 
-			const auto old_character = character;
-			const auto& transform = old_character->GetTransform();
-			FVector location = old_character->GetActorLocation();
-			FRotator rotation = old_character->GetActorRotation();
+		if (IsValid(guardian))
+		{
+			if (not guardian->IsAlive())
+			{
+#if WITH_EDITOR
 
-			const auto bear = World->SpawnActor<ASagaGummyBearPlayer>((ASagaGummyBearPlayer::StaticClass(), location, rotation, SpawnParams));
-			UGameplayStatics::FinishSpawningActor(bear, transform);
-			//bear->SetTre
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_RIDE] The guardian with id %d is dead."), guardian_id);
+#endif
+				break;
+			}
 
-			/*
-				old_character의 속성은 ASagaInGamePlayerController::OnCreatingCharacter에서
-				이미 가져왔으므로 현재 읽은 FSagaVirtualUser는 수정할 필요없음
-			*/
-			// 곰에 속성 전달
-			old_character->TranslateProperties(bear);
+#if WITH_EDITOR
 
-			// 파괴
-			old_character->Destroy();
+			const auto guardian_name = guardian->GetName();
 
-			// 혹시 character를 쓸 일이 있으면 대입해줘야 함
-			character = bear;
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_RIDE] User %d would ride a guardian '%s' with id %d."), id, *guardian_name, guardian_id);
+#endif
 
-			net->SetCharacterHandle(id, bear);
+			net->SetCharacterHandle(id, guardian);
+
+			human->ExecuteGuardianAction(guardian);
+			guardian->ExecuteGuardianAction(human);
+
+			if (is_remote)
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] User %d rides guardian %d"), id, guardian_id);
+#endif
+			}
+			else // IF (is_remote)
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] User %d rides guardian %d"), id, guardian_id);
+#endif
+
+				storedLocalPlayerController->Possess(guardian);
+			} // IF NOT (is_remote)
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] Ride guardian"));
-
-			//character->ExecuteRide();
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_RIDE] There is no guardian with id %d."), guardian_id);
 		}
 	}
 	break;
@@ -220,15 +230,42 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_END_RIDE] by user %d, no character."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] by user %d, no character."), id);
+
 			break;
 		}
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC] Take off guardian"));
+		const auto guardian = Cast<ASagaGummyBearPlayer>(character);
+
+		if (not IsValid(guardian))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] User %d's character is not a guardian."), id);
+
+			break;
+		}
+
+		ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
+
+		net->SetCharacterHandle(id, human);
+
+		guardian->TerminateGuardianAction();
+		human->TerminateGuardianAction();
 
 		if (is_remote)
 		{
-			//character->TerminateRide();
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] User %d unrides from guardian %d"), id, guardian->GetBearId());
+#endif
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] User %d unrides from guardian %d"), id, guardian->GetBearId());
+#endif
+
+			storedLocalPlayerController->Possess(human);
 		}
 	}
 	break;
@@ -270,6 +307,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		if (not IsValid(character))
 		{
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_ROTATION] by user %d, no character."), id);
+
 			break;
 		}
 
@@ -415,15 +453,37 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		float dmg{};
 		memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
 
-		UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_PLYER] User %d is damaged for %f"), id, dmg);
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_PLYER] User %d is damaged for %f"), id, dmg);
 
-		if (is_remote)
+		const int32 causer_id = arg1;
+
+		FSagaVirtualUser other_user{};
+		if (net->FindUser(causer_id, other_user))
 		{
+			const auto other_character = other_user.GetCharacterHandle();
 
+			if (IsValid(other_character))
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_PLYER] User %d is taking damage from user %d."), id, causer_id);
+				// TODO: RPC_DMG_PLYER
+				//character->ExecuteHurt(dmg);
+
+				//FDamageEvent event{};
+				//character->TakeDamage(dmg, event, character->GetController(), other_character);
+
+				character->ExecuteHurt(dmg);
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not have a character."), causer_id);
+
+				character->ExecuteHurt(dmg);
+			}
 		}
-
-		// TODO: RPC_DMG_PLYER
-		//character->ExecuteHurt(dmg);
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not exist."), causer_id);
+		}
 	}
 	break;
 
@@ -440,9 +500,74 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		if (is_remote)
-		{
+		const auto guardian_info = arg0;
+		const auto guardian_id = arg1;
 
+		// 현재 id는 수호자(guardian)을 타고 있다가 데미지를 받은 플레이어임.
+		const auto guardian = FindBear(guardian_id);
+
+		if (IsValid(guardian))
+		{
+			if (not guardian->IsAlive())
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] The guardian with id %d is already dead."), guardian_id);
+#endif
+			}
+
+			float dmg{};
+			memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN] Guardian %d is damaged for %f"), guardian_id, dmg);
+
+			FDamageEvent event{};
+			guardian->ExecuteHurt(dmg);
+			//guardian->TakeDamage(dmg, event, character->GetController(), character);
+
+			if (not guardian->IsAlive())
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] The guardian with id %d is dead."), guardian_id);
+
+				const auto guardian_name = guardian->GetName();
+
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] User %d would unride from the guardian '%s' with id %d."), id, *guardian_name, guardian_id);
+#endif
+
+				// 사망 시에는 하차 처리를 함.
+				ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
+
+				if (IsValid(human))
+				{
+					net->SetCharacterHandle(id, human);
+
+					human->TerminateGuardianAction();
+					guardian->TerminateGuardianAction();
+
+					if (is_remote)
+					{
+#if WITH_EDITOR
+
+						UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN][Remote] User %d would unride from the guardian %d"), id, guardian_id);
+#endif
+					}
+					else // IF (is_remote)
+					{
+#if WITH_EDITOR
+
+						UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN][Local] User %d would unride from the guardian %d"), id, guardian_id);
+#endif
+
+						storedLocalPlayerController->Possess(human);
+					} // IF NOT (is_remote)
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] There is no guardian with id %d."), guardian_id);
 		}
 	}
 	break;
@@ -498,9 +623,29 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		if (IsValid(character))
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN] User %d is respawning..."), id);
+
+			character->ExecuteRespawn();
 		}
 		else
 		{
+			ESagaPlayerTeam team{};
+			if (net->GetTeam(id, team))
+			{
+				if (is_remote)
+				{
+					UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN][Remote] User %d is respawning, no character."), id);
+
+
+				}
+				else
+				{
+					UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN][Local] User %d is respawning, no character."), id);
+
+
+				}
+			}
+			else
+			{
 				UE_LOG(LogSagaGame, Error, TEXT("[RPC_RESPAWN] User %d could not find its team!"), id);
 
 				return;
@@ -510,7 +655,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 	}
 	break;
-	
+
 	case ESagaRpcProtocol::RPC_RESPAWN_TIMER:
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN_TIMER] Time: %d"), arg0);

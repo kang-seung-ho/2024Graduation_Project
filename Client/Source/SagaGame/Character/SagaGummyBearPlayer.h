@@ -11,6 +11,12 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterBase
 
 public:
 	/* 곰의 고유 번호
+
+	*  서버, 클라 모두 같게 동기화됨
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "1000"))
+	int32 bearUniqueId;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	int32 DismThreshold;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
@@ -20,8 +26,19 @@ public:
 
 	ASagaGummyBearPlayer();
 
+	/* 데미지 처리
+
+	* 온라인 / 오프라인 모드에 따라 분기
+	*  온라인 모드	: RPC만 보냄. 나중에 RPC 돌려받았을 때 ASagaCharacterBase의 TakeDamage를 실행.
+	*  오프라인 모드	: ASagaCharacterBase의 TakeDamage를 그대로 실행.
+	*/
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
 	// UFUNCTION()
+	/* 반드시 ASagaPlayableCharacter의 ExecuteGuardianAction보다 나중에 실행해야 함. */
 	virtual void ExecuteGuardianAction(ASagaCharacterBase* target) override;
+	// UFUNCTION()
+	virtual void TerminateGuardianAction() override;
 	// UFUNCTION()
 	virtual void ExecuteAttackAnimation() override;
 	// UFUNCTION()

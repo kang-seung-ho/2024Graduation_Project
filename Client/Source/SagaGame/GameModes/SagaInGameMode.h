@@ -27,6 +27,9 @@ public:
 	ASagaInGameMode(const FObjectInitializer& initializer);
 
 	UFUNCTION()
+	class ASagaGummyBearPlayer* FindBear(const int32 id) const noexcept;
+
+	UFUNCTION()
 	class AActor* GetSpawnerBy(ESagaPlayerTeam team) const;
 	UFUNCTION()
 	class AActor* GetSpawner(const FString& team_name) const;

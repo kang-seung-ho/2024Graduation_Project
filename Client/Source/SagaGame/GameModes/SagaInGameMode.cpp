@@ -16,6 +16,7 @@
 #include "Character/SagaCharacterSpawner.h"
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
+#include "Character/SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -29,6 +30,7 @@ ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	, transformUpdateTimer()
 	, playerSpawners()
 	, lastCharacterPosition(), lastCharacterRotation()
+	, everyBears()
 {
 	SetControllerClass(ASagaInGamePlayerController::StaticClass());
 
@@ -42,6 +44,23 @@ ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 		const auto name = GetName();
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][ctor] '%s' could not find the class of player character."), *name);
 	}
+
+	everyBears.Reserve(3);
+}
+
+ASagaGummyBearPlayer*
+ASagaInGameMode::FindBear(const int32 id)
+const noexcept
+{
+	for (auto& bear : everyBears)
+	{
+		if (bear->GetBearId() == id)
+		{
+			return bear;
+		}
+	}
+
+	return nullptr;
 }
 
 void
@@ -133,8 +152,16 @@ ASagaInGameMode::StartPlay()
 	{
 		const auto controller = *it;
 
-		localPlayerController = controller;
-		localPlayerController->SetAsLocalPlayerController();
+		storedLocalPlayerController = controller;
+		storedLocalPlayerController->SetAsLocalPlayerController();
+	}
+
+	// Store every gummy bear
+	for (TActorIterator<ASagaGummyBearPlayer> it{ world }; it; ++it)
+	{
+		const auto bear = *it;
+
+		everyBears.Add(bear);
 	}
 
 	if (not net->IsOfflineMode())

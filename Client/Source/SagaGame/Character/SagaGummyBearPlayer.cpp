@@ -1,4 +1,5 @@
 #include "SagaGummyBearPlayer.h"
+#include <Components/ArrowComponent.h>
 #include <GeometryCollection/GeometryCollectionComponent.h>
 #include <GeometryCollection/GeometryCollectionObject.h>
 #include <GeometryCollection/GeometryCollection.h>
@@ -14,10 +15,81 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+float
+ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
+{
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (net->IsOfflineMode())
+	{
+		return Super::TakeDamage(dmg, event, instigator, causer);
+	}
+	else
+	{
+		if (not HasValidOwnerId())
+		{
+#if WITH_EDITOR
+
+			const auto name = GetName();
+			UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Guardian {} would {} task damage."), *name, dmg);
+#endif
+
+			return Super::TakeDamage(dmg, event, instigator, causer);
+		}
+		else
+		{
+			// 자기 자신의 피해량만 송신함
+			if (GetUserId() == net->GetLocalUserId())
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Handling gummy bear's damage to {}."), dmg);
+#endif
+
+				// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
+				// arg0: 플레이어가 준 피해량 (4바이트 부동소수점)
+				int64 arg0{};
+				// arg1: 현재 수호자의 식별자
+				int32 arg1{ GetBearId() };
+
+				std::memcpy(&arg0, reinterpret_cast<const char*>(&dmg), 4);
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIAN, arg0, arg1);
+			}
+
+			return dmg;
+		}
+	}
+}
+
 void
 ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	Super::ExecuteGuardianAction(target);
+
+	ownerData.SetCharacterHandle(target);
+}
+
+void
+ASagaGummyBearPlayer::TerminateGuardianAction()
+{
+	Super::TerminateGuardianAction();
+
+	if (IsValid(ownerData.GetCharacterHandle()))
+	{
+		const auto loc = playerUnridePosition->GetComponentLocation();
+		const auto rot = playerUnridePosition->GetComponentRotation();
+		ownerData.GetCharacterHandle()->SetActorLocationAndRotation(loc, rot);
+
+		ownerData = {};
+	}
+	else
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[BeginGuardianAction] Has no character handle! (Offline Mode)"));
+#endif
+	}
 }
 
 void
@@ -25,11 +97,6 @@ ASagaGummyBearPlayer::ExecuteAttackAnimation()
 {
 	if (IsValid(mBearAnimInst))
 	{
-#if WITH_EDITOR
-		const auto name = GetName();
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer][ExecuteAttackAnimation] '%s' is a bear character."), *name);
-#endif
-
 		mBearAnimInst->PlayAttackMontage();
 	}
 	else
@@ -376,7 +443,7 @@ const noexcept
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 	, bearUniqueId(0)
-	, isCanRide(false)
+	, isCanRide(false), playerUnridePosition()
 {
 	myGameStat->SetMaxHp(500.0f);
 
@@ -399,6 +466,11 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	{
 		GetMesh()->SetAnimInstanceClass(AnimAsset.Class);
 	}
+
+	playerUnridePosition = CreateDefaultSubobject<UArrowComponent>(TEXT("PlayerUnridePosition"));
+	playerUnridePosition->SetupAttachment(RootComponent);
+	playerUnridePosition->SetRelativeLocation(FVector(-170, 0, 110.0));
+	playerUnridePosition->SetRelativeRotation(FRotator(0, 0, 0));
 
 	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 250.0));
 	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-30.0, 90.0, 0.0));

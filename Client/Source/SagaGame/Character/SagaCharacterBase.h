@@ -165,9 +165,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void StopMovement();
-
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{

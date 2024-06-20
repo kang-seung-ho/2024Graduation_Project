@@ -12,7 +12,6 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-
 	ASagaInGamePlayerController(const FObjectInitializer& initializer) noexcept;
 
 	virtual void Tick(float delta_time) override;
@@ -21,7 +20,7 @@ public:
 
 	void UpdateInputMode();
 	void SetInventoryVisibility(bool bVisible);
-	
+
 	/* Actions */
 #pragma region =========================
 	UFUNCTION()
@@ -76,6 +75,4 @@ private:
 	UUserWidget* InventoryWidget;
 	UPROPERTY()
 	bool bIsInventoryVisible;
-	UPROPERTY()
-	TObjectPtr<class ASagaPlayableCharacter> storedLocalCharacter;
 };

@@ -8,6 +8,7 @@
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
 
+#include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -281,22 +282,27 @@ ASagaInGamePlayerController::BeginGuardianAction()
 		// 사람 캐릭터
 		const auto human = GetPawn<ASagaPlayableCharacter>();
 
-		// 승차
 		if (IsValid(human))
 		{
-			if (human->HasCollidedBear())
+			const auto guardian = human->GetNeareastCollidedBear();
+
+			// 승차
+			if (IsValid(guardian))
 			{
-				const auto bear = human->GetNeareastCollidedBear();
-				const auto bear_id = bear->GetUniqueID();
-				const auto bear_name = bear->GetName();
+#if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Warning, TEXT("[BeginGuardianAction] Riding a bear '%s' with id %d. (Offline Mode)"), *bear_name, bear_id);
+				const auto guardian_id = guardian->GetBearId();
+				const auto guardian_name = guardian->GetName();
 
-				storedLocalCharacter = human;
+				UE_LOG(LogSagaGame, Warning, TEXT("[BeginGuardianAction] Riding a bear '%s' with id %d. (Offline Mode)"), *guardian_name, guardian_id);
+#endif
 
-				human->ExecuteGuardianAction(bear);
+				net->SetCharacterHandle(net->GetLocalUserId(), guardian);
 
-				Possess(bear);
+				human->ExecuteGuardianAction(guardian);
+				guardian->ExecuteGuardianAction(human);
+
+				Possess(guardian);
 			}
 			else
 			{
@@ -305,29 +311,56 @@ ASagaInGamePlayerController::BeginGuardianAction()
 		}
 		else
 		{
-			// 곰 캐릭터
-			const auto bear = GetPawn<ASagaGummyBearPlayer>();
+			// 수호자 캐릭터
+			const auto guardian = GetPawn<ASagaGummyBearPlayer>();
 
 			// 하차
-			if (IsValid(bear))
+			if (IsValid(guardian))
 			{
-				if (not IsValid(storedLocalCharacter))
-				{
-					UE_LOG(LogSagaGame, Fatal, TEXT("[BeginGuardianAction] Has no character handle! (Offline Mode)"));
-				}
+				ASagaCharacterBase* backup = guardian->ownerData.GetCharacterHandle();
 
-				bear->ExecuteGuardianAction(storedLocalCharacter);
+				net->SetCharacterHandle(net->GetLocalUserId(), backup);
 
-				// 다시 시각화
-				storedLocalCharacter->TerminateGuardianAction();
+				guardian->TerminateGuardianAction();
+				backup->TerminateGuardianAction();
 
-				Possess(storedLocalCharacter);
+				Possess(backup);
 			}
 		}
 	}
-	else
+	else // IF (Offline Mode)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[BeginGuardianAction] Started."));
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE, 0);
-	}
+		const auto human = GetPawn<ASagaPlayableCharacter>();
+
+		if (IsValid(human))
+		{
+			const auto guardian = human->GetNeareastCollidedBear();
+
+			// 승차
+			if (IsValid(guardian))
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Log, TEXT("[BeginGuardianAction] Trying to ride a guardian with id %d."), guardian->GetBearId());
+#endif
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_RIDE, 0, guardian->GetBearId());
+			}
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[BeginGuardianAction] Current player character is not human."));
+#endif
+			// 수호자 캐릭터
+			const auto guardian = GetPawn<ASagaGummyBearPlayer>();
+
+			// 하차
+			if (IsValid(guardian))
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, 0, guardian->GetBearId());
+			}
+		}
+	} // IF NOT (Offline Mode)
 }

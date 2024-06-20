@@ -84,13 +84,18 @@ ASagaCharacterBase::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	StopMovement();
 
-	TranslateProperties(target);
+	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
 ASagaCharacterBase::TerminateGuardianAction()
 {
 	StopMovement();
+
+	if (IsAlive())
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	}
 }
 
 float
