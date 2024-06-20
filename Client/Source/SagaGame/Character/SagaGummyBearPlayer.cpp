@@ -43,7 +43,7 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 			{
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Handling gummy bear's damage to {}."), dmg);
+				UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Handling gummy bear's damage by {}."), dmg);
 #endif
 
 				// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
@@ -176,14 +176,13 @@ ASagaGummyBearPlayer::ExecuteDeath()
 
 	if (net->IsOfflineMode())
 	{
-		// 상대 팀 점수 증가 실행
-		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 	else
 	{
-		// 상대 팀 점수 증가 실행
-		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
+
+	// 상대 팀 점수 증가 실행
+	sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 }
 
 void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)

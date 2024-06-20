@@ -84,6 +84,7 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 	if (IsAlive())
 	{
 		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	}
 }
 
 void
@@ -293,9 +294,6 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 		if (net->IsOfflineMode())
 		{
-			// 상대 팀 점수 증가 실행
-			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
@@ -305,12 +303,13 @@ ASagaPlayableCharacter::ExecuteDeath()
 			// NOTICE: 서버에서 RPC_DEAD 전송해주므로 하면 안됨
 			//net->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
 
-			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawnViaRpc, 3.0f, false);
 		}
+
+		// 상대 팀 점수 증가 실행
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 }
 
