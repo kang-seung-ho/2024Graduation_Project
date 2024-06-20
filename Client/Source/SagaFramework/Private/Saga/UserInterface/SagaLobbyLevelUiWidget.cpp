@@ -3,6 +3,7 @@
 #include <UObject/NameTypes.h>
 #include <Internationalization/Text.h>
 #include <Templates/Casts.h>
+#include <Kismet/GameplayStatics.h>
 #include <Components/Widget.h>
 #include <Components/ListView.h>
 #include <Blueprint/WidgetTree.h>
@@ -262,6 +263,10 @@ USagaLobbyLevelUiWidget::HandleCreateRoom(FText title)
 
 		net->SetCurrentRoomId(22);
 		net->SetCurrentRoomTitle(title);
+		net->SetLocalUserTeam(ESagaPlayerTeam::Red);
+
+		UGameplayStatics::OpenLevel(this, TEXT("CharacterSelectLevel"));
+		//UGameplayStatics::OpenLevel(this, TEXT("RoomSessionLevel"));
 	}
 	else
 	{
