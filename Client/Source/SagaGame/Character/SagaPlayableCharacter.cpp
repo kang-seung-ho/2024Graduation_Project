@@ -17,6 +17,7 @@
 #include "Character/SagaGummyBearPlayer.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Effect/SagaSwordEffect.h"
+#include "UI/SagaWidgetComponent.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -66,6 +67,8 @@ ASagaPlayableCharacter::ExecuteGuardianAction(ASagaCharacterBase* target)
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
@@ -75,6 +78,12 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+
+	SetHealth(GetHealth());
+
+	if (IsAlive())
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(false);
 }
 
 void

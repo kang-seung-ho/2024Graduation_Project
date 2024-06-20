@@ -83,19 +83,12 @@ void
 ASagaCharacterBase::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	StopMovement();
-
-	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
 ASagaCharacterBase::TerminateGuardianAction()
 {
 	StopMovement();
-
-	if (IsAlive())
-	{
-		myHealthIndicatorBarWidget->SetHiddenInGame(false);
-	}
 }
 
 float
@@ -115,7 +108,11 @@ ASagaCharacterBase::ExecuteDeath()
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
 #endif
 
-	myHealthIndicatorBarWidget->SetHiddenInGame(true);
+	// Hide the hp bar
+	if (IsValid(myHealthIndicatorBarWidget))
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(true);
+	}
 
 	StopMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
