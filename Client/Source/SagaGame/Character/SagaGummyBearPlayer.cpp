@@ -52,12 +52,12 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 	bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 
-#if ENABLE_DRAW_DEBUG
-	//충돌시 빨강 아니면 녹색
-	FColor Color = Collision ? FColor::Red : FColor::Green;
-
-	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
-#endif
+//#if ENABLE_DRAW_DEBUG
+//	//충돌시 빨강 아니면 녹색
+//	FColor Color = Collision ? FColor::Red : FColor::Green;
+//
+//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
+//#endif
 
 	if (Collision)
 	{

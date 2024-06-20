@@ -12,21 +12,23 @@ AGumball::AGumball()
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
     RootComponent = MeshComponent;
 
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> GumballMesh(TEXT("/Script/Engine.StaticMesh'/Game/Terrains/Modelings/Candy/Lollipop_01_prop.Lollipop_01_prop'"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> GumballMesh(TEXT("/Script/Engine.StaticMesh'/Game/Item/Modeling/Gum_Prop.Gum_Prop'"));
     if (GumballMesh.Succeeded())
     {
         MeshComponent->SetStaticMesh(GumballMesh.Object);
     }
     MeshComponent->SetCollisionProfileName(TEXT("NoCollision"));
+    MeshComponent->SetWorldScale3D(FVector(9.0f, 9.0f, 9.0f));
 
-    SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-    SphereComponent->SetupAttachment(RootComponent);
-    SphereComponent->SetSphereRadius(100.0f);
+    BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+    BoxComponent->SetupAttachment(RootComponent);
+    BoxComponent->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
+    BoxComponent->SetWorldScale3D(FVector(0.085f, 0.152f, 0.081f));
+    BoxComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 3.33f));
 
-    // Change Collision Profile to OverlapAllDynamic
-    SphereComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+    BoxComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
-    SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AGumball::OnOverlapBegin);
+    BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AGumball::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned

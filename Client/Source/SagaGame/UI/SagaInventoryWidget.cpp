@@ -4,6 +4,8 @@
 #include "InventoryItemData.h"
 #include "SagaInventoryListWidget.h"
 #include "Item/Gumball.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 void USagaInventoryWidget::NativeConstruct()
 {
@@ -155,7 +157,7 @@ void USagaInventoryWidget::OnListItemClick(UObject* Item)
 
 void USagaInventoryWidget::UseEnergyDrink()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));  // 함수 호출 로그
+    UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));
     
     //플레이어 HP 회복 로직 추가
     // + 플레이어 HP회복 시 이펙트 재생 추가
@@ -165,10 +167,7 @@ void USagaInventoryWidget::UseEnergyDrink()
 
 void USagaInventoryWidget::UseGumball()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Using Gumball"));  // 함수 호출 로그
-
-
-    // 껌볼 사용 로직 
+    UE_LOG(LogTemp, Warning, TEXT("Using Gumball")); 
 
     APlayerController* PlayerController = GetOwningPlayer();
     if (PlayerController)
@@ -176,7 +175,7 @@ void USagaInventoryWidget::UseGumball()
         APawn* PlayerPawn = PlayerController->GetPawn();
         if (PlayerPawn)
         {
-            FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 200.0f;  // 플레이어 앞 200 유닛
+            FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 200.0f;
             FRotator SpawnRotation = PlayerPawn->GetActorRotation();
             FActorSpawnParameters SpawnParams;
             GetWorld()->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
@@ -186,6 +185,27 @@ void USagaInventoryWidget::UseGumball()
 
 void USagaInventoryWidget::UseSmokeBomb()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Using Smoke Bomb"));  // 함수 호출 로그
-    // 연막탄 사용 로직 추가
+    UE_LOG(LogTemp, Warning, TEXT("Using Smoke Bomb"));
+    APlayerController* PlayerController = GetOwningPlayer();
+    if (PlayerController)
+    {
+        APawn* PlayerPawn = PlayerController->GetPawn();
+        if (PlayerPawn)
+        {
+            FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 50.0f;
+            SpawnLocation.Z += 200.0f;  // 200 unit above player
+
+            FRotator SpawnRotation = PlayerPawn->GetActorRotation();
+            UNiagaraSystem* SmokeEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
+            if (SmokeEffect)
+            {
+                UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SmokeEffect, SpawnLocation, SpawnRotation);
+                if (NiagaraComponent)
+                {
+                    NiagaraComponent->SetAutoDestroy(true);  // auto destroy after effect is done
+                }
+            }
+        }
+    }
+
 }

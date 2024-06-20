@@ -181,7 +181,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
 
-	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함
+	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함 --> change each weapon's damage amount different by 20 30 40
 	if (dmg == 30.f)
 	{
 		if (HitCascadeEffect)

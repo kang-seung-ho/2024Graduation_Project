@@ -28,13 +28,10 @@ protected:
     // Function to handle resetting the player's speed
     void ResetPlayerSpeed();
 
-    // Timer handle for the Gumball's lifespan
-    FTimerHandle DestroyTimerHandle;
+     FTimerHandle DestroyTimerHandle;
 
-    // Timer handle for resetting the player's speed
     FTimerHandle SpeedResetTimerHandle;
 
-    // Player character reference
     class ASagaCharacterBase* OverlappingPlayer;
 
 public:
@@ -44,6 +41,6 @@ public:
     UStaticMeshComponent* MeshComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    class USphereComponent* SphereComponent;
+    UBoxComponent* BoxComponent;
 
 };
