@@ -185,11 +185,6 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 }
 
-void ASagaGummyBearPlayer::TryDismemberment(FVector Hitlocation, FVector HitNormal)
-{
-	OnBodyPartGetDamaged(Hitlocation, HitNormal);
-}
-
 void
 ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {

@@ -183,17 +183,19 @@ ASagaPlayableCharacter::ExecuteAttack()
 	{
 		const auto hit_actor = hit_result.GetActor();
 
-		hit_result.GetActor()->TakeDamage(damage, hit_event, GetController(), this);
+		hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 
 		// TODO: 이 코드를 구미 베어의 TakeDamage로 옮겨야 함.
-		if (hit_actor->IsA<ASagaGummyBearPlayer>())
+		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+		if (IsValid(bear))
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' hits a gummy bear."), *name);
 
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
 
-			Cast<ASagaGummyBearPlayer>(hit_actor)->TryDismemberment(Hitlocation, HitNormal);
+			bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
 		}
 	}
 }

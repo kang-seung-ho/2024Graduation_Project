@@ -48,11 +48,11 @@ public:
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
 
-	UFUNCTION()
-	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
-
 	UFUNCTION(BlueprintCallable)
 	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
+
+	UFUNCTION()
+	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
 	UFUNCTION(BlueprintCallable)
 	class UStaticMesh* GetTargetMesh(int32 Index);
@@ -97,8 +97,6 @@ protected:
 	class UGeometryCollectionComponent* GetGeometryCollectionByName(const FString& CollectionName);
 	FVector GetPieceWorldPosition(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 	FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
-
-	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
 	virtual void BeginPlay() override;
 
