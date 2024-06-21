@@ -83,7 +83,7 @@ void ASagaInGamePlayerController::ToggleInventory()
 		InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
 		if (InventoryWidget)
 		{
-			InventoryWidget->AddToViewport();
+			InventoryWidget->AddToViewport(5);
 			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
