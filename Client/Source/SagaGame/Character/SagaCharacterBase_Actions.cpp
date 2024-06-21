@@ -10,8 +10,6 @@ void
 ASagaCharacterBase::ExecuteStraightWalk(const int& direction)
 noexcept
 {
-	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
-
 	straightMoveDirection = direction;
 }
 
@@ -19,8 +17,6 @@ void
 ASagaCharacterBase::ExecuteStrafeWalk(const int& direction)
 noexcept
 {
-	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
-
 	strafeMoveDirection = direction;
 }
 
