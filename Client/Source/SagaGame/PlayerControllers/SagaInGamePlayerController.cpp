@@ -1,6 +1,7 @@
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include <Math/MathFwd.h>
 #include <UObject/Object.h>
+#include <UObject/ObjectPtr.h>
 #include <UObject/UObjectGlobals.h>
 #include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>

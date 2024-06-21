@@ -1,5 +1,6 @@
 #include "Character/SagaCharacterBase.h"
 #include <UObject/Linker.h>
+#include <UObject/Object.h>
 #include <UObject/ObjectPtr.h>
 #include <UObject/ConstructorHelpers.h>
 #include <Engine/StaticMesh.h>

@@ -1,6 +1,5 @@
 #pragma once
 #include "SagaGame.h"
-#include <UObject/ObjectPtr.h>
 #include <GameFramework/PlayerController.h>
 #include <InputActionValue.h>
 
@@ -70,7 +69,7 @@ private:
 	UPROPERTY()
 	bool isAttacking;
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UUserWidget> InventoryWidgetClass;
+	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()
 	UUserWidget* InventoryWidget;
 	UPROPERTY()
