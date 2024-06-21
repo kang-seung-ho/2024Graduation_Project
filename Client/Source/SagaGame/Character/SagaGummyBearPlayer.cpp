@@ -1,5 +1,7 @@
 #include "SagaGummyBearPlayer.h"
+#include <Templates/Casts.h>
 #include <Components/ArrowComponent.h>
+#include <GeometryCollection/ManagedArray.h>
 #include <GeometryCollection/GeometryCollectionComponent.h>
 #include <GeometryCollection/GeometryCollectionObject.h>
 #include <GeometryCollection/GeometryCollection.h>
@@ -203,7 +205,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 				ActiveIndx[i]--;
 				if (ActiveIndx[i] == 0)
 				{
-					//UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+					//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 					DismPartID = i;
 
 					FVector Impulse = -Normal * 250.0f; // Example impulse calculation
@@ -212,7 +214,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 					break;
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+			UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 		}
 
 		if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
@@ -223,68 +225,16 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 }
 
 
-UGeometryCollectionComponent* ASagaGummyBearPlayer::GetGeometryCollectionByName(const FString& CollectionName)
-{
-	if (Owner)
-	{
-		TArray<UActorComponent*> Components;
-		Owner->GetComponents(Components);
-		for (UActorComponent* Component : Components)
-		{
-			UGeometryCollectionComponent* GeometryCollectionComponent = Cast<UGeometryCollectionComponent>(Component);
-			if (GeometryCollectionComponent && GeometryCollectionComponent->GetName() == CollectionName)
-			{
-				return GeometryCollectionComponent;
-			}
-		}
-	}
-	return nullptr;
-}
-
-
-FVector ASagaGummyBearPlayer::GetPieceWorldPosition(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
-{
-	if (TargetGC)
-	{
-		const TManagedArray<FTransform>& Transforms = TargetGC->GetTransformArray();
-		if (Transforms.IsValidIndex(PieceIndex))
-		{
-			FTransform WorldTransform = Transforms[PieceIndex] * TargetGC->GetComponentTransform();
-			return WorldTransform.GetLocation();
-		}
-	}
-	return FVector::ZeroVector;
-}
-
-FQuat ASagaGummyBearPlayer::GetPieceWorldRotation(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
-{
-
-	if (TargetGC)
-	{
-		const UGeometryCollection* GeometryCollection = TargetGC->GetRestCollection();
-		FGeometryCollection* Collection = GeometryCollection->GetGeometryCollection().Get();
-		FTransform Transform = Collection->Transform[PieceIndex];
-
-		const TManagedArray<FTransform>& Transforms = TargetGC->GetTransformArray();
-		if (Transforms.IsValidIndex(PieceIndex))
-		{
-			FTransform WorldTransform = Transform * TargetGC->GetComponentTransform();
-			return WorldTransform.GetRotation();
-			//return WorldTransform.GetRotation();
-		}
-	}
-	return FQuat::Identity;
-}
-
 void
 ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
 {
 	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
-	UBoxComponent* BOX = DismCollisionBox[Index];
-	FName BoneName = BOX->GetAttachSocketName();
+	UBoxComponent* boxes = DismCollisionBox[Index];
+	FName BoneName = boxes->GetAttachSocketName();
+
 	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TriggerExplosion: %d"), Index);
+		UE_LOG(LogSagaGame, Warning, TEXT("TriggerExplosion: %d"), Index);
 		ExplodeBodyParts(BoneName, Impulse, Index);
 	}
 }
@@ -325,14 +275,6 @@ ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impulse, i
 
 }
 
-void
-ASagaGummyBearPlayer::HideTargetPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
-{
-
-	TargetGC->SetVisibility(false, true);
-
-}
-
 FTransform
 ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index)
 {
@@ -355,23 +297,39 @@ ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, i
 		break;
 	}
 
-	FVector Location = GetPieceWorldPosition(TargetGC, PieceIndex);
-	FQuat Rot = GetPieceWorldRotation(TargetGC, PieceIndex);
+	FVector Location;
+	FQuat Rotation;
+
+	auto& transforms = TargetGC->GetTransformArray();
+	auto& gc_transform = TargetGC->GetComponentTransform();
+
+	if (transforms.IsValidIndex(PieceIndex))
+	{
+		FTransform WorldTransform = transforms[PieceIndex] * gc_transform;
+
+		Location = WorldTransform.GetLocation();
+		Rotation = WorldTransform.GetRotation();
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Fatal, TEXT("[SpawnMorphSystem] There is no transform of the piece %d."), Index);
+	}
 
 	if (NiagaraSystemTemplate)
 	{
-
-		FHitResult hitresult;
+		FHitResult hitresult{};
 		FVector Starttrace = Location + FVector(0, 0, 100);
 		FVector Endtrace = Location + FVector(0, 0, -1000);
 
-		if (GetWorld()->LineTraceSingleByChannel(hitresult, Starttrace, Endtrace, ECollisionChannel::ECC_Visibility))
+		const auto world = GetWorld();
+
+		if (world->LineTraceSingleByChannel(hitresult, Starttrace, Endtrace, ECollisionChannel::ECC_Visibility))
 		{
 			NiagaraComponentTemplate->SetAsset(NiagaraSystemTemplate);
 			Location = hitresult.Location + FVector(0, 0, 45.0f);
 
 			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-				GetWorld(),
+				world,
 				NiagaraSystemTemplate,
 				Location,
 				FRotator::ZeroRotator,
@@ -380,12 +338,13 @@ ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, i
 
 			UNiagaraFunctionLibrary::OverrideSystemUserVariableStaticMesh(NiagaraComponent, TEXT("User.SourceMesh"), nullptr);
 			UNiagaraFunctionLibrary::OverrideSystemUserVariableStaticMesh(NiagaraComponent, TEXT("User.SourceMesh"), GetTargetMesh(Index));
-			NiagaraComponent->SetVariableQuat(TEXT("InitRotator"), Rot);
+
+			NiagaraComponent->SetVariableQuat(TEXT("InitRotator"), Rotation);
 			NiagaraComponent->ActivateSystem(true);
 
-			HideTargetPiece(TargetGC, PieceIndex);
+			HideBodyPartPiece(TargetGC, PieceIndex);
 
-			FTransform output;
+			FTransform output{};
 			output.SetLocation(Location);
 			output.SetRotation(FQuat::Identity);
 
@@ -395,7 +354,6 @@ ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, i
 	}
 
 	return FTransform::Identity;
-
 }
 
 UStaticMesh*
@@ -404,7 +362,8 @@ ASagaGummyBearPlayer::GetTargetMesh(int32 Index)
 	return TargetMeshes[Index];
 }
 
-void ASagaGummyBearPlayer::InitTargetMeshes()
+void
+ASagaGummyBearPlayer::InitTargetMeshes()
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh1Asset(TEXT("StaticMesh'/Game/NPCAssets/meshes/rarm_13.rarm_13'"));
 	if (Mesh1Asset.Succeeded())
@@ -430,7 +389,7 @@ void ASagaGummyBearPlayer::InitTargetMeshes()
 		TargetMeshes.Add(Mesh4Asset.Object);
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
+	//UE_LOG(LogSagaGame, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
 }
 
 int32
@@ -443,7 +402,8 @@ const noexcept
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 	, bearUniqueId(0)
-	, isCanRide(false), playerUnridePosition()
+	, playerUnridePosition()
+	, myInteractionBox()
 {
 	myGameStat->SetMaxHp(500.0f);
 
@@ -571,8 +531,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	NiagaraComponentTemplate->SetAutoActivate(false);
 
 	// 오버랩 이벤트 바인드
-	myInteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
-	myInteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+	//myInteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
+	//myInteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
 }
 
 void
@@ -583,18 +543,6 @@ ASagaGummyBearPlayer::BeginPlay()
 	ActiveIndx.Init(DismThreshold, 4);
 
 	Super::BeginPlay();
-}
-
-void
-ASagaGummyBearPlayer::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-}
-
-void
-ASagaGummyBearPlayer::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-
 }
 
 void
@@ -620,4 +568,74 @@ ASagaGummyBearPlayer::IsPointInsideBox(UBoxComponent* Box, const FVector& Point)
 	return FMath::Abs(LocalPoint.X) <= BoxExtent.X &&
 		FMath::Abs(LocalPoint.Y) <= BoxExtent.Y &&
 		FMath::Abs(LocalPoint.Z) <= BoxExtent.Z;
+}
+
+void
+ASagaGummyBearPlayer::HideBodyPartPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
+{
+	TargetGC->SetVisibility(false, true);
+}
+
+UGeometryCollectionComponent*
+ASagaGummyBearPlayer::FindGeometryCollectionByName(class AActor* actor, const FString& name)
+{
+	auto& owner = actor->Owner;
+
+	if (IsValid(owner))
+	{
+		TArray<UActorComponent*> Components;
+		owner->GetComponents(Components);
+
+		for (const auto Component : Components)
+		{
+			const auto GeometryCollectionComponent = Cast<UGeometryCollectionComponent>(Component);
+
+			if (GeometryCollectionComponent && GeometryCollectionComponent->GetName() == name)
+			{
+				return GeometryCollectionComponent;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+FVector
+ASagaGummyBearPlayer::GetPieceWorldLocation(UGeometryCollectionComponent* target, int32 index)
+{
+	if (target)
+	{
+		const TManagedArray<FTransform>& Transforms = target->GetTransformArray();
+
+		if (Transforms.IsValidIndex(index))
+		{
+			FTransform WorldTransform = Transforms[index] * target->GetComponentTransform();
+
+			return WorldTransform.GetLocation();
+		}
+	}
+
+	return FVector::ZeroVector;
+}
+
+FQuat
+ASagaGummyBearPlayer::GetPieceWorldRotation(UGeometryCollectionComponent* target, int32 index)
+{
+	if (target)
+	{
+		const UGeometryCollection* GeometryCollection = target->GetRestCollection();
+		FGeometryCollection* Collection = GeometryCollection->GetGeometryCollection().Get();
+		FTransform Transform = Collection->Transform[index];
+
+		const TManagedArray<FTransform>& Transforms = target->GetTransformArray();
+
+		if (Transforms.IsValidIndex(index))
+		{
+			FTransform WorldTransform = Transform * target->GetComponentTransform();
+
+			return WorldTransform.GetRotation();
+		}
+	}
+
+	return FQuat::Identity;
 }

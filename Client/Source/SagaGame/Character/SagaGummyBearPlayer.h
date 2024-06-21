@@ -1,5 +1,6 @@
 #pragma once
 #include "SagaGame.h"
+#include <Math/MathFwd.h>
 
 #include "Character/SagaCharacterBase.h"
 #include "SagaGummyBearPlayer.generated.h"
@@ -16,13 +17,6 @@ public:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "1000"))
 	int32 bearUniqueId;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	int32 DismThreshold;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class UStaticMesh*> TargetMeshes;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraSystem * NiagaraSystemTemplate;
 
 	ASagaGummyBearPlayer();
 
@@ -48,64 +42,68 @@ public:
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
 
-	UFUNCTION(BlueprintCallable)
-	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
-
-	UFUNCTION()
-	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
-
-	UFUNCTION(BlueprintCallable)
-	class UStaticMesh* GetTargetMesh(int32 Index);
-	
 	UFUNCTION()
 	int32 GetBearId() const noexcept;
 
 protected:
-	UPROPERTY()
-	bool isCanRide;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UArrowComponent> playerUnridePosition;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
+	TObjectPtr<class UArrowComponent> playerUnridePosition;
 
 	/* 오버랩 박스 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	class UBoxComponent* myInteractionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	int32 DismThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UStaticMesh*> TargetMeshes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* NiagaraSystemTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UBoxComponent*> DismCollisionBox;
+	UPROPERTY()
 	int32 DismPartID;
 	class UBoxComponent* Dbox_Rarm;
 	class UBoxComponent* Dbox_Larm;
 	class UBoxComponent* Dbox_Rleg;
 	class UBoxComponent* Dbox_Lleg;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class UBoxComponent*> DismCollisionBox;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraComponent* NiagaraComponentTemplate;
+	UPROPERTY()
 	TArray<int32> ActiveIndx;
+	UPROPERTY()
+	TArray<class UGeometryCollectionComponent*> GeometryCollections;
 	class UGeometryCollectionComponent* r_arm;
 	class UGeometryCollectionComponent* l_arm;
 	class UGeometryCollectionComponent* r_leg;
 	class UGeometryCollectionComponent* l_leg;
-	TArray<class UGeometryCollectionComponent*> GeometryCollections;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraComponent* NiagaraComponentTemplate;
 
 	void InitTargetMeshes();
-	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
-	void HideTargetPiece(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 	void CheckValidBone(const FVector& Impulse, int32 Index);
+	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
 
-	class UGeometryCollectionComponent* GetGeometryCollectionByName(const FString& CollectionName);
-	FVector GetPieceWorldPosition(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
-	FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
+
+	UFUNCTION()
+	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	class UStaticMesh* GetTargetMesh(int32 Index);
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	//UFUNCTION()
+	//void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	//UFUNCTION()
+	//void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	static void InitializeTransform(class USceneComponent* component, FVector Location, FRotator Rotation, FVector Scale);
-	static bool IsPointInsideBox(class UBoxComponent* Box, const FVector& Point);
+	static bool IsPointInsideBox(class UBoxComponent* box, const FVector& point);
+	static void HideBodyPartPiece(class UGeometryCollectionComponent* target, int32 PieceIndex);
+
+	static class UGeometryCollectionComponent* FindGeometryCollectionByName(class AActor* actor, const FString& name);
+	static FVector GetPieceWorldLocation(class UGeometryCollectionComponent* target, int32 index);
+	static FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* target, int32 index);
 };
