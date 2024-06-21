@@ -213,9 +213,13 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 	const FVector InputValue = input.Get<FVector>();
 
 	const auto pawn = GetPawn<ASagaCharacterBase>();
+
 	if (IsValid(pawn))
 	{
-		AddYawInput(InputValue.X);
+		if (pawn->IsAlive())
+		{
+			AddYawInput(InputValue.X);
+		}
 
 		pawn->ExecuteRotate(InputValue.Y);
 	}
