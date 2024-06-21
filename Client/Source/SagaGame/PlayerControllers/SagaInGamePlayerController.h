@@ -66,8 +66,6 @@ protected:
 private:
 	UPROPERTY()
 	FVector walkDirection;
-	UPROPERTY()
-	bool isAttacking;
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()

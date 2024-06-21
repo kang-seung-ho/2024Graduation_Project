@@ -230,24 +230,19 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Attack"));
 
-	if (not isAttacking)
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto pawn = GetPawn<ASagaCharacterBase>();
+
+	if (pawn->IsAlive())
 	{
-		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-		const auto pawn = GetPawn<ASagaCharacterBase>();
-
-		if (pawn->IsAlive())
+		if (net->IsOfflineMode())
 		{
-			if (net->IsOfflineMode())
-			{
-				pawn->ExecuteAttackAnimation();
-			}
-			else
-			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
-			}
+			pawn->ExecuteAttackAnimation();
 		}
-
-		isAttacking = true;
+		else
+		{
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+		}
 	}
 }
 
@@ -256,21 +251,16 @@ ASagaInGamePlayerController::EndAttack()
 {
 	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Attack"));
 
-	if (isAttacking)
+	auto character = GetPawn<ASagaCharacterBase>();
+
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (net->IsOfflineMode())
 	{
-		auto character = GetPawn<ASagaCharacterBase>();
-
-		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (net->IsOfflineMode())
-		{
-		}
-		else
-		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
-		}
-
-		isAttacking = false;
+	}
+	else
+	{
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
 	}
 }
 

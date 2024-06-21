@@ -13,9 +13,9 @@
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
 	: APlayerController(initializer)
+	, walkDirection()
 	, InventoryWidgetClass(), InventoryWidget(nullptr)
 	, bIsInventoryVisible(false)
-	, walkDirection(), isAttacking()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetRef{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_Inventory.UI_Inventory_C'") };
 	if (InventoryWidgetRef.Succeeded())
