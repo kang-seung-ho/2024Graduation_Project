@@ -31,7 +31,7 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 #if WITH_EDITOR
 
 			const auto name = GetName();
-			UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Guardian {} would {} task damage."), *name, dmg);
+			UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Guardian {} would take {} damages."), *name, dmg);
 #endif
 
 			return Super::TakeDamage(dmg, event, instigator, causer);
@@ -145,6 +145,8 @@ ASagaGummyBearPlayer::ExecuteAttack()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
 
 	const auto current_hp = Super::ExecuteHurt(dmg);
@@ -157,6 +159,10 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 	}
 
 	return current_hp;
+#else
+
+	return Super::ExecuteHurt(dmg);
+#endif
 }
 
 void

@@ -306,7 +306,10 @@ ASagaInGamePlayerController::BeginGuardianAction()
 			}
 			else
 			{
+#if WITH_EDITOR
+
 				UE_LOG(LogSagaGame, Warning, TEXT("[BeginGuardianAction] There is no bear nearby. (Offline Mode)"));
+#endif
 			}
 		}
 		else
