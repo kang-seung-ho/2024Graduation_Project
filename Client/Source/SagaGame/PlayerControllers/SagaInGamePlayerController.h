@@ -15,10 +15,16 @@ public:
 
 	virtual void Tick(float delta_time) override;
 
+	UFUNCTION()
 	void ToggleInventory();
-
+	UFUNCTION()
 	void UpdateInputMode();
-	void SetInventoryVisibility(bool bVisible);
+	UFUNCTION()
+	void SetInventoryVisibility(bool flag);
+	UFUNCTION()
+	ESlateVisibility GetInventoryVisibility() const;
+	UFUNCTION()
+	bool IsInventoryVisible() const;
 
 	/* Actions */
 #pragma region =========================
@@ -70,6 +76,4 @@ private:
 	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()
 	UUserWidget* InventoryWidget;
-	UPROPERTY()
-	bool bIsInventoryVisible;
 };
