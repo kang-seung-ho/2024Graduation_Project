@@ -79,8 +79,6 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 
-	SetHealth(GetHealth());
-
 	if (IsAlive())
 	{
 		myHealthIndicatorBarWidget->SetHiddenInGame(false);

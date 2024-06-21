@@ -131,6 +131,8 @@ ASagaCharacterBase::ExecuteRespawn()
 		myHealthIndicatorBarWidget->SetHiddenInGame(false);
 	}
 
+	myGameStat->RetryUpdateHealth();
+
 	// Reset the position
 	FVector spawn_pos;
 	FRotator spawn_rot;
