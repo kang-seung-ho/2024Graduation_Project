@@ -47,6 +47,8 @@ public:
 	float ApplyDamage(float dmg);
 	UFUNCTION()
 	void ResetHp(bool execute_event = false);
+	UFUNCTION()
+	void RetryUpdateHealth() const;
 
 	UFUNCTION()
 	FORCEINLINE float GetMaxHp() const { return MaxHp; }
