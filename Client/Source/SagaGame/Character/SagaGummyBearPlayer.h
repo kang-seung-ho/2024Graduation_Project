@@ -15,7 +15,7 @@ public:
 
 	*  서버, 클라 모두 같게 동기화됨
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "1000"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
 	int32 bearUniqueId;
 
 	ASagaGummyBearPlayer();
@@ -41,6 +41,9 @@ public:
 	virtual float ExecuteHurt(const float dmg) override;
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
+
+	UFUNCTION()
+	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
 	UFUNCTION()
 	int32 GetBearId() const noexcept;
@@ -85,9 +88,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
 	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
-
-	UFUNCTION()
-	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
 	class UStaticMesh* GetTargetMesh(int32 Index);
