@@ -26,20 +26,16 @@ export namespace iconer::net
 		using SyncIoResult = std::expected<int, iconer::net::ErrorCode>;
 		using IoResult = std::expected<void, iconer::net::ErrorCode>;
 
-		static inline constexpr std::uintptr_t invalidHandle = -1;
+		static inline constexpr std::uintptr_t invalidHandle = static_cast<std::uintptr_t>(-1);
 
-		iconer::util::Property<bool, Socket> reuseAddress;
-		iconer::util::Property<bool, Socket> tcpNoDelay;
+		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
+		iconer::util::Property<bool, Socket> tcpNoDelay{ this, &Socket::TcpNoDelayImplementation, false };
 
 		explicit constexpr Socket() noexcept
 			: myHandle(invalidHandle)
 			, myProtocol(iconer::net::InternetProtocol::Unknown)
 			, myFamily(iconer::net::IpAddressFamily::Unknown)
-			, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
-			, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
 		{}
-
-		constexpr ~Socket() noexcept = default;
 
 		IoResult Bind(const iconer::net::IpAddress& address, std::uint16_t port) const noexcept;
 		IoResult Bind(iconer::net::IpAddress&& address, std::uint16_t port) const noexcept;
@@ -423,8 +419,6 @@ export namespace iconer::net
 			: myHandle(std::exchange(other.myHandle, invalidHandle))
 			, myProtocol(other.myProtocol)
 			, myFamily(other.myFamily)
-			, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
-			, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
 		{}
 
 		constexpr Socket& operator=(Socket&& other) noexcept

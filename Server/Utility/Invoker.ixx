@@ -53,7 +53,6 @@ export namespace iconer::util
 			requires (not same_as<Args, void*> && ...)
 		constexpr R Invoke(Args&&... args) const
 		{
-			const auto ptr = (&IInvoker<R>::operator());
 			if constexpr (0 < sizeof...(Args))
 			{
 				std::tuple<clean_t<Args>...> parameters = std::make_tuple(args...);
@@ -155,7 +154,7 @@ export namespace iconer::util
 			{
 				const std::tuple<Args...>& tuple = *static_cast<std::tuple<Args...>*>(data);
 
-				std::visit([=](const auto& fun) -> R
+				std::visit([&](const auto& fun) -> R
 					{
 						return Apply(*myContext, fun, tuple);
 					}
@@ -163,7 +162,7 @@ export namespace iconer::util
 			}
 			else // no parameter
 			{
-				std::visit([=](const auto& fun) -> R
+				std::visit([&](const auto& fun) -> R
 					{
 						return ((*myContext).*fun)();
 					}

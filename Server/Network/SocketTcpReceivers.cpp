@@ -201,7 +201,7 @@ bool
 iconer::net::Socket::Receive(IoContext& context, std::span<std::byte> memory, size_t size, ErrorCode& outpin)
 const
 {
-	return Receive(context, memory).transform_error(ErrorTransfer{ outpin }).has_value();
+	return Receive(context, memory, size).transform_error(ErrorTransfer{ outpin }).has_value();
 }
 
 bool

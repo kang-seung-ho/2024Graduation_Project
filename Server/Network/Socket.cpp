@@ -19,9 +19,7 @@ static inline constexpr unsigned long DEFAULT_ACCEPT_SIZE = sizeof(::sockaddr_in
 iconer::net::Socket::Socket(std::uintptr_t sock, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family)
 noexcept
 	: myHandle(sock)
-	, myProtocol(protocol), myFamily(family)
-	, reuseAddress(this, &Socket::ReuseAddressImplementation, false)
-	, tcpNoDelay(this, &Socket::TcpNoDelayImplementation, false)
+	, myFamily(family), myProtocol(protocol)
 {
 	std::call_once(internalInitFlag, &Socket::InternalFunctionInitializer, sock);
 }

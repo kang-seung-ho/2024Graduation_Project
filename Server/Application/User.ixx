@@ -25,7 +25,7 @@ export namespace iconer::app
 		iconer::util::ReadOnly<TaskContext> mainContext;
 		iconer::util::ReadOnly<TaskContext> recvContext;
 
-		iconer::util::SharedDelegate<void, User*> onDisconnected;
+		iconer::util::Delegate<void, User*> onDisconnected;
 
 		explicit constexpr User(id_type id, iconer::net::Socket&& socket) noexcept
 			: super(id)

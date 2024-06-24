@@ -6,10 +6,9 @@ export namespace iconer::net
 	class [[nodiscard]] SocketWrapper
 	{
 	public:
-		iconer::net::Socket mySocket;
+		iconer::net::Socket mySocket{};
 
 		constexpr SocketWrapper() noexcept = default;
-		constexpr ~SocketWrapper() noexcept = default;
 
 		constexpr SocketWrapper(iconer::net::Socket&& socket) noexcept
 			: mySocket(static_cast<iconer::net::Socket&&>(socket))

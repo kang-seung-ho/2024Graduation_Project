@@ -83,10 +83,9 @@ ServerFramework::Initialize()
 		return std::unexpected{ iconer::net::ErrorCode::WSAEUSERS };
 	}
 
-	const auto disconnector = MakeSharedInvoker(this, &ServerFramework::CleanupUser);
-	userManager.Foreach([&disconnector](iconer::app::User& user)
+	userManager.Foreach([this](iconer::app::User& user)
 		{
-			user.onDisconnected.Add(disconnector);
+			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::CleanupUser));
 		}
 	);
 

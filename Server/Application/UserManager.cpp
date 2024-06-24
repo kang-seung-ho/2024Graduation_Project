@@ -62,16 +62,21 @@ iconer::app::UserManager::Startup(iconer::net::Socket& listener)
 
 void
 iconer::app::UserManager::Cleanup()
-{}
+{
+	for (pointer_type& ptr : everyUsers)
+	{
+		ptr.reset();
+	}
+}
 
 void
-iconer::app::UserManager::AddSession(iconer::app::UserManager::session_type* session)
+iconer::app::UserManager::AddUser(iconer::app::UserManager::session_type* session)
 {
 	everyUsers.emplace_back(session);
 }
 
 iconer::app::User*
-iconer::app::UserManager::FindSession(iconer::app::UserManager::id_type id)
+iconer::app::UserManager::FindUser(iconer::app::UserManager::id_type id)
 const noexcept
 {
 	auto seek = std::lower_bound(everyUsers.cbegin(), everyUsers.cend()
@@ -82,7 +87,7 @@ const noexcept
 		}
 	);
 
-	if (seek != everyUsers.cend())
+	if (seek != everyUsers.cend() and (*seek)->GetID() == id)
 	{
 		return seek->get();
 	}

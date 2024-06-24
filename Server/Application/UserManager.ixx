@@ -73,13 +73,13 @@ export namespace iconer::app
 			}
 		}
 
-		session_type* FindSession(id_type id) const noexcept;
+		session_type* FindUser(id_type id) const noexcept;
 
 	private:
 		std::vector<pointer_type> everyUsers{};
 		iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 
-		void AddSession(session_type* session);
+		void AddUser(session_type* session);
 
 		UserManager(const UserManager&) = delete;
 		UserManager& operator=(const UserManager&) = delete;

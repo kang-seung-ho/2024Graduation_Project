@@ -11,12 +11,10 @@ export namespace iconer::net
 
 	struct [[nodiscard]] IoEvent
 	{
-		bool isSucceed;
-
-		std::uint64_t eventId;
-
-		unsigned long ioBytes;
 		IoContext* ioContext;
+		std::uint64_t eventId;
+		unsigned long ioBytes;
+		bool isSucceed;
 	};
 
 	class [[nodiscard]] IoCompletionPort final

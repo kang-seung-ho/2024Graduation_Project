@@ -69,9 +69,9 @@ export namespace iconer::util::detail
 		template<invocable_mutable_methods<context_type, void, value_type> Method, typename U>
 			requires (constructible_from<value_type, U>)
 		constexpr IProperty(context_pointer owner, const Method& method, U&& init)
-			: myValue(std::forward<U>(init))
-			, myContext(owner)
+			: myContext(owner)
 			, myDelegates(method)
+			, myValue(std::forward<U>(init))
 		{}
 
 		template<invocable_immutable_methods<context_type, void, value_type> Method, typename U>
@@ -83,9 +83,9 @@ export namespace iconer::util::detail
 		{}
 
 	protected:
-		value_type myValue;
 		context_pointer myContext;
 		storage_t myDelegates;
+		value_type myValue;
 
 		constexpr void SetValue(const value_type& value) requires (copy_assignables<value_type>)
 		{

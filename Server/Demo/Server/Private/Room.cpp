@@ -30,6 +30,13 @@ namespace iconer::app
 				is_ready.CompareAndSet(true, false);
 				room.Dirty(true);
 
+				for (auto& guardian : room.sagaGuardians)
+				{
+					auto id = user_id;
+
+					guardian.riderId.compare_exchange_strong(id, -1);
+				}
+
 				if (0 < capture)
 				{
 					--capture;
@@ -55,14 +62,16 @@ void
 ClearGuardian(iconer::app::game::SagaGuardian& guardian)
 {
 	guardian.myStatus = {};
-	guardian.isRidingByAnyone = false;
+	guardian.riderId = -1;
+	guardian.myHp = iconer::app::game::SagaGuardian::maxHp;
 }
 
 void
 ClearGuardian(volatile iconer::app::game::SagaGuardian& guardian)
 {
 	guardian.myStatus = {};
-	guardian.isRidingByAnyone = false;
+	guardian.riderId = -1;
+	guardian.myHp = iconer::app::game::SagaGuardian::maxHp;
 }
 
 void

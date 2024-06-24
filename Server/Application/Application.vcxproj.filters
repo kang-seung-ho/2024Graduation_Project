@@ -48,5 +48,8 @@
     <ClCompile Include="PacketContext.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="PacketProcessor.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

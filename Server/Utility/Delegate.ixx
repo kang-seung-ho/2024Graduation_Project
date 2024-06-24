@@ -3,6 +3,8 @@ module;
 #include <concepts>
 #include <memory>
 #include <vector>
+#include <set>
+#include <algorithm>
 
 export module Iconer.Utility.Delegate;
 import Iconer.Utility.TypeTraits;
@@ -100,17 +102,31 @@ export namespace iconer::util
 	template<typename R, typename... Args>
 	class SharedDelegate
 	{
+	protected:
+		using data_type = std::vector<IInvoker<R>*>;
+		data_type invocationList;
+
 	public:
 		using this_class = SharedDelegate<R, Args...>;
+		using iterator = data_type::iterator;
+		using const_iterator = data_type::const_iterator;
 
 		constexpr SharedDelegate() noexcept = default;
 
 		constexpr ~SharedDelegate() noexcept
 		{
-			for (IInvoker<R>* & ptr : invocationList)
-			{
-				delete std::exchange(ptr, nullptr);
-			}
+			//while (0 < invocationList.size())
+			//{
+				//iterator jit = invocationList.begin();
+				//IInvoker<R>* ptr = *jit;
+
+				//jit = std::remove(invocationList.begin(), invocationList.end(), ptr);
+				//delete ptr;
+
+				//invocationList.erase(jit, invocationList.end());
+			//}
+
+			invocationList.erase(invocationList.begin(), invocationList.end());
 		}
 
 		constexpr void Add(IInvoker<R>* invoker)
@@ -178,8 +194,5 @@ export namespace iconer::util
 		{
 			return not invocationList.empty();
 		}
-
-	protected:
-		std::vector<IInvoker<R>*> invocationList;
 	};
 }

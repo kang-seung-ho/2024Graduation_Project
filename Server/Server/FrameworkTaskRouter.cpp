@@ -24,7 +24,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	{
 	case OpReserve:
 	{
-		const auto user = userManager.FindSession(id);
+		const auto user = userManager.FindUser(id);
 		if (nullptr == user)
 		{
 			throw "ReserveError!";
@@ -49,7 +49,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	case OpAccept:
 	{
-		const auto user = userManager.FindSession(id);
+		const auto user = userManager.FindUser(id);
 		if (nullptr == user)
 		{
 			throw "AcceptError!";
@@ -85,7 +85,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	case OpRecv:
 	{
-		const auto user = userManager.FindSession(id);
+		const auto user = userManager.FindUser(id);
 		if (nullptr == user)
 		{
 			std::println("Unknown receive from id {} ({} bytes)", id, bytes);
@@ -150,7 +150,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	{
 	case OpRecv:
 	{
-		const auto user = userManager.FindSession(id);
+		const auto user = userManager.FindUser(id);
 		if (nullptr == user)
 		{
 			std::println("Unknown failed receive from id {} ({} bytes)", id, bytes);

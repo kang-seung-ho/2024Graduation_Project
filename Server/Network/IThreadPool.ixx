@@ -25,12 +25,12 @@ export namespace iconer::net
 
 		constexpr IThreadPool(const ptrdiff_t concurrency)
 			: ioCompletionPort()
-			, maxWorkerNumber(concurrency)
-			, myWorkers(), workerInitializationSynchronizer(concurrency)
 			, eventOnWorkerInitialized(), eventOnWorkerAnnihilated()
 			, eventOnTaskSucceed(), eventOnTaskFailure()
+			, maxWorkerNumber(static_cast<size_t>(concurrency))
+			, myWorkers(), workerInitializationSynchronizer(concurrency)
 		{
-			myWorkers.reserve(concurrency);
+			myWorkers.reserve(maxWorkerNumber);
 		}
 
 		virtual ~IThreadPool() = default;

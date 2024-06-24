@@ -191,7 +191,7 @@ const
 		for (unsigned long i = 0; i < removes and it != dest.end(); ++i, ++it)
 		{
 			auto&& event = *it;
-			auto&& entry = overlapped_entries[i];
+			auto&& entry = overlapped_entries.at(i);
 
 			event.isSucceed = true;
 			event.eventId = entry.lpCompletionKey;

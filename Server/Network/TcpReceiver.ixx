@@ -20,8 +20,6 @@ export namespace iconer::net
 		std::uint32_t maxRecvSize;
 		std::uint32_t recvBytes;
 
-		constexpr ~TcpReceiver() noexcept = default;
-
 		constexpr TcpReceiver(iconer::net::Socket&& socket, std::uint32_t buffer_size)
 			: super(static_cast<iconer::net::Socket&&>(socket))
 			, recvBuffer(buffer_size, std::byte{}), maxRecvSize(buffer_size)
