@@ -9,6 +9,7 @@
 #include "SagaInventoryListWidget.h"
 #include "Item/Gumball.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
+#include "UI/InventoryItemData.h"
 
 void
 USagaInventoryWidget::NativeConstruct()
@@ -52,19 +53,19 @@ USagaInventoryWidget::NativeConstruct()
 		TEXT("SmokeBomb")
 	};
 
-	for (int32 i = 0; i < 10; ++i)
-	{
-		UInventoryItemData* ItemData = NewObject<UInventoryItemData>();
+	//for (int32 i = 0; i < 10; ++i)
+	//{
+	//	UInventoryItemData* ItemData = NewObject<UInventoryItemData>();
 
-		int32 IconIndex = FMath::RandRange(0, 2);
-		UTexture2D* IconTexture = LoadObject<UTexture2D>(nullptr, *IconPath[IconIndex]);
+	//	int32 IconIndex = FMath::RandRange(0, 2);
+	//	UTexture2D* IconTexture = LoadObject<UTexture2D>(nullptr, *IconPath[IconIndex]);
 
-		ItemData->SetInfo(IconTexture, ItemName[IconIndex], 1);
+	//	ItemData->SetInfo(IconTexture, ItemName[IconIndex], 1);
 
-		UE_LOG(LogTemp, Warning, TEXT("Created item: %s"), *ItemName[IconIndex]);  // ������ ���� �α�
+	//	UE_LOG(LogTemp, Warning, TEXT("Created item: %s"), *ItemName[IconIndex]);  // ������ ���� �α�
 
-		mInventory->AddItem(ItemData);
-	}
+	//	mInventory->AddItem(ItemData);
+	//}
 }
 
 void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -215,4 +216,12 @@ void USagaInventoryWidget::UseSmokeBomb()
 		}
 	}
 
+}
+
+void USagaInventoryWidget::AddItemToInventory(UInventoryItemData* ItemData)
+{
+	if (mInventory)
+	{
+		mInventory->AddItem(ItemData);
+	}
 }

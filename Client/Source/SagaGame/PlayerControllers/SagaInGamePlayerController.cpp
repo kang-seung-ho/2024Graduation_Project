@@ -10,6 +10,7 @@
 
 #include "Input/SagaInputSystem.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/InventoryItemData.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
@@ -33,7 +34,7 @@ ASagaInGamePlayerController::BeginPlay()
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][BeginPlay] Creating Inventory Widget..."));
 
-		InventoryWidget = CreateWidget(this, InventoryWidgetClass);
+		InventoryWidget = CreateWidget<USagaInventoryWidget>(this, InventoryWidgetClass);
 
 		if (IsValid(InventoryWidget))
 		{
@@ -43,7 +44,7 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaInGamePlayerController][BeginPlay] Could not create the ui of inventory."));
+		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaInGamePlayerController][BeginPlay] Could not create the UI of inventory."));
 	}
 
 	FInputModeGameOnly mode{};
@@ -160,6 +161,37 @@ bool
 ASagaInGamePlayerController::IsInventoryVisible() const
 {
 	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+}
+
+void ASagaInGamePlayerController::AddItemToInventory(EItemType ItemType)
+{
+	if (InventoryWidget)
+	{
+		FString IconPath;
+		FString ItemName;
+
+		switch (ItemType)
+		{
+		case EItemType::Drink:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/Tex_heart.Tex_heart'");
+			ItemName = TEXT("EnergyDrink");
+			break;
+		case EItemType::Gum:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/gumball_machine.gumball_machine'");
+			ItemName = TEXT("Gumball");
+			break;
+		case EItemType::SmokeBomb:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/smoke_bomb.smoke_bomb'");
+			ItemName = TEXT("SmokeBomb");
+			break;
+		}
+
+		UInventoryItemData* ItemData = NewObject<UInventoryItemData>();
+		UTexture2D* IconTexture = LoadObject<UTexture2D>(nullptr, *IconPath);
+		ItemData->SetInfo(IconTexture, ItemName, 1);
+
+		InventoryWidget->AddItemToInventory(ItemData);
+	}
 }
 
 void

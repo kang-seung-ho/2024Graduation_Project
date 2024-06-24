@@ -207,4 +207,6 @@ protected:
 
 public:
 	virtual void TakeItem(EItemType ItemType) override;
+
+	void AddItemToInventory(EItemType ItemType);
 };

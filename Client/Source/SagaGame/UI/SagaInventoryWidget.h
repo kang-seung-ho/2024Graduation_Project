@@ -39,4 +39,6 @@ public:
 	void UseEnergyDrink();
 	void UseGumball();
 	void UseSmokeBomb();
+
+	void AddItemToInventory(class UInventoryItemData* ItemData);
 };

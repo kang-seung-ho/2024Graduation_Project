@@ -22,6 +22,7 @@
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
 
@@ -350,17 +351,33 @@ void ASagaCharacterBase::TakeItem(EItemType ItemType)
 	case EItemType::Drink:
 		// Add Drink to Player's Inventory
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Drink"));
+		AddItemToInventory(ItemType);
 		break;
 	case EItemType::Gum:
 		// Add Gum to Player's Inventory
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Gum"));
+		AddItemToInventory(ItemType);
 		break;
 	case EItemType::SmokeBomb:
 		// Add SmokeBomb to Player's Inventory
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : SmokeBomb"));
+		AddItemToInventory(ItemType);
 		break;
 	default:
 		break;
+	}
+}
+
+void ASagaCharacterBase::AddItemToInventory(EItemType ItemType)
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		ASagaInGamePlayerController* SagaPlayerController = Cast<ASagaInGamePlayerController>(PlayerController);
+		if (SagaPlayerController)
+		{
+			SagaPlayerController->AddItemToInventory(ItemType);
+		}
 	}
 }
 

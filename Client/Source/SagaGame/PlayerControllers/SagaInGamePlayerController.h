@@ -2,7 +2,8 @@
 #include "SagaGame.h"
 #include <GameFramework/PlayerController.h>
 #include <InputActionValue.h>
-
+#include "Item/SagaWeaponData.h"
+#include "UI/SagaInventoryWidget.h"
 #include "SagaInGamePlayerController.generated.h"
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
@@ -25,6 +26,7 @@ public:
 	ESlateVisibility GetInventoryVisibility() const;
 	UFUNCTION()
 	bool IsInventoryVisible() const;
+	void AddItemToInventory(EItemType ItemType);
 
 	/* Actions */
 #pragma region =========================
@@ -75,5 +77,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()
-	UUserWidget* InventoryWidget;
+	USagaInventoryWidget* InventoryWidget;
 };
