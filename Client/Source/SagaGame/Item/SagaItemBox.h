@@ -4,6 +4,7 @@
 
 #include "SagaGameInfo.h"
 #include <GameFramework/Actor.h>
+#include "SagaWeaponData.h"
 #include "SagaItemBox.generated.h"
 
 UCLASS()
@@ -25,12 +26,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Effect)
 	TObjectPtr<class UParticleSystemComponent> Effect;
 
-	UPROPERTY(EditAnywhere, Category = Item)
-	TObjectPtr<class USagaWeaponData> Weapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	EItemType ItemType = EItemType::Drink; //prevent null var
 
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnEffectFinished(class UParticleSystemComponent* ParticleSystem);
+
+	virtual void BeginPlay() override;
+
+	void SetRandomItemType();
 };

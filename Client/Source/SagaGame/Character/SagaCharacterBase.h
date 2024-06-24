@@ -5,6 +5,7 @@
 #include "Component/SagaCharacterStatComponent.h"
 
 #include "Saga/Network/SagaVirtualUser.h"
+#include "../Interface/SagaCharacterItemInterface.h"
 #include "SagaCharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class ASagaCharacterBase*, character);
@@ -12,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class AS
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterRespawned, class ASagaCharacterBase*, character);
 
 UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaCharacterBase : public ACharacter
+class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterItemInterface
 {
 	GENERATED_BODY()
 
@@ -203,4 +204,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TSubclassOf<UUserWidget> healthbarWidgetClass;
+
+public:
+	virtual void TakeItem(EItemType ItemType) override;
 };

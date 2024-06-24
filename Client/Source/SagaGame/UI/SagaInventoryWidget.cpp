@@ -15,23 +15,23 @@ USagaInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	myCloseButton = Cast<UButton>(GetWidgetFromName(TEXT("CloseButton")));
+	mCloseButton = Cast<UButton>(GetWidgetFromName(TEXT("CloseButton")));
 
-	if (myCloseButton)
+	if (mCloseButton)
 	{
-		myCloseButton->OnClicked.AddDynamic(this, &USagaInventoryWidget::CloseButtonClick);
+		mCloseButton->OnClicked.AddDynamic(this, &USagaInventoryWidget::CloseButtonClick);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CloseButton not found!"));
 	}
 
-	myInventory = Cast<UListView>(GetWidgetFromName(TEXT("InventoryList")));
-	if (myInventory)
+	mInventory = Cast<UListView>(GetWidgetFromName(TEXT("InventoryList")));
+	if (mInventory)
 	{
-		myInventory->OnItemIsHoveredChanged().AddUObject(this, &USagaInventoryWidget::OnListItemHover);
-		myInventory->OnItemSelectionChanged().AddUObject(this, &USagaInventoryWidget::OnListItemSelection);
-		myInventory->OnItemClicked().AddUObject(this, &USagaInventoryWidget::OnListItemClick);
+		mInventory->OnItemIsHoveredChanged().AddUObject(this, &USagaInventoryWidget::OnListItemHover);
+		mInventory->OnItemSelectionChanged().AddUObject(this, &USagaInventoryWidget::OnListItemSelection);
+		mInventory->OnItemClicked().AddUObject(this, &USagaInventoryWidget::OnListItemClick);
 	}
 	else
 	{
@@ -63,7 +63,7 @@ USagaInventoryWidget::NativeConstruct()
 
 		UE_LOG(LogTemp, Warning, TEXT("Created item: %s"), *ItemName[IconIndex]);  // ������ ���� �α�
 
-		myInventory->AddItem(ItemData);
+		mInventory->AddItem(ItemData);
 	}
 }
 
@@ -96,7 +96,7 @@ void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 	{
 		ItemData->SetMouseOn(IsHovered);
 
-		USagaInventoryListWidget* EntryWidget = myInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(Item);
+		USagaInventoryListWidget* EntryWidget = mInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(Item);
 		if (IsValid(EntryWidget))
 		{
 			if (IsHovered)
@@ -116,7 +116,7 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 	if (IsValid(mSelectionItem))
 	{
 		mSelectionItem->SetSelect(false);
-		USagaInventoryListWidget* EntryWidget = myInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(mSelectionItem);
+		USagaInventoryListWidget* EntryWidget = mInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(mSelectionItem);
 		if (IsValid(EntryWidget))
 		{
 			EntryWidget->SetMouseState(EEntryWidgetMouseState::None);
@@ -128,7 +128,7 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 	if (IsValid(mSelectionItem))
 	{
 		mSelectionItem->SetSelect(true);
-		USagaInventoryListWidget* EntryWidget = myInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(mSelectionItem);
+		USagaInventoryListWidget* EntryWidget = mInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(mSelectionItem);
 		if (IsValid(EntryWidget))
 		{
 			EntryWidget->SetMouseState(EEntryWidgetMouseState::Select);
@@ -158,7 +158,7 @@ void USagaInventoryWidget::OnListItemClick(UObject* Item)
 			UseSmokeBomb();
 		}
 
-		myInventory->RemoveItem(ItemData);
+		mInventory->RemoveItem(ItemData);
 	}
 }
 

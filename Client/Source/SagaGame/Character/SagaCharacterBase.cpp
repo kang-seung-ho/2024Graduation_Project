@@ -343,6 +343,27 @@ ASagaCharacterBase::BeginPlay()
 	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
+void ASagaCharacterBase::TakeItem(EItemType ItemType)
+{
+	switch (ItemType)
+	{
+	case EItemType::Drink:
+		// Add Drink to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Drink"));
+		break;
+	case EItemType::Gum:
+		// Add Gum to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Gum"));
+		break;
+	case EItemType::SmokeBomb:
+		// Add SmokeBomb to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : SmokeBomb"));
+		break;
+	default:
+		break;
+	}
+}
+
 void
 ASagaCharacterBase::Tick(float delta_time)
 {
