@@ -5,6 +5,7 @@ import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import Iconer.App.ISession;
 import Iconer.App.User;
+import Iconer.App.Settings;
 import <memory>;
 import <expected>;
 import <vector>;
@@ -18,7 +19,7 @@ export namespace iconer::app
 		using session_type = iconer::app::User;
 		using pointer_type = std::unique_ptr<iconer::app::User>;
 
-		static inline constexpr size_t maxUserCount = 10;
+		static inline constexpr size_t maxUserCount = iconer::app::Settings::usersLimit;
 		static inline constexpr id_type minUserUid = 1;
 		static inline constexpr id_type maxUserUid = minUserUid + maxUserCount;
 

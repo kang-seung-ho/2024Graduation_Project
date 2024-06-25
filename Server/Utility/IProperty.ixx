@@ -26,6 +26,8 @@ export namespace iconer::util::detail
 		using context_pointer = Traits::context_pointer;
 		using const_context_pointer = Traits::const_context_pointer;
 
+		friend Context;
+
 	protected:
 		using invoke_met_t = Traits::invoke_met_t;
 		using invoke_ref_met_t = Traits::invoke_ref_met_t;

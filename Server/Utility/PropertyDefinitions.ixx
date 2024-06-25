@@ -14,6 +14,8 @@ export namespace iconer::util
 
 		using super::super;
 
+		friend Context;
+
 		constexpr this_class& operator=(const value_type& value)
 		{
 			super::SetValue(value);

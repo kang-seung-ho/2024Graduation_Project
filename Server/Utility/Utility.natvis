@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::util::ReadOnly&lt;*&gt;">
+		<DisplayString>{myValue}</DisplayString>
+
+		<Expand HideRawView="true">
+			<Synthetic Name="[설명]">
+				<DisplayString>읽기 전용 {&quot;$T1&quot;}</DisplayString>
+			</Synthetic>
+			<Item Name="[값]">myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::detail::IProperty&lt;*, void&gt;">
+		<Intrinsic Category="Property" Name="__GetDel1" Expression="myDelegates._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel2" Expression="myDelegates._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel3" Expression="myDelegates._Tail._Tail._Tail"/>
+
+		<DisplayString>{&quot;$T1&quot;} 속성 ⇒ {&quot;$T2&quot;}</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[값]">myValue</Item>
+
+			<Synthetic Name="[함수]">
+				<DisplayString Condition="myDelegates._Which==0">할당된 함수 없음</DisplayString>
+				<DisplayString Condition="myDelegates._Which==1">{__GetDel1()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==2">{__GetDel2()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==3">{__GetDel3()._Head}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::detail::IProperty&lt;*, *&gt;">
+		<Intrinsic Category="Property" Name="__GetDel1" Expression="myDelegates._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel2" Expression="myDelegates._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel3" Expression="myDelegates._Tail._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel4" Expression="myDelegates._Tail._Tail._Tail._Tail"/>
+
+		<DisplayString>{&quot;$T2&quot;}의 {&quot;$T1&quot;} 속성 ({myValue})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[값]">myValue</Item>
+			<Item Name="[인스턴스]">myContext</Item>
+
+			<Synthetic Name="[메서드]">
+				<DisplayString Condition="myDelegates._Which==0">할당된 메서드 없음</DisplayString>
+				<DisplayString Condition="myDelegates._Which==1">&quot;{__GetDel1()._Head}&quot;</DisplayString>
+				<DisplayString Condition="myDelegates._Which==2">{__GetDel2()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==3">{__GetDel3()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==4">{__GetDel4()._Head}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+</AutoVisualizer>

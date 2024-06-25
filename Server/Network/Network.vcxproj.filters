@@ -97,4 +97,7 @@
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Network.natvis" />
+  </ItemGroup>
 </Project>

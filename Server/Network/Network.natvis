@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::net::IoContext" Priority="Low">
+		<Intrinsic Category="Property" Name="__IsInProgress" Expression="Internal == 0"/>
+
+		<DisplayString Condition="!__IsInProgress()">IO 문맥 객체 ({InternalHigh}~{Internal} 진행)</DisplayString>
+		<DisplayString Condition="__IsInProgress()">IO 문맥 객체 (초기 상태)</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[시작점]">Internal</Item>
+			<Item Name="[종단점]">InternalHigh</Item>
+			<Synthetic Name="[IO 오프셋]">
+				<Expand>
+					<Item Name="[위치 시작점]">Offset</Item>
+					<Item Name="[위치 종단점]">OffsetHigh</Item>
+					<Item Name="[핸들]">Pointer</Item>
+				</Expand>
+			</Synthetic>
+			<Item Name="[Windows 이벤트 객체]">hEvent</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::Socket">
+		<DisplayString Condition="myHandle != (SOCKET)(-1)">소켓 ({myHandle})</DisplayString>
+		<DisplayString Condition="myHandle == (SOCKET)(-1)">빈 소켓</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]">myHandle</Item>
+			<Item Name="[인터넷 프로토콜]">myProtocol</Item>
+			<Item Name="[주소 패밀리]">myFamily</Item>
+			<Item Name="[주소 재사용 여부]">reuseAddress</Item>
+			<Item Name="[Nagle 알고리즘 사용 여부]">tcpNoDelay</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::SocketWrapper" Priority="Low">
+		<Intrinsic Category="Property" Name="__SockHandle" Expression="mySocket.myHandle"/>
+		<Intrinsic Category="Method" Name="__IsValid" Expression="__SockHandle() != (SOCKET)(-1)"/>
+
+		<DisplayString Condition="__IsValid()">소켓 래퍼 ({__SockHandle()})</DisplayString>
+		<DisplayString Condition="!__IsValid()">빈 소켓 래퍼</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]">mySocket.myHandle</Item>
+			<Item Name="[인터넷 프로토콜]">mySocket.myProtocol</Item>
+			<Item Name="[주소 패밀리]">mySocket.myFamily</Item>
+			<Item Name="[주소 재사용 여부]">mySocket.reuseAddress.myValue</Item>
+			<Item Name="[Nagle 알고리즘 사용 여부]">mySocket.tcpNoDelay.myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::TcpReceiver">
+		<Intrinsic Category="Property" Name="__RecvBuff" Expression="recvBuffer"/>
+		<Intrinsic Category="Property" Name="__RecvMaxL" Expression="maxRecvSize"/>
+		<Intrinsic Category="Property" Name="__RecvCLen" Expression="recvBytes"/>
+
+		<DisplayString Condition="__IsValid()">TCP 수신기 ({__SockHandle()})</DisplayString>
+		<DisplayString Condition="!__IsValid()">TCP 수신기 ({__SockHandle()})</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]">mySocket.myHandle</Item>
+			<Item Name="[인터넷 프로토콜]">mySocket.myProtocol</Item>
+			<Item Name="[수신 버퍼]">__RecvBuff()</Item>
+			<Item Name="[수신 크기]">__RecvCLen()</Item>
+			<Item Name="[수신 최대 바이트 크기]">__RecvMaxL()</Item>
+
+			<Item Name="[주소 재사용 여부]">mySocket.reuseAddress.myValue</Item>
+			<Item Name="[Nagle 알고리즘 사용 여부]">mySocket.tcpNoDelay.myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::net::IoCompletionPort">
+		<DisplayString Condition="myHandle == nullptr">빈 IO 완료 포트</DisplayString>
+		<DisplayString Condition="myHandle != nullptr">IO 완료 포트 ({myHandle})</DisplayString>
+
+		<Expand HideRawView="true">
+			<Item Name="[핸들]">myHandle</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>

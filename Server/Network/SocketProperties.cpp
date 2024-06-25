@@ -28,9 +28,10 @@ const noexcept
 
 iconer::net::Socket::IoResult
 iconer::net::Socket::ReusableAddress(bool flag)
-const noexcept
+noexcept
 {
 	::BOOL iflag = static_cast<::BOOL>(flag);
+	reuseAddress.myValue = flag;
 
 	return SetOption(SocketOption::Recyclable, std::addressof(iflag), sizeof(iflag));
 }
@@ -55,7 +56,7 @@ const noexcept
 
 iconer::net::Socket::IoResult
 iconer::net::Socket::SetTcpNoDelay(bool flag)
-const noexcept
+noexcept
 {
 	::BOOL iflag = static_cast<::BOOL>(!flag);
 
@@ -64,6 +65,8 @@ const noexcept
 		, std::to_underlying(SocketOption::NoDelay)
 		, reinterpret_cast<const char*>(std::addressof(iflag)), sizeof(iflag))) UNLIKELY
 	{
+		tcpNoDelay.myValue = flag;
+
 		return {};
 	}
 	else LIKELY
@@ -74,7 +77,7 @@ const noexcept
 
 void
 iconer::net::Socket::ReuseAddressImplementation(bool flag)
-const noexcept
+noexcept
 {
 	std::println("Socket::ReuseAddressImplementation({}) called", flag);
 
@@ -83,7 +86,7 @@ const noexcept
 
 void
 iconer::net::Socket::TcpNoDelayImplementation(bool flag)
-const noexcept
+noexcept
 {
 	std::println("Socket::TcpNoDelayImplementation({}) called", flag);
 

@@ -19,6 +19,8 @@ export namespace iconer::util
 		template<typename U>
 		using rebind = Property<U>;
 
+		friend Context;
+
 		using super::super;
 
 		constexpr this_class& operator=(const value_type& value)

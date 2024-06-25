@@ -51,5 +51,14 @@
     <ClCompile Include="PacketProcessor.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Room.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.ixx">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Application.natvis" />
   </ItemGroup>
 </Project>

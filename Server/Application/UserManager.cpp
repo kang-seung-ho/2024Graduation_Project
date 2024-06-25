@@ -79,11 +79,10 @@ iconer::app::User*
 iconer::app::UserManager::FindUser(iconer::app::UserManager::id_type id)
 const noexcept
 {
-	auto seek = std::lower_bound(everyUsers.cbegin(), everyUsers.cend()
-		, id
-		, [](const pointer_type& lhs, const id_type& nid) noexcept -> bool
+	auto seek = std::find_if(everyUsers.cbegin(), everyUsers.cend()
+		, [&id](const pointer_type& lhs) noexcept -> bool
 		{
-			return lhs->GetID() < nid;
+			return lhs->GetID() == id;
 		}
 	);
 

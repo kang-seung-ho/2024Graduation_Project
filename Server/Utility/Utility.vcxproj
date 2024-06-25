@@ -38,6 +38,9 @@
   <ItemGroup>
     <ClInclude Include="atomic_queue_defs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Utility.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

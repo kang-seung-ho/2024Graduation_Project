@@ -1,12 +1,18 @@
 export module Iconer.App.User;
 import Iconer.Utility.ReadOnly;
 import Iconer.Utility.Delegate;
+import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.Net.TcpReceiver;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
+import Iconer.App.Settings;
 import <memory>;
+import <expected>;
+import <array>;
+import <string>;
 import <span>;
+import <mdspan>;
 import <atomic>;
 
 export namespace iconer::app
@@ -15,25 +21,35 @@ export namespace iconer::app
 
 	class [[nodiscard]] User : public ISession
 	{
+
+	private:
+		//static inline constinit std::atomic<id_type> globalMemberTable[Settings::usersLimit * Settings::roomMembersLimit]{};
+
+		std::atomic_bool isConnected{};
+		std::atomic<Room*> myRoom{};
+
 	public:
 		using super = ISession;
+		using this_class = User;
 		using id_type = super::id_type;
 
 		static inline constexpr size_t recvBufferSize = 512;
 
-		iconer::net::TcpReceiver myReceiver;
-		iconer::util::ReadOnly<TaskContext> mainContext;
-		iconer::util::ReadOnly<TaskContext> recvContext;
+		//userRoomTable[std::array{ 0ull, 1ull }];
+		//static inline constinit std::mdspan userRoomTable{ globalMemberTable, std::extents<size_t, Settings::usersLimit, Settings::roomMembersLimit>{} };
 
-		iconer::util::Delegate<void, User*> onDisconnected;
+		std::string myName{};
+
+		iconer::util::ReadOnly<TaskContext> mainContext{};
+		iconer::util::ReadOnly<TaskContext> recvContext{ TaskCategory::OpRecv };
+		iconer::util::ReadOnly<TaskContext> roomContext{};
+		iconer::net::TcpReceiver myReceiver;
+
+		iconer::util::Delegate<void, User*> onDisconnected{};
 
 		explicit constexpr User(id_type id, iconer::net::Socket&& socket) noexcept
 			: super(id)
 			, myReceiver(std::move(socket), recvBufferSize)
-			, mainContext(), recvContext(TaskCategory::OpRecv)
-			, isConnected()
-			, myRoom()
-			, onDisconnected()
 		{}
 
 		void Cleanup();
@@ -89,9 +105,5 @@ export namespace iconer::app
 		{
 			return lhs.GetID() == rhs.GetID();
 		}
-
-	private:
-		std::atomic_bool isConnected;
-		std::atomic<Room*> myRoom;
 	};
 }

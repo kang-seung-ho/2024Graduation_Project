@@ -8,6 +8,7 @@ import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.App.PacketProtocol;
 import Iconer.App.UserManager;
+import Iconer.App.Settings;
 import <cstdint>;
 import <expected>;
 import <array>;
@@ -30,7 +31,7 @@ class ServerFramework final : public iconer::net::IFramework
 public:
 	using super = iconer::net::IFramework;
 
-	static inline constexpr std::uint16_t serverPort = 40000;
+	static inline constexpr std::uint16_t serverPort = iconer::app::Settings::serverPort;
 
 	ServerFramework() = default;
 	~ServerFramework() = default;

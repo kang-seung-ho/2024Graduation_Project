@@ -85,6 +85,8 @@ export namespace iconer::util
 		using this_class = Property<bool, Context>;
 		using value_type = super::value_type;
 
+		friend Context;
+
 		using super::super;
 
 		constexpr this_class& operator=(const value_type& value)

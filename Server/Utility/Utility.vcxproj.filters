@@ -60,4 +60,7 @@
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Utility.natvis" />
+  </ItemGroup>
 </Project>

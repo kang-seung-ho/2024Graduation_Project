@@ -54,10 +54,10 @@ export namespace iconer::net
 		IoResult SetOption(SocketOption option, const void* opt_buffer, const size_t opt_size) const noexcept;
 
 		[[nodiscard]] bool ReusableAddress() const noexcept;
-		IoResult ReusableAddress(bool flag) const noexcept;
+		IoResult ReusableAddress(bool flag) noexcept;
 
 		[[nodiscard]] bool IsTcpNoDelay() const noexcept;
-		IoResult SetTcpNoDelay(bool flag) const noexcept;
+		IoResult SetTcpNoDelay(bool flag) noexcept;
 
 		[[nodiscard]]
 		std::expected<Socket, iconer::net::ErrorCode> Accept() const noexcept;
@@ -465,8 +465,8 @@ export namespace iconer::net
 			iconer::net::ErrorCode& errorOutput;
 		};
 
-		void ReuseAddressImplementation(bool flag) const noexcept;
-		void TcpNoDelayImplementation(bool flag) const noexcept;
+		void ReuseAddressImplementation(bool flag) noexcept;
+		void TcpNoDelayImplementation(bool flag) noexcept;
 
 		static inline constinit AsyncAcceptFunction asyncAcceptFnPtr = nullptr;
 		static inline constinit AsyncCloseFunction asyncTransmitFnPtr = nullptr;
