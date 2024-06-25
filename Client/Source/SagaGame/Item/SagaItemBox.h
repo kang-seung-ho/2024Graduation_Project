@@ -16,6 +16,8 @@ public:
 	// Sets default values for this actor's properties
 	ASagaItemBox();
 
+	UStaticMeshComponent* GetMesh() const { return Mesh; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Box)
 	TObjectPtr<class UBoxComponent> Trigger;
