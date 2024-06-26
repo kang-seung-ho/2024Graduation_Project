@@ -4,20 +4,20 @@ import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import Iconer.App.ISession;
-import Iconer.App.User;
 import Iconer.App.Settings;
-import <memory>;
 import <expected>;
 import <vector>;
 
 export namespace iconer::app
 {
+	class User;
+
 	class [[nodiscard]] UserManager
 	{
 	public:
-		using id_type = ISession::id_type;
+		using id_type = iconer::app::ISession::id_type;
 		using session_type = iconer::app::User;
-		using pointer_type = std::unique_ptr<iconer::app::User>;
+		using pointer_type = iconer::app::User*;
 
 		static inline constexpr size_t maxUserCount = iconer::app::Settings::usersLimit;
 		static inline constexpr id_type minUserUid = 1;
@@ -35,9 +35,7 @@ export namespace iconer::app
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
-				session_type* user = ptr.get();
-
-				std::forward<Callable>(fun)(*user);
+				std::forward<Callable>(fun)(*ptr);
 			}
 		}
 
@@ -46,9 +44,7 @@ export namespace iconer::app
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
-				const session_type* user = ptr.get();
-
-				std::forward<Callable>(fun)(*user);
+				std::forward<Callable>(fun)(*ptr);
 			}
 		}
 
@@ -57,9 +53,7 @@ export namespace iconer::app
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
-				session_type* user = ptr.get();
-
-				std::forward<Callable>(fun)(user);
+				std::forward<Callable>(fun)(*ptr);
 			}
 		}
 
@@ -68,12 +62,11 @@ export namespace iconer::app
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
-				const session_type* user = ptr.get();
-
-				std::forward<Callable>(fun)(user);
+				std::forward<Callable>(fun)(*ptr);
 			}
 		}
 
+		[[nodiscard]]
 		session_type* FindUser(id_type id) const noexcept;
 
 	private:

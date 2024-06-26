@@ -29,10 +29,10 @@ export namespace iconer::net
 		[[nodiscard]] std::expected<int, iconer::net::ErrorCode> Receive();
 
 		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext& context);
-		bool EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes);
+		bool EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes) noexcept;
 
 		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext* context);
-		bool EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes);
+		bool EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes) noexcept;
 
 		[[nodiscard]] std::span<std::byte> GetReceiveBuffer() noexcept;
 		[[nodiscard]] std::span<const std::byte> GetReceiveBuffer() const noexcept;

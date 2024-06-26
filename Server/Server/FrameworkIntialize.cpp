@@ -1,6 +1,7 @@
 #include "Framework.hpp"
 
 import Iconer.Utility.Delegate;
+import Iconer.App.User;
 import <print>;
 
 std::expected<void, iconer::net::ErrorCode>

@@ -44,7 +44,7 @@ export namespace iconer::app
 		OpRpc, OpSendRpc, OpCleanRpc,
 
 		/// <summary>Phase 11 - Sign out (Quit)</summary>
-		OpDisconnect,
+		OpClose,
 
 		/// <summary>Extras</summary>
 		OpEndWorkers

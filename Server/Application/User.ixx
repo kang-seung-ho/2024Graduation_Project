@@ -67,6 +67,9 @@ export namespace iconer::app
 			return myReceiver.EndReceive(recvContext, bytes);
 		}
 
+		std::expected<void, iconer::net::ErrorCode> BeginClose();
+		void EndClose();
+
 		void SetConnected(bool flag) volatile noexcept
 		{
 			isConnected.store(flag, std::memory_order_release);

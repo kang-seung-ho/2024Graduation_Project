@@ -5,6 +5,7 @@ module Iconer.App.UserManager;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.Net.IoContext;
+import Iconer.App.User;
 import <utility>;
 
 std::expected<void, iconer::net::ErrorCode>
@@ -65,7 +66,7 @@ iconer::app::UserManager::Cleanup()
 {
 	for (pointer_type& ptr : everyUsers)
 	{
-		ptr.reset();
+		delete std::exchange(ptr, nullptr);
 	}
 }
 
@@ -88,7 +89,7 @@ const noexcept
 
 	if (seek != everyUsers.cend() and (*seek)->GetID() == id)
 	{
-		return seek->get();
+		return *seek;
 	}
 	else
 	{

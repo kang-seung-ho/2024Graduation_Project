@@ -1,6 +1,7 @@
 #include "Framework.hpp"
 
 import Iconer.Net;
+import Iconer.App.User;
 import Iconer.App.TaskContext;
 import Iconer.App.UserContext;
 import Iconer.App.PacketContext;

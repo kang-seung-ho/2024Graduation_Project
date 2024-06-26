@@ -24,6 +24,7 @@ iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext& context)
 
 bool
 iconer::net::TcpReceiver::EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes)
+noexcept
 {
 	context.ClearIoStatus();
 
@@ -41,6 +42,7 @@ iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext* context)
 
 bool
 iconer::net::TcpReceiver::EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes)
+noexcept
 {
 	return EndReceive(*context, bytes);
 }
