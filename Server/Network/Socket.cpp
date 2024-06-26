@@ -13,8 +13,13 @@ import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
 import <mutex>;
 
-constinit static inline std::once_flag internalInitFlag{};
-static inline constexpr unsigned long DEFAULT_ACCEPT_SIZE = sizeof(::sockaddr_in) + 16UL;
+namespace
+{
+	inline constinit std::once_flag internalInitFlag{};
+	inline constexpr unsigned long DEFAULT_ACCEPT_SIZE = sizeof(::sockaddr_in) + 16UL;
+
+	inline constexpr unsigned long closeFlags = TF_DISCONNECT | TF_REUSE_SOCKET;
+}
 
 iconer::net::Socket::Socket(std::uintptr_t sock, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family)
 noexcept
@@ -573,17 +578,21 @@ const noexcept
 	return SetOption(SocketOption::UpdateContext, std::addressof(listener.myHandle), sizeof(myHandle));
 }
 
-bool
+iconer::net::Socket::IoResult
 iconer::net::Socket::Close()
 const noexcept
 {
-	if (myHandle != invalidHandle) LIKELY
+	if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, closeFlags)) LIKELY
 	{
-		return (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET));
+		return {};
 	}
-	else UNLIKELY
+	else if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation) UNLIKELY
 	{
-		return false;
+		return std::unexpected{ std::move(error) };
+	}
+	else LIKELY
+	{
+		return {};
 	}
 }
 
@@ -593,7 +602,7 @@ const noexcept
 {
 	if (myHandle != invalidHandle)
 	{
-		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET)) LIKELY
+		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, nullptr, nullptr, closeFlags)) LIKELY
 		{
 			return true;
 		}
@@ -611,11 +620,29 @@ const noexcept
 	}
 }
 
-bool
+iconer::net::Socket::IoResult
 iconer::net::Socket::AsyncClose(IoContext& context)
 const noexcept
 {
 	return AsyncClose(std::addressof(context));
+}
+
+iconer::net::Socket::IoResult
+iconer::net::Socket::AsyncClose(IoContext* const context)
+const noexcept
+{
+	if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, closeFlags)) LIKELY
+	{
+		return {};
+	}
+	else if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation) UNLIKELY
+	{
+		return std::unexpected{ std::move(error) };
+	}
+	else LIKELY
+	{
+		return {};
+	}
 }
 
 bool
@@ -626,26 +653,12 @@ const noexcept
 }
 
 bool
-iconer::net::Socket::AsyncClose(IoContext* const context)
-const noexcept
-{
-	if (myHandle != invalidHandle) LIKELY
-	{
-		return (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET));
-	}
-	else UNLIKELY
-	{
-		return false;
-	}
-}
-
-bool
 iconer::net::Socket::AsyncClose(IoContext* const context, ErrorCode& error_code)
 const noexcept
 {
 	if (myHandle != invalidHandle) LIKELY
 	{
-		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, TF_DISCONNECT | TF_REUSE_SOCKET)) LIKELY
+		if (0 != asyncTransmitFnPtr(myHandle, nullptr, 0, 0, context, nullptr, closeFlags)) LIKELY
 		{
 			return true;
 		}

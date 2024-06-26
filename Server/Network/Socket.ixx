@@ -110,13 +110,6 @@ export namespace iconer::net
 		/// <param name="listener">- The listener socket</param>
 		IoResult EndAccept(const Socket& listener) const noexcept;
 
-		bool Close() const noexcept;
-		bool Close(iconer::net::ErrorCode& error_code) const noexcept;
-		bool AsyncClose(iconer::net::IoContext& context) const noexcept;
-		bool AsyncClose(iconer::net::IoContext& context, iconer::net::ErrorCode& error_code) const noexcept;
-		bool AsyncClose(iconer::net::IoContext* const context) const noexcept;
-		bool AsyncClose(iconer::net::IoContext* const context, iconer::net::ErrorCode& error_code) const noexcept;
-
 		/// <summary>
 		/// Send data through this socket
 		/// <para>-------------------------------------------------------------------------------</para>
@@ -384,6 +377,15 @@ export namespace iconer::net
 		/// <exception cref="std::overflow_error"/>
 		/// <exception cref="std::system_error"/>
 		bool Receive(IoContext& context, std::byte* memory, size_t size, ErrorCode& outpin) const;
+
+		IoResult Close() const noexcept;
+		bool Close(iconer::net::ErrorCode& error_code) const noexcept;
+
+		IoResult AsyncClose(iconer::net::IoContext& context) const noexcept;
+		IoResult AsyncClose(iconer::net::IoContext* const context) const noexcept;
+
+		bool AsyncClose(iconer::net::IoContext& context, iconer::net::ErrorCode& error_code) const noexcept;
+		bool AsyncClose(iconer::net::IoContext* const context, iconer::net::ErrorCode& error_code) const noexcept;
 
 		[[nodiscard]]
 		constexpr const std::uintptr_t& GetNativeHandle() const& noexcept

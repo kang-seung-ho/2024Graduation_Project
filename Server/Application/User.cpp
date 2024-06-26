@@ -5,6 +5,10 @@ module Iconer.App.User;
 std::expected<void, iconer::net::ErrorCode>
 iconer::app::User::BeginClose()
 {
+	mainContext->SetOperation(TaskCategory::OpClose);
+
+	myReceiver.mySocket.AsyncClose(mainContext);
+
 	return std::expected<void, iconer::net::ErrorCode>();
 }
 

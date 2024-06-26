@@ -2,11 +2,12 @@ export module Iconer.App.TaskContext;
 import Iconer.Utility.TypeTraits;
 import Iconer.Net.IoContext;
 import Iconer.Net.Socket;
+import <cstdint>;
 import <atomic>;
 
 export namespace iconer::app
 {
-	enum class [[nodiscard]] TaskCategory
+	enum class [[nodiscard]] TaskCategory : std::uint8_t
 	{
 		None = 0,
 
@@ -71,8 +72,18 @@ export namespace iconer::app
 		{
 			myCategory.store(op, order);
 		}
+		
+		void SetOperation(TaskCategory op, std::memory_order order = std::memory_order_seq_cst) volatile noexcept
+		{
+			myCategory.store(op, order);
+		}
 
 		bool TryChangeOperation(TaskCategory from, TaskCategory to, std::memory_order order = std::memory_order_seq_cst) noexcept
+		{
+			return myCategory.compare_exchange_strong(from, to, order);
+		}
+		
+		bool TryChangeOperation(TaskCategory from, TaskCategory to, std::memory_order order = std::memory_order_seq_cst) volatile noexcept
 		{
 			return myCategory.compare_exchange_strong(from, to, order);
 		}
