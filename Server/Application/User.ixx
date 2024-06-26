@@ -4,8 +4,9 @@ import Iconer.Utility.Delegate;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import Iconer.Net.TcpReceiver;
-import Iconer.App.ISession;
+import Iconer.App.UserContext;
 import Iconer.App.TaskContext;
+import Iconer.App.ISession;
 import Iconer.App.Settings;
 import <memory>;
 import <expected>;
@@ -40,7 +41,7 @@ export namespace iconer::app
 
 		std::string myName{};
 
-		iconer::util::ReadOnly<TaskContext> mainContext{};
+		iconer::util::ReadOnly<UserContext> mainContext;
 		iconer::util::ReadOnly<TaskContext> recvContext{ TaskCategory::OpRecv };
 		iconer::util::ReadOnly<TaskContext> roomContext{};
 		iconer::net::TcpReceiver myReceiver;
@@ -49,6 +50,7 @@ export namespace iconer::app
 
 		explicit constexpr User(id_type id, iconer::net::Socket&& socket) noexcept
 			: super(id)
+			, mainContext(std::in_place, id, this)
 			, myReceiver(std::move(socket), recvBufferSize)
 		{}
 

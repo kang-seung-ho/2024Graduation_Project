@@ -29,6 +29,8 @@
     <ClCompile Include="TaskContext.ixx" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="User.ixx" />
+    <ClCompile Include="UserAuthContext.ixx" />
+    <ClCompile Include="UserContext.ixx" />
     <ClCompile Include="UserManager.cpp" />
     <ClCompile Include="UserManager.ixx" />
   </ItemGroup>

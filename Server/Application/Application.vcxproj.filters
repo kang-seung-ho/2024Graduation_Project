@@ -57,6 +57,12 @@
     <ClCompile Include="Settings.ixx">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UserAuthContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="UserContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Application.natvis" />

@@ -2,6 +2,7 @@
 
 import Iconer.Net;
 import Iconer.App.TaskContext;
+import Iconer.App.UserContext;
 import Iconer.App.PacketContext;
 
 import <utility>;
@@ -49,7 +50,10 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	case OpAccept:
 	{
-		const auto user = userManager.FindUser(id);
+		const auto ctx = static_cast<iconer::app::UserContext*>(context);
+
+		auto user = ctx->ownerHandle;
+
 		if (nullptr == user)
 		{
 			throw "AcceptError!";
@@ -59,26 +63,28 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		task_ctx->SetOperation(OpValidation);
 		task_ctx->ClearIoStatus();
 
+		const auto user_id = user->GetID();
+
 		auto& socket = user->GetSocket();
 		if (auto io = socket.EndAccept(listenSocket); io)
 		{
-			std::println("User {} is just accepted.", id);
+			std::println("User {} is just accepted.", user_id);
 		}
 		else
 		{
-			std::println("Acceptance of user {} is failed, due to {}.", id, std::to_string(io.error()));
+			std::println("Acceptance of user {} is failed, due to {}.", user_id, std::to_string(io.error()));
 
 			throw "AcceptError!";
 		}
 
 		if (auto io = TriggerUser(*user); io)
 		{
-			std::println("User {} started receiving.", id);
+			std::println("User {} started receiving.", user_id);
 		}
 		else
 		{
 			// Would trigger OnTaskFailure
-			std::println("User {} has failed to start receiving, due to {}.", id, std::to_string(io.error()));
+			std::println("User {} has failed to start receiving, due to {}.", user_id, std::to_string(io.error()));
 		}
 	}
 	break;
@@ -151,6 +157,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	case OpRecv:
 	{
 		const auto user = userManager.FindUser(id);
+
 		if (nullptr == user)
 		{
 			std::println("Unknown failed receive from id {} ({} bytes)", id, bytes);
