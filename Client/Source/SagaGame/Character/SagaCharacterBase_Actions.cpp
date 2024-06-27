@@ -10,8 +10,6 @@ void
 ASagaCharacterBase::ExecuteStraightWalk(const int& direction)
 noexcept
 {
-	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStraightWalk (%d)"), direction);
-
 	straightMoveDirection = direction;
 }
 
@@ -19,8 +17,6 @@ void
 ASagaCharacterBase::ExecuteStrafeWalk(const int& direction)
 noexcept
 {
-	//UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteStrafeWalk (%d)"), direction);
-
 	strafeMoveDirection = direction;
 }
 
@@ -83,8 +79,6 @@ void
 ASagaCharacterBase::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	StopMovement();
-
-	TranslateProperties(target);
 }
 
 void
@@ -105,11 +99,16 @@ void
 ASagaCharacterBase::ExecuteDeath()
 {
 #if WITH_EDITOR
+
 	const auto name = GetName();
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
 #endif
 
-	myHealthIndicatorBarWidget->SetHiddenInGame(true);
+	// Hide the hp bar
+	if (IsValid(myHealthIndicatorBarWidget))
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(true);
+	}
 
 	StopMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -132,6 +131,8 @@ ASagaCharacterBase::ExecuteRespawn()
 		myHealthIndicatorBarWidget->SetHiddenInGame(false);
 	}
 
+	myGameStat->RetryUpdateHealth();
+
 	// Reset the position
 	FVector spawn_pos;
 	FRotator spawn_rot;
@@ -149,7 +150,11 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 
 	SetActorLocationAndRotation(spawn_pos, spawn_rot);
+
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaGame, Warning, TEXT("Character respawned at location: %s"), *spawn_pos.ToString());
+#endif
 
 	if (OnCharacterRespawned.IsBound())
 	{

@@ -138,6 +138,11 @@ USagaNetworkSubSystem::ProcessPackets()
 					continue;
 				}
 
+				if (nullptr == this or not IsConnected())
+				{
+					return false;
+				}
+
 				// Routes stacked task
 				//RouteTasks(MoveTemp(task.myData), basic_pk.myProtocol, basic_pk.mySize);
 				RouteTasks(MoveTemp(task), basic_pk.myProtocol, basic_pk.mySize);

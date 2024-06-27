@@ -1,5 +1,6 @@
 #pragma once
 #include "SagaGame.h"
+#include <Math/MathFwd.h>
 
 #include "Character/SagaCharacterBase.h"
 #include "SagaGummyBearPlayer.generated.h"
@@ -10,19 +11,28 @@ class SAGAGAME_API ASagaGummyBearPlayer : public ASagaCharacterBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	int32 DismThreshold;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class UStaticMesh*> TargetMeshes;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	bool isCanRide;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraSystem * NiagaraSystemTemplate;
+	/* 곰의 고유 번호
+
+	*  서버, 클라 모두 같게 동기화됨
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
+	int32 bearUniqueId;
 
 	ASagaGummyBearPlayer();
 
+	/* 데미지 처리
+
+	* 온라인 / 오프라인 모드에 따라 분기
+	*  온라인 모드	: RPC만 보냄. 나중에 RPC 돌려받았을 때 ASagaCharacterBase의 TakeDamage를 실행.
+	*  오프라인 모드	: ASagaCharacterBase의 TakeDamage를 그대로 실행.
+	*/
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
 	// UFUNCTION()
+	/* 반드시 ASagaPlayableCharacter의 ExecuteGuardianAction보다 나중에 실행해야 함. */
 	virtual void ExecuteGuardianAction(ASagaCharacterBase* target) override;
+	// UFUNCTION()
+	virtual void TerminateGuardianAction() override;
 	// UFUNCTION()
 	virtual void ExecuteAttackAnimation() override;
 	// UFUNCTION()
@@ -33,67 +43,67 @@ public:
 	virtual void ExecuteDeath() override;
 
 	UFUNCTION()
-	void TryDismemberment(FVector Hitlocation, FVector HitNormal);
+	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
-	UFUNCTION(BlueprintCallable)
-	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
-
-	UFUNCTION(BlueprintCallable)
-	class UStaticMesh* GetTargetMesh(int32 Index);
-	
 	UFUNCTION()
-	int32 GetBearId(int32 Index) const noexcept;
+	int32 GetBearId() const noexcept;
 
 protected:
-	/* 곰의 고유 번호
-
-	*  서버, 클라 모두 같게 동기화됨
-	*/
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	int32 bearUniqueId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
+	TObjectPtr<class UArrowComponent> playerUnridePosition;
 
 	/* 오버랩 박스 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	class UBoxComponent* myInteractionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	int32 DismThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UStaticMesh*> TargetMeshes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* NiagaraSystemTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UBoxComponent*> DismCollisionBox;
+	UPROPERTY()
 	int32 DismPartID;
 	class UBoxComponent* Dbox_Rarm;
 	class UBoxComponent* Dbox_Larm;
 	class UBoxComponent* Dbox_Rleg;
 	class UBoxComponent* Dbox_Lleg;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class UBoxComponent*> DismCollisionBox;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraComponent* NiagaraComponentTemplate;
+	UPROPERTY()
 	TArray<int32> ActiveIndx;
+	UPROPERTY()
+	TArray<class UGeometryCollectionComponent*> GeometryCollections;
 	class UGeometryCollectionComponent* r_arm;
 	class UGeometryCollectionComponent* l_arm;
 	class UGeometryCollectionComponent* r_leg;
 	class UGeometryCollectionComponent* l_leg;
-	TArray<class UGeometryCollectionComponent*> GeometryCollections;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraComponent* NiagaraComponentTemplate;
 
 	void InitTargetMeshes();
-	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
-	void HideTargetPiece(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
 	void CheckValidBone(const FVector& Impulse, int32 Index);
+	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
 
-	class UGeometryCollectionComponent* GetGeometryCollectionByName(const FString& CollectionName);
-	FVector GetPieceWorldPosition(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
-	FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* TargetGC, int32 PieceIndex);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
 
-	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	class UStaticMesh* GetTargetMesh(int32 Index);
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	//UFUNCTION()
+	//void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	//UFUNCTION()
+	//void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	static void InitializeTransform(class USceneComponent* component, FVector Location, FRotator Rotation, FVector Scale);
-	static bool IsPointInsideBox(class UBoxComponent* Box, const FVector& Point);
+	static bool IsPointInsideBox(class UBoxComponent* box, const FVector& point);
+	static void HideBodyPartPiece(class UGeometryCollectionComponent* target, int32 PieceIndex);
+
+	static class UGeometryCollectionComponent* FindGeometryCollectionByName(class AActor* actor, const FString& name);
+	static FVector GetPieceWorldLocation(class UGeometryCollectionComponent* target, int32 index);
+	static FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* target, int32 index);
 };

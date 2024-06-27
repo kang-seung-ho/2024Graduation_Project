@@ -1,9 +1,9 @@
 #pragma once
 #include "SagaGame.h"
-#include <UObject/ObjectPtr.h>
 #include <GameFramework/PlayerController.h>
 #include <InputActionValue.h>
-
+#include "Item/SagaWeaponData.h"
+#include "UI/SagaInventoryWidget.h"
 #include "SagaInGamePlayerController.generated.h"
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
@@ -12,18 +12,21 @@ class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-
 	ASagaInGamePlayerController(const FObjectInitializer& initializer) noexcept;
 
 	virtual void Tick(float delta_time) override;
 
-	void ToggleInventory();
-
-	void UpdateInputMode();
-	void SetInventoryVisibility(bool bVisible);
-	
 	UFUNCTION()
-	void RideNPCCallFunction();
+	void ToggleInventory();
+	UFUNCTION()
+	void UpdateInputMode();
+	UFUNCTION()
+	void SetInventoryVisibility(bool flag);
+	UFUNCTION()
+	ESlateVisibility GetInventoryVisibility() const;
+	UFUNCTION()
+	bool IsInventoryVisible() const;
+	void AddItemToInventory(EItemType ItemType);
 
 	/* Actions */
 #pragma region =========================
@@ -71,14 +74,8 @@ protected:
 private:
 	UPROPERTY()
 	FVector walkDirection;
-	UPROPERTY()
-	bool isAttacking;
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UUserWidget> InventoryWidgetClass;
+	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()
-	UUserWidget* InventoryWidget;
-	UPROPERTY()
-	bool bIsInventoryVisible;
-	UPROPERTY()
-	TObjectPtr<class ASagaPlayableCharacter> storedLocalCharacter;
+	USagaInventoryWidget* InventoryWidget;
 };

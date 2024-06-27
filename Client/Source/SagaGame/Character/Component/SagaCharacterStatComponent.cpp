@@ -90,3 +90,13 @@ USagaCharacterStatComponent::ResetHp(bool execute_event)
 		CurrentHp = MaxHp;
 	}
 }
+
+void
+USagaCharacterStatComponent::RetryUpdateHealth()
+const
+{
+	if (OnHpChanged.IsBound())
+	{
+		OnHpChanged.Broadcast(CurrentHp);
+	}
+}

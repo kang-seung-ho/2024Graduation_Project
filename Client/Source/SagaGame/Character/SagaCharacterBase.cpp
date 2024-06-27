@@ -1,5 +1,6 @@
 #include "Character/SagaCharacterBase.h"
 #include <UObject/Linker.h>
+#include <UObject/Object.h>
 #include <UObject/ObjectPtr.h>
 #include <UObject/ConstructorHelpers.h>
 #include <Engine/StaticMesh.h>
@@ -21,6 +22,7 @@
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
 
@@ -342,6 +344,43 @@ ASagaCharacterBase::BeginPlay()
 	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
+void ASagaCharacterBase::TakeItem(EItemType ItemType)
+{
+	switch (ItemType)
+	{
+	case EItemType::Drink:
+		// Add Drink to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Drink"));
+		AddItemToInventory(ItemType);
+		break;
+	case EItemType::Gum:
+		// Add Gum to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Gum"));
+		AddItemToInventory(ItemType);
+		break;
+	case EItemType::SmokeBomb:
+		// Add SmokeBomb to Player's Inventory
+		UE_LOG(LogTemp, Warning, TEXT("Item Taken : SmokeBomb"));
+		AddItemToInventory(ItemType);
+		break;
+	default:
+		break;
+	}
+}
+
+void ASagaCharacterBase::AddItemToInventory(EItemType ItemType)
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		ASagaInGamePlayerController* SagaPlayerController = Cast<ASagaInGamePlayerController>(PlayerController);
+		if (SagaPlayerController)
+		{
+			SagaPlayerController->AddItemToInventory(ItemType);
+		}
+	}
+}
+
 void
 ASagaCharacterBase::Tick(float delta_time)
 {
@@ -452,13 +491,16 @@ ASagaCharacterBase::Tick(float delta_time)
 float
 ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
+#if WITH_EDITOR
+
 	const float actual_dmg = Super::TakeDamage(dmg, event, instigator, causer);
 	const float current_hp = ExecuteHurt(actual_dmg);
 
-#if WITH_EDITOR
 	const auto name = GetName();
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase] '%s''s TakeDamage: %f, hp: %f"), *name, actual_dmg, current_hp);
-#endif
-
 	return actual_dmg;
+#else
+
+	return ExecuteHurt(Super::TakeDamage(dmg, event, instigator, causer));
+#endif
 }

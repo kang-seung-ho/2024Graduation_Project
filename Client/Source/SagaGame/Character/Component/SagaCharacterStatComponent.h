@@ -24,20 +24,19 @@ class SAGAGAME_API USagaCharacterStatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	USagaCharacterStatComponent(const FObjectInitializer& initializer) noexcept;
-
-public:
 	static constexpr float defaultMaxHealth = 100;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character")
 	float MaxHp;
-	UPROPERTY(Transient, VisibleInstanceOnly, Category = "CandyLandSaga|Game|Character")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Transient, Category = "CandyLandSaga|Game|Character")
 	float CurrentHp;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
 	FSagaEventOnHpZero OnHpZero;
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
 	FSagaEventOnHpChanged OnHpChanged;
+
+	USagaCharacterStatComponent(const FObjectInitializer& initializer) noexcept;
 
 	UFUNCTION()
 	void SetMaxHp(float max_hp, ESagaMaxHealthUpdatePolicy current_health_policy = ESagaMaxHealthUpdatePolicy::Default);
@@ -47,11 +46,13 @@ public:
 	float ApplyDamage(float dmg);
 	UFUNCTION()
 	void ResetHp(bool execute_event = false);
+	UFUNCTION()
+	void RetryUpdateHealth() const;
 
 	UFUNCTION()
-	FORCEINLINE float GetMaxHp() const { return MaxHp; }
+	FORCEINLINE float GetMaxHp() const noexcept { return MaxHp; }
 	UFUNCTION()
-	FORCEINLINE float GetCurrentHp() const { return CurrentHp; }
+	FORCEINLINE float GetCurrentHp() const noexcept { return CurrentHp; }
 
 protected:
 	virtual void BeginPlay() override;

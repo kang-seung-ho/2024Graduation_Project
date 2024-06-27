@@ -5,6 +5,7 @@
 #include "Component/SagaCharacterStatComponent.h"
 
 #include "Saga/Network/SagaVirtualUser.h"
+#include "../Interface/SagaCharacterItemInterface.h"
 #include "SagaCharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class ASagaCharacterBase*, character);
@@ -12,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class AS
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterRespawned, class ASagaCharacterBase*, character);
 
 UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
-class SAGAGAME_API ASagaCharacterBase : public ACharacter
+class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterItemInterface
 {
 	GENERATED_BODY()
 
@@ -57,7 +58,10 @@ public:
 
 	virtual void Tick(float delta_time) override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	UFUNCTION()
+	void StopMovement();
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
@@ -162,9 +166,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void StopMovement();
-
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{
@@ -203,4 +204,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TSubclassOf<UUserWidget> healthbarWidgetClass;
+
+public:
+	virtual void TakeItem(EItemType ItemType) override;
+
+	void AddItemToInventory(EItemType ItemType);
 };

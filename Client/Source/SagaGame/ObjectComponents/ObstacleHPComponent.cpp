@@ -2,6 +2,7 @@
 
 
 #include "ObjectComponents/ObstacleHPComponent.h"
+#include "Obstacles/MapObstacle1.h"
 
 // Sets default values for this component's properties
 UObstacleHPComponent::UObstacleHPComponent()
@@ -10,7 +11,6 @@ UObstacleHPComponent::UObstacleHPComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
 }
 
 
@@ -19,8 +19,6 @@ void UObstacleHPComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
 }
 
 
@@ -29,7 +27,6 @@ void UObstacleHPComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
 void UObstacleHPComponent::TakeDamage(float DamageAmount)
@@ -48,18 +45,40 @@ void UObstacleHPComponent::SetObjectHealth(float hp)
 	Health = hp;
 }
 
+//void UObstacleHPComponent::CheckDeath()
+//{
+//	if (Health <= 0)
+//	{
+//		AActor* ThisObstacleActor = GetOwner();
+//		if (ThisObstacleActor)
+//		{
+//			ThisObstacleActor->SetActorEnableCollision(false);
+//			ThisObstacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+//
+//			// 타이머 설정
+//			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
+//		}
+//	}
+//}
+
 void UObstacleHPComponent::CheckDeath()
 {
 	if (Health <= 0)
 	{
-		AActor* ThisObestacleActor = GetOwner();
-		if (ThisObestacleActor)
+		AActor* ThisObstacleActor = GetOwner();
+		if (ThisObstacleActor)
 		{
-			ThisObestacleActor->SetActorEnableCollision(false);
-			//ThisObestacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+			ThisObstacleActor->SetActorEnableCollision(false);
+			ThisObstacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+			// Spawn the item box
+			AMapObstacle1* Obstacle = Cast<AMapObstacle1>(ThisObstacleActor);
+			if (Obstacle)
+			{
+				Obstacle->SpawnItemBox();
+			}
 
-			//// 타이머 설정
-			//GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
+			// Set Timer
+			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
 		}
 	}
 }

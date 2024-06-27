@@ -1,21 +1,22 @@
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include <Math/MathFwd.h>
 #include <UObject/Object.h>
+#include <UObject/ObjectPtr.h>
 #include <UObject/UObjectGlobals.h>
+#include <Engine/EngineBaseTypes.h>
 #include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
 
 #include "Input/SagaInputSystem.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/InventoryItemData.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
 	: APlayerController(initializer)
+	, walkDirection()
 	, InventoryWidgetClass(), InventoryWidget(nullptr)
-	, bIsInventoryVisible(false)
-	, walkDirection(), isAttacking()
-	, storedLocalCharacter()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetRef{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_Inventory.UI_Inventory_C'") };
 	if (InventoryWidgetRef.Succeeded())
@@ -28,6 +29,23 @@ void
 ASagaInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(InventoryWidgetClass))
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][BeginPlay] Creating Inventory Widget..."));
+
+		InventoryWidget = CreateWidget<USagaInventoryWidget>(this, InventoryWidgetClass);
+
+		if (IsValid(InventoryWidget))
+		{
+			InventoryWidget->AddToViewport(5);
+			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaInGamePlayerController][BeginPlay] Could not create the UI of inventory."));
+	}
 
 	FInputModeGameOnly mode{};
 	SetInputMode(mode);
@@ -73,66 +91,111 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginGuardianAction);
 }
 
-void ASagaInGamePlayerController::ToggleInventory()
+void
+ASagaInGamePlayerController::ToggleInventory()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Toggle Inventory called"));
+	UE_LOG(LogSagaGame, Warning, TEXT("Toggle Inventory called"));
 
-	if (!InventoryWidget && InventoryWidgetClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Creating Inventory Widget"));
-		InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
-		if (InventoryWidget)
-		{
-			InventoryWidget->AddToViewport();
-			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
-
-	if (InventoryWidget)
-	{
-		bIsInventoryVisible = InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
-
-		bIsInventoryVisible = !bIsInventoryVisible;
-		InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-
-		UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
-
-		UpdateInputMode();
-	}
+	SetInventoryVisibility(!IsInventoryVisible());
 }
 
-void ASagaInGamePlayerController::UpdateInputMode()
+void
+ASagaInGamePlayerController::UpdateInputMode()
 {
-	if (bIsInventoryVisible)
+	if (IsInventoryVisible())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting input mode to UI only"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Setting input mode to UI only"));
+
 		SetInputMode(FInputModeUIOnly());
+
 		bShowMouseCursor = true;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Setting input mode to Game only"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Setting input mode to Game only"));
+
 		SetInputMode(FInputModeGameOnly());
+
 		bShowMouseCursor = false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Input mode and cursor visibility updated"));
+	UE_LOG(LogSagaGame, Warning, TEXT("Input mode and cursor visibility updated"));
 }
 
-void ASagaInGamePlayerController::SetInventoryVisibility(bool bVisible)
+void
+ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
+{
+	InventoryWidget->SetVisibility(flag ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+
+	UE_LOG(LogSagaGame, Log, TEXT("Inventory visibility is set to: %s"), flag ? TEXT("Visible") : TEXT("Collapsed"));
+
+	if (flag)
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("Setting input mode to UI only"));
+
+		SetInputMode(FInputModeGameAndUI());
+
+		bShowMouseCursor = true;
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("Setting input mode to Game only"));
+
+		SetInputMode(FInputModeGameOnly());
+
+		bShowMouseCursor = false;
+	}
+
+
+	UE_LOG(LogSagaGame, Log, TEXT("Input mode and cursor visibility updated"));
+}
+
+ESlateVisibility
+ASagaInGamePlayerController::GetInventoryVisibility()
+const
+{
+	return InventoryWidget->GetVisibility();
+}
+
+bool
+ASagaInGamePlayerController::IsInventoryVisible() const
+{
+	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+}
+
+void ASagaInGamePlayerController::AddItemToInventory(EItemType ItemType)
 {
 	if (InventoryWidget)
 	{
-		bIsInventoryVisible = bVisible;
-		InventoryWidget->SetVisibility(bIsInventoryVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+		FString IconPath;
+		FString ItemName;
 
-		UE_LOG(LogTemp, Warning, TEXT("Inventory visibility set to: %s"), bIsInventoryVisible ? TEXT("Visible") : TEXT("Collapsed"));
+		switch (ItemType)
+		{
+		case EItemType::Drink:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/Tex_heart.Tex_heart'");
+			ItemName = TEXT("EnergyDrink");
+			break;
+		case EItemType::Gum:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/gumball_machine.gumball_machine'");
+			ItemName = TEXT("Gumball");
+			break;
+		case EItemType::SmokeBomb:
+			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/smoke_bomb.smoke_bomb'");
+			ItemName = TEXT("SmokeBomb");
+			break;
+		}
 
-		UpdateInputMode();
+		UInventoryItemData* ItemData = NewObject<UInventoryItemData>();
+		UTexture2D* IconTexture = LoadObject<UTexture2D>(nullptr, *IconPath);
+		ItemData->SetInfo(IconTexture, ItemName, 1);
+
+		InventoryWidget->AddItemToInventory(ItemData);
 	}
 }
 
-void ASagaInGamePlayerController::Tick(float delta_time)
+void
+ASagaInGamePlayerController::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 

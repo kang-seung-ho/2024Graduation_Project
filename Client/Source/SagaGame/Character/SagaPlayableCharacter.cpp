@@ -17,16 +17,58 @@
 #include "Character/SagaGummyBearPlayer.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Effect/SagaSwordEffect.h"
+#include "UI/SagaWidgetComponent.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
+
+float
+ASagaPlayableCharacter::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
+{
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (net->IsOfflineMode() or not HasValidOwnerId())
+	{
+		return Super::TakeDamage(dmg, event, instigator, causer);
+	}
+	else
+	{
+		// 자기 자신의 피해량만 송신함
+		if (GetUserId() == net->GetLocalUserId())
+		{
+			// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
+			// arg0: 플레이어가 준 피해량 (4바이트 부동소수점)
+			int64 arg0{};
+			// arg1: 플레이어에게 피해를 준 개체의 식별자
+			//     예시: 플레이어의 ID, 수호자의 순번
+			int32 arg1{ -1 };
+
+			std::memcpy(&arg0, reinterpret_cast<const char*>(&dmg), 4);
+
+			const auto other = Cast<ASagaCharacterBase>(causer);
+
+			if (IsValid(other) and other->HasValidOwnerId())
+			{
+				arg1 = other->GetUserId();
+			}
+
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, arg1);
+		}
+
+		return dmg;
+	}
+}
 
 void
 ASagaPlayableCharacter::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	Super::ExecuteGuardianAction(target);
 
+	TranslateProperties(target);
+
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
@@ -36,6 +78,11 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+
+	if (IsAlive())
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	}
 }
 
 void
@@ -43,11 +90,6 @@ ASagaPlayableCharacter::ExecuteAttackAnimation()
 {
 	if (IsValid(mAnimInst))
 	{
-#if WITH_EDITOR
-		const auto name = GetName();
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] '%s' is a human character."), *name);
-#endif
-
 		mAnimInst->PlayAttackMontage();
 	}
 	else
@@ -139,17 +181,19 @@ ASagaPlayableCharacter::ExecuteAttack()
 	{
 		const auto hit_actor = hit_result.GetActor();
 
-		hit_result.GetActor()->TakeDamage(damage, hit_event, GetController(), this);
+		hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 
 		// TODO: 이 코드를 구미 베어의 TakeDamage로 옮겨야 함.
-		if (hit_actor->IsA<ASagaGummyBearPlayer>())
+		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+		if (IsValid(bear))
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' hits a gummy bear."), *name);
 
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
 
-			Cast<ASagaGummyBearPlayer>(hit_actor)->TryDismemberment(Hitlocation, HitNormal);
+			bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
 		}
 	}
 }
@@ -158,19 +202,10 @@ float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
 	// TODO: ASagaPlayableCharacter의 ExecuteHurt 구조 갈아엎기
-	//const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	//if (net->IsOfflineMode() or not HasValidOwnerId())
+	if (net->IsOfflineMode() or not HasValidOwnerId())
 	{
-		//ExecuteHurt(actual_dmg);
-	}
-	//else
-	{
-		//long long arg0{};
-		//memcpy(&arg0, reinterpret_cast<const char*>(&actual_dmg), 4);
-
-		// NOTICE: Don't do ExecuteHurt now
-		//net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0);
 	}
 
 	const auto current_health = Super::ExecuteHurt(dmg);
@@ -181,7 +216,7 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 	FVector EffectSpawnLocation = GetActorLocation();
 	FRotator EffectSpawnRotation = GetActorRotation();
 
-	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함
+	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함 --> change each weapon's damage amount different by 20 30 40
 	if (dmg == 30.f)
 	{
 		if (HitCascadeEffect)
@@ -259,32 +294,31 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 		if (net->IsOfflineMode())
 		{
-			// 상대 팀 점수 증가 실행
-			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-
 			// 리스폰 함수 실행
 			// ExecuteRespawn 함수 3초 뒤	실행
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 		}
-		else
+		else if (GetUserId() == net->GetLocalUserId())
 		{
+			// NOTICE: 서버에서 RPC_DEAD 전송해주므로 하면 안됨
 			//net->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
 
-			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::BeginRespawn, 3.0f, false);
-			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
-			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-
-			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
+			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
+			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
+			//GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawnViaRpc, 3.0f, false);
 		}
+
+		// 상대 팀 점수 증가 실행
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 }
 
 void
-ASagaPlayableCharacter::BeginRespawn()
+ASagaPlayableCharacter::ExecuteRespawnViaRpc()
 {
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not net->IsOfflineMode() and net->IsConnected())
+	if (not net->IsOfflineMode())
 	{
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN, 0, GetUserId());
 	}
@@ -293,6 +327,9 @@ ASagaPlayableCharacter::BeginRespawn()
 void
 ASagaPlayableCharacter::ExecuteRespawn()
 {
+	// 리스폰 타이머 해제
+	GetWorldTimerManager().ClearTimer(respawnTimerHandle);
+
 	Super::ExecuteRespawn();
 
 	// Animate
@@ -313,7 +350,14 @@ const
 
 	if (1 == collideBears.Num())
 	{
-		return collideBears[0];
+		if (collideBears[0]->IsAlive())
+		{
+			return collideBears[0];
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 
 	const auto pos = GetActorLocation();
@@ -323,7 +367,7 @@ const
 	for (auto& bear : collideBears)
 	{
 		double dist = FVector::Distance(pos, bear->GetActorLocation());
-		if (dist < mindist)
+		if (dist < mindist and bear->IsAlive())
 		{
 			result = bear;
 			mindist = dist;
@@ -333,40 +377,19 @@ const
 	return result;
 }
 
-bool
-ASagaPlayableCharacter::HasCollidedBear()
-const noexcept
-{
-	return 0 < collideBears.Num();
-}
-
-void
-ASagaPlayableCharacter::RideNPC()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] Called"))
-		FOutputDeviceNull Ar;
-
-	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
-	if (ret)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Called"))
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[RideNPC] RidingFunction Not Found"))
-	}
-}
-
 void
 ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
 {
 	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
 
-	if (nullptr != bear)
+	if (IsValid(bear) and bear->IsAlive())
 	{
+#if WITH_EDITOR
+
 		const auto name = GetName();
 		const auto other_name = other_actor->GetName();
 		UE_LOG(LogSagaGame, Log, TEXT("[HandleBeginCollision] '%s' is collide with bear '%s'."), *name, *other_name);
+#endif
 
 		collideBears.Add(bear);
 	}
@@ -377,11 +400,14 @@ ASagaPlayableCharacter::HandleEndCollision(AActor* self, AActor* other_actor)
 {
 	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
 
-	if (nullptr != bear)
+	if (IsValid(bear))
 	{
+#if WITH_EDITOR
+
 		const auto name = GetName();
 		const auto other_name = other_actor->GetName();
 		UE_LOG(LogSagaGame, Log, TEXT("[HandleBeginCollision] '%s' would not be collide with bear '%s' anymore."), *name, *other_name);
+#endif
 
 		collideBears.RemoveSwap(bear);
 	}
@@ -446,20 +472,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	}
 
 	collideBears.Reserve(3);
-
-	/*myCameraSpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
-	myCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-
-	myCameraSpringArmComponent->SetupAttachment(GetMesh());
-
-	myCameraComponent->SetupAttachment(myCameraSpringArmComponent);
-
-	myCameraSpringArmComponent->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	myCameraSpringArmComponent->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
-
-	myCameraSpringArmComponent->TargetArmLength = 150.f;*/
-
-	// ASagaPlayableCharacter 클래스 내 생성자에 추가
 }
 
 void
@@ -478,7 +490,13 @@ ASagaPlayableCharacter::PostInitializeComponents()
 void
 ASagaPlayableCharacter::BeginPlay()
 {
-	myGameStat->OnHpZero.AddDynamic(this, &ASagaPlayableCharacter::ExecuteDeath);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not net->IsOfflineMode())
+	{
+		// NOTICE: 오프라인 모드일 때만 체력이 닳았을 때 ExecuteDeath를 실행함
+		myGameStat->OnHpZero.AddDynamic(this, &ASagaPlayableCharacter::ExecuteDeath);
+	}
 
 	OnActorBeginOverlap.AddDynamic(this, &ASagaPlayableCharacter::HandleBeginCollision);
 	OnActorEndOverlap.AddDynamic(this, &ASagaPlayableCharacter::HandleEndCollision);

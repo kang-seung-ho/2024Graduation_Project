@@ -9,6 +9,7 @@
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
+#include "Character/SagaGummyBearPlayer.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -29,7 +30,30 @@ ASagaInGameMode::OnLeftRoom(int32 user_id)
 		if (IsValid(character))
 		{
 			net->SetCharacterHandle(user_id, nullptr);
-			character->Destroy();
+
+			const auto human = Cast<ASagaPlayableCharacter>(character);
+
+			if (IsValid(human))
+			{
+				human->Destroy();
+			}
+			else
+			{
+				const auto guardian = Cast<ASagaGummyBearPlayer>(character);
+
+				if (IsValid(guardian))
+				{
+					const auto backup = Cast<ASagaPlayableCharacter>(character);
+
+					if (IsValid(backup))
+					{
+						backup->Destroy();
+					}
+
+					guardian->ownerData = {};
+					guardian->StopMovement();
+				}
+			}
 		}
 	}
 	else
@@ -43,7 +67,12 @@ ASagaInGameMode::OnLeftRoom(int32 user_id)
 
 			if (IsValid(character) && character->GetUserId() == user_id)
 			{
-				character->Destroy();
+				const auto human = Cast<ASagaPlayableCharacter>(character);
+
+				if (IsValid(human))
+				{
+					character->Destroy();
+				}
 			}
 		}
 	}
