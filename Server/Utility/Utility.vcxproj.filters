@@ -54,11 +54,9 @@
     <ClCompile Include="ReadOnly.ixx">
       <Filter>Public</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="atomic_queue_defs.h">
+    <ClCompile Include="Expected.ixx">
       <Filter>Public</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Utility.natvis" />

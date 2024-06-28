@@ -3,7 +3,7 @@ module Iconer.Net.IFramework;
 import Iconer.Net;
 import <print>;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::IFramework::Initialize()
 {
 	if (auto io = iconer::net::Startup(); io)

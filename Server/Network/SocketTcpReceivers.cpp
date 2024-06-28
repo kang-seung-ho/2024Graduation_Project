@@ -82,7 +82,7 @@ const
 	return Receive(memory, size).transform_error(ErrorTransfer{ outpin }).has_value();
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Receive(IoContext& context, std::span<std::byte> memory)
 const
 {
@@ -118,7 +118,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Receive(IoContext& context, std::span<std::byte> memory, size_t size)
 const
 {
@@ -154,7 +154,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Receive(IoContext& context, std::byte* memory, size_t size)
 const
 {

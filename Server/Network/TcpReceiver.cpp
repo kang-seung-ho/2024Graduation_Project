@@ -5,7 +5,7 @@ module Iconer.Net.TcpReceiver;
 import <memory>;
 import <span>;
 
-std::expected<int, iconer::net::ErrorCode>
+iconer::util::Expected<int, iconer::net::ErrorCode>
 iconer::net::TcpReceiver::Receive()
 {
 	auto io = mySocket.Receive(GetCurrentReceiveBuffer());
@@ -18,7 +18,7 @@ iconer::net::TcpReceiver::Receive()
 	return std::move(io);
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::TcpReceiver::BeginOptainMemory(iconer::net::IoContext& context)
 {
 	return mySocket.OptainReceiveMemory(context, recvBuffer.data(), maxRecvSize);
@@ -32,7 +32,7 @@ noexcept
 	recvBytes.store(0, std::memory_order_release);
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext& context)
 {
 	return mySocket.Receive(context, GetCurrentReceiveBuffer());
@@ -47,7 +47,7 @@ noexcept
 	return 0 != recvBytes.fetch_add(bytes, std::memory_order_acq_rel) + bytes;
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext* context)
 {
 	return BeginReceive(*context);
@@ -60,13 +60,13 @@ noexcept
 	return EndReceive(*context, bytes);
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext& context)
 {
 	return mySocket.AsyncClose(context);
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext* context)
 {
 	return mySocket.AsyncClose(context);

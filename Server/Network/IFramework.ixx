@@ -3,7 +3,6 @@ import Iconer.Utility.Delegate;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
 import <new>;
-import <expected>;
 
 export namespace iconer::net
 {
@@ -19,7 +18,7 @@ export namespace iconer::net
 		constexpr IFramework() = default;
 		virtual constexpr ~IFramework() = default;
 
-		virtual std::expected<void, iconer::net::ErrorCode> Initialize();
+		virtual iconer::net::IoResult Initialize();
 		virtual void Startup();
 		virtual void PostStartup();
 		virtual void Cleanup();

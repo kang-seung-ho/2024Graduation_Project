@@ -26,7 +26,7 @@ const noexcept
 	return false;
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::ReusableAddress(bool flag)
 noexcept
 {
@@ -54,7 +54,7 @@ const noexcept
 	return true;
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::SetTcpNoDelay(bool flag)
 noexcept
 {

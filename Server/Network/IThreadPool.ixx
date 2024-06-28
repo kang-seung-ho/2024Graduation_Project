@@ -1,15 +1,16 @@
 export module Iconer.Net.IThreadPool;
 import Iconer.Utility.Delegate;
-export import Iconer.Net.Socket;
-export import Iconer.Net.IoContext;
+import Iconer.Net.IoResult;
 export import Iconer.Net.IoCompletionPort;
-import <expected>;
 import <vector>;
 import <thread>;
 import <latch>;
 
 export namespace iconer::net
 {
+	class Socket;
+	class IoContext;
+
 	class [[nodiscard]] IThreadPool
 	{
 	public:
@@ -35,18 +36,18 @@ export namespace iconer::net
 
 		virtual ~IThreadPool() = default;
 
-		virtual std::expected<void, iconer::net::ErrorCode> Initialize();
+		virtual iconer::net::IoResult Initialize();
 		virtual void Startup();
 		virtual void Cleanup();
 
-		std::expected<void, iconer::net::ErrorCode>
+		iconer::net::IoResult
 			Register(iconer::net::Socket& socket, const std::uintptr_t& id)
 			const noexcept
 		{
 			return ioCompletionPort.Register(socket, id);
 		}
 
-		std::expected<void, iconer::net::ErrorCode>
+		iconer::net::IoResult
 			Register(iconer::net::Socket& socket, std::uintptr_t&& id)
 			const noexcept
 		{

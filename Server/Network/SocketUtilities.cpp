@@ -11,7 +11,7 @@ module Iconer.Net.Socket;
 
 constinit static inline ::RIO_EXTENSION_FUNCTION_TABLE rioFunctions{};
 
-std::expected<iconer::net::Socket, iconer::net::ErrorCode>
+iconer::util::Expected<iconer::net::Socket, iconer::net::ErrorCode>
 iconer::net::Socket::Create(iconer::net::SocketCategory type
 	, iconer::net::InternetProtocol protocol
 	, iconer::net::IpAddressFamily family)

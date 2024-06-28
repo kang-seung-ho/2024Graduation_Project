@@ -1,5 +1,6 @@
 #pragma once
 import Iconer.Net.IoCompletionPort;
+import Iconer.Net.IoResult;
 import Iconer.Net.IThreadPool;
 import <print>;
 
@@ -12,7 +13,7 @@ public:
 		: super(4)
 	{}
 
-	std::expected<void, iconer::net::ErrorCode> Initialize() override
+	iconer::net::IoResult Initialize() override
 	{
 		super::Initialize();
 

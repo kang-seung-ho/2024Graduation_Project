@@ -8,7 +8,7 @@ import Iconer.Net.IoContext;
 import Iconer.App.User;
 import <utility>;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::app::UserManager::Initialize(iconer::net::IoCompletionPort& io_port)
 {
 	using namespace iconer::net;

@@ -5,7 +5,7 @@ import Iconer.App.User;
 import Iconer.App.PacketContext;
 import <print>;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 ServerFramework::Initialize()
 {
 	std::println("Starting server...");
@@ -87,11 +87,11 @@ ServerFramework::Initialize()
 	myTaskPool.eventOnTaskSucceed.Add(MakeInvoker(this, &ServerFramework::OnTaskSucceed));
 	myTaskPool.eventOnTaskFailure.Add(MakeInvoker(this, &ServerFramework::OnTaskFailure));
 
-	if (not userManager.Initialize(myTaskPool.ioCompletionPort))
+	if (auto io = userManager.Initialize(myTaskPool.ioCompletionPort); not io)
 	{
 		std::println("The user manager has failed to initialize.");
 
-		return std::unexpected{ iconer::net::ErrorCode::WSAEUSERS };
+		return iconer::util::Unexpected{ io.error() };
 	}
 
 	userManager.Foreach([this](iconer::app::User& user)

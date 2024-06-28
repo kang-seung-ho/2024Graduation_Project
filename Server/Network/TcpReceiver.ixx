@@ -6,7 +6,6 @@ import Iconer.Net.SocketWrapper;
 import <cstddef>;
 import <cstdint>;
 import <memory>;
-import <expected>;
 import <vector>;
 import <atomic>;
 
@@ -28,19 +27,19 @@ export namespace iconer::net
 			, recvBytes()
 		{}
 
-		[[nodiscard]] std::expected<int, iconer::net::ErrorCode> Receive();
+		[[nodiscard]] iconer::util::Expected<int, iconer::net::ErrorCode> Receive();
 
-		std::expected<void, iconer::net::ErrorCode> BeginOptainMemory(iconer::net::IoContext& context);
+		iconer::net::IoResult BeginOptainMemory(iconer::net::IoContext& context);
 		void EndOptainMemory(iconer::net::IoContext& context) noexcept;
 		
-		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext& context);
+		iconer::net::IoResult BeginReceive(iconer::net::IoContext& context);
 		bool EndReceive(iconer::net::IoContext& context, const std::uint32_t bytes) noexcept;
 
-		std::expected<void, iconer::net::ErrorCode> BeginReceive(iconer::net::IoContext* context);
+		iconer::net::IoResult BeginReceive(iconer::net::IoContext* context);
 		bool EndReceive(iconer::net::IoContext* context, const std::uint32_t bytes) noexcept;
 
-		std::expected<void, iconer::net::ErrorCode> BeginClose(iconer::net::IoContext& context);
-		std::expected<void, iconer::net::ErrorCode> BeginClose(iconer::net::IoContext* context);
+		iconer::net::IoResult BeginClose(iconer::net::IoContext& context);
+		iconer::net::IoResult BeginClose(iconer::net::IoContext* context);
 		void EndClose();
 
 		[[nodiscard]]

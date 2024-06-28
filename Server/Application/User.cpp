@@ -2,7 +2,7 @@ module;
 
 module Iconer.App.User;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::app::User::BeginClose()
 {
 	mainContext->SetOperation(TaskCategory::OpClose);
@@ -39,4 +39,30 @@ iconer::app::User::Cleanup()
 	recvContext->ClearIoStatus();
 
 	roomContext->ClearIoStatus();
+}
+
+iconer::net::IoResult
+iconer::app::User::BeginOptainReceiveMemory()
+{
+	recvContext->SetOperation(TaskCategory::OpOptainRecvMemory);
+
+	return myReceiver.BeginOptainMemory(recvContext);
+}
+
+bool
+iconer::app::User::EndOptainReceiveMemory(bool flag)
+noexcept
+{
+	myReceiver.EndOptainMemory(recvContext);
+
+	SetConnected(flag);
+
+	if (flag)
+	{
+		return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::OpRecv);
+	}
+	else
+	{
+		return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::None);
+	}
 }

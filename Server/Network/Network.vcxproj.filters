@@ -96,6 +96,12 @@
     <ClCompile Include="TcpReceiver.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="IoResult.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IoEvent.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Network.natvis" />

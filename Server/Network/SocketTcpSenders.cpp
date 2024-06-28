@@ -13,7 +13,7 @@ import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
 #undef WSANO_DATA
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 RawSendEx(const std::uintptr_t& socket, ::WSABUF& buffer, void* context, ::LPWSAOVERLAPPED_COMPLETION_ROUTINE routine) noexcept;
 
 iconer::net::Socket::SyncIoResult
@@ -97,7 +97,7 @@ const
 	return Send(memory, size).transform_error(ErrorTransfer{ outpin }).has_value();
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Send(iconer::net::IoContext& context, std::span<const std::byte> memory)
 const
 {
@@ -110,7 +110,7 @@ const
 	return RawSendEx(myHandle, buffer, std::addressof(context), nullptr);
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Send(iconer::net::IoContext& context, std::span<const std::byte> memory, size_t size)
 const
 {
@@ -123,7 +123,7 @@ const
 	return RawSendEx(myHandle, buffer, std::addressof(context), nullptr);
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Send(iconer::net::IoContext& context, const std::byte* const& memory, size_t size)
 const
 {
@@ -157,7 +157,7 @@ const
 	return Send(context, memory, size).transform_error(ErrorTransfer{ outpin }).has_value();
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 RawSendEx(const std::uintptr_t& socket
 	, ::WSABUF& buffer
 	, void* context

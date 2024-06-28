@@ -12,7 +12,7 @@ const noexcept
 	myTaskPool.Schedule(ctx, user.GetID());
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 ServerFramework::TriggerUser(iconer::app::User& user)
 const noexcept
 {
@@ -27,7 +27,7 @@ const noexcept
 	return std::move(io);
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 ServerFramework::StartUser(iconer::app::User& user)
 const
 {

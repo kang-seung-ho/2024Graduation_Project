@@ -5,7 +5,6 @@ import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import Iconer.App.ISession;
 import Iconer.App.Settings;
-import <expected>;
 import <vector>;
 
 export namespace iconer::app
@@ -26,7 +25,7 @@ export namespace iconer::app
 		constexpr UserManager() noexcept = default;
 		constexpr ~UserManager() noexcept = default;
 
-		std::expected<void, iconer::net::ErrorCode> Initialize(iconer::net::IoCompletionPort& io_port);
+		iconer::net::IoResult Initialize(iconer::net::IoCompletionPort& io_port);
 		void Startup(iconer::net::Socket& listener);
 		void Cleanup();
 

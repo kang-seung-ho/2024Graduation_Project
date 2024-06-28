@@ -33,9 +33,6 @@
     <ClCompile Include="TaskContext.ixx">
       <Filter>Public</Filter>
     </ClCompile>
-    <ClCompile Include="ISessionManager.ixx">
-      <Filter>Public</Filter>
-    </ClCompile>
     <ClCompile Include="UserManager.ixx">
       <Filter>Public</Filter>
     </ClCompile>
@@ -61,6 +58,9 @@
       <Filter>Public</Filter>
     </ClCompile>
     <ClCompile Include="UserContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskCategory.ixx">
       <Filter>Public</Filter>
     </ClCompile>
   </ItemGroup>

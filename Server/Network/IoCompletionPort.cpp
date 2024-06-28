@@ -3,6 +3,7 @@ module;
 
 module Iconer.Net.IoCompletionPort;
 import Iconer.Net.Socket;
+import Iconer.Net.IoContext;
 import <memory>;
 import <optional>;
 import <vector>;
@@ -36,7 +37,7 @@ noexcept
 	return IoCompletionPort{ port };
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 net::IoCompletionPort::Register(net::Socket& socket, std::uintptr_t id)
 const noexcept
 {
@@ -173,7 +174,7 @@ const noexcept
 	return ev_handle;
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::IoCompletionPort::WaitForMultipleIoResults(std::span<IoEvent> dest, unsigned long max_count)
 const
 {

@@ -12,6 +12,7 @@ module Iconer.Net.Socket;
 import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
+import <utility>;
 import <mutex>;
 
 namespace
@@ -30,21 +31,21 @@ noexcept
 	std::call_once(internalInitFlag, &Socket::InternalFunctionInitializer, sock);
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Bind(const iconer::net::IpAddress& address, std::uint16_t port)
 const noexcept
 {
 	return Bind(iconer::net::EndPoint{ address, port });
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Bind(iconer::net::IpAddress&& address, std::uint16_t port)
 const noexcept
 {
 	return Bind(iconer::net::EndPoint{ std::move(address), port });
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Bind(const iconer::net::EndPoint& endpoint)
 const noexcept
 {
@@ -88,7 +89,7 @@ const noexcept
 	return std::unexpected{ AcquireNetworkError() };
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Bind(iconer::net::EndPoint&& endpoint)
 const noexcept
 {
@@ -132,7 +133,7 @@ const noexcept
 	return std::unexpected{ AcquireNetworkError() };
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BindToAny(std::uint16_t port)
 const noexcept
 {
@@ -180,7 +181,7 @@ const noexcept
 	return std::unexpected{ AcquireNetworkError() };
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BindToHost(std::uint16_t port)
 const noexcept
 {
@@ -228,7 +229,7 @@ const noexcept
 	return std::unexpected{ AcquireNetworkError() };
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Open()
 const noexcept
 {
@@ -242,21 +243,21 @@ const noexcept
 	}
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Connect(const iconer::net::IpAddress& address, std::uint16_t port)
 const noexcept
 {
 	return Connect(EndPoint{ address, port });
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Connect(iconer::net::IpAddress&& address, std::uint16_t port)
 const noexcept
 {
 	return Connect(EndPoint{ std::move(address), port });
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Connect(const iconer::net::EndPoint& endpoint)
 const noexcept
 {
@@ -277,7 +278,7 @@ const noexcept
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Connect(iconer::net::EndPoint&& endpoint)
 const noexcept
 {
@@ -298,7 +299,7 @@ const noexcept
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::ConnectToHost(std::uint16_t port)
 const noexcept
 {
@@ -361,7 +362,7 @@ const noexcept
 	}
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::SetOption(SocketOption option, const void* opt_buffer, const size_t opt_size)
 const noexcept
 {
@@ -378,7 +379,7 @@ const noexcept
 	}
 }
 
-std::expected<iconer::net::Socket, iconer::net::ErrorCode>
+iconer::util::Expected<iconer::net::Socket, iconer::net::ErrorCode>
 iconer::net::Socket::Accept()
 const noexcept
 {
@@ -418,7 +419,7 @@ const noexcept
 	return Socket{ client, myProtocol, family };
 }
 
-std::expected<iconer::net::Socket, iconer::net::ErrorCode>
+iconer::util::Expected<iconer::net::Socket, iconer::net::ErrorCode>
 iconer::net::Socket::Accept(iconer::net::EndPoint& endpoint)
 const noexcept
 {
@@ -501,7 +502,7 @@ const noexcept
 	return Socket{ client, myProtocol, family };
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext& context, std::span<std::byte> memory)
 const
 {
@@ -537,7 +538,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext& context, std::byte* memory, size_t size)
 const
 {
@@ -573,7 +574,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext* context, std::span<std::byte> memory)
 const
 {
@@ -609,7 +610,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext* context, std::byte* memory, size_t size)
 const
 {
@@ -645,21 +646,21 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, const iconer::net::Socket& client)
 const
 {
 	return BeginAccept(std::addressof(context), client);
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext& context, const Socket& client, std::span<std::byte> accept_buffer)
 const
 {
 	return BeginAccept(std::addressof(context), client, std::move(accept_buffer));
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, const iconer::net::Socket& client)
 const
 {
@@ -688,7 +689,7 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::BeginAccept(iconer::net::IoContext* context, const iconer::net::Socket& client, std::span<std::byte> accept_buffer)
 const
 {
@@ -716,14 +717,14 @@ const
 	return {};
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::EndAccept(const Socket& listener)
 const noexcept
 {
 	return SetOption(SocketOption::UpdateContext, std::addressof(listener.myHandle), sizeof(myHandle));
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::Close()
 const noexcept
 {
@@ -765,14 +766,14 @@ const noexcept
 	}
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::AsyncClose(IoContext& context)
 const noexcept
 {
 	return AsyncClose(std::addressof(context));
 }
 
-iconer::net::Socket::IoResult
+iconer::net::IoResult
 iconer::net::Socket::AsyncClose(IoContext* const context)
 const noexcept
 {

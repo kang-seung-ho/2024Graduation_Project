@@ -10,7 +10,6 @@ import Iconer.App.PacketProtocol;
 import Iconer.App.UserManager;
 import Iconer.App.Settings;
 import <cstdint>;
-import <expected>;
 import <array>;
 import <unordered_map>;
 import <thread>;
@@ -36,13 +35,13 @@ public:
 	ServerFramework() = default;
 	~ServerFramework() = default;
 
-	std::expected<void, iconer::net::ErrorCode> Initialize() override;
+	iconer::net::IoResult Initialize() override;
 	void Startup() override;
 	void Cleanup() override;
 
 private:
-	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool;
-	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager;
+	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool{};
+	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
 
 	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue2<iconer::app::PacketContext*, 10000> storedPacketContexts{};
 
@@ -52,8 +51,8 @@ private:
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 
 	void ReserveUser(class iconer::app::User& user) const noexcept;
-	iconer::net::Socket::IoResult TriggerUser(class iconer::app::User& user) const noexcept;
-	iconer::net::Socket::IoResult StartUser(class iconer::app::User& user) const;
+	iconer::net::IoResult TriggerUser(class iconer::app::User& user) const noexcept;
+	iconer::net::IoResult StartUser(class iconer::app::User& user) const;
 	void CleanupUser(class iconer::app::User& user) const;
 	void RoutePackets(class iconer::app::User& user);
 

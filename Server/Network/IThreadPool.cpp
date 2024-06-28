@@ -3,10 +3,12 @@ module;
 #define UNLIKELY [[unlikely]]
 
 module Iconer.Net.IThreadPool;
+import Iconer.Net.Socket;
+import Iconer.Net.IoContext;
 import <type_traits>;
 import <print>;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::IThreadPool::Initialize()
 {
 	if (auto io = IoCompletionPort::Create(); io) LIKELY

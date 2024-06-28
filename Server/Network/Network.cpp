@@ -9,7 +9,7 @@ module;
 module Iconer.Net;
 import <utility>;
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::Startup()
 noexcept
 {
@@ -26,7 +26,7 @@ noexcept
 	}
 }
 
-std::expected<void, iconer::net::ErrorCode>
+iconer::net::IoResult
 iconer::net::Cleanup()
 noexcept
 {

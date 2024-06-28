@@ -9,7 +9,6 @@ import Iconer.App.TaskContext;
 import Iconer.App.ISession;
 import Iconer.App.Settings;
 import <memory>;
-import <expected>;
 import <array>;
 import <string>;
 import <span>;
@@ -57,31 +56,11 @@ export namespace iconer::app
 		void Cleanup();
 
 		[[nodiscard]]
-		std::expected<void, iconer::net::ErrorCode> BeginOptainReceiveMemory()
-		{
-			recvContext->SetOperation(TaskCategory::OpOptainRecvMemory);
-
-			return myReceiver.BeginOptainMemory(recvContext);
-		}
-
-		bool EndOptainReceiveMemory(bool flag) noexcept
-		{
-			myReceiver.EndOptainMemory(recvContext);
-
-			SetConnected(flag);
-
-			if (flag)
-			{
-				return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::OpRecv);
-			}
-			else
-			{
-				return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::None);
-			}
-		}
+		iconer::net::IoResult BeginOptainReceiveMemory();
+		bool EndOptainReceiveMemory(bool flag) noexcept;
 
 		[[nodiscard]]
-		std::expected<void, iconer::net::ErrorCode> BeginReceive()
+		iconer::net::IoResult BeginReceive()
 		{
 			return myReceiver.BeginReceive(recvContext);
 		}
@@ -91,7 +70,7 @@ export namespace iconer::app
 			return myReceiver.EndReceive(recvContext, bytes);
 		}
 
-		std::expected<void, iconer::net::ErrorCode> BeginClose();
+		iconer::net::IoResult BeginClose();
 		void EndClose();
 
 		void SetConnected(bool flag) volatile noexcept

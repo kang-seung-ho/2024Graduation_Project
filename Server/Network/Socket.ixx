@@ -6,10 +6,9 @@ export import :SocketCategory;
 export import Iconer.Net.ErrorCode;
 export import Iconer.Net.InternetProtocol;
 export import Iconer.Net.IpAddressFamily;
+export import Iconer.Net.IoResult;
 import <cstddef>;
 import <cstdint>;
-import <utility>;
-import <expected>;
 import <span>;
 
 export struct _OVERLAPPED;
@@ -23,8 +22,7 @@ export namespace iconer::net
 	class [[nodiscard]] Socket
 	{
 	public:
-		using SyncIoResult = std::expected<int, iconer::net::ErrorCode>;
-		using IoResult = std::expected<void, iconer::net::ErrorCode>;
+		using SyncIoResult = iconer::util::Expected<int, iconer::net::ErrorCode>;
 
 		static inline constexpr std::uintptr_t invalidHandle = static_cast<std::uintptr_t>(-1);
 
@@ -60,9 +58,9 @@ export namespace iconer::net
 		IoResult SetTcpNoDelay(bool flag) noexcept;
 
 		[[nodiscard]]
-		std::expected<Socket, iconer::net::ErrorCode> Accept() const noexcept;
+		iconer::util::Expected<Socket, iconer::net::ErrorCode> Accept() const noexcept;
 		[[nodiscard]]
-		std::expected<Socket, iconer::net::ErrorCode> Accept(iconer::net::EndPoint& endpoint) const noexcept;
+		iconer::util::Expected<Socket, iconer::net::ErrorCode> Accept(iconer::net::EndPoint& endpoint) const noexcept;
 
 		IoResult OptainReceiveMemory(IoContext& context, std::span<std::byte> memory) const;
 		IoResult OptainReceiveMemory(IoContext& context, std::byte* memory, size_t size) const;
@@ -441,7 +439,7 @@ export namespace iconer::net
 		constexpr bool operator==(const Socket&) const noexcept = default;
 
 		[[nodiscard]]
-		static std::expected<Socket, iconer::net::ErrorCode> Create(iconer::net::SocketCategory type, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family) noexcept;
+		static iconer::util::Expected<Socket, iconer::net::ErrorCode> Create(iconer::net::SocketCategory type, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family) noexcept;
 
 		[[nodiscard]]
 		static bool TryCreate(iconer::net::SocketCategory type, iconer::net::InternetProtocol protocol, iconer::net::IpAddressFamily family, iconer::net::Socket& result, iconer::net::ErrorCode& outpin) noexcept;
@@ -463,7 +461,7 @@ export namespace iconer::net
 
 		struct ErrorTransfer
 		{
-			constexpr std::expected<bool, iconer::net::ErrorCode> operator()(iconer::net::ErrorCode&& error_code) const noexcept
+			constexpr iconer::util::Expected<bool, iconer::net::ErrorCode> operator()(iconer::net::ErrorCode&& error_code) const noexcept
 			{
 				errorOutput = std::exchange(error_code, {});
 				return false;

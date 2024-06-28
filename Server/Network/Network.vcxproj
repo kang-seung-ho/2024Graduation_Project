@@ -192,6 +192,8 @@
     <ClCompile Include="IoCompletionPort.cpp" />
     <ClCompile Include="IoCompletionPort.ixx" />
     <ClCompile Include="IoContext.ixx" />
+    <ClCompile Include="IoEvent.ixx" />
+    <ClCompile Include="IoResult.ixx" />
     <ClCompile Include="IpAddress.ixx" />
     <ClCompile Include="IpAddressFamily.ixx" />
     <ClCompile Include="IThreadPool.cpp" />
