@@ -17,7 +17,7 @@ namespace
 {
 	constexpr int CACHE_LINE_SIZE = 64;
 
-	static inline void spin_loop_pause() noexcept
+	inline void spin_loop_pause() noexcept
 	{
 		_mm_pause();
 	}
@@ -186,7 +186,7 @@ export namespace iconer::util
 		template<class T, T NIL>
 		static T do_pop_atomic(std::atomic<T>& q_element) noexcept
 		{
-			if (Derived::spsc_)
+			if constexpr (Derived::spsc_)
 			{
 				for (;;)
 				{
@@ -219,7 +219,8 @@ export namespace iconer::util
 		static void do_push_atomic(T element, std::atomic<T>& q_element) noexcept
 		{
 			assert(element != NIL);
-			if (Derived::spsc_)
+
+			if constexpr (Derived::spsc_)
 			{
 				while (ATOMIC_QUEUE_UNLIKELY(q_element.load(X) != NIL))
 					if (Derived::maximize_throughput_)
@@ -240,7 +241,7 @@ export namespace iconer::util
 		template<class T>
 		static T do_pop_any(std::atomic<unsigned char>& state, T& q_element) noexcept
 		{
-			if (Derived::spsc_)
+			if constexpr (Derived::spsc_)
 			{
 				while (ATOMIC_QUEUE_UNLIKELY(state.load(A) != STORED))
 					if (Derived::maximize_throughput_)
@@ -271,7 +272,7 @@ export namespace iconer::util
 		template<class U, class T>
 		static void do_push_any(U&& element, std::atomic<unsigned char>& state, T& q_element) noexcept
 		{
-			if (Derived::spsc_)
+			if constexpr (Derived::spsc_)
 			{
 				while (ATOMIC_QUEUE_UNLIKELY(state.load(A) != EMPTY))
 					if (Derived::maximize_throughput_)
@@ -303,9 +304,10 @@ export namespace iconer::util
 		bool try_push(T&& element) noexcept
 		{
 			auto head = head_.load(X);
-			if (Derived::spsc_)
+
+			if constexpr (Derived::spsc_)
 			{
-				if (static_cast<int>(head - tail_.load(X)) >= static_cast<int>(static_cast<Derived&>(*this).size_))
+				if (static_cast<int>(head - tail_.load(X)) >= static_cast<int>(static_cast<Derived&>(*this).mySize))
 					return false;
 				head_.store(head + 1, X);
 			}
@@ -313,7 +315,7 @@ export namespace iconer::util
 			{
 				do
 				{
-					if (static_cast<int>(head - tail_.load(X)) >= static_cast<int>(static_cast<Derived&>(*this).size_))
+					if (static_cast<int>(head - tail_.load(X)) >= static_cast<int>(static_cast<Derived&>(*this).mySize))
 						return false;
 				}
 				while (ATOMIC_QUEUE_UNLIKELY(!head_.compare_exchange_weak(head, head + 1, X, X))); // This loop is not FIFO.
@@ -327,7 +329,8 @@ export namespace iconer::util
 		bool try_pop(T& element) noexcept
 		{
 			auto tail = tail_.load(X);
-			if (Derived::spsc_)
+
+			if constexpr (Derived::spsc_)
 			{
 				if (static_cast<int>(head_.load(X) - tail) <= 0)
 					return false;
@@ -351,7 +354,8 @@ export namespace iconer::util
 		void push(T&& element) noexcept
 		{
 			unsigned head;
-			if (Derived::spsc_)
+
+			if constexpr (Derived::spsc_)
 			{
 				head = head_.load(X);
 				head_.store(head + 1, X);
@@ -361,13 +365,15 @@ export namespace iconer::util
 				constexpr auto memory_order = Derived::total_order_ ? std::memory_order_seq_cst : std::memory_order_relaxed;
 				head = head_.fetch_add(1, memory_order); // FIFO and total order on Intel regardless, as of 2019.
 			}
+
 			static_cast<Derived&>(*this).do_push(std::forward<T>(element), head);
 		}
 
 		auto pop() noexcept
 		{
 			unsigned tail;
-			if (Derived::spsc_)
+
+			if constexpr (Derived::spsc_)
 			{
 				tail = tail_.load(X);
 				tail_.store(tail + 1, X);
@@ -387,7 +393,7 @@ export namespace iconer::util
 
 		bool was_full() const noexcept
 		{
-			return was_size() >= static_cast<int>(static_cast<Derived const&>(*this).size_);
+			return was_size() >= static_cast<int>(static_cast<Derived const&>(*this).mySize);
 		}
 
 		unsigned was_size() const noexcept
@@ -398,7 +404,7 @@ export namespace iconer::util
 
 		unsigned capacity() const noexcept
 		{
-			return static_cast<Derived const&>(*this).size_;
+			return static_cast<Derived const&>(*this).mySize;
 		}
 	};
 
@@ -411,23 +417,23 @@ export namespace iconer::util
 		using Base = AtomicQueueCommon<AtomicQueue<T, SIZE, NIL, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>;
 		friend Base;
 
-		static constexpr unsigned size_ = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
-		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, size_, CACHE_LINE_SIZE / sizeof(std::atomic<T>)>::value;
+		static constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
+		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(std::atomic<T>)>::value;
 		static constexpr bool total_order_ = TOTAL_ORDER;
 		static constexpr bool spsc_ = SPSC;
 		static constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
 
-		alignas(CACHE_LINE_SIZE) std::atomic<T> elements_[size_];
+		alignas(CACHE_LINE_SIZE) std::atomic<T> elements_[mySize];
 
 		T do_pop(unsigned tail) noexcept
 		{
-			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, tail % size_);
+			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, tail % mySize);
 			return Base::template do_pop_atomic<T, NIL>(q_element);
 		}
 
 		void do_push(T element, unsigned head) noexcept
 		{
-			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, head % size_);
+			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, head % mySize);
 			Base::template do_push_atomic<T, NIL>(element, q_element);
 		}
 
@@ -437,7 +443,7 @@ export namespace iconer::util
 		AtomicQueue() noexcept
 		{
 			assert(std::atomic<T>{NIL}.is_lock_free()); // Queue element type T is not atomic. Use AtomicQueue2/AtomicQueueB2 for such element types.
-			for (auto p = elements_, q = elements_ + size_; p != q; ++p)
+			for (auto p = elements_, q = elements_ + mySize; p != q; ++p)
 				p->store(NIL, X);
 		}
 
@@ -453,25 +459,25 @@ export namespace iconer::util
 		using State = typename Base::State;
 		friend Base;
 
-		static constexpr unsigned size_ = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
-		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, size_, CACHE_LINE_SIZE / sizeof(State)>::value;
+		static constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
+		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(State)>::value;
 		static constexpr bool total_order_ = TOTAL_ORDER;
 		static constexpr bool spsc_ = SPSC;
 		static constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
 
-		alignas(CACHE_LINE_SIZE) std::atomic<unsigned char> states_[size_] = {};
-		alignas(CACHE_LINE_SIZE) T elements_[size_] = {};
+		alignas(CACHE_LINE_SIZE) std::atomic<unsigned char> states_[mySize] = {};
+		alignas(CACHE_LINE_SIZE) T elements_[mySize] = {};
 
 		T do_pop(unsigned tail) noexcept
 		{
-			unsigned index = details::remap_index<SHUFFLE_BITS>(tail % size_);
+			unsigned index = details::remap_index<SHUFFLE_BITS>(tail % mySize);
 			return Base::template do_pop_any(states_[index], elements_[index]);
 		}
 
 		template<class U>
 		void do_push(U&& element, unsigned head) noexcept
 		{
-			unsigned index = details::remap_index<SHUFFLE_BITS>(head % size_);
+			unsigned index = details::remap_index<SHUFFLE_BITS>(head % mySize);
 			Base::template do_push_any(std::forward<U>(element), states_[index], elements_[index]);
 		}
 
@@ -507,18 +513,18 @@ export namespace iconer::util
 
 		// AtomicQueueCommon members are stored into by readers and writers.
 		// Allocate these immutable members on another cache line which never gets invalidated by stores.
-		alignas(CACHE_LINE_SIZE) unsigned size_;
+		alignas(CACHE_LINE_SIZE) unsigned mySize;
 		std::atomic<T>* elements_;
 
 		T do_pop(unsigned tail) noexcept
 		{
-			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, tail & (size_ - 1));
+			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, tail & (mySize - 1));
 			return Base::template do_pop_atomic<T, NIL>(q_element);
 		}
 
 		void do_push(T element, unsigned head) noexcept
 		{
-			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, head & (size_ - 1));
+			std::atomic<T>& q_element = details::map<SHUFFLE_BITS>(elements_, head & (mySize - 1));
 			Base::template do_push_atomic<T, NIL>(element, q_element);
 		}
 
@@ -530,18 +536,18 @@ export namespace iconer::util
 
 		AtomicQueueB(unsigned size, A const& allocator = A{})
 			: AllocatorElements(allocator)
-			, size_(std::max(details::round_up_to_power_of_2(size), 1u << (SHUFFLE_BITS * 2)))
-			, elements_(AllocatorElements::allocate(size_))
+			, mySize(std::max(details::round_up_to_power_of_2(size), 1u << (SHUFFLE_BITS * 2)))
+			, elements_(AllocatorElements::allocate(mySize))
 		{
 			assert(std::atomic<T>{NIL}.is_lock_free()); // Queue element type T is not atomic. Use AtomicQueue2/AtomicQueueB2 for such element types.
-			std::uninitialized_fill_n(elements_, size_, NIL);
+			std::uninitialized_fill_n(elements_, mySize, NIL);
 			assert(get_allocator() == allocator); // The standard requires the original and rebound allocators to manage the same state.
 		}
 
 		AtomicQueueB(AtomicQueueB&& b) noexcept
 			: AllocatorElements(static_cast<AllocatorElements&&>(b)) // TODO: This must be noexcept, static_assert that.
 			, Base(static_cast<Base&&>(b))
-			, size_(std::exchange(b.size_, 0))
+			, mySize(std::exchange(b.mySize, 0))
 			, elements_(std::exchange(b.elements_, nullptr))
 		{}
 
@@ -555,8 +561,8 @@ export namespace iconer::util
 		{
 			if (elements_)
 			{
-				details::destroy_n(elements_, size_);
-				AllocatorElements::deallocate(elements_, size_); // TODO: This must be noexcept, static_assert that.
+				details::destroy_n(elements_, mySize);
+				AllocatorElements::deallocate(elements_, mySize); // TODO: This must be noexcept, static_assert that.
 			}
 		}
 
@@ -570,7 +576,7 @@ export namespace iconer::util
 			using std::swap;
 			swap(static_cast<AllocatorElements&>(*this), static_cast<AllocatorElements&>(b));
 			Base::swap(b);
-			swap(size_, b.size_);
+			swap(mySize, b.mySize);
 			swap(elements_, b.elements_);
 		}
 
@@ -599,7 +605,7 @@ export namespace iconer::util
 
 		// AtomicQueueCommon members are stored into by readers and writers.
 		// Allocate these immutable members on another cache line which never gets invalidated by stores.
-		alignas(CACHE_LINE_SIZE) unsigned size_;
+		alignas(CACHE_LINE_SIZE) unsigned mySize;
 		AtomicState* states_;
 		T* elements_;
 
@@ -611,21 +617,21 @@ export namespace iconer::util
 
 		T do_pop(unsigned tail) noexcept
 		{
-			unsigned index = details::remap_index<SHUFFLE_BITS>(tail & (size_ - 1));
+			unsigned index = details::remap_index<SHUFFLE_BITS>(tail & (mySize - 1));
 			return Base::template do_pop_any(states_[index], elements_[index]);
 		}
 
 		template<class U>
 		void do_push(U&& element, unsigned head) noexcept
 		{
-			unsigned index = details::remap_index<SHUFFLE_BITS>(head & (size_ - 1));
+			unsigned index = details::remap_index<SHUFFLE_BITS>(head & (mySize - 1));
 			Base::template do_push_any(std::forward<U>(element), states_[index], elements_[index]);
 		}
 
 		template<class U>
 		constexpr U* allocate_()
 		{
-			U* p = reinterpret_cast<U*>(StorageAllocator::allocate(size_ * sizeof(U)));
+			U* p = reinterpret_cast<U*>(StorageAllocator::allocate(mySize * sizeof(U)));
 			assert(reinterpret_cast<uintptr_t>(p) % alignof(U) == 0); // Allocated storage must be suitably aligned for U.
 
 			return p;
@@ -634,7 +640,7 @@ export namespace iconer::util
 		template<class U>
 		constexpr void deallocate_(U* p) noexcept
 		{
-			StorageAllocator::deallocate(reinterpret_cast<unsigned char*>(p), size_ * sizeof(U)); // TODO: This must be noexcept, static_assert that.
+			StorageAllocator::deallocate(reinterpret_cast<unsigned char*>(p), mySize * sizeof(U)); // TODO: This must be noexcept, static_assert that.
 		}
 
 	public:
@@ -645,21 +651,21 @@ export namespace iconer::util
 
 		AtomicQueueB2(unsigned size, A const& allocator = A{})
 			: StorageAllocator(allocator)
-			, size_(std::max(details::round_up_to_power_of_2(size), 1u << (SHUFFLE_BITS * 2)))
+			, mySize(std::max(details::round_up_to_power_of_2(size), 1u << (SHUFFLE_BITS * 2)))
 			, states_(allocate_<AtomicState>())
 			, elements_(allocate_<T>())
 		{
-			std::uninitialized_fill_n(states_, size_, Base::EMPTY);
+			std::uninitialized_fill_n(states_, mySize, Base::EMPTY);
 			A a = get_allocator();
 			assert(a == allocator); // The standard requires the original and rebound allocators to manage the same state.
-			for (auto p = elements_, q = elements_ + size_; p < q; ++p)
+			for (auto p = elements_, q = elements_ + mySize; p < q; ++p)
 				std::allocator_traits<A>::construct(a, p);
 		}
 
 		AtomicQueueB2(AtomicQueueB2&& b) noexcept
 			: StorageAllocator(static_cast<StorageAllocator&&>(b)) // TODO: This must be noexcept, static_assert that.
 			, Base(static_cast<Base&&>(b))
-			, size_(std::exchange(b.size_, 0))
+			, mySize(std::exchange(b.mySize, 0))
 			, states_(std::exchange(b.states_, nullptr))
 			, elements_(std::exchange(b.elements_, nullptr))
 		{}
@@ -675,10 +681,10 @@ export namespace iconer::util
 			if (elements_)
 			{
 				A a = get_allocator();
-				for (auto p = elements_, q = elements_ + size_; p < q; ++p)
+				for (auto p = elements_, q = elements_ + mySize; p < q; ++p)
 					std::allocator_traits<A>::destroy(a, p);
 				deallocate_(elements_);
-				details::destroy_n(states_, size_);
+				details::destroy_n(states_, mySize);
 				deallocate_(states_);
 			}
 		}
@@ -693,7 +699,7 @@ export namespace iconer::util
 			using std::swap;
 			swap(static_cast<StorageAllocator&>(*this), static_cast<StorageAllocator&>(b));
 			Base::swap(b);
-			swap(size_, b.size_);
+			swap(mySize, b.mySize);
 			swap(states_, b.states_);
 			swap(elements_, b.elements_);
 		}

@@ -64,6 +64,11 @@ export namespace iconer::net
 		[[nodiscard]]
 		std::expected<Socket, iconer::net::ErrorCode> Accept(iconer::net::EndPoint& endpoint) const noexcept;
 
+		IoResult OptainReceiveMemory(IoContext& context, std::span<std::byte> memory) const;
+		IoResult OptainReceiveMemory(IoContext& context, std::byte* memory, size_t size) const;
+		IoResult OptainReceiveMemory(IoContext* context, std::span<std::byte> memory) const;
+		IoResult OptainReceiveMemory(IoContext* context, std::byte* memory, size_t size) const;
+
 		/// <summary>
 		/// Reserve an acceptance of <paramref name="client"/>
 		/// <para>-------------------------------------------------------------------------------</para>

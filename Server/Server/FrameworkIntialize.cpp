@@ -2,6 +2,7 @@
 
 import Iconer.Utility.Delegate;
 import Iconer.App.User;
+import Iconer.App.PacketContext;
 import <print>;
 
 std::expected<void, iconer::net::ErrorCode>
@@ -69,6 +70,11 @@ ServerFramework::Initialize()
 		std::println("The listen socket was not able to be registered to the task pool, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
+	}
+
+	for (unsigned i = 0; i < storedPacketContexts.capacity(); ++i)
+	{
+		storedPacketContexts.push(new iconer::app::PacketContext{});
 	}
 
 	using iconer::util::MakeInvoker;

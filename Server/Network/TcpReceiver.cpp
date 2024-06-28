@@ -1,25 +1,41 @@
+module;
+#include <cassert>
+
 module Iconer.Net.TcpReceiver;
+import <memory>;
 import <span>;
 
 std::expected<int, iconer::net::ErrorCode>
 iconer::net::TcpReceiver::Receive()
 {
-	auto span = GetReceiveBuffer();
-	auto io = mySocket.Receive(span);
+	auto io = mySocket.Receive(GetCurrentReceiveBuffer());
 
 	if (io)
 	{
-		recvBytes += static_cast<std::uint32_t>(io.value());
+		recvBytes.fetch_add(static_cast<std::uint32_t>(io.value()), std::memory_order_acq_rel);
 	}
 
 	return std::move(io);
 }
 
 std::expected<void, iconer::net::ErrorCode>
+iconer::net::TcpReceiver::BeginOptainMemory(iconer::net::IoContext& context)
+{
+	return mySocket.OptainReceiveMemory(context, recvBuffer.data(), maxRecvSize);
+}
+
+void
+iconer::net::TcpReceiver::EndOptainMemory(iconer::net::IoContext& context)
+noexcept
+{
+	context.ClearIoStatus();
+	recvBytes.store(0, std::memory_order_release);
+}
+
+std::expected<void, iconer::net::ErrorCode>
 iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext& context)
 {
-	auto span = GetReceiveBuffer();
-	return mySocket.Receive(context, span);
+	return mySocket.Receive(context, GetCurrentReceiveBuffer());
 }
 
 bool
@@ -28,16 +44,13 @@ noexcept
 {
 	context.ClearIoStatus();
 
-	recvBytes += bytes;
-
-	return 0 != bytes;
+	return 0 != recvBytes.fetch_add(bytes, std::memory_order_acq_rel) + bytes;
 }
 
 std::expected<void, iconer::net::ErrorCode>
 iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext* context)
 {
-	auto span = GetCurrentReceiveBuffer();
-	return mySocket.Receive(*context, span);
+	return BeginReceive(*context);
 }
 
 bool
@@ -47,23 +60,58 @@ noexcept
 	return EndReceive(*context, bytes);
 }
 
+std::expected<void, iconer::net::ErrorCode>
+iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext& context)
+{
+	return mySocket.AsyncClose(context);
+}
+
+std::expected<void, iconer::net::ErrorCode>
+iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext* context)
+{
+	return mySocket.AsyncClose(context);
+}
+
+void
+iconer::net::TcpReceiver::EndClose()
+{
+	std::memset(recvBuffer.data(), 0, maxRecvSize);
+	recvBytes.store(0, std::memory_order_release);
+}
+
+std::unique_ptr<std::byte[]>
+iconer::net::TcpReceiver::AcquireReceivedData(size_t size)
+{
+	assert(size <= maxRecvSize);
+
+	const auto ptr = recvBuffer.data();
+
+	std::unique_ptr<std::byte[]> result = std::make_unique<std::byte[]>(size);
+	std::memcpy(result.get(), ptr, size);
+
+	std::memcpy(ptr, ptr + size, maxRecvSize - size);
+
+	return std::move(result);
+}
+
 std::span<std::byte>
 iconer::net::TcpReceiver::GetReceiveBuffer()
 noexcept
 {
-	return std::span<std::byte>{ recvBuffer.data(), maxRecvSize };
+	return std::span<std::byte>{ recvBuffer.data(), recvBytes.load(std::memory_order_acquire) };
 }
 
 std::span<const std::byte>
 iconer::net::TcpReceiver::GetReceiveBuffer()
 const noexcept
 {
-	return std::span<const std::byte>{ recvBuffer.data(), maxRecvSize };
+	return std::span<const std::byte>{ recvBuffer.data(), recvBytes.load(std::memory_order_acquire) };
 }
 
 std::span<std::byte>
 iconer::net::TcpReceiver::GetCurrentReceiveBuffer()
 noexcept
 {
-	return std::span<std::byte>{ recvBuffer.data() + recvBytes, maxRecvSize - recvBytes };
+	const auto bytes = recvBytes.load(std::memory_order_acquire);
+	return std::span<std::byte>{ recvBuffer.data() + bytes, maxRecvSize - bytes };
 }

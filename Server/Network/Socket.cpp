@@ -6,6 +6,7 @@ module;
 
 #define LIKELY [[likely]]
 #define UNLIKELY [[unlikely]]
+#undef WSANO_DATA
 
 module Iconer.Net.Socket;
 import Iconer.Net.IpAddress;
@@ -498,6 +499,150 @@ const noexcept
 	}
 
 	return Socket{ client, myProtocol, family };
+}
+
+iconer::net::Socket::IoResult
+iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext& context, std::span<std::byte> memory)
+const
+{
+	if (memory.size_bytes() == 0 or memory.data() == nullptr)
+	{
+		return std::unexpected{ ErrorCode::WSANO_DATA };
+	}
+	else
+	{
+		::WSABUF buffer
+		{
+			.len = 0,
+			.buf = reinterpret_cast<char*>(memory.data()),
+		};
+
+		::DWORD bytes = 0;
+		::DWORD flags = 0;
+
+		if (0 != ::WSARecv(myHandle
+			, std::addressof(buffer), 1
+			, std::addressof(bytes)
+			, std::addressof(flags)
+			, std::addressof(context)
+			, nullptr))
+		{
+			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+			{
+				return std::unexpected{ std::move(error) };
+			}
+		}
+	}
+
+	return {};
+}
+
+iconer::net::Socket::IoResult
+iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext& context, std::byte* memory, size_t size)
+const
+{
+	if (size == 0 or memory == nullptr)
+	{
+		return std::unexpected{ ErrorCode::WSANO_DATA };
+	}
+	else
+	{
+		::WSABUF buffer
+		{
+			.len = 0,
+			.buf = reinterpret_cast<char*>(memory),
+		};
+
+		::DWORD bytes = 0;
+		::DWORD flags = 0;
+
+		if (0 != ::WSARecv(myHandle
+			, std::addressof(buffer), 1
+			, std::addressof(bytes)
+			, std::addressof(flags)
+			, std::addressof(context)
+			, nullptr))
+		{
+			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+			{
+				return std::unexpected{ std::move(error) };
+			}
+		}
+	}
+
+	return {};
+}
+
+iconer::net::Socket::IoResult
+iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext* context, std::span<std::byte> memory)
+const
+{
+	if (memory.size_bytes() == 0 or memory.data() == nullptr)
+	{
+		return std::unexpected{ ErrorCode::WSANO_DATA };
+	}
+	else
+	{
+		::WSABUF buffer
+		{
+			.len = 0,
+			.buf = reinterpret_cast<char*>(memory.data()),
+		};
+
+		::DWORD bytes = 0;
+		::DWORD flags = 0;
+
+		if (0 != ::WSARecv(myHandle
+			, std::addressof(buffer), 1
+			, std::addressof(bytes)
+			, std::addressof(flags)
+			, context
+			, nullptr))
+		{
+			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+			{
+				return std::unexpected{ std::move(error) };
+			}
+		}
+	}
+
+	return {};
+}
+
+iconer::net::Socket::IoResult
+iconer::net::Socket::OptainReceiveMemory(iconer::net::IoContext* context, std::byte* memory, size_t size)
+const
+{
+	if (size == 0 or memory == nullptr)
+	{
+		return std::unexpected{ ErrorCode::WSANO_DATA };
+	}
+	else
+	{
+		::WSABUF buffer
+		{
+			.len = 0,
+			.buf = reinterpret_cast<char*>(memory),
+		};
+
+		::DWORD bytes = 0;
+		::DWORD flags = 0;
+
+		if (0 != ::WSARecv(myHandle
+			, std::addressof(buffer), 1
+			, std::addressof(bytes)
+			, std::addressof(flags)
+			, context
+			, nullptr))
+		{
+			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
+			{
+				return std::unexpected{ std::move(error) };
+			}
+		}
+	}
+
+	return {};
 }
 
 iconer::net::Socket::IoResult

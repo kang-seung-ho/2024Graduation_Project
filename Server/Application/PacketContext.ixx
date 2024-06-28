@@ -19,6 +19,11 @@ export namespace iconer::app
 			: super(TaskCategory::OpPacketProcess)
 			, myData()
 		{}
+		
+		constexpr PacketContext(std::unique_ptr<std::byte[]>&& data) noexcept
+			: super(TaskCategory::OpPacketProcess)
+			, myData(std::move(data))
+		{}
 
 		constexpr ~PacketContext() noexcept = default;
 

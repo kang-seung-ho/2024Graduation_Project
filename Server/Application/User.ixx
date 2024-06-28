@@ -42,7 +42,7 @@ export namespace iconer::app
 		std::string myName{};
 
 		iconer::util::ReadOnly<UserContext> mainContext;
-		iconer::util::ReadOnly<TaskContext> recvContext{ TaskCategory::OpRecv };
+		iconer::util::ReadOnly<TaskContext> recvContext{};
 		iconer::util::ReadOnly<TaskContext> roomContext{};
 		iconer::net::TcpReceiver myReceiver;
 
@@ -57,12 +57,36 @@ export namespace iconer::app
 		void Cleanup();
 
 		[[nodiscard]]
+		std::expected<void, iconer::net::ErrorCode> BeginOptainReceiveMemory()
+		{
+			recvContext->SetOperation(TaskCategory::OpOptainRecvMemory);
+
+			return myReceiver.BeginOptainMemory(recvContext);
+		}
+
+		bool EndOptainReceiveMemory(bool flag) noexcept
+		{
+			myReceiver.EndOptainMemory(recvContext);
+
+			SetConnected(flag);
+
+			if (flag)
+			{
+				return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::OpRecv);
+			}
+			else
+			{
+				return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::None);
+			}
+		}
+
+		[[nodiscard]]
 		std::expected<void, iconer::net::ErrorCode> BeginReceive()
 		{
 			return myReceiver.BeginReceive(recvContext);
 		}
 
-		bool EndReceive(const std::uint32_t bytes)
+		bool EndReceive(const std::uint32_t bytes) noexcept
 		{
 			return myReceiver.EndReceive(recvContext, bytes);
 		}

@@ -48,13 +48,14 @@ private:
 
 	std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors;
 
-	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
-	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes) const;
+	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
+	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 
 	void ReserveUser(class iconer::app::User& user) const noexcept;
 	iconer::net::Socket::IoResult TriggerUser(class iconer::app::User& user) const noexcept;
+	iconer::net::Socket::IoResult StartUser(class iconer::app::User& user) const;
 	void CleanupUser(class iconer::app::User& user) const;
-	void ProcessPacket(class iconer::app::User& user) const;
+	void RoutePackets(class iconer::app::User& user);
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;

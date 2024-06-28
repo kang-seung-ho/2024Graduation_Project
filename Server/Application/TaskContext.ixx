@@ -24,7 +24,7 @@ export namespace iconer::app
 		OpAssignID,
 
 		/// <summary>Phase 4 ~ </summary>
-		OpRecv, OpSend, OpSendBorrowed,
+		OpOptainRecvMemory, OpRecv, OpSend, OpSendBorrowed,
 
 		/// <summary>Phase 5 </summary>
 		OpPacketProcess,

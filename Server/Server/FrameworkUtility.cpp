@@ -16,13 +16,24 @@ iconer::net::Socket::IoResult
 ServerFramework::TriggerUser(iconer::app::User& user)
 const noexcept
 {
+	auto io = user.BeginOptainReceiveMemory();
+
+	if (not io)
+	{
+		auto& recv_ctx = user.recvContext;
+		recv_ctx->ClearIoStatus();
+	}
+
+	return std::move(io);
+}
+
+iconer::net::Socket::IoResult
+ServerFramework::StartUser(iconer::app::User& user)
+const
+{
 	auto io = user.BeginReceive();
 
-	if (io)
-	{
-		user.SetConnected(true);
-	}
-	else
+	if (not io)
 	{
 		auto& recv_ctx = user.recvContext;
 		recv_ctx->ClearIoStatus();
