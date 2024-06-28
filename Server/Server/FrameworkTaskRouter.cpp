@@ -46,11 +46,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			std::println("Packet processor from id {} ({} bytes)", id, bytes);
 		}
 
-		const auto packet_ctx = static_cast<iconer::app::PacketContext*>(context);
-
-		packet_ctx->ClearIoStatus();
-		packet_ctx->myData.reset();
-		storedPacketContexts.push(packet_ctx);
+		ProcessPackets(*user, static_cast<iconer::app::PacketContext*>(context), bytes);
 	}
 	break;
 	

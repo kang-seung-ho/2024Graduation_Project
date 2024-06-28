@@ -20,39 +20,86 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 		return;
 	}
 
+	size_t stacked_size = 0;
 	for (size_t offset = 0; offset < buf_size; ++offset)
 	{
 		const auto ptr = buffer.data() + offset;
 		const auto byte = *ptr;
 
 		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
-		std::println("The packet protocol: {}.", std::to_underlying(buffer[0]));
+		std::println("Received packet protocol: {}.", std::to_underlying(buffer[0]));
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
 
 		if (buf_size < size)
 		{
-			std::println("The packet size: {}. Not received yet.", size);
+			std::println("Received and mssing packet size: {}.", size);
 
 			break;
 		}
 		else
 		{
-			std::println("The packet size: {}.", size);
+			std::println("Received packet size: {}.", size);
 
 			offset += size;
+			stacked_size += size;
 		}
+	}
 
-		if (buf_size - 2 <= offset)
+	if (0 < stacked_size)
+	{
+		std::println("Defer procssing packets within {} bytes.", stacked_size);
+
+		const auto ctx = storedPacketContexts.pop();
+		ctx->myData = user.AcquireReceivedData(stacked_size);
+
+		myTaskPool.Schedule(ctx, user.GetID(), static_cast<unsigned long>(stacked_size));
+	}
+}
+
+void
+ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes)
+{
+	struct Guard
+	{
+		iconer::app::PacketContext* ctx;
+		ServerFramework* framework;
+
+		~Guard() noexcept
 		{
-			std::println("Defer procssing packets within {} bytes.", offset);
-
-			const auto ctx = storedPacketContexts.pop();
-			ctx->myData = user.AcquireReceivedData(offset);
-
-			myTaskPool.Schedule(ctx, user.GetID(), static_cast<unsigned long>(offset));
-
-			break;
+			ctx->ClearIoStatus();
+			ctx->myData.reset();
+			framework->storedPacketContexts.push(ctx);
 		}
+	};
+
+	Guard guard{ context, this };
+
+	const auto& data = context->myData;
+	const auto buffer = data.get();
+
+	for (std::uint32_t offset = 0; offset < recv_bytes; ++offset)
+	{
+		const auto ptr = buffer + offset;
+
+		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
+		const auto protocol_value = std::to_underlying(protocol);
+		std::println("The packet protocol: {}.", protocol_value);
+
+		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
+		std::println("The packet size: {}.", size);
+
+		if (auto it = packetProcessors.find(protocol); it != packetProcessors.cend())
+		{
+			const auto& method = it->second;
+
+			std::invoke(method, this, std::ref(user), ptr + 3);
+		}
+		else
+		{
+			std::println("Has no packet processor for {}.", protocol_value);
+		}
+
+		offset += size;
 	}
 }

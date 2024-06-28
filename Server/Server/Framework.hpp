@@ -5,8 +5,6 @@ import Iconer.Net.IFramework;
 import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
-import Iconer.App.PacketProtocol;
 import Iconer.App.UserManager;
 import Iconer.App.Settings;
 import <cstdint>;
@@ -21,9 +19,11 @@ namespace iconer::app
 {
 	class [[nodiscard]] TaskContext;
 	class [[nodiscard]] PacketContext;
+	class [[nodiscard]] User;
+	enum class [[nodiscard]] PacketProtocol : std::uint8_t;
 }
 
-using EventDelegate = iconer::method_t<class ServerFramework, void, class iconer::app::PacketContext*>;
+using EventDelegate = iconer::method_t<class ServerFramework, void, class iconer::app::User&, std::byte*>;
 
 class ServerFramework final : public iconer::net::IFramework
 {
@@ -55,6 +55,7 @@ private:
 	iconer::net::IoResult StartUser(class iconer::app::User& user) const;
 	void CleanupUser(class iconer::app::User& user) const;
 	void RoutePackets(class iconer::app::User& user);
+	void ProcessPackets(class iconer::app::User& user, class iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;
