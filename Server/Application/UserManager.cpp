@@ -4,6 +4,7 @@ module;
 module Iconer.App.UserManager;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
+import Iconer.Net.IoCompletionPort;
 import Iconer.Net.IoContext;
 import Iconer.App.User;
 import <utility>;

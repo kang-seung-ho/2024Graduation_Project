@@ -1,11 +1,16 @@
 export module Iconer.App.UserManager;
 import Iconer.Utility.TypeTraits;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
-import Iconer.Net.IoCompletionPort;
+import Iconer.Net.IoResult;
 import Iconer.App.ISession;
 import Iconer.App.Settings;
 import <vector>;
+
+export namespace iconer::net
+{
+	class [[nodiscard]] Socket;
+	class [[nodiscard]] IoCompletionPort;
+}
 
 export namespace iconer::app
 {
@@ -26,7 +31,7 @@ export namespace iconer::app
 		constexpr ~UserManager() noexcept = default;
 
 		iconer::net::IoResult Initialize(iconer::net::IoCompletionPort& io_port);
-		void Startup(iconer::net::Socket& listener);
+		void Startup(class iconer::net::Socket& listener);
 		void Cleanup();
 
 		template<invocable<session_type&> Callable>
@@ -70,7 +75,7 @@ export namespace iconer::app
 
 	private:
 		alignas(std::hardware_constructive_interference_size) std::vector<pointer_type> everyUsers{};
-		alignas(std::hardware_constructive_interference_size) iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
+		alignas(std::hardware_constructive_interference_size) class iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 
 		void AddUser(session_type* session);
 
