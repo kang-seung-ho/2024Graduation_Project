@@ -14,69 +14,69 @@ export namespace iconer::net
 		OPERATION_ABORTED = 995,
 		WAIT_EVENT_0 = 0,
 		WAIT_IO_COMPLETION = 192,
-		WSABASEERR = 10000,
+		NetBASEERR = 10000,
 		BlockingCallsInterrupted = 10004,
-		WSAEBADF = 10009,
-		WSAEACCES = 10013,
-		WSAEFAULT = 10014,
-		WSAEINVAL = 10022,
-		WSAEMFILE = 10024,
+		NetErrorAsBADF = 10009,
+		NetErrorAsACCES = 10013,
+		NetErrorAsFAULT = 10014,
+		NetErrorAsINVAL = 10022,
+		NetErrorAsMFILE = 10024,
 		NonBlockedOperation = 10035, // EWOULDBLOCK
 		YetInProgress = 10036,
-		WSAEALREADY = 10037,
+		NetErrorAsALREADY = 10037,
 		NotASocket = 10038,
-		WSAEDESTADDRREQ = 10039,
-		WSAEMSGSIZE = 10040,
-		WSAEPROTOTYPE = 10041,
-		WSAENOPROTOOPT = 10042,
-		WSAEPROTONOSUPPORT = 10043,
-		WSAESOCKTNOSUPPORT = 10044,
+		NetErrorAsDESTADDRREQ = 10039,
+		NetErrorAsMSGSIZE = 10040,
+		NetErrorAsPROTOTYPE = 10041,
+		NetErrorAsNOPROTOOPT = 10042,
+		NetErrorAsPROTONOSUPPORT = 10043,
+		NetErrorAsSOCKTNOSUPPORT = 10044,
 		NoSupportOperation = 10045,
-		WSAEPFNOSUPPORT = 10046,
-		WSAEAFNOSUPPORT = 10047,
+		NetErrorAsPFNOSUPPORT = 10046,
+		NetErrorAsAFNOSUPPORT = 10047,
 		CannotUseThisAddress = 10048,
-		WSAEADDRNOTAVAIL = 10049,
+		NetErrorAsADDRNOTAVAIL = 10049,
 		NetworkIsDown = 10050,
-		WSAENETUNREACH = 10051,
-		WSAENETRESET = 10052,
+		NetErrorAsNETUNREACH = 10051,
+		NetErrorAsNETRESET = 10052,
 		ConnectionAborted = 10053,
 		ConnectionStateReset = 10054, // Disconneting
 		NoBufferStorage = 10055,
-		WSAEISCONN = 10056,
+		NetErrorAsISCONN = 10056,
 		NotConnected = 10057,
 		ClosedSocket = 10058,
-		WSAETOOMANYREFS = 10059,
+		NetErrorAsTOOMANYREFS = 10059,
 		NetworkTimeOut = 10060,
-		WSAECONNREFUSED = 10061,
-		WSAELOOP = 10062,
-		WSAENAMETOOLONG = 10063,
-		WSAEHOSTDOWN = 10064,
-		WSAEHOSTUNREACH = 10065,
-		WSAENOTEMPTY = 10066,
-		WSAEPROCLIM = 10067,
-		WSAEUSERS = 10068,
-		WSAEDQUOT = 10069,
-		WSAESTALE = 10070,
-		WSAEREMOTE = 10071,
-		WSASYSNOTREADY = 10091,
-		WSAVERNOTSUPPORTED = 10092,
+		NetErrorAsCONNREFUSED = 10061,
+		NetErrorAsLOOP = 10062,
+		NetErrorAsNAMETOOLONG = 10063,
+		NetErrorAsHOSTDOWN = 10064,
+		NetErrorAsHOSTUNREACH = 10065,
+		NetErrorAsNOTEMPTY = 10066,
+		NetErrorAsPROCLIM = 10067,
+		NetErrorAsUSERS = 10068,
+		NetErrorAsDQUOT = 10069,
+		NetErrorAsSTALE = 10070,
+		NetErrorAsREMOTE = 10071,
+		NetSYSNOTREADY = 10091,
+		NetVERNOTSUPPORTED = 10092,
 		NotInitializedSocketSystem = 10093,
-		WSAEDISCON = 10101,
-		WSAENOMORE = 10102,
-		WSAECANCELLED = 10103,
-		WSAEINVALIDPROCTABLE = 10104,
-		WSAEINVALIDPROVIDER = 10105,
-		WSAEPROVIDERFAILEDINIT = 10106,
-		WSASYSCALLFAILURE = 10107,
-		WSASERVICE_NOT_FOUND = 10108,
-		WSATYPE_NOT_FOUND = 10109,
+		NetErrorAsDISCON = 10101,
+		NetErrorAsNOMORE = 10102,
+		NetErrorAsCANCELLED = 10103,
+		NetErrorAsINVALIDPROCTABLE = 10104,
+		NetErrorAsINVALIDPROVIDER = 10105,
+		NetErrorAsPROVIDERFAILEDINIT = 10106,
+		NetSYSCALLFAILURE = 10107,
+		NetSERVICE_NOT_FOUND = 10108,
+		NetTYPE_NOT_FOUND = 10109,
 		E_NO_MORE = 10110,
 		E_CANCELLED = 10111,
-		WSAEREFUSED = 10112,
-		WSAHOST_NOT_FOUND = 11001,
-		WSATRY_AGAIN = 11002,
-		WSANO_RECOVERY = 11003,
-		WSANO_DATA = 11004,
+		NetErrorAsREFUSED = 10112,
+		NetHOST_NOT_FOUND = 11001,
+		NetTRY_AGAIN = 11002,
+		NetNO_RECOVERY = 11003,
+		NetNO_DATA = 11004,
 		QOS_RECEIVERS = 11005,
 		QOS_SENDERS = 11006,
 		QOS_NO_SENDERS = 11007,
@@ -130,69 +130,69 @@ export namespace std
 		case iconer::net::ErrorCode::OPERATION_ABORTED: return "OPERATION_ABORTED";
 		case iconer::net::ErrorCode::WAIT_EVENT_0: return "WSA_WAIT_EVENT_0";
 		case iconer::net::ErrorCode::WAIT_IO_COMPLETION: return "WSA_WAIT_IO_COMPLETION";
-		case iconer::net::ErrorCode::WSABASEERR: return "WSABASEERR";
+		case iconer::net::ErrorCode::NetBASEERR: return "WSABASEERR";
 		case iconer::net::ErrorCode::BlockingCallsInterrupted: return "BlockingCallsInterrupted";
-		case iconer::net::ErrorCode::WSAEBADF: return "WSAEBADF";
-		case iconer::net::ErrorCode::WSAEACCES: return "WSAEACCES";
-		case iconer::net::ErrorCode::WSAEFAULT: return "WSAEFAULT";
-		case iconer::net::ErrorCode::WSAEINVAL: return "WSAEINVAL";
-		case iconer::net::ErrorCode::WSAEMFILE: return "WSAEMFILE";
+		case iconer::net::ErrorCode::NetErrorAsBADF: return "WSAEBADF";
+		case iconer::net::ErrorCode::NetErrorAsACCES: return "WSAEACCES";
+		case iconer::net::ErrorCode::NetErrorAsFAULT: return "WSAEFAULT";
+		case iconer::net::ErrorCode::NetErrorAsINVAL: return "WSAEINVAL";
+		case iconer::net::ErrorCode::NetErrorAsMFILE: return "WSAEMFILE";
 		case iconer::net::ErrorCode::NonBlockedOperation: return "NonBlockedOperation";
 		case iconer::net::ErrorCode::YetInProgress: return "YetInProgress";
-		case iconer::net::ErrorCode::WSAEALREADY: return "WSAEALREADY";
+		case iconer::net::ErrorCode::NetErrorAsALREADY: return "WSAEALREADY";
 		case iconer::net::ErrorCode::NotASocket: return "NotASocket";
-		case iconer::net::ErrorCode::WSAEDESTADDRREQ: return "WSAEDESTADDRREQ";
-		case iconer::net::ErrorCode::WSAEMSGSIZE: return "WSAEMSGSIZE";
-		case iconer::net::ErrorCode::WSAEPROTOTYPE: return "WSAEPROTOTYPE";
-		case iconer::net::ErrorCode::WSAENOPROTOOPT: return "WSAENOPROTOOPT";
-		case iconer::net::ErrorCode::WSAEPROTONOSUPPORT: return "WSAEPROTONOSUPPORT";
-		case iconer::net::ErrorCode::WSAESOCKTNOSUPPORT: return "WSAESOCKTNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsDESTADDRREQ: return "WSAEDESTADDRREQ";
+		case iconer::net::ErrorCode::NetErrorAsMSGSIZE: return "WSAEMSGSIZE";
+		case iconer::net::ErrorCode::NetErrorAsPROTOTYPE: return "WSAEPROTOTYPE";
+		case iconer::net::ErrorCode::NetErrorAsNOPROTOOPT: return "WSAENOPROTOOPT";
+		case iconer::net::ErrorCode::NetErrorAsPROTONOSUPPORT: return "WSAEPROTONOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsSOCKTNOSUPPORT: return "WSAESOCKTNOSUPPORT";
 		case iconer::net::ErrorCode::NoSupportOperation: return "NoSupportOperation";
-		case iconer::net::ErrorCode::WSAEPFNOSUPPORT: return "WSAEPFNOSUPPORT";
-		case iconer::net::ErrorCode::WSAEAFNOSUPPORT: return "WSAEAFNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsPFNOSUPPORT: return "WSAEPFNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsAFNOSUPPORT: return "WSAEAFNOSUPPORT";
 		case iconer::net::ErrorCode::CannotUseThisAddress: return "CannotUseThisAddress";
-		case iconer::net::ErrorCode::WSAEADDRNOTAVAIL: return "WSAEADDRNOTAVAIL";
+		case iconer::net::ErrorCode::NetErrorAsADDRNOTAVAIL: return "WSAEADDRNOTAVAIL";
 		case iconer::net::ErrorCode::NetworkIsDown: return "NetworkIsDown";
-		case iconer::net::ErrorCode::WSAENETUNREACH: return "WSAENETUNREACH";
-		case iconer::net::ErrorCode::WSAENETRESET: return "WSAENETRESET";
+		case iconer::net::ErrorCode::NetErrorAsNETUNREACH: return "WSAENETUNREACH";
+		case iconer::net::ErrorCode::NetErrorAsNETRESET: return "WSAENETRESET";
 		case iconer::net::ErrorCode::ConnectionAborted: return "ConnectionAborted";
 		case iconer::net::ErrorCode::ConnectionStateReset: return "ConnectionStateReset";
 		case iconer::net::ErrorCode::NoBufferStorage: return "NoBufferStorage";
-		case iconer::net::ErrorCode::WSAEISCONN: return "WSAEISCONN";
+		case iconer::net::ErrorCode::NetErrorAsISCONN: return "WSAEISCONN";
 		case iconer::net::ErrorCode::NotConnected: return "NotConnected";
 		case iconer::net::ErrorCode::ClosedSocket: return "ClosedSocket";
-		case iconer::net::ErrorCode::WSAETOOMANYREFS: return "WSAETOOMANYREFS";
+		case iconer::net::ErrorCode::NetErrorAsTOOMANYREFS: return "WSAETOOMANYREFS";
 		case iconer::net::ErrorCode::NetworkTimeOut: return "NetworkTimeOut";
-		case iconer::net::ErrorCode::WSAECONNREFUSED: return "WSAECONNREFUSED";
-		case iconer::net::ErrorCode::WSAELOOP: return "WSAELOOP";
-		case iconer::net::ErrorCode::WSAENAMETOOLONG: return "WSAENAMETOOLONG";
-		case iconer::net::ErrorCode::WSAEHOSTDOWN: return "WSAEHOSTDOWN";
-		case iconer::net::ErrorCode::WSAEHOSTUNREACH: return "WSAEHOSTUNREACH";
-		case iconer::net::ErrorCode::WSAENOTEMPTY: return "WSAENOTEMPTY";
-		case iconer::net::ErrorCode::WSAEPROCLIM: return "WSAEPROCLIM";
-		case iconer::net::ErrorCode::WSAEUSERS: return "WSAEUSERS";
-		case iconer::net::ErrorCode::WSAEDQUOT: return "WSAEDQUOT";
-		case iconer::net::ErrorCode::WSAESTALE: return "WSAESTALE";
-		case iconer::net::ErrorCode::WSAEREMOTE: return "WSAEREMOTE";
-		case iconer::net::ErrorCode::WSASYSNOTREADY: return "WSASYSNOTREADY";
-		case iconer::net::ErrorCode::WSAVERNOTSUPPORTED: return "WSAVERNOTSUPPORTED";
+		case iconer::net::ErrorCode::NetErrorAsCONNREFUSED: return "WSAECONNREFUSED";
+		case iconer::net::ErrorCode::NetErrorAsLOOP: return "WSAELOOP";
+		case iconer::net::ErrorCode::NetErrorAsNAMETOOLONG: return "WSAENAMETOOLONG";
+		case iconer::net::ErrorCode::NetErrorAsHOSTDOWN: return "WSAEHOSTDOWN";
+		case iconer::net::ErrorCode::NetErrorAsHOSTUNREACH: return "WSAEHOSTUNREACH";
+		case iconer::net::ErrorCode::NetErrorAsNOTEMPTY: return "WSAENOTEMPTY";
+		case iconer::net::ErrorCode::NetErrorAsPROCLIM: return "WSAEPROCLIM";
+		case iconer::net::ErrorCode::NetErrorAsUSERS: return "WSAEUSERS";
+		case iconer::net::ErrorCode::NetErrorAsDQUOT: return "WSAEDQUOT";
+		case iconer::net::ErrorCode::NetErrorAsSTALE: return "WSAESTALE";
+		case iconer::net::ErrorCode::NetErrorAsREMOTE: return "WSAEREMOTE";
+		case iconer::net::ErrorCode::NetSYSNOTREADY: return "WSASYSNOTREADY";
+		case iconer::net::ErrorCode::NetVERNOTSUPPORTED: return "WSAVERNOTSUPPORTED";
 		case iconer::net::ErrorCode::NotInitializedSocketSystem: return "NotInitializedSocketSystem";
-		case iconer::net::ErrorCode::WSAEDISCON: return "WSAEDISCON";
-		case iconer::net::ErrorCode::WSAENOMORE: return "WSAENOMORE";
-		case iconer::net::ErrorCode::WSAECANCELLED: return "WSAECANCELLED";
-		case iconer::net::ErrorCode::WSAEINVALIDPROCTABLE: return "WSAEINVALIDPROCTABLE";
-		case iconer::net::ErrorCode::WSAEINVALIDPROVIDER: return "WSAEINVALIDPROVIDER";
-		case iconer::net::ErrorCode::WSAEPROVIDERFAILEDINIT: return "WSAEPROVIDERFAILEDINIT";
-		case iconer::net::ErrorCode::WSASYSCALLFAILURE: return "WSASYSCALLFAILURE";
-		case iconer::net::ErrorCode::WSASERVICE_NOT_FOUND: return "WSASERVICE_NOT_FOUND";
-		case iconer::net::ErrorCode::WSATYPE_NOT_FOUND: return "WSATYPE_NOT_FOUND";
+		case iconer::net::ErrorCode::NetErrorAsDISCON: return "WSAEDISCON";
+		case iconer::net::ErrorCode::NetErrorAsNOMORE: return "WSAENOMORE";
+		case iconer::net::ErrorCode::NetErrorAsCANCELLED: return "WSAECANCELLED";
+		case iconer::net::ErrorCode::NetErrorAsINVALIDPROCTABLE: return "WSAEINVALIDPROCTABLE";
+		case iconer::net::ErrorCode::NetErrorAsINVALIDPROVIDER: return "WSAEINVALIDPROVIDER";
+		case iconer::net::ErrorCode::NetErrorAsPROVIDERFAILEDINIT: return "WSAEPROVIDERFAILEDINIT";
+		case iconer::net::ErrorCode::NetSYSCALLFAILURE: return "WSASYSCALLFAILURE";
+		case iconer::net::ErrorCode::NetSERVICE_NOT_FOUND: return "WSASERVICE_NOT_FOUND";
+		case iconer::net::ErrorCode::NetTYPE_NOT_FOUND: return "WSATYPE_NOT_FOUND";
 		case iconer::net::ErrorCode::E_NO_MORE: return "WSA_E_NO_MORE";
 		case iconer::net::ErrorCode::E_CANCELLED: return "WSA_E_CANCELLED";
-		case iconer::net::ErrorCode::WSAEREFUSED: return "WSAEREFUSED";
-		case iconer::net::ErrorCode::WSAHOST_NOT_FOUND: return "WSAHOST_NOT_FOUND";
-		case iconer::net::ErrorCode::WSATRY_AGAIN: return "WSATRY_AGAIN";
-		case iconer::net::ErrorCode::WSANO_RECOVERY: return "WSANO_RECOVERY";
-		case iconer::net::ErrorCode::WSANO_DATA: return "WSANO_DATA";
+		case iconer::net::ErrorCode::NetErrorAsREFUSED: return "WSAEREFUSED";
+		case iconer::net::ErrorCode::NetHOST_NOT_FOUND: return "WSAHOST_NOT_FOUND";
+		case iconer::net::ErrorCode::NetTRY_AGAIN: return "WSATRY_AGAIN";
+		case iconer::net::ErrorCode::NetNO_RECOVERY: return "WSANO_RECOVERY";
+		case iconer::net::ErrorCode::NetNO_DATA: return "NetNO_DATA";
 		case iconer::net::ErrorCode::QOS_RECEIVERS: return "WSA_QOS_RECEIVERS";
 		case iconer::net::ErrorCode::QOS_SENDERS: return "WSA_QOS_SENDERS";
 		case iconer::net::ErrorCode::QOS_NO_SENDERS: return "WSA_QOS_NO_SENDERS";
@@ -239,69 +239,69 @@ export namespace std
 		case iconer::net::ErrorCode::OPERATION_ABORTED: return L"OPERATION_ABORTED";
 		case iconer::net::ErrorCode::WAIT_EVENT_0: return L"WSA_WAIT_EVENT_0";
 		case iconer::net::ErrorCode::WAIT_IO_COMPLETION: return L"WSA_WAIT_IO_COMPLETION";
-		case iconer::net::ErrorCode::WSABASEERR: return L"WSABASEERR";
+		case iconer::net::ErrorCode::NetBASEERR: return L"WSABASEERR";
 		case iconer::net::ErrorCode::BlockingCallsInterrupted: return L"BlockingCallsInterrupted";
-		case iconer::net::ErrorCode::WSAEBADF: return L"WSAEBADF";
-		case iconer::net::ErrorCode::WSAEACCES: return L"WSAEACCES";
-		case iconer::net::ErrorCode::WSAEFAULT: return L"WSAEFAULT";
-		case iconer::net::ErrorCode::WSAEINVAL: return L"WSAEINVAL";
-		case iconer::net::ErrorCode::WSAEMFILE: return L"WSAEMFILE";
+		case iconer::net::ErrorCode::NetErrorAsBADF: return L"WSAEBADF";
+		case iconer::net::ErrorCode::NetErrorAsACCES: return L"WSAEACCES";
+		case iconer::net::ErrorCode::NetErrorAsFAULT: return L"WSAEFAULT";
+		case iconer::net::ErrorCode::NetErrorAsINVAL: return L"WSAEINVAL";
+		case iconer::net::ErrorCode::NetErrorAsMFILE: return L"WSAEMFILE";
 		case iconer::net::ErrorCode::NonBlockedOperation: return L"NonBlockedOperation";
 		case iconer::net::ErrorCode::YetInProgress: return L"YetInProgress";
-		case iconer::net::ErrorCode::WSAEALREADY: return L"WSAEALREADY";
+		case iconer::net::ErrorCode::NetErrorAsALREADY: return L"WSAEALREADY";
 		case iconer::net::ErrorCode::NotASocket: return L"NotASocket";
-		case iconer::net::ErrorCode::WSAEDESTADDRREQ: return L"WSAEDESTADDRREQ";
-		case iconer::net::ErrorCode::WSAEMSGSIZE: return L"WSAEMSGSIZE";
-		case iconer::net::ErrorCode::WSAEPROTOTYPE: return L"WSAEPROTOTYPE";
-		case iconer::net::ErrorCode::WSAENOPROTOOPT: return L"WSAENOPROTOOPT";
-		case iconer::net::ErrorCode::WSAEPROTONOSUPPORT: return L"WSAEPROTONOSUPPORT";
-		case iconer::net::ErrorCode::WSAESOCKTNOSUPPORT: return L"WSAESOCKTNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsDESTADDRREQ: return L"WSAEDESTADDRREQ";
+		case iconer::net::ErrorCode::NetErrorAsMSGSIZE: return L"WSAEMSGSIZE";
+		case iconer::net::ErrorCode::NetErrorAsPROTOTYPE: return L"WSAEPROTOTYPE";
+		case iconer::net::ErrorCode::NetErrorAsNOPROTOOPT: return L"WSAENOPROTOOPT";
+		case iconer::net::ErrorCode::NetErrorAsPROTONOSUPPORT: return L"WSAEPROTONOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsSOCKTNOSUPPORT: return L"WSAESOCKTNOSUPPORT";
 		case iconer::net::ErrorCode::NoSupportOperation: return L"NoSupportOperation";
-		case iconer::net::ErrorCode::WSAEPFNOSUPPORT: return L"WSAEPFNOSUPPORT";
-		case iconer::net::ErrorCode::WSAEAFNOSUPPORT: return L"WSAEAFNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsPFNOSUPPORT: return L"WSAEPFNOSUPPORT";
+		case iconer::net::ErrorCode::NetErrorAsAFNOSUPPORT: return L"WSAEAFNOSUPPORT";
 		case iconer::net::ErrorCode::CannotUseThisAddress: return L"CannotUseThisAddress";
-		case iconer::net::ErrorCode::WSAEADDRNOTAVAIL: return L"WSAEADDRNOTAVAIL";
+		case iconer::net::ErrorCode::NetErrorAsADDRNOTAVAIL: return L"WSAEADDRNOTAVAIL";
 		case iconer::net::ErrorCode::NetworkIsDown: return L"NetworkIsDown";
-		case iconer::net::ErrorCode::WSAENETUNREACH: return L"WSAENETUNREACH";
-		case iconer::net::ErrorCode::WSAENETRESET: return L"WSAENETRESET";
+		case iconer::net::ErrorCode::NetErrorAsNETUNREACH: return L"WSAENETUNREACH";
+		case iconer::net::ErrorCode::NetErrorAsNETRESET: return L"WSAENETRESET";
 		case iconer::net::ErrorCode::ConnectionAborted: return L"ConnectionAborted";
 		case iconer::net::ErrorCode::ConnectionStateReset: return L"ConnectionStateReset";
 		case iconer::net::ErrorCode::NoBufferStorage: return L"NoBufferStorage";
-		case iconer::net::ErrorCode::WSAEISCONN: return L"WSAEISCONN";
+		case iconer::net::ErrorCode::NetErrorAsISCONN: return L"WSAEISCONN";
 		case iconer::net::ErrorCode::NotConnected: return L"NotConnected";
 		case iconer::net::ErrorCode::ClosedSocket: return L"ClosedSocket";
-		case iconer::net::ErrorCode::WSAETOOMANYREFS: return L"WSAETOOMANYREFS";
+		case iconer::net::ErrorCode::NetErrorAsTOOMANYREFS: return L"WSAETOOMANYREFS";
 		case iconer::net::ErrorCode::NetworkTimeOut: return L"NetworkTimeOut";
-		case iconer::net::ErrorCode::WSAECONNREFUSED: return L"WSAECONNREFUSED";
-		case iconer::net::ErrorCode::WSAELOOP: return L"WSAELOOP";
-		case iconer::net::ErrorCode::WSAENAMETOOLONG: return L"WSAENAMETOOLONG";
-		case iconer::net::ErrorCode::WSAEHOSTDOWN: return L"WSAEHOSTDOWN";
-		case iconer::net::ErrorCode::WSAEHOSTUNREACH: return L"WSAEHOSTUNREACH";
-		case iconer::net::ErrorCode::WSAENOTEMPTY: return L"WSAENOTEMPTY";
-		case iconer::net::ErrorCode::WSAEPROCLIM: return L"WSAEPROCLIM";
-		case iconer::net::ErrorCode::WSAEUSERS: return L"WSAEUSERS";
-		case iconer::net::ErrorCode::WSAEDQUOT: return L"WSAEDQUOT";
-		case iconer::net::ErrorCode::WSAESTALE: return L"WSAESTALE";
-		case iconer::net::ErrorCode::WSAEREMOTE: return L"WSAEREMOTE";
-		case iconer::net::ErrorCode::WSASYSNOTREADY: return L"WSASYSNOTREADY";
-		case iconer::net::ErrorCode::WSAVERNOTSUPPORTED: return L"WSAVERNOTSUPPORTED";
+		case iconer::net::ErrorCode::NetErrorAsCONNREFUSED: return L"WSAECONNREFUSED";
+		case iconer::net::ErrorCode::NetErrorAsLOOP: return L"WSAELOOP";
+		case iconer::net::ErrorCode::NetErrorAsNAMETOOLONG: return L"WSAENAMETOOLONG";
+		case iconer::net::ErrorCode::NetErrorAsHOSTDOWN: return L"WSAEHOSTDOWN";
+		case iconer::net::ErrorCode::NetErrorAsHOSTUNREACH: return L"WSAEHOSTUNREACH";
+		case iconer::net::ErrorCode::NetErrorAsNOTEMPTY: return L"WSAENOTEMPTY";
+		case iconer::net::ErrorCode::NetErrorAsPROCLIM: return L"WSAEPROCLIM";
+		case iconer::net::ErrorCode::NetErrorAsUSERS: return L"WSAEUSERS";
+		case iconer::net::ErrorCode::NetErrorAsDQUOT: return L"WSAEDQUOT";
+		case iconer::net::ErrorCode::NetErrorAsSTALE: return L"WSAESTALE";
+		case iconer::net::ErrorCode::NetErrorAsREMOTE: return L"WSAEREMOTE";
+		case iconer::net::ErrorCode::NetSYSNOTREADY: return L"WSASYSNOTREADY";
+		case iconer::net::ErrorCode::NetVERNOTSUPPORTED: return L"WSAVERNOTSUPPORTED";
 		case iconer::net::ErrorCode::NotInitializedSocketSystem: return L"NotInitializedSocketSystem";
-		case iconer::net::ErrorCode::WSAEDISCON: return L"WSAEDISCON";
-		case iconer::net::ErrorCode::WSAENOMORE: return L"WSAENOMORE";
-		case iconer::net::ErrorCode::WSAECANCELLED: return L"WSAECANCELLED";
-		case iconer::net::ErrorCode::WSAEINVALIDPROCTABLE: return L"WSAEINVALIDPROCTABLE";
-		case iconer::net::ErrorCode::WSAEINVALIDPROVIDER: return L"WSAEINVALIDPROVIDER";
-		case iconer::net::ErrorCode::WSAEPROVIDERFAILEDINIT: return L"WSAEPROVIDERFAILEDINIT";
-		case iconer::net::ErrorCode::WSASYSCALLFAILURE: return L"WSASYSCALLFAILURE";
-		case iconer::net::ErrorCode::WSASERVICE_NOT_FOUND: return L"WSASERVICE_NOT_FOUND";
-		case iconer::net::ErrorCode::WSATYPE_NOT_FOUND: return L"WSATYPE_NOT_FOUND";
+		case iconer::net::ErrorCode::NetErrorAsDISCON: return L"WSAEDISCON";
+		case iconer::net::ErrorCode::NetErrorAsNOMORE: return L"WSAENOMORE";
+		case iconer::net::ErrorCode::NetErrorAsCANCELLED: return L"WSAECANCELLED";
+		case iconer::net::ErrorCode::NetErrorAsINVALIDPROCTABLE: return L"WSAEINVALIDPROCTABLE";
+		case iconer::net::ErrorCode::NetErrorAsINVALIDPROVIDER: return L"WSAEINVALIDPROVIDER";
+		case iconer::net::ErrorCode::NetErrorAsPROVIDERFAILEDINIT: return L"WSAEPROVIDERFAILEDINIT";
+		case iconer::net::ErrorCode::NetSYSCALLFAILURE: return L"WSASYSCALLFAILURE";
+		case iconer::net::ErrorCode::NetSERVICE_NOT_FOUND: return L"WSASERVICE_NOT_FOUND";
+		case iconer::net::ErrorCode::NetTYPE_NOT_FOUND: return L"WSATYPE_NOT_FOUND";
 		case iconer::net::ErrorCode::E_NO_MORE: return L"WSA_E_NO_MORE";
 		case iconer::net::ErrorCode::E_CANCELLED: return L"WSA_E_CANCELLED";
-		case iconer::net::ErrorCode::WSAEREFUSED: return L"WSAEREFUSED";
-		case iconer::net::ErrorCode::WSAHOST_NOT_FOUND: return L"WSAHOST_NOT_FOUND";
-		case iconer::net::ErrorCode::WSATRY_AGAIN: return L"WSATRY_AGAIN";
-		case iconer::net::ErrorCode::WSANO_RECOVERY: return L"WSANO_RECOVERY";
-		case iconer::net::ErrorCode::WSANO_DATA: return L"WSANO_DATA";
+		case iconer::net::ErrorCode::NetErrorAsREFUSED: return L"WSAEREFUSED";
+		case iconer::net::ErrorCode::NetHOST_NOT_FOUND: return L"WSAHOST_NOT_FOUND";
+		case iconer::net::ErrorCode::NetTRY_AGAIN: return L"WSATRY_AGAIN";
+		case iconer::net::ErrorCode::NetNO_RECOVERY: return L"WSANO_RECOVERY";
+		case iconer::net::ErrorCode::NetNO_DATA: return L"NetNO_DATA";
 		case iconer::net::ErrorCode::QOS_RECEIVERS: return L"WSA_QOS_RECEIVERS";
 		case iconer::net::ErrorCode::QOS_SENDERS: return L"WSA_QOS_SENDERS";
 		case iconer::net::ErrorCode::QOS_NO_SENDERS: return L"WSA_QOS_NO_SENDERS";

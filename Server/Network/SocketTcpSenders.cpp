@@ -11,7 +11,6 @@ module Iconer.Net.Socket;
 import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
-#undef WSANO_DATA
 
 iconer::net::IoResult
 RawSendEx(const std::uintptr_t& socket, ::WSABUF& buffer, void* context, ::LPWSAOVERLAPPED_COMPLETION_ROUTINE routine) noexcept;
@@ -22,7 +21,7 @@ const
 {
 	if (memory.size_bytes() == 0)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else if (const int bytes = ::send(myHandle
 		, reinterpret_cast<const char*>(memory.data()), static_cast<int>(memory.size_bytes())
@@ -42,7 +41,7 @@ const
 {
 	if (memory.size_bytes() == 0 or size == 0 or memory.data() == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else if (const int bytes = ::send(myHandle
 		, reinterpret_cast<const char*>(memory.data()), static_cast<int>(size)
@@ -62,7 +61,7 @@ const
 {
 	if (size == 0 or memory == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else if (const int bytes = ::send(myHandle
 		, reinterpret_cast<const char*>(memory), static_cast<int>(size)

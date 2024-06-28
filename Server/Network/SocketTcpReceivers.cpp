@@ -11,7 +11,6 @@ module Iconer.Net.Socket;
 import Iconer.Net.IpAddress;
 import Iconer.Net.EndPoint;
 import Iconer.Net.IoContext;
-#undef WSANO_DATA
 
 iconer::net::Socket::SyncIoResult
 iconer::net::Socket::Receive(std::span<std::byte> memory)
@@ -88,7 +87,7 @@ const
 {
 	if (memory.size_bytes() == 0 or memory.data() == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
@@ -124,7 +123,7 @@ const
 {
 	if (memory.size_bytes() == 0 or memory.data() == nullptr or size == 0)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
@@ -160,7 +159,7 @@ const
 {
 	if (memory == nullptr or size == 0)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{

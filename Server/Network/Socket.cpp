@@ -6,7 +6,6 @@ module;
 
 #define LIKELY [[likely]]
 #define UNLIKELY [[unlikely]]
-#undef WSANO_DATA
 
 module Iconer.Net.Socket;
 import Iconer.Net.IpAddress;
@@ -508,7 +507,7 @@ const
 {
 	if (memory.size_bytes() == 0 or memory.data() == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
@@ -544,7 +543,7 @@ const
 {
 	if (size == 0 or memory == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
@@ -580,7 +579,7 @@ const
 {
 	if (memory.size_bytes() == 0 or memory.data() == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
@@ -616,7 +615,7 @@ const
 {
 	if (size == 0 or memory == nullptr)
 	{
-		return std::unexpected{ ErrorCode::WSANO_DATA };
+		return std::unexpected{ ErrorCode::NetNO_DATA };
 	}
 	else
 	{
