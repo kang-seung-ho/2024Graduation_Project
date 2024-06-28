@@ -50,6 +50,8 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
+	std::println("Allocating necessary memory...");
+
 	if (auto io = myTaskPool.Initialize(); io)
 	{
 		std::println("The task pool is created.");
@@ -76,6 +78,8 @@ ServerFramework::Initialize()
 	{
 		storedPacketContexts.push(new iconer::app::PacketContext{});
 	}
+
+	packetProcessors.reserve(100);
 
 	using iconer::util::MakeInvoker;
 	using iconer::util::MakeSharedInvoker;

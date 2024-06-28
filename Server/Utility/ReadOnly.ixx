@@ -8,7 +8,7 @@ export namespace iconer::util
 	template<typename T>
 	struct [[nodiscard]] ReadOnly
 	{
-		T myValue;
+		alignas(std::hardware_constructive_interference_size) T myValue;
 
 		constexpr ReadOnly() noexcept(nothrow_default_constructibles<T>)
 			: myValue()

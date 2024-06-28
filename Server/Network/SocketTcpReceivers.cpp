@@ -105,7 +105,7 @@ const
 			, std::addressof(buffer), 1
 			, std::addressof(bytes)
 			, std::addressof(flags)
-			, static_cast<::LPWSAOVERLAPPED>(std::addressof(context))
+			, std::addressof(context)
 			, nullptr))
 		{
 			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
@@ -141,7 +141,7 @@ const
 			, std::addressof(buffer), 1
 			, std::addressof(bytes)
 			, std::addressof(flags)
-			, static_cast<::LPWSAOVERLAPPED>(std::addressof(context))
+			, std::addressof(context)
 			, nullptr))
 		{
 			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)
@@ -177,7 +177,7 @@ const
 			, std::addressof(buffer), 1
 			, std::addressof(bytes)
 			, std::addressof(flags)
-			, static_cast<::LPWSAOVERLAPPED>(std::addressof(context))
+			, std::addressof(context)
 			, nullptr))
 		{
 			if (auto error = AcquireNetworkError(); error != ErrorCode::PendedIoOperation)

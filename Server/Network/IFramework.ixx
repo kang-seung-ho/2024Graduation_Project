@@ -2,6 +2,7 @@ export module Iconer.Net.IFramework;
 import Iconer.Utility.Delegate;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.Socket;
+import <new>;
 import <expected>;
 
 export namespace iconer::net
@@ -24,7 +25,7 @@ export namespace iconer::net
 		virtual void Cleanup();
 
 	protected:
-		iconer::net::Socket listenSocket;
+		alignas(std::hardware_constructive_interference_size) iconer::net::Socket listenSocket;
 
 	private:
 		IFramework(const IFramework&) = delete;

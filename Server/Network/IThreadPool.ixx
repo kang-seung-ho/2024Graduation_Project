@@ -10,7 +10,7 @@ import <latch>;
 
 export namespace iconer::net
 {
-	class IThreadPool
+	class [[nodiscard]] IThreadPool
 	{
 	public:
 		using this_class = IThreadPool;

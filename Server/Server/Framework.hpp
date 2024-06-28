@@ -24,7 +24,7 @@ namespace iconer::app
 	class [[nodiscard]] PacketContext;
 }
 
-using EventDelegate = iconer::function_t<void, class ServerFramework&, iconer::net::IoEvent&>;
+using EventDelegate = iconer::method_t<class ServerFramework, void, class iconer::app::PacketContext*>;
 
 class ServerFramework final : public iconer::net::IFramework
 {
@@ -41,12 +41,12 @@ public:
 	void Cleanup() override;
 
 private:
-	ServerThreadPool myTaskPool;
-	iconer::app::UserManager userManager;
+	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool;
+	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager;
 
-	iconer::util::AtomicQueue2<iconer::app::PacketContext*, 10000> storedPacketContexts{};
+	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue2<iconer::app::PacketContext*, 10000> storedPacketContexts{};
 
-	std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors;
+	alignas(std::hardware_constructive_interference_size) std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors{};
 
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);

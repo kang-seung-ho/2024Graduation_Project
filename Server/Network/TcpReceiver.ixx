@@ -5,6 +5,7 @@ import Iconer.Net.IoContext;
 import Iconer.Net.SocketWrapper;
 import <cstddef>;
 import <cstdint>;
+import <memory>;
 import <expected>;
 import <vector>;
 import <atomic>;
@@ -17,9 +18,9 @@ export namespace iconer::net
 		using super = iconer::net::SocketWrapper;
 		using this_class = TcpReceiver;
 
-		std::vector<std::byte> recvBuffer;
 		std::uint32_t maxRecvSize;
 		std::atomic_uint32_t recvBytes;
+		alignas(std::hardware_constructive_interference_size) std::vector<std::byte> recvBuffer;
 
 		constexpr TcpReceiver(iconer::net::Socket&& socket, std::uint32_t buffer_size)
 			: super(static_cast<iconer::net::Socket&&>(socket))

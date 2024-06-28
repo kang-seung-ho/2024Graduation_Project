@@ -106,15 +106,9 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		std::unique_ptr<std::byte[]> AcquireReceivedData(size_t size) const
+		std::unique_ptr<std::byte[]> AcquireReceivedData(size_t size)
 		{
-			auto span = myReceiver.GetReceiveBuffer();
-
-			std::unique_ptr<std::byte[]> result = std::make_unique<std::byte[]>(size);
-
-			std::memcpy(result.get(), span.data(), size);
-
-			return std::move(result);
+			return myReceiver.AcquireReceivedData(size);
 		}
 
 		[[nodiscard]]

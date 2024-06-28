@@ -1,9 +1,10 @@
 export module Iconer.Net.SocketWrapper;
 export import Iconer.Net.Socket;
+import <new>;
 
 export namespace iconer::net
 {
-	class [[nodiscard]] SocketWrapper
+	class alignas(std::hardware_constructive_interference_size) [[nodiscard]] SocketWrapper
 	{
 	public:
 		iconer::net::Socket mySocket{};

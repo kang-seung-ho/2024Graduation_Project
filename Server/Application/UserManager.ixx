@@ -70,8 +70,8 @@ export namespace iconer::app
 		session_type* FindUser(id_type id) const noexcept;
 
 	private:
-		std::vector<pointer_type> everyUsers{};
-		iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
+		alignas(std::hardware_constructive_interference_size) std::vector<pointer_type> everyUsers{};
+		alignas(std::hardware_constructive_interference_size) iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 
 		void AddUser(session_type* session);
 

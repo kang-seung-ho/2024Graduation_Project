@@ -1,13 +1,15 @@
 module;
 #include <type_traits>
-#include <memory>
-#include <utility>
+#include <concepts>
+#include <new>
 #include <variant>
 
 export module Iconer.Utility.IProperty;
 import Iconer.Utility.TypeTraits;
 import Iconer.Utility.InvokeTraits;
-//import Iconer.Utility.Invoker;
+
+#pragma warning(push)
+#pragma warning(disable: 4324)
 
 export namespace iconer::util::detail
 {
@@ -15,7 +17,7 @@ export namespace iconer::util::detail
 	class IProperty;
 
 	template<notvoids T, typename Context, typename Traits>
-	class IProperty
+	class alignas(std::hardware_constructive_interference_size) IProperty
 	{
 	public:
 		using value_type = Traits::value_type;
@@ -124,7 +126,7 @@ export namespace iconer::util::detail
 	};
 
 	template<notvoids T, typename Traits>
-	class IProperty<T, void, Traits>
+	class alignas(std::hardware_constructive_interference_size) IProperty<T, void, Traits>
 	{
 	public:
 		using value_type = Traits::value_type;
@@ -273,3 +275,5 @@ export namespace iconer::util::detail
 		return static_cast<const L&>(lhs) <=> rhs;
 	}
 }
+
+#pragma warning(pop)

@@ -12,7 +12,7 @@ export namespace iconer::net
 {
 	export using NativeContext = ::WSAOVERLAPPED;
 
-	class [[nodiscard]] IoContext : public ::WSAOVERLAPPED
+	class [[nodiscard]] IoContext : public NativeContext
 	{
 	public:
 		using Super = ::WSAOVERLAPPED;

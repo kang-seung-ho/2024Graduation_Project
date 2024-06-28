@@ -2,6 +2,7 @@ export module Iconer.App.UserContext;
 import Iconer.Utility.ReadOnly;
 import Iconer.App.TaskContext;
 import Iconer.App.ISession;
+import <new>;
 
 export namespace iconer::app
 {

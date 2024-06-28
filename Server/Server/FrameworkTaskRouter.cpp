@@ -32,17 +32,13 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	
 	case OpPacketProcess:
 	{
-		context->ClearIoStatus();
-
-		const auto packet_ctx = static_cast<iconer::app::PacketContext*>(context);
-
 		const auto user = userManager.FindUser(id);
 
 		if (nullptr == user)
 		{
 			std::println("Unknown packet processor from id {} ({} bytes)", id, bytes);
 
-			packet_ctx->myData.reset();
+			delete context;
 			break;
 		}
 		else
@@ -50,8 +46,9 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			std::println("Packet processor from id {} ({} bytes)", id, bytes);
 		}
 
+		const auto packet_ctx = static_cast<iconer::app::PacketContext*>(context);
 
-
+		packet_ctx->ClearIoStatus();
 		packet_ctx->myData.reset();
 		storedPacketContexts.push(packet_ctx);
 	}
