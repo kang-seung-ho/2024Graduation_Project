@@ -25,7 +25,7 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 	mMesh->SetWorldScale3D(FVector(0.3, 0.3, 0.3));
 	mMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/AI/AB_SmallBear.AB_SmallBear_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/NPCAssets/Animation/AB_GummyBear.AB_GummyBear_C'"));
 	if (AnimAsset.Succeeded())
 	{
 		mMesh->SetAnimInstanceClass(AnimAsset.Class);

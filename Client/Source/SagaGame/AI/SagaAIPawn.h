@@ -1,10 +1,14 @@
 #pragma once
 #include "SagaGame.h"
+#include "SagaAIInfo.h"
+
 #include <GameFramework/Pawn.h>
 #include <Components/ArrowComponent.h>
 
 #include "SagaAIMovementComponent.h"
 #include "SagaAIPawn.generated.h"
+
+DECLARE_MULTICAST_DELEGATE(FAIDeathDelegate);
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|AI")
 class SAGAGAME_API ASagaAIPawn : public APawn
@@ -25,6 +29,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USagaAIMovementComponent> mMovement;
 
+	FAIDeathDelegate mDeathDelegate;
+
 #if WITH_EDITORONLY_DATA
 	UPROPERTY()
 	TObjectPtr<UArrowComponent> mArrowComponent;
@@ -39,11 +45,17 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+public:
+	template<typename T>
+	void AddDeathDelegate(T* Obj, void(T::* Func)())
+	{
+		mDeathDelegate.AddUObject(Obj, Func);
+	}
 };

@@ -31,6 +31,16 @@ void ASagaAIPawn::BeginPlay()
 	
 }
 
+void ASagaAIPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if(mDeathDelegate.IsBound())
+	{
+		mDeathDelegate.Broadcast();
+	}
+}
+
 void ASagaAIPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

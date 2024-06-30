@@ -6,6 +6,8 @@
 
 #include "Saga/Network/SagaVirtualUser.h"
 #include "../Interface/SagaCharacterItemInterface.h"
+
+#include "../AI/SagaAIInfo.h"
 #include "SagaCharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class ASagaCharacterBase*, character);
@@ -209,4 +211,8 @@ public:
 	virtual void TakeItem(EItemType ItemType) override;
 
 	void AddItemToInventory(EItemType ItemType);
+
+protected:
+	UPROPERTY(VisibleAnywhere)
+	UAIPerceptionStimuliSourceComponent* mAISource;
 };

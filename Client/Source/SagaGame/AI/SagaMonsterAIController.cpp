@@ -9,6 +9,28 @@ ASagaMonsterAIController::ASagaMonsterAIController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	mAIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+
+	//register the AI perception
+	SetPerceptionComponent(*mAIPerception); //using the dereference
+
+	//adding object including options
+	mSightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	mSightConfig->SightRadius = mAISightRadius;
+	mSightConfig->LoseSightRadius = mLoseSightInRadius + mAISightRadius;
+	mSightConfig->PeripheralVisionAngleDegrees = mAIFieldOfView;
+	mSightConfig->SetMaxAge(mAISightAge);
+	mSightConfig->AutoSuccessRangeFromLastSeenLocation = mAISeenLocation;
+
+	mSightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	mSightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	mSightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+
+	mAIPerception->ConfigureSense(*mSightConfig);
+
+	mAIPerception->SetDominantSense(mSightConfig->GetSenseImplementation());
+	
+
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/AI/BB_SagaSmallBear.BB_SagaSmallBear'"));
 	if(nullptr != BBAssetRef.Object)
 	{
@@ -49,10 +71,17 @@ void ASagaMonsterAIController::OnPossess(APawn* InPawn)
 
 void ASagaMonsterAIController::BeginPlay()
 {
+	Super::BeginPlay();
 
+	mAIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &ThisClass::OnTargetDetect);
 }
 
 void ASagaMonsterAIController::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+}
 
+void ASagaMonsterAIController::OnTargetDetect(AActor* Target, FAIStimulus const Stimulus)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Detected"));
 }

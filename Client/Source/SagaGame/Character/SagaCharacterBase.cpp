@@ -291,6 +291,11 @@ ASagaCharacterBase::ASagaCharacterBase()
 	{
 		WeaponMeshes.Add(EPlayerWeapon::Hammer, HammerMeshRef.Object);
 	}
+
+	//To make the AI pawn detect the player
+	mAISource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AISource")); //UAIPerceptionStimuliSourceComponent is derived from UActorComponent
+	mAISource->RegisterForSense(TSubclassOf<UAISense_Sight>());
+	mAISource->RegisterWithPerceptionSystem();
 }
 
 void
