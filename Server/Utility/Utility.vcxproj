@@ -34,6 +34,7 @@
     <ClCompile Include="MovableAtomic.ixx" />
     <ClCompile Include="Property.ixx" />
     <ClCompile Include="ReadOnly.ixx" />
+    <ClCompile Include="Serializer.ixx" />
     <ClCompile Include="TypeTraits.ixx" />
   </ItemGroup>
   <ItemGroup>

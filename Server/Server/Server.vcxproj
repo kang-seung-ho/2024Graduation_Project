@@ -179,7 +179,8 @@
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="FrameworkCleanup.cpp" />
     <ClCompile Include="FrameworkIntialize.cpp" />
-    <ClCompile Include="FrameworkProcessPacket.cpp" />
+    <ClCompile Include="FrameworkPacketBranch.cpp" />
+    <ClCompile Include="FrameworkPacketProcessor0.cpp" />
     <ClCompile Include="FrameworkStartup.cpp" />
     <ClCompile Include="FrameworkTaskRouter.cpp" />
     <ClCompile Include="FrameworkUtility.cpp" />

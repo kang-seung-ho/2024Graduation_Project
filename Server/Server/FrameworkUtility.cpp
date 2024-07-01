@@ -1,6 +1,7 @@
 #include "Framework.hpp"
 
 import Iconer.App.User;
+import Iconer.App.SendContext;
 
 void
 ServerFramework::ReserveUser(iconer::app::User& user)
@@ -47,4 +48,11 @@ ServerFramework::CleanupUser(iconer::app::User& user)
 const
 {
 
+}
+
+iconer::app::SendContext*
+ServerFramework::AcquireSendContext()
+noexcept
+{
+	return storedSendContexts.pop();
 }

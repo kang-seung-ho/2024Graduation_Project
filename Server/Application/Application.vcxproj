@@ -23,7 +23,9 @@
     <ClCompile Include="PacketContext.ixx" />
     <ClCompile Include="PacketProcessor.ixx" />
     <ClCompile Include="PacketProtocols.ixx" />
+    <ClCompile Include="PacketSerializer.ixx" />
     <ClCompile Include="Room.ixx" />
+    <ClCompile Include="SendContext.ixx" />
     <ClCompile Include="Settings.ixx" />
     <ClCompile Include="TaskCategory.ixx" />
     <ClCompile Include="TaskContext.ixx" />

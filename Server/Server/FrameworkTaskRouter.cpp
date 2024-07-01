@@ -24,12 +24,58 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
-	case OpSend:
+	case OpSignInFailed:
 	{
-		delete task_ctx;
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown cancel of signing in from id {} ({} bytes)", id, bytes);
+
+			delete context;
+			break;
+		}
+		else
+		{
+			std::println("User {} has failed to signed in. ({} bytes)", id, bytes);
+		}
+
+		// task_ctx is the mainContext of user
+		task_ctx->ClearIoStatus();
+
+		user->BeginClose();
 	}
 	break;
-	
+
+	case OpAssignID:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown signing in from id {} ({} bytes)", id, bytes);
+
+			delete context;
+			break;
+		}
+
+		// task_ctx is the mainContext of user
+		task_ctx->ClearIoStatus();
+
+		if (task_ctx->TryChangeOperation(OpAssignID, OpSignIn))
+		{
+			std::println("User {} is signed in. ({} bytes)", id, bytes);
+		}
+		else
+		{
+			std::println("User {} is just signed in, but failed to change state. ({} bytes)", id, bytes);
+
+			task_ctx->SetOperation(OpSignInFailed);
+			user->SendFailedSignInPacket();
+		}
+	}
+	break;
+
 	case OpPacketProcess:
 	{
 		const auto user = userManager.FindUser(id);
@@ -49,7 +95,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		ProcessPackets(*user, static_cast<iconer::app::PacketContext*>(context), bytes);
 	}
 	break;
-	
+
 	case OpClose:
 	{
 		const auto user = userManager.FindUser(id);
@@ -68,6 +114,12 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		// restart
 		ReserveUser(*user);
+	}
+	break;
+
+	case OpSend:
+	{
+		delete task_ctx;
 	}
 	break;
 
@@ -232,6 +284,8 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 		return;
 	}
 
+	task_ctx->ClearIoStatus();
+
 	using namespace iconer::net;
 	using enum iconer::app::TaskCategory;
 
@@ -254,7 +308,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 		user->BeginClose();
 	}
 	break;
-	
+
 	case OpRecv:
 	{
 		const auto user = userManager.FindUser(id);
@@ -277,9 +331,43 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	}
 	break;
 
+	case OpSignIn:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed signing in from id {} ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		user->myName.clear();
+		user->BeginClose();
+	}
+	break;
+
+	case OpSignInFailed:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed cancel of signing in from id {} ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		user->myName.clear();
+		user->BeginClose();
+	}
+	break;
+
 	default:
 	{
-		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
+		std::println("[Failed Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
 		task_ctx->ClearIoStatus();
 	}
 	break;

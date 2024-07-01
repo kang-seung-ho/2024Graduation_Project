@@ -9,6 +9,8 @@ export namespace iconer::app
 		static inline constexpr std::uint16_t serverPort = 40000;
 		static inline constexpr size_t usersLimit = 10;
 		static inline constexpr size_t roomMembersLimit = 4;
+		static inline constexpr size_t nickNameLength = 16;
+		static inline constexpr size_t roomTitleLength = 16;
 
 	private:
 		Settings() = delete;

@@ -57,6 +57,9 @@
     <ClCompile Include="Expected.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Serializer.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Utility.natvis" />

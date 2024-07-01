@@ -1,5 +1,6 @@
 export module Iconer.Utility.ReadOnly;
 import Iconer.Utility.TypeTraits;
+import <new>;
 import <type_traits>;
 import <utility>;
 

@@ -21,7 +21,6 @@ export namespace iconer::app
 
 	class [[nodiscard]] User : public ISession
 	{
-
 	private:
 		//static inline constinit std::atomic<id_type> globalMemberTable[Settings::usersLimit * Settings::roomMembersLimit]{};
 
@@ -38,7 +37,7 @@ export namespace iconer::app
 		//userRoomTable[std::array{ 0ull, 1ull }];
 		//static inline constinit std::mdspan userRoomTable{ globalMemberTable, std::extents<size_t, Settings::usersLimit, Settings::roomMembersLimit>{} };
 
-		std::string myName{};
+		std::wstring myName{};
 
 		iconer::util::ReadOnly<UserContext> mainContext;
 		iconer::util::ReadOnly<TaskContext> recvContext{};
@@ -55,8 +54,10 @@ export namespace iconer::app
 
 		void Cleanup();
 
-		[[nodiscard]]
-		iconer::net::IoResult BeginOptainReceiveMemory();
+		iconer::net::IoResult SendSignInPacket();
+		iconer::net::IoResult SendFailedSignInPacket();
+
+		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();
 		bool EndOptainReceiveMemory(bool flag) noexcept;
 
 		[[nodiscard]]

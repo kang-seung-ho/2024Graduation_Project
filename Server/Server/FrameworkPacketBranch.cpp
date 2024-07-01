@@ -31,7 +31,7 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
 
-		if (buf_size < size)
+		if (buf_size - stacked_size < size)
 		{
 			std::println("Received and mssing packet size: {}.", size);
 
@@ -91,6 +91,8 @@ ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketCont
 
 		if (auto it = packetProcessors.find(protocol); it != packetProcessors.cend())
 		{
+			std::println("Processing a packet {}.", protocol_value);
+
 			const auto& method = it->second;
 
 			std::invoke(method, this, std::ref(user), ptr + 3);

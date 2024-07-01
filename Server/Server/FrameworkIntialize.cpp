@@ -3,6 +3,7 @@
 import Iconer.Utility.Delegate;
 import Iconer.App.User;
 import Iconer.App.PacketContext;
+import Iconer.App.SendContext;
 import <print>;
 
 iconer::net::IoResult
@@ -79,7 +80,14 @@ ServerFramework::Initialize()
 		storedPacketContexts.push(new iconer::app::PacketContext{});
 	}
 
+	for (unsigned i = 0; i < storedSendContexts.capacity(); ++i)
+	{
+		storedSendContexts.push(new iconer::app::SendContext{});
+	}
+
 	packetProcessors.reserve(100);
+
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn));
 
 	using iconer::util::MakeInvoker;
 	using iconer::util::MakeSharedInvoker;

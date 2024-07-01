@@ -42,7 +42,10 @@
     <ClCompile Include="FrameworkCleanup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FrameworkProcessPacket.cpp">
+    <ClCompile Include="FrameworkPacketBranch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameworkPacketProcessor0.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

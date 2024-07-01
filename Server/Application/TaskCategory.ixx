@@ -13,17 +13,17 @@ export namespace iconer::app
 		/// <summary>Phase 1</summary>
 		OpAccept, OpValidation,
 
-		/// <summary>Phase 2 - Sign in</summary>
-		OpSignIn, OpSignInFailed, OpSignUp, OpSignUpFailed,
-
-		/// <summary>Phase 3</summary>
-		OpAssignID,
-
-		/// <summary>Phase 4 ~ </summary>
+		/// <summary>Phase 2 ~ </summary>
 		OpOptainRecvMemory, OpRecv, OpSend, OpSendBorrowed,
 
-		/// <summary>Phase 5 </summary>
+		/// <summary>Phase 3 </summary>
 		OpPacketProcess,
+
+		/// <summary>Phase 4 - Sign in</summary>
+		OpSignIn, OpSignInFailed, OpSignUp, OpSignUpFailed,
+
+		/// <summary>Phase 5</summary>
+		OpAssignID,
 
 		/// <summary>Phase 6 </summary>
 		OpReserveRoom, OpCreateRoom, OpEnterRoom, OpLeaveRoom, OpCloseRoom,

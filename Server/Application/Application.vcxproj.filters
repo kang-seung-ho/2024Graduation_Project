@@ -63,6 +63,12 @@
     <ClCompile Include="TaskCategory.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="SendContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketSerializer.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Application.natvis" />

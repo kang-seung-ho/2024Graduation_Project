@@ -6,7 +6,7 @@
 		<DisplayString Condition="!__IsInProgress()">IO 문맥 객체 ({InternalHigh}~{Internal} 진행)</DisplayString>
 		<DisplayString Condition="__IsInProgress()">IO 문맥 객체 (초기 상태)</DisplayString>
 
-		<Expand HideRawView="true">
+		<Expand HideRawView="false">
 			<Item Name="[시작점]">Internal</Item>
 			<Item Name="[종단점]">InternalHigh</Item>
 			<Synthetic Name="[IO 오프셋]">

@@ -42,6 +42,18 @@ iconer::app::User::Cleanup()
 }
 
 iconer::net::IoResult
+iconer::app::User::SendSignInPacket()
+{
+	return GetSocket().Send(mainContext, mainContext->GetSignInPacketData());
+}
+
+iconer::net::IoResult
+iconer::app::User::SendFailedSignInPacket()
+{
+	return GetSocket().Send(mainContext, mainContext->GetSignInFailurePacketData());
+}
+
+iconer::net::IoResult
 iconer::app::User::BeginOptainReceiveMemory()
 {
 	recvContext->SetOperation(TaskCategory::OpOptainRecvMemory);
