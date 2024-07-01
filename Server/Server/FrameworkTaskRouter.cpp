@@ -1,13 +1,15 @@
 #include "Framework.hpp"
+#include <utility>
+#include <format>
+#include <print>
 
+import iconer.Utility.Serializer;
+import Iconer.Utility.StringConverter;
 import Iconer.Net;
 import Iconer.App.User;
 import Iconer.App.TaskContext;
 import Iconer.App.UserContext;
 import Iconer.App.PacketContext;
-
-import <utility>;
-import <print>;
 
 void
 ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes)
@@ -64,14 +66,22 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (task_ctx->TryChangeOperation(OpAssignID, OpSignIn))
 		{
-			std::println("User {} is signed in. ({} bytes)", id, bytes);
+			//std::byte namebuf[iconer::app::Settings::nickNameLength * 2 + 1]{};
+
+			//(void)iconer::util::Serialize(namebuf, user->myName);
+
+			//const char* nickname = reinterpret_cast<const char*>(namebuf);
+
+			auto nickname = iconer::util::ToString(user->myName);
+
+			std::println("User {} is signed in. (name={}, {} bytes)", id, nickname, bytes);
 		}
 		else
 		{
 			std::println("User {} is just signed in, but failed to change state. ({} bytes)", id, bytes);
 
 			task_ctx->SetOperation(OpSignInFailed);
-			user->SendFailedSignInPacket();
+			user->SendFailedSignInPacket(iconer::app::ConnectionContract::SignInFailed);
 		}
 	}
 	break;

@@ -7,6 +7,7 @@ import Iconer.Net.TcpReceiver;
 import Iconer.App.UserContext;
 import Iconer.App.TaskContext;
 import Iconer.App.ISession;
+import Iconer.App.ConnectionContract;
 import Iconer.App.Settings;
 import <memory>;
 import <array>;
@@ -55,7 +56,7 @@ export namespace iconer::app
 		void Cleanup();
 
 		iconer::net::IoResult SendSignInPacket();
-		iconer::net::IoResult SendFailedSignInPacket();
+		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
 
 		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();
 		bool EndOptainReceiveMemory(bool flag) noexcept;

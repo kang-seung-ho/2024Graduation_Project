@@ -91,6 +91,8 @@ iconer::net::TcpReceiver::AcquireReceivedData(size_t size)
 
 	std::memcpy(ptr, ptr + size, maxRecvSize - size);
 
+	recvBytes -= static_cast<std::uint32_t>(size);
+
 	return std::move(result);
 }
 

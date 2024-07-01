@@ -35,6 +35,7 @@
     <ClCompile Include="Property.ixx" />
     <ClCompile Include="ReadOnly.ixx" />
     <ClCompile Include="Serializer.ixx" />
+    <ClCompile Include="StringConverter.ixx" />
     <ClCompile Include="TypeTraits.ixx" />
   </ItemGroup>
   <ItemGroup>

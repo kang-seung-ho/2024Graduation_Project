@@ -119,4 +119,51 @@ export namespace iconer::util
 		template<typename U>
 		ReadOnly& operator=(U&&) = delete;
 	};
+
+	template<typename X, typename Y>
+	constexpr bool operator==(const ReadOnly<X>& lhs, const ReadOnly<Y>& rhs) noexcept
+	{
+		return lhs.myValue == rhs.myValue;
+	}
+
+	template<typename X>
+	constexpr bool operator==(const ReadOnly<X>& lhs, const X& rhs) noexcept
+	{
+		return lhs.myValue == rhs;
+	}
+
+	template<typename X, typename Y>
+	constexpr bool operator==(const ReadOnly<X*>& lhs, const ReadOnly<Y*>& rhs) noexcept
+	{
+		return lhs.myValue == rhs.myValue;
+	}
+
+	template<typename X, typename Y>
+	constexpr bool operator==(const ReadOnly<X*>& lhs, nullptr_t) noexcept
+	{
+		return lhs.myValue == nullptr;
+	}
+	template<typename X, typename Y>
+	constexpr bool operator!=(const ReadOnly<X>& lhs, const ReadOnly<Y>& rhs) noexcept
+	{
+		return lhs.myValue != rhs.myValue;
+	}
+
+	template<typename X>
+	constexpr bool operator!=(const ReadOnly<X>& lhs, const X& rhs) noexcept
+	{
+		return lhs.myValue != rhs;
+	}
+
+	template<typename X, typename Y>
+	constexpr bool operator!=(const ReadOnly<X*>& lhs, const ReadOnly<Y*>& rhs) noexcept
+	{
+		return lhs.myValue != rhs.myValue;
+	}
+
+	template<typename X, typename Y>
+	constexpr bool operator!=(const ReadOnly<X*>& lhs, nullptr_t) noexcept
+	{
+		return lhs.myValue != nullptr;
+	}
 }

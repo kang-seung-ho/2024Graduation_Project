@@ -30,9 +30,9 @@ export namespace iconer::app
 	[[nodiscard]]
 	constexpr std::unique_ptr<std::byte[]> Serialize(const PacketProtocol protocol, Ts&&... params)
 	{
-		constexpr std::int16_t packet_default_size = sizeof(PacketProtocol) + sizeof(std::int16_t);
+		constexpr std::int16_t packet_size = sizeof(PacketProtocol) + sizeof(std::int16_t) + iconer::util::GetTotalByteSize(params...);
 
-		auto result = std::make_unique<std::byte[]>(packet_default_size);
+		auto result = std::make_unique<std::byte[]>(packet_size);
 
 		(void)SerializeAt(result.get(), protocol, std::forward<Ts>(params)...);
 

@@ -16,6 +16,69 @@ import <ranges>;
 export namespace iconer::util
 {
 	template<typename T>
+	constexpr std::int16_t GetByteSize(const T&) noexcept;
+
+	template<trivials T>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const T&) noexcept
+	{
+		return sizeof(T);
+	}
+
+	template<trivials T, size_t Len>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const T(&)[Len]) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(T) * Len);
+	}
+
+	template<trivials T, typename Traits>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const std::basic_string<T, Traits>& value) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(T) * value.length());
+	}
+
+	template<trivials T, typename Traits>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(std::basic_string_view<T, Traits> value) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(T) * value.length());
+	}
+
+	template<trivials T, size_t Len>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const std::array<T, Len>&) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(T) * Len);
+	}
+
+	template<trivials T>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const std::vector<T>& value) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(T) * value.size());
+	}
+
+	template<std::ranges::contiguous_range R>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const R& range) noexcept
+	{
+		return static_cast<std::int16_t>(sizeof(std::ranges::range_value_t<R>) * std::ranges::size(range));
+	}
+
+	template<typename... Ts>
+	[[nodiscard]]
+	constexpr std::int16_t GetTotalByteSize(const Ts&... params) noexcept
+	{
+		std::int16_t result{};
+
+		((result += GetByteSize(params)), ...);
+
+		return result;
+	}
+
+	template<typename T>
 	std::byte* Serialize(std::byte* buffer, const T& value);
 
 	template<integrals T>
@@ -31,8 +94,6 @@ export namespace iconer::util
 			case 1:
 			{
 				*buffer = static_cast<std::byte>(static_cast<std::uint8_t>(value));
-
-				return buffer + 1;
 			}
 			break;
 
@@ -49,10 +110,8 @@ export namespace iconer::util
 				const std::uint8_t post_lhs = static_cast<std::uint8_t>(lhs) & byte_fix;
 				const std::uint8_t post_rhs = static_cast<std::uint8_t>(rhs) & byte_fix;
 
-				buffer[1] = static_cast<std::byte>(post_lhs);
-				buffer[0] = static_cast<std::byte>(post_rhs);
-
-				return buffer + 2;
+				buffer[0] = static_cast<std::byte>(post_lhs);
+				buffer[1] = static_cast<std::byte>(post_rhs);
 			}
 			break;
 
@@ -71,20 +130,15 @@ export namespace iconer::util
 				const std::uint32_t rlhs = mid & rlhs_fix;
 				const std::uint32_t rrhs = mid & rrhs_fix;
 
-				const std::uint8_t post[] =
-				{
-					static_cast<std::uint8_t>(llhs) & byte_fix,
-					static_cast<std::uint8_t>(lrhs) & byte_fix,
-					static_cast<std::uint8_t>(rlhs) & byte_fix,
-					static_cast<std::uint8_t>(rrhs) & byte_fix
-				};
+				const auto post_llhs = static_cast<std::uint8_t>(static_cast<std::uint8_t>(llhs) & byte_fix);
+				const auto post_lrhs = static_cast<std::uint8_t>(static_cast<std::uint8_t>(lrhs) & byte_fix);
+				const auto post_rlhs = static_cast<std::uint8_t>(static_cast<std::uint8_t>(rlhs) & byte_fix);
+				const auto post_rrhs = static_cast<std::uint8_t>(static_cast<std::uint8_t>(rrhs) & byte_fix);
 
-				buffer[0] = static_cast<std::byte>(post[0]);
-				buffer[1] = static_cast<std::byte>(post[1]);
-				buffer[2] = static_cast<std::byte>(post[2]);
-				buffer[3] = static_cast<std::byte>(post[3]);
-
-				return buffer + 4;
+				buffer[0] = static_cast<std::byte>(post_llhs);
+				buffer[1] = static_cast<std::byte>(post_lrhs);
+				buffer[2] = static_cast<std::byte>(post_rlhs);
+				buffer[3] = static_cast<std::byte>(post_rrhs);
 			}
 			break;
 
@@ -131,8 +185,6 @@ export namespace iconer::util
 				buffer[5] = static_cast<std::byte>(post_near_lrhs);
 				buffer[6] = static_cast<std::byte>(post_near_rlhs);
 				buffer[7] = static_cast<std::byte>(post_near_rrhs);
-
-				return buffer + 8;
 			}
 			break;
 
@@ -148,8 +200,9 @@ export namespace iconer::util
 			const T nvalue = std::byteswap(value);
 
 			std::memcpy(buffer, std::addressof(value), sizeof(T));
-			return buffer + sizeof(T);
 		}
+
+		return buffer + sizeof(T);
 	}
 
 	template<floats T>
@@ -327,68 +380,5 @@ export namespace iconer::util
 		{
 			return static_cast<std::byte*>(std::memcpy(buffer, std::ranges::cdata(range), GetByteSize(range)));
 		}
-	}
-
-	template<typename T>
-	constexpr std::int16_t GetByteSize(const T&) noexcept;
-
-	template<trivials T>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const T&) noexcept
-	{
-		return sizeof(T);
-	}
-
-	template<trivials T, size_t Len>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const T(&)[Len]) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(T) * Len);
-	}
-
-	template<trivials T, typename Traits>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const std::basic_string<T, Traits>& value) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(T) * value.length());
-	}
-
-	template<trivials T, typename Traits>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(std::basic_string_view<T, Traits> value) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(T) * value.length());
-	}
-
-	template<trivials T, size_t Len>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const std::array<T, Len>&) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(T) * Len);
-	}
-
-	template<trivials T>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const std::vector<T>& value) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(T) * value.size());
-	}
-
-	template<std::ranges::contiguous_range R>
-	[[nodiscard]]
-	constexpr std::int16_t GetByteSize(const R& range) noexcept
-	{
-		return static_cast<std::int16_t>(sizeof(std::ranges::range_value_t<R>) * std::ranges::size(range));
-	}
-
-	template<typename... Ts>
-	[[nodiscard]]
-	constexpr std::int16_t GetTotalByteSize(const Ts&... params) noexcept
-	{
-		std::int16_t result{};
-
-		((result += GetByteSize(params)), ...);
-
-		return result;
 	}
 }

@@ -27,6 +27,7 @@ ServerFramework::EventOnSignIn(iconer::app::User& user, std::byte* data)
 	}
 	else
 	{
-		user.BeginClose();
+		ctx->SetOperation(OpSignInFailed);
+		user.SendFailedSignInPacket(iconer::app::ConnectionContract::SignInFailed);
 	}
 }

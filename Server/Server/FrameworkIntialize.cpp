@@ -88,6 +88,11 @@ ServerFramework::Initialize()
 	packetProcessors.reserve(100);
 
 	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn));
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom));
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom));
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom));
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom));
+	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList));
 
 	using iconer::util::MakeInvoker;
 	using iconer::util::MakeSharedInvoker;

@@ -69,6 +69,12 @@
     <ClCompile Include="PacketSerializer.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="ConnectionContract.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomManager.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Application.natvis" />

@@ -52,7 +52,18 @@ private:
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 
+	/* Set nickname and assign user's id */
 	void EventOnSignIn(iconer::app::User& user, std::byte* data);
+	/* Make a room */
+	void EventOnMakeRoom(iconer::app::User& user, std::byte* data);
+	/* Join to the room */
+	void EventOnJoinRoom(iconer::app::User& user, std::byte* data);
+	/* Exit from the room */
+	void EventOnExitRoom(iconer::app::User& user, std::byte* data);
+	/* Match a random room */
+	void EventOnSeekRoom(iconer::app::User& user, std::byte* data);
+	/* Send a list of room */
+	void EventOnRoomList(iconer::app::User& user, std::byte* data);
 
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;

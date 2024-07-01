@@ -24,7 +24,7 @@ export namespace iconer::app
 		using pointer_type = iconer::app::User*;
 
 		static inline constexpr size_t maxUserCount = iconer::app::Settings::usersLimit;
-		static inline constexpr id_type minUserUid = 100000;
+		static inline constexpr id_type minUserUid = 1000;
 		static inline constexpr id_type maxUserUid = minUserUid + maxUserCount;
 
 		constexpr UserManager() noexcept = default;

@@ -45,7 +45,10 @@
     <ClCompile Include="FrameworkPacketBranch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FrameworkPacketProcessor0.cpp">
+    <ClCompile Include="MainMenuEventProcessor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyEventProcessor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

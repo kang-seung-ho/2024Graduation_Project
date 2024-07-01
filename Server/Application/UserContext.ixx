@@ -3,6 +3,7 @@ import Iconer.Utility.ReadOnly;
 import Iconer.App.TaskContext;
 import Iconer.App.ISession;
 import Iconer.App.PacketSerializer;
+import Iconer.App.ConnectionContract;
 import <cstddef>;
 import <span>;
 
@@ -21,13 +22,13 @@ export namespace iconer::app
 		iconer::util::ReadOnly<id_type> ownerId;
 		iconer::util::ReadOnly<class User*> ownerHandle;
 
-		constexpr UserContext(id_type id, class User* ptr) noexcept
+		constexpr UserContext(id_type id, class User* ptr)
 			: super()
 			, ownerId(id), ownerHandle(ptr)
 		{
 			(void)SerializeAt(signInPacketData, PacketProtocol::SC_SIGNIN_SUCCESS, static_cast<std::int32_t>(id));
 
-			(void)SerializeAt(signInFailedPacketData, PacketProtocol::SC_SIGNIN_FAILURE, std::uint32_t(0));
+			(void)SerializeAt(signInFailedPacketData, PacketProtocol::SC_SIGNIN_FAILURE, 0U);
 		}
 
 		[[nodiscard]]

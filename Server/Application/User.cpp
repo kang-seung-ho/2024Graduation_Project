@@ -48,7 +48,7 @@ iconer::app::User::SendSignInPacket()
 }
 
 iconer::net::IoResult
-iconer::app::User::SendFailedSignInPacket()
+iconer::app::User::SendFailedSignInPacket(iconer::app::ConnectionContract reason)
 {
 	return GetSocket().Send(mainContext, mainContext->GetSignInFailurePacketData());
 }

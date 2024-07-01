@@ -27,7 +27,7 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 		const auto byte = *ptr;
 
 		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
-		std::println("Received packet protocol: {}.", std::to_underlying(buffer[0]));
+		std::println("Received packet protocol: {}.", std::to_underlying(protocol));
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
 
