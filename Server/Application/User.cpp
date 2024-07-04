@@ -1,6 +1,9 @@
 module;
+#define LIKELY   [[likely]]
+#define UNLIKELY [[unlikely]]
 
 module Iconer.App.User;
+import Iconer.App.SendContext;
 
 iconer::net::IoResult
 iconer::app::User::BeginClose()
@@ -36,8 +39,10 @@ iconer::app::User::Cleanup()
 	mainContext->SetOperation(TaskCategory::None);
 	mainContext->ClearIoStatus();
 
+	recvContext->SetOperation(TaskCategory::None);
 	recvContext->ClearIoStatus();
 
+	roomContext->SetOperation(TaskCategory::None);
 	roomContext->ClearIoStatus();
 }
 
@@ -51,6 +56,18 @@ iconer::net::IoResult
 iconer::app::User::SendFailedSignInPacket(iconer::app::ConnectionContract reason)
 {
 	return GetSocket().Send(mainContext, mainContext->GetSignInFailurePacketData());
+}
+
+iconer::net::IoResult
+iconer::app::User::SendRoomCreatedPacket(id_type room_id)
+{
+	return GetSocket().Send(roomContext, mainContext->GetRoomCreatedPacketData(static_cast<std::int32_t>(room_id)));
+}
+
+iconer::net::IoResult
+iconer::app::User::SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason)
+{
+	return GetSocket().Send(ctx, mainContext->GetRoomCreateFailedPacketData(reason));
 }
 
 iconer::net::IoResult
@@ -69,11 +86,11 @@ noexcept
 
 	SetConnected(flag);
 
-	if (flag)
+	if (flag) LIKELY
 	{
 		return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::OpRecv);
 	}
-	else
+	else UNLIKELY
 	{
 		return recvContext->TryChangeOperation(TaskCategory::OpOptainRecvMemory, TaskCategory::None);
 	}

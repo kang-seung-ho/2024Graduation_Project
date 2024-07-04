@@ -56,3 +56,8 @@ noexcept
 {
 	return storedSendContexts.pop();
 }
+void
+ServerFramework::AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor)
+{
+	packetProcessors.insert(std::make_pair(protocol, processor));
+}

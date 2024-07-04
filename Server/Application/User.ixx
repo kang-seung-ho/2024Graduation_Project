@@ -8,37 +8,38 @@ import Iconer.App.UserContext;
 import Iconer.App.TaskContext;
 import Iconer.App.ISession;
 import Iconer.App.ConnectionContract;
+import Iconer.App.RoomContract;
 import Iconer.App.Settings;
 import <memory>;
 import <array>;
 import <string>;
 import <span>;
-import <mdspan>;
 import <atomic>;
 
 export namespace iconer::app
 {
 	class [[nodiscard]] Room;
+	class [[nodiscard]] SendContext;
 
 	class [[nodiscard]] User : public ISession
 	{
 	private:
 		//static inline constinit std::atomic<id_type> globalMemberTable[Settings::usersLimit * Settings::roomMembersLimit]{};
 
+		static inline constexpr size_t recvBufferSize = 512;
+
 		std::atomic_bool isConnected{};
-		std::atomic<Room*> myRoom{};
 
 	public:
 		using super = ISession;
 		using this_class = User;
 		using id_type = super::id_type;
 
-		static inline constexpr size_t recvBufferSize = 512;
-
 		//userRoomTable[std::array{ 0ull, 1ull }];
 		//static inline constinit std::mdspan userRoomTable{ globalMemberTable, std::extents<size_t, Settings::usersLimit, Settings::roomMembersLimit>{} };
 
 		std::wstring myName{};
+		std::atomic<Room*> myRoom{};
 
 		iconer::util::ReadOnly<UserContext> mainContext;
 		iconer::util::ReadOnly<TaskContext> recvContext{};
@@ -57,6 +58,8 @@ export namespace iconer::app
 
 		iconer::net::IoResult SendSignInPacket();
 		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
+		iconer::net::IoResult SendRoomCreatedPacket(id_type room_id);
+		iconer::net::IoResult SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason);
 
 		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();
 		bool EndOptainReceiveMemory(bool flag) noexcept;

@@ -87,12 +87,12 @@ ServerFramework::Initialize()
 
 	packetProcessors.reserve(100);
 
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn));
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom));
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom));
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom));
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom));
-	packetProcessors.insert(std::make_pair(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList));
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList);
 
 	using iconer::util::MakeInvoker;
 	using iconer::util::MakeSharedInvoker;
@@ -112,6 +112,8 @@ ServerFramework::Initialize()
 			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::CleanupUser));
 		}
 	);
+
+	roomManager.Initialize();
 
 	return {};
 }

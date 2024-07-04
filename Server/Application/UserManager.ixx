@@ -52,8 +52,8 @@ export namespace iconer::app
 			}
 		}
 
-		template<invocable<session_type*> Callable>
-		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		template<invocable<pointer_type> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, pointer_type>)
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
@@ -61,8 +61,8 @@ export namespace iconer::app
 			}
 		}
 
-		template<invocable<const session_type*> Callable>
-		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		template<invocable<const pointer_type> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, std::add_const_t<pointer_type>>)
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
@@ -71,13 +71,13 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		session_type* FindUser(id_type id) const noexcept;
+		pointer_type FindUser(id_type id) const noexcept;
 
 	private:
 		alignas(std::hardware_constructive_interference_size) std::vector<pointer_type> everyUsers{};
 		alignas(std::hardware_constructive_interference_size) class iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 
-		void AddUser(session_type* session);
+		void AddUser(pointer_type session);
 
 		UserManager(const UserManager&) = delete;
 		UserManager& operator=(const UserManager&) = delete;

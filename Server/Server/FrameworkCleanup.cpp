@@ -7,6 +7,7 @@ ServerFramework::Cleanup()
 {
 	myTaskPool.Cleanup();
 	userManager.Cleanup();
+	roomManager.Cleanup();
 
 	super::Cleanup();
 

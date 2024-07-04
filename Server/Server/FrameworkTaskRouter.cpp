@@ -9,6 +9,7 @@ import Iconer.Net;
 import Iconer.App.User;
 import Iconer.App.TaskContext;
 import Iconer.App.UserContext;
+import Iconer.App.SendContext;
 import Iconer.App.PacketContext;
 
 void
@@ -21,11 +22,76 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		return;
 	}
 
+	task_ctx->ClearIoStatus();
+
 	using namespace iconer::net;
 	using enum iconer::app::TaskCategory;
 
 	switch (task_ctx->myCategory)
 	{
+	case OpCreateRoom:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user) UNLIKELY
+		{
+			std::println("Unknown operation of notifying creation of room from id {}. ({} bytes)", id, bytes);
+
+			delete context;
+			break;
+		};
+
+		// task_ctx is the roomContext of user
+		task_ctx->TryChangeOperation(OpCreateRoom, None);
+
+		std::println("User {} created a room {}.", id, user->myRoom.load()->GetID());
+	}
+	break;
+
+	case OpReserveRoom:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user) UNLIKELY
+		{
+			std::println("Unknown operation of room creation from id {}. ({} bytes)", id, bytes);
+
+			delete context;
+			break;
+		}
+		else LIKELY
+		{
+			std::println("User {} is attempting to create a room.", id);
+		};
+
+		// task_ctx is the roomContext of user
+
+		const auto room_id = bytes;
+		const auto room = roomManager.FindRoom(room_id);
+
+		if (not room.has_value()) UNLIKELY
+		{
+			std::println("Unknown operation of room creation from id {} has no room. ({} bytes)", id, bytes);
+
+			break;
+		}
+		else if (task_ctx->TryChangeOperation(OpReserveRoom, OpCreateRoom)) LIKELY
+		{
+			user->SendRoomCreatedPacket(room_id);
+		}
+		else UNLIKELY
+		{
+			user->SendFailedCreateRoomPacket(*storedSendContexts.pop(), iconer::app::RoomContract::InvalidOperation);
+		}
+	}
+	break;
+
+	//case OpR:
+	//{
+
+	//}
+	//break;
+
 	case OpSignInFailed:
 	{
 		const auto user = userManager.FindUser(id);
@@ -43,7 +109,6 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 
 		// task_ctx is the mainContext of user
-		task_ctx->ClearIoStatus();
 
 		user->BeginClose();
 	}
@@ -62,7 +127,6 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 
 		// task_ctx is the mainContext of user
-		task_ctx->ClearIoStatus();
 
 		if (task_ctx->TryChangeOperation(OpAssignID, OpSignIn))
 		{
@@ -129,7 +193,8 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	case OpSend:
 	{
-		delete task_ctx;
+		//delete task_ctx;
+		storedSendContexts.push(static_cast<iconer::app::SendContext*>(task_ctx));
 	}
 	break;
 
@@ -220,7 +285,6 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		// task_ctx is the mainContext of user
 		task_ctx->SetOperation(OpValidation);
-		task_ctx->ClearIoStatus();
 
 		const auto user_id = user->GetID();
 		auto& socket = user->GetSocket();
@@ -259,7 +323,6 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		// task_ctx is the mainContext of user
 		task_ctx->SetOperation(OpAccept);
-		task_ctx->ClearIoStatus();
 
 		if (auto io = listenSocket.BeginAccept(task_ctx, user->GetSocket()); io)
 		{
@@ -277,7 +340,6 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	default:
 	{
 		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
-		task_ctx->ClearIoStatus();
 	}
 	break;
 	}
@@ -301,13 +363,29 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpCreateRoom:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed notifying creation of room from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnFailedToMakeRoom(*user);
+	}
+	break;
+
 	case OpOptainRecvMemory:
 	{
 		const auto user = userManager.FindUser(id);
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed receive memory optaining from id {} ({} bytes)", id, bytes);
+			std::println("Unknown failed receive memory optaining from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -325,7 +403,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed receive from id {} ({} bytes)", id, bytes);
+			std::println("Unknown failed receive from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -337,7 +415,9 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	case OpSend:
 	{
-		delete task_ctx;
+		//delete task_ctx;
+
+		storedSendContexts.push(static_cast<iconer::app::SendContext*>(task_ctx));
 	}
 	break;
 
@@ -347,7 +427,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed signing in from id {} ({} bytes)", id, bytes);
+			std::println("Unknown failed signing in from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -364,7 +444,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed cancel of signing in from id {} ({} bytes)", id, bytes);
+			std::println("Unknown failed cancel of signing in from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -378,7 +458,6 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	default:
 	{
 		std::println("[Failed Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
-		task_ctx->ClearIoStatus();
 	}
 	break;
 	}

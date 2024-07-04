@@ -6,6 +6,7 @@ import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
 import Iconer.App.UserManager;
+import Iconer.App.RoomManager;
 import Iconer.App.PacketProtocol;
 import Iconer.App.Settings;
 import <cstdint>;
@@ -22,6 +23,7 @@ namespace iconer::app
 	class [[nodiscard]] PacketContext;
 	class [[nodiscard]] SendContext;
 	class [[nodiscard]] User;
+	class [[nodiscard]] Room;
 }
 
 using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, std::byte*>;
@@ -43,6 +45,7 @@ public:
 private:
 	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool{};
 	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
+	alignas(std::hardware_constructive_interference_size) iconer::app::RoomManager roomManager{};
 
 	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue<iconer::app::PacketContext*, 3000> storedPacketContexts{};
 	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue<iconer::app::SendContext*, 10000> storedSendContexts{};
@@ -56,6 +59,8 @@ private:
 	void EventOnSignIn(iconer::app::User& user, std::byte* data);
 	/* Make a room */
 	void EventOnMakeRoom(iconer::app::User& user, std::byte* data);
+	void EventOnFailedToReserveRoom(iconer::app::User& user);
+	void EventOnFailedToMakeRoom(iconer::app::User& user);
 	/* Join to the room */
 	void EventOnJoinRoom(iconer::app::User& user, std::byte* data);
 	/* Exit from the room */
@@ -71,6 +76,7 @@ private:
 	void CleanupUser(iconer::app::User& user) const;
 	void RoutePackets(iconer::app::User& user);
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
+	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);
 
 	[[nodiscard]]
 	iconer::app::SendContext* AcquireSendContext() noexcept;

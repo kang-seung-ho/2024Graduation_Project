@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 	<Type Name="iconer::app::User" Priority="High">
-
 		<DisplayString>사용자 세션 객체 ({myId})</DisplayString>
 
 		<Expand HideRawView="false">
@@ -16,6 +15,11 @@
 			<Item Name="[수신 소켓]">myReceiver</Item>
 			<Item Name="[방]">myRoom</Item>
 		</Expand>
+	</Type>
+	
+	<Type Name="iconer::app::Room" Priority="High">
+		<DisplayString>세션 방 객체 ({myId}) [{memberCount}/4]</DisplayString>
+
 	</Type>
 
 	<Type Name="iconer::app::ISession" Priority="Low">

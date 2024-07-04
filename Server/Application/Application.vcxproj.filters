@@ -75,6 +75,15 @@
     <ClCompile Include="RoomManager.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomManager.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="RoomContract.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Application.natvis" />

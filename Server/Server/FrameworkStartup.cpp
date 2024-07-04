@@ -36,6 +36,7 @@ ServerFramework::Startup()
 	std::println("Reserving {} users...", userManager.maxUserCount);
 
 	userManager.Startup(listenSocket);
+	roomManager.Startup();
 
 	std::println("Server is started.");
 

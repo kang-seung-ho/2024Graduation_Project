@@ -36,6 +36,7 @@ iconer::app::UserManager::Initialize(iconer::net::IoCompletionPort& io_port)
 		user->mainContext->ClearIoStatus();
 		user->mainContext->SetOperation(iconer::app::TaskCategory::OpReserve);
 		user->recvContext->ClearIoStatus();
+		user->roomContext->ClearIoStatus();
 
 		everyUsers.emplace_back(user);
 	}
@@ -72,7 +73,7 @@ iconer::app::UserManager::Cleanup()
 }
 
 void
-iconer::app::UserManager::AddUser(iconer::app::UserManager::session_type* session)
+iconer::app::UserManager::AddUser(iconer::app::UserManager::pointer_type session)
 {
 	everyUsers.emplace_back(session);
 }
