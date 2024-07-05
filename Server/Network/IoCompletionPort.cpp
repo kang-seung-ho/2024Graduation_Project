@@ -9,22 +9,20 @@ import <optional>;
 import <vector>;
 import <thread>;
 
-using namespace iconer;
-
-net::IoCompletionPort::IoCompletionPort(void* handle)
+iconer::net::IoCompletionPort::IoCompletionPort(void* handle)
 noexcept
 	: myHandle(handle)
 {}
 
-net::IoCompletionPort::FactoryResult
-net::IoCompletionPort::Create()
+iconer::net::IoCompletionPort::FactoryResult
+iconer::net::IoCompletionPort::Create()
 noexcept
 {
 	return Create(std::thread::hardware_concurrency());
 }
 
-net::IoCompletionPort::FactoryResult
-net::IoCompletionPort::Create(std::uint32_t concurrency_hint)
+iconer::net::IoCompletionPort::FactoryResult
+iconer::net::IoCompletionPort::Create(std::uint32_t concurrency_hint)
 noexcept
 {
 	const auto port = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, std::move(concurrency_hint));
@@ -38,7 +36,7 @@ noexcept
 }
 
 iconer::net::IoResult
-net::IoCompletionPort::Register(net::Socket& socket, std::uintptr_t id)
+iconer::net::IoCompletionPort::Register(iconer::net::Socket& socket, std::uintptr_t id)
 const noexcept
 {
 #if _DEBUG
@@ -58,7 +56,7 @@ const noexcept
 }
 
 bool
-net::IoCompletionPort::TryRegister(net::Socket& socket, std::uintptr_t id, net::ErrorCode& error_code)
+iconer::net::IoCompletionPort::TryRegister(iconer::net::Socket& socket, std::uintptr_t id, iconer::net::ErrorCode& error_code)
 const noexcept
 {
 	if (auto result = Register(socket, id); result)
@@ -74,7 +72,7 @@ const noexcept
 }
 
 bool
-net::IoCompletionPort::Destroy()
+iconer::net::IoCompletionPort::Destroy()
 noexcept
 {
 	if (auto& handle = myHandle; nullptr != handle)
@@ -91,7 +89,7 @@ noexcept
 }
 
 bool
-net::IoCompletionPort::Destroy(net::ErrorCode& error_code)
+iconer::net::IoCompletionPort::Destroy(iconer::net::ErrorCode& error_code)
 noexcept
 {
 	if (auto result = Destroy(); result)
@@ -107,7 +105,7 @@ noexcept
 }
 
 bool
-net::IoCompletionPort::Schedule(net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
+iconer::net::IoCompletionPort::Schedule(iconer::net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
 const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
@@ -117,7 +115,7 @@ const noexcept
 }
 
 bool
-net::IoCompletionPort::Schedule(net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
+iconer::net::IoCompletionPort::Schedule(iconer::net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
 const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
@@ -127,7 +125,7 @@ const noexcept
 }
 
 bool
-net::IoCompletionPort::Schedule(volatile net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
+iconer::net::IoCompletionPort::Schedule(volatile iconer::net::IoContext& context, std::uintptr_t id, unsigned long infobytes)
 const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
@@ -137,7 +135,7 @@ const noexcept
 }
 
 bool
-net::IoCompletionPort::Schedule(volatile net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
+iconer::net::IoCompletionPort::Schedule(volatile iconer::net::IoContext* const context, std::uintptr_t id, unsigned long infobytes)
 const noexcept
 {
 	return 0 != ::PostQueuedCompletionStatus(myHandle
@@ -146,11 +144,11 @@ const noexcept
 		, const_cast<::WSAOVERLAPPED*>(static_cast<volatile ::WSAOVERLAPPED*>(context)));
 }
 
-net::IoEvent
-net::IoCompletionPort::WaitForIoResult()
+iconer::net::IoEvent
+iconer::net::IoCompletionPort::WaitForIoResult()
 const noexcept
 {
-	net::IoEvent ev_handle{};
+	iconer::net::IoEvent ev_handle{};
 
 	::LPOVERLAPPED overlapped{};
 	::BOOL result = 0;
