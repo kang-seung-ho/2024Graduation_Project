@@ -1,10 +1,11 @@
+module;
+#include <cstdint>
+#include <cstdlib>
+#include <span>
+#include <string>
+#include <string_view>
+#include <filesystem>
 export module Iconer.Utility.File;
-import <cstdint>;
-import <cstdlib>;
-import <span>;
-import <string>;
-import <string_view>;
-import <filesystem>;
 
 export namespace iconer::util
 {

@@ -1,6 +1,4 @@
-#pragma once
-#include "ThreadPool.hpp"
-
+export module Iconer.Framework;
 import Iconer.Net.IFramework;
 import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
@@ -9,15 +7,12 @@ import Iconer.App.UserManager;
 import Iconer.App.RoomManager;
 import Iconer.App.PacketProtocol;
 import Iconer.App.Settings;
+import Iconer.ThreadPool;
 import <cstdint>;
 import <array>;
 import <unordered_map>;
-import <thread>;
 
-#define LIKELY   [[likely]]
-#define UNLIKELY [[unlikely]]
-
-namespace iconer::app
+export namespace iconer::app
 {
 	class [[nodiscard]] TaskContext;
 	class [[nodiscard]] PacketContext;
@@ -26,9 +21,9 @@ namespace iconer::app
 	class [[nodiscard]] Room;
 }
 
-using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, std::byte*>;
+export using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, std::byte*>;
 
-class ServerFramework final : public iconer::net::IFramework
+export class ServerFramework final : public iconer::net::IFramework
 {
 public:
 	using super = iconer::net::IFramework;

@@ -1,4 +1,4 @@
-#include "Framework.hpp"
+module Iconer.Framework;
 
 import Iconer.Net;
 

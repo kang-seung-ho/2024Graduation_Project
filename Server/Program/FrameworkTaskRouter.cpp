@@ -1,8 +1,10 @@
-#include "Framework.hpp"
-#include <utility>
-#include <format>
+module;
 #include <print>
 
+#define LIKELY   [[likely]]
+#define UNLIKELY [[unlikely]]
+
+module Iconer.Framework;
 import iconer.Utility.Serializer;
 import Iconer.Utility.StringConverter;
 import Iconer.Net;

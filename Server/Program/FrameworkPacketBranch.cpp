@@ -1,11 +1,13 @@
-#include "Framework.hpp"
+module;
+#include <utility>
+//#include <bit>
+//#include <format>
+#include <print>
 
+module Iconer.Framework;
 import Iconer.App.User;
 import Iconer.App.PacketContext;
 import Iconer.App.PacketProtocol;
-import <utility>;
-import <bit>;
-import <format>;
 
 void
 ServerFramework::RoutePackets(iconer::app::User& user)
@@ -15,7 +17,7 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 
 	if (buf_size <= 2)
 	{
-		std::println("The packet protocol: {}. Not received yet.", std::to_underlying(buffer[0]));
+		//std::println("The packet protocol: {}. Not received yet.", std::to_underlying(buffer[0]));
 
 		return;
 	}
@@ -27,19 +29,19 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 		const auto byte = *ptr;
 
 		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
-		std::println("Received packet protocol: {}.", std::to_underlying(protocol));
+		//std::println("Received packet protocol: {}.", std::to_underlying(protocol));
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
 
 		if (buf_size - stacked_size < size)
 		{
-			std::println("Received and mssing packet size: {}.", size);
+			//std::println("Received and mssing packet size: {}.", size);
 
 			break;
 		}
 		else
 		{
-			std::println("Received packet size: {}.", size);
+			//std::println("Received packet size: {}.", size);
 
 			offset += size;
 			stacked_size += size;
@@ -48,7 +50,7 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 
 	if (0 < stacked_size)
 	{
-		std::println("Defer procssing packets within {} bytes.", stacked_size);
+		//std::println("Defer procssing packets within {} bytes.", stacked_size);
 
 		const auto ctx = storedPacketContexts.pop();
 		ctx->myData = user.AcquireReceivedData(stacked_size);
@@ -84,14 +86,14 @@ ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketCont
 
 		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
 		const auto protocol_value = std::to_underlying(protocol);
-		std::println("The packet protocol: {}.", protocol_value);
+		//std::println("The packet protocol: {}.", protocol_value);
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
-		std::println("The packet size: {}.", size);
+		//std::println("The packet size: {}.", size);
 
 		if (auto it = packetProcessors.find(protocol); it != packetProcessors.cend())
 		{
-			std::println("Processing a packet {}.", protocol_value);
+			//std::println("Processing a packet {}.", protocol_value);
 
 			const auto& method = it->second;
 

@@ -1,8 +1,11 @@
-#include "Framework.hpp"
+module;
+#include <cstdio>
+#include <cstdlib>
+#include <print>
 
-import <cstdio>;
-import <cstdlib>;
-import <print>;
+#define LIKELY   [[likely]]
+#define UNLIKELY [[unlikely]]
+module Iconer.Framework;
 
 void
 ServerFramework::Startup()

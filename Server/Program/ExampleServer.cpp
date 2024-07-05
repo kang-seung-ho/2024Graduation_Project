@@ -1,5 +1,4 @@
-#include "Framework.hpp"
-
+module Iconer.Framework;
 import Iconer.Net;
 import Iconer.Net.EndPoint;
 import Iconer.Net.Socket;

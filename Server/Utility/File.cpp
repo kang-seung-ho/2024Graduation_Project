@@ -2,6 +2,7 @@ module;
 #include <cstdlib>
 #include <cstdio>
 #include <string_view>
+#include <string>
 module Iconer.Utility.File;
 
 namespace

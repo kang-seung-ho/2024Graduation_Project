@@ -1,10 +1,11 @@
-#include "Framework.hpp"
+module;
+#include <print>
 
+module Iconer.Framework;
 import Iconer.Utility.Delegate;
 import Iconer.App.User;
 import Iconer.App.PacketContext;
 import Iconer.App.SendContext;
-import <print>;
 
 iconer::net::IoResult
 ServerFramework::Initialize()

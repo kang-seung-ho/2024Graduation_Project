@@ -1,5 +1,7 @@
-#include "ThreadPool.hpp"
-#include "Framework.hpp"
+module;
+module Iconer.ThreadPool;
+import Iconer.Framework;
+import <print>;
 
 thread_local constinit size_t workerId{};
 

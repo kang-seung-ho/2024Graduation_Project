@@ -1,4 +1,8 @@
-#include "Framework.hpp"
+module;
+#define LIKELY   [[likely]]
+#define UNLIKELY [[unlikely]]
+
+module Iconer.Framework;
 
 import Iconer.App.User;
 import Iconer.App.Room;

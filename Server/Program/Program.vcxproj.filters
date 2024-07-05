@@ -21,10 +21,16 @@
     <ClCompile Include="Framework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadPool.cpp">
+    <ClCompile Include="FrameworkCleanup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Tests.cpp">
+    <ClCompile Include="FrameworkIntialize.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameworkPacketBranch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameworkStartup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FrameworkTaskRouter.cpp">
@@ -33,31 +39,20 @@
     <ClCompile Include="FrameworkUtility.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FrameworkIntialize.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameworkStartup.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameworkCleanup.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameworkPacketBranch.cpp">
+    <ClCompile Include="LobbyEventProcessor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MainMenuEventProcessor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="LobbyEventProcessor.cpp">
+    <ClCompile Include="ThreadPool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.ixx">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Framework.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
+    <ClCompile Include="Framework.ixx">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
