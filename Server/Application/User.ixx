@@ -60,6 +60,9 @@ export namespace iconer::app
 		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
 		iconer::net::IoResult SendRoomCreatedPacket(id_type room_id);
 		iconer::net::IoResult SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason);
+		iconer::net::IoResult SendJoinedRoomPacket(id_type room_id, id_type user_id);
+		iconer::net::IoResult SendOtherJoinedRoomPacket(id_type room_id, id_type user_id);
+		iconer::net::IoResult SendRoomJoinFailedPacket(iconer::app::RoomContract reason);
 
 		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();
 		bool EndOptainReceiveMemory(bool flag) noexcept;

@@ -1,14 +1,11 @@
 module Iconer.Framework;
 
 import Iconer.App.User;
-import Iconer.App.TaskContext;
-import Iconer.App.PacketSerializer;
+import Iconer.App.TaskCategory;
 
 void
 ServerFramework::EventOnSignIn(iconer::app::User& user, std::byte* data)
 {
-	using namespace iconer::net;
-	using namespace iconer::app;
 	using enum iconer::app::TaskCategory;
 
 	auto& ctx = user.mainContext;

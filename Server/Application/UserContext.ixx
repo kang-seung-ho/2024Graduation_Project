@@ -22,6 +22,8 @@ export namespace iconer::app
 		static inline constexpr size_t signInFailedPacketSize = 3 + sizeof(std::uint32_t);
 		static inline constexpr size_t roomCreatedPacketSize = 3 + sizeof(std::int32_t);
 		static inline constexpr size_t roomCreateFailedPacketSize = 3 + sizeof(iconer::app::RoomContract);
+		static inline constexpr size_t roomJoinedPacketSize = 3 + sizeof(std::int32_t) * 2 + 32;
+		static inline constexpr size_t roomJoinFailedPacketSize = 3 + sizeof(iconer::app::RoomContract);
 
 		iconer::util::ReadOnly<id_type> ownerId;
 		iconer::util::ReadOnly<class User*> ownerHandle;
@@ -30,13 +32,17 @@ export namespace iconer::app
 			: super()
 			, ownerId(id), ownerHandle(ptr)
 		{
-			(void)SerializeAt(signInPacketData, PacketProtocol::SC_SIGNIN_SUCCESS, static_cast<std::int32_t>(id));
+			const auto small_id = static_cast<std::int32_t>(id);
+
+			(void)SerializeAt(signInPacketData, PacketProtocol::SC_SIGNIN_SUCCESS, small_id);
 
 			(void)SerializeAt(signInFailedPacketData, PacketProtocol::SC_SIGNIN_FAILURE, 0U);
 
 			(void)SerializeAt(roomCreatedPacketData, PacketProtocol::SC_ROOM_CREATED, -1);
-
 			(void)SerializeAt(roomCreateFailedPacketData, PacketProtocol::SC_ROOM_CREATE_FAILED, iconer::app::RoomContract::Success);
+
+			(void)SerializeAt(roomJoinedPacketData, PacketProtocol::SC_ROOM_JOINED, small_id, -1);
+			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
 		}
 
 		[[nodiscard]]
@@ -67,10 +73,28 @@ export namespace iconer::app
 			return std::span{ roomCreateFailedPacketData };
 		}
 
+		[[nodiscard]]
+		constexpr std::span<std::byte, roomJoinedPacketSize> GetRoomJoinedPacketData(std::int32_t room_id) noexcept
+		{
+			iconer::util::Serialize(roomJoinedPacketData + 3 + sizeof(std::int32_t), room_id);
+
+			return std::span{ roomJoinedPacketData };
+		}
+
+		[[nodiscard]]
+		constexpr std::span<std::byte, roomJoinFailedPacketSize> GetRoomJoinFailedPacketData(iconer::app::RoomContract reason) noexcept
+		{
+			iconer::util::Serialize(roomJoinFailedPacketData + 3, reason);
+
+			return std::span{ roomJoinFailedPacketData };
+		}
+
 	private:
 		std::byte signInPacketData[signInPacketSize]{};
 		std::byte signInFailedPacketData[signInFailedPacketSize]{};
 		std::byte roomCreatedPacketData[roomCreatedPacketSize]{};
 		std::byte roomCreateFailedPacketData[roomCreateFailedPacketSize]{};
+		std::byte roomJoinedPacketData[roomJoinedPacketSize]{};
+		std::byte roomJoinFailedPacketData[roomJoinFailedPacketSize]{};
 	};
 }

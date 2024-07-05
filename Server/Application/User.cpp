@@ -4,6 +4,7 @@ module;
 
 module Iconer.App.User;
 import Iconer.App.SendContext;
+import Iconer.App.Room;
 
 iconer::net::IoResult
 iconer::app::User::BeginClose()
@@ -16,6 +17,13 @@ iconer::app::User::BeginClose()
 
 	onDisconnected.Broadcast(this);
 	SetConnected(false); // release connection
+	
+	const auto room = myRoom.load();
+
+	if (nullptr != room)
+	{
+		room->Leave(*this);
+	}
 
 	return myReceiver.BeginClose(mainContext);
 }
@@ -68,6 +76,24 @@ iconer::net::IoResult
 iconer::app::User::SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason)
 {
 	return GetSocket().Send(ctx, mainContext->GetRoomCreateFailedPacketData(reason));
+}
+
+iconer::net::IoResult
+iconer::app::User::SendJoinedRoomPacket(id_type room_id, id_type user_id)
+{
+	return GetSocket().Send(roomContext, mainContext->GetRoomJoinedPacketData(static_cast<std::int32_t>(room_id)));
+}
+
+iconer::net::IoResult
+iconer::app::User::SendOtherJoinedRoomPacket(id_type room_id, id_type user_id)
+{
+	return iconer::net::IoResult();
+}
+
+iconer::net::IoResult
+iconer::app::User::SendRoomJoinFailedPacket(iconer::app::RoomContract reason)
+{
+	return GetSocket().Send(roomContext, mainContext->GetRoomJoinFailedPacketData(reason));
 }
 
 iconer::net::IoResult

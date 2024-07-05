@@ -58,6 +58,7 @@ private:
 	void EventOnFailedToMakeRoom(iconer::app::User& user);
 	/* Join to the room */
 	void EventOnJoinRoom(iconer::app::User& user, std::byte* data);
+	void EventOnFailedToJoinRoom(iconer::app::User& user);
 	/* Exit from the room */
 	void EventOnExitRoom(iconer::app::User& user, std::byte* data);
 	/* Match a random room */
