@@ -48,8 +48,6 @@ export namespace iconer::util
 		std::string result{};
 		result.reserve(string.length() * 2 + 1);
 
-		auto it = result.data();
-
 		constexpr std::uint8_t byte_fix = 0xFF;
 
 		for (const wchar_t& narrow_char : string)
@@ -65,15 +63,13 @@ export namespace iconer::util
 			constexpr std::uint16_t lhs_fix = 0xFF00;
 			constexpr std::uint16_t rhs_fix = 0x00FF;
 
-			const std::uint16_t lhs = mid & lhs_fix;
-			const std::uint16_t rhs = mid & rhs_fix;
-			const std::uint8_t post_lhs = static_cast<std::uint8_t>(lhs) & byte_fix;
-			const std::uint8_t post_rhs = static_cast<std::uint8_t>(rhs) & byte_fix;
+			const std::uint16_t lhs = mid;
+			const std::uint16_t rhs = mid >> 1;
+			const std::uint8_t post_lhs = static_cast<std::uint8_t>(lhs & byte_fix);
+			const std::uint8_t post_rhs = static_cast<std::uint8_t>(rhs & byte_fix);
 
 			result.push_back(static_cast<char>(post_lhs));
 			result.push_back(static_cast<char>(post_rhs));
-
-			(void)++it;
 		}
 
 		return result;

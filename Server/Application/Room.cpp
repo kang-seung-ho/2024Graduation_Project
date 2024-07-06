@@ -7,7 +7,7 @@ module Iconer.App.Room;
 import Iconer.App.User;
 
 bool
-iconer::app::Room::TryOccupy(iconer::app::User& user)
+iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 {
 	auto& users_room = user.myRoom;
 	auto& first = myMembers[0];
@@ -55,16 +55,11 @@ iconer::app::Room::TryOccupy(iconer::app::User& user)
 		};
 	};
 
-	if (onFailedToOccupy.IsBound())
-	{
-		onFailedToOccupy.Broadcast(this, &user);
-	}
-
 	return false;
 }
 
 bool
-iconer::app::Room::TryJoin(iconer::app::User& user)
+iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 {
 	auto& users_room = user.myRoom;
 
@@ -122,7 +117,7 @@ iconer::app::Room::TryJoin(iconer::app::User& user)
 }
 
 bool
-iconer::app::Room::Leave(iconer::app::User& user, bool notify)
+iconer::app::Room::Leave(iconer::app::Room::reference user, bool notify)
 noexcept
 {
 	auto& ctx = user.roomContext;
@@ -132,7 +127,7 @@ noexcept
 
 	bool removed{ false };
 
-	while (not ctx->TryChangeOperation(TaskCategory::None, TaskCategory::OpLeaveRoom));
+	//while (not ctx->TryChangeOperation(TaskCategory::None, TaskCategory::OpLeaveRoom));
 
 	for (auto& member : myMembers)
 	{
@@ -141,9 +136,6 @@ noexcept
 		const auto stored_user = member.GetStoredUser();
 
 		if (nullptr == stored_user) continue;
-
-
-		user.myRoom.compare_exchange_strong(self, nullptr);
 
 		if (member.ChangedToEmpty(&user))
 		{
@@ -160,11 +152,12 @@ noexcept
 
 			removed = true;
 		}
+
+		user.myRoom.compare_exchange_strong(self, nullptr);
 	}
 
 	if (removed and 0 == memberCount)
 	{
-		// must be run
 		if (onDestroyed.IsBound())
 		{
 			onDestroyed.Broadcast(this);

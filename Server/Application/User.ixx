@@ -56,6 +56,10 @@ export namespace iconer::app
 
 		void Cleanup();
 
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data);
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length);
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length) const;
 		iconer::net::IoResult SendSignInPacket();
 		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
 		iconer::net::IoResult SendRoomCreatedPacket(id_type room_id);

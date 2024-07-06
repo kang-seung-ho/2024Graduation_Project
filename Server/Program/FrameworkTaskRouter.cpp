@@ -1,5 +1,6 @@
 module;
 #include <print>
+#include <cstring>
 
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
@@ -159,9 +160,20 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 			//const char* nickname = reinterpret_cast<const char*>(namebuf);
 
-			auto nickname = iconer::util::ToString(user->myName);
+			//auto nickname = iconer::util::ToString(user->myName);
 
-			std::println("User {} is signed in. (name={}, {} bytes)", id, nickname, bytes);
+			//char namebuf[iconer::app::Settings::nickNameLength * 2 + 1]{};
+			//const wchar_t* nickname_ptr = user->myName.data();
+
+			//size_t len{};
+			//std::mbstate_t state{};
+			//auto err = wcsrtombs_s(&len, namebuf, &nickname_ptr, iconer::app::Settings::nickNameLength, &state);
+
+			std::print("User {} is signed in. (name=", id);
+
+			fputws(user->myName.data(), stdout);
+
+			std::println(", {} bytes)", bytes);
 		}
 		else
 		{

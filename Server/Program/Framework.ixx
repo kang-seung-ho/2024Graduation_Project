@@ -48,6 +48,7 @@ private:
 
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
+
 	void OnUserDisconnected(iconer::app::User* user);
 	void OnRoomClosed(iconer::app::Room* room);
 
@@ -66,6 +67,8 @@ private:
 	void EventOnSeekRoom(iconer::app::User& user, std::byte* data);
 	/* Send a list of room */
 	void EventOnRoomList(iconer::app::User& user, std::byte* data);
+	/* Send a list of member in the room */
+	void EventOnUserList(iconer::app::User& user, std::byte* data);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;

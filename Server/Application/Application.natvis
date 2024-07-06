@@ -32,7 +32,7 @@
 			<Item Name="[핸들]">myId</Item>
 			<Item Name="[점유 여부]">isTaken</Item>
 			<Synthetic Name="[제목]">
-				<DisplayString>-</DisplayString>
+				<DisplayString>{myTitle}</DisplayString>
 			</Synthetic>
 			<Synthetic Name="[현재 멤버]">
 				<DisplayString>{memberCount}명</DisplayString>

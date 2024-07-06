@@ -8,6 +8,7 @@ import Iconer.App.ConnectionContract;
 import Iconer.App.RoomContract;
 import <cstddef>;
 import <span>;
+import <array>;
 
 export namespace iconer::app
 {
@@ -46,55 +47,55 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		constexpr std::span<const std::byte, signInPacketSize> GetSignInPacketData() const noexcept
+		constexpr auto& GetSignInPacketData() const noexcept
 		{
-			return std::span{ signInPacketData };
+			return signInPacketData;
 		}
 		
 		[[nodiscard]]
-		constexpr std::span<const std::byte, signInFailedPacketSize> GetSignInFailurePacketData() const noexcept
+		constexpr auto& GetSignInFailurePacketData() const noexcept
 		{
-			return std::span{ signInFailedPacketData };
+			return signInFailedPacketData;
 		}
 		
 		[[nodiscard]]
-		constexpr std::span<std::byte, roomCreatedPacketSize> GetRoomCreatedPacketData(std::int32_t room_id) noexcept
+		constexpr auto& GetRoomCreatedPacketData(std::int32_t room_id) noexcept
 		{
-			iconer::util::Serialize(roomCreatedPacketData + 3, room_id);
+			iconer::util::Serialize(roomCreatedPacketData.data() + 3, room_id);
 
-			return std::span{ roomCreatedPacketData };
+			return roomCreatedPacketData;
 		}
 		
 		[[nodiscard]]
-		constexpr std::span<std::byte, roomCreateFailedPacketSize> GetRoomCreateFailedPacketData(iconer::app::RoomContract reason) noexcept
+		constexpr auto& GetRoomCreateFailedPacketData(iconer::app::RoomContract reason) noexcept
 		{
-			iconer::util::Serialize(roomCreateFailedPacketData + 3, reason);
+			iconer::util::Serialize(roomCreateFailedPacketData.data() + 3, reason);
 
-			return std::span{ roomCreateFailedPacketData };
+			return roomCreateFailedPacketData;
 		}
 
 		[[nodiscard]]
-		constexpr std::span<std::byte, roomJoinedPacketSize> GetRoomJoinedPacketData(std::int32_t room_id) noexcept
+		constexpr auto& GetRoomJoinedPacketData(std::int32_t room_id) noexcept
 		{
-			iconer::util::Serialize(roomJoinedPacketData + 3 + sizeof(std::int32_t), room_id);
+			iconer::util::Serialize(roomJoinedPacketData.data() + 3 + sizeof(std::int32_t), room_id);
 
-			return std::span{ roomJoinedPacketData };
+			return roomJoinedPacketData;
 		}
 
 		[[nodiscard]]
-		constexpr std::span<std::byte, roomJoinFailedPacketSize> GetRoomJoinFailedPacketData(iconer::app::RoomContract reason) noexcept
+		constexpr auto& GetRoomJoinFailedPacketData(iconer::app::RoomContract reason) noexcept
 		{
-			iconer::util::Serialize(roomJoinFailedPacketData + 3, reason);
+			iconer::util::Serialize(roomJoinFailedPacketData.data() + 3, reason);
 
-			return std::span{ roomJoinFailedPacketData };
+			return roomJoinFailedPacketData;
 		}
 
 	private:
-		std::byte signInPacketData[signInPacketSize]{};
-		std::byte signInFailedPacketData[signInFailedPacketSize]{};
-		std::byte roomCreatedPacketData[roomCreatedPacketSize]{};
-		std::byte roomCreateFailedPacketData[roomCreateFailedPacketSize]{};
-		std::byte roomJoinedPacketData[roomJoinedPacketSize]{};
-		std::byte roomJoinFailedPacketData[roomJoinFailedPacketSize]{};
+		std::array<std::byte, signInPacketSize> signInPacketData{};
+		std::array<std::byte, signInFailedPacketSize> signInFailedPacketData{};
+		std::array<std::byte, roomCreatedPacketSize> roomCreatedPacketData{};
+		std::array<std::byte, roomCreateFailedPacketSize> roomCreateFailedPacketData{};
+		std::array<std::byte, roomJoinedPacketSize> roomJoinedPacketData{};
+		std::array<std::byte, roomJoinFailedPacketSize> roomJoinFailedPacketData{};
 	};
 }

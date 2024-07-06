@@ -22,4 +22,9 @@ void
 ServerFramework::OnRoomClosed(iconer::app::Room* room)
 {
 	std::println("Room {} is just closed.", room->GetID());
+
+	room->Foreach([](iconer::app::User& user) {
+
+		}
+	);
 }

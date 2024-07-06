@@ -23,6 +23,14 @@ ServerFramework::EventOnMakeRoom(iconer::app::User& user, std::byte* data)
 		{
 			const auto room = ptr.value();
 
+			constexpr auto len = iconer::app::Settings::roomTitleLength;
+
+			wchar_t title[len + 1]{};
+
+			std::memcpy(title, data, len * 2);
+
+			room->SetTitle(title);
+
 			myTaskPool.Schedule(ctx, user.GetID(), static_cast<unsigned long>(room->GetID()));
 		}
 		else UNLIKELY
@@ -139,7 +147,7 @@ ServerFramework::EventOnSeekRoom(iconer::app::User& user, std::byte* data)
 }
 
 void
-ServerFramework::EventOnRoomList(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnRoomList(iconer::app::User& user, std::byte*)
 {
-
+	user.SendGeneralData(*storedSendContexts.pop(), roomManager.AcquireCachedRoomData());
 }

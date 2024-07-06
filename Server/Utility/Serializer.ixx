@@ -177,14 +177,14 @@ export namespace iconer::util
 				const std::uint8_t post_near_rlhs = static_cast<std::uint8_t>(n_rlhs) & byte_fix;
 				const std::uint8_t post_near_rrhs = static_cast<std::uint8_t>(n_rrhs) & byte_fix;
 
-				buffer[0] = static_cast<std::byte>(post_far_llhs);
-				buffer[1] = static_cast<std::byte>(post_far_lrhs);
-				buffer[2] = static_cast<std::byte>(post_far_rlhs);
-				buffer[3] = static_cast<std::byte>(post_far_rrhs);
-				buffer[4] = static_cast<std::byte>(post_near_llhs);
-				buffer[5] = static_cast<std::byte>(post_near_lrhs);
-				buffer[6] = static_cast<std::byte>(post_near_rlhs);
-				buffer[7] = static_cast<std::byte>(post_near_rrhs);
+				buffer[7] = static_cast<std::byte>(post_far_llhs);
+				buffer[6] = static_cast<std::byte>(post_far_lrhs);
+				buffer[5] = static_cast<std::byte>(post_far_rlhs);
+				buffer[4] = static_cast<std::byte>(post_far_rrhs);
+				buffer[3] = static_cast<std::byte>(post_near_llhs);
+				buffer[2] = static_cast<std::byte>(post_near_lrhs);
+				buffer[1] = static_cast<std::byte>(post_near_rlhs);
+				buffer[0] = static_cast<std::byte>(post_near_rrhs);
 			}
 			break;
 
@@ -250,7 +250,9 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, std::addressof(array), GetByteSize(array)));
+			const size_t size = sizeof(T) * Len;
+			std::memcpy(buffer, std::addressof(array), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 
@@ -268,7 +270,8 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, std::addressof(array), GetByteSize(array)));
+			std::memcpy(buffer, std::addressof(array), sizeof(T) * Len);
+			return static_cast<std::byte*>(buffer + sizeof(T) * Len);
 		}
 	}
 
@@ -286,7 +289,9 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, str.data(), GetByteSize(str)));
+			const size_t size = sizeof(T) * str.length();
+			std::memcpy(buffer, str.data(), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 
@@ -295,19 +300,7 @@ export namespace iconer::util
 	{
 		const std::basic_string<T, Traits> str = static_cast<std::basic_string<T, Traits>&&>(value);
 
-		if (std::is_constant_evaluated())
-		{
-			for (auto&& element : str)
-			{
-				buffer = Serialize(buffer, element);
-			}
-
-			return buffer;
-		}
-		else
-		{
-			return static_cast<std::byte*>(std::memcpy(buffer, str.data(), GetByteSize(value)));
-		}
+		return Serialize(buffer, str);
 	}
 
 	template<trivials T, typename Traits>
@@ -324,7 +317,9 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, str.data(), GetByteSize(str)));
+			const size_t size = sizeof(T) * str.length();
+			std::memcpy(buffer, str.data(), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 
@@ -342,16 +337,18 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, array.data(), GetByteSize(array)));
+			const size_t size = sizeof(T) * Len;
+			std::memcpy(buffer, std::addressof(array), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 
 	template<trivials T>
-	constexpr std::byte* Serialize(std::byte* buffer, const std::vector<T>& array)
+	constexpr std::byte* Serialize(std::byte* buffer, const std::vector<T>& cont)
 	{
 		if (std::is_constant_evaluated())
 		{
-			for (auto&& element : array)
+			for (auto&& element : cont)
 			{
 				buffer = Serialize(buffer, element);
 			}
@@ -360,7 +357,9 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, array.data(), GetByteSize(array)));
+			const size_t size = sizeof(T) * cont.size();
+			std::memcpy(buffer, cont.data(), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 
@@ -378,7 +377,9 @@ export namespace iconer::util
 		}
 		else
 		{
-			return static_cast<std::byte*>(std::memcpy(buffer, std::ranges::cdata(range), GetByteSize(range)));
+			const size_t size = GetByteSize(range);
+			std::memcpy(buffer, std::ranges::cdata(range), size);
+			return static_cast<std::byte*>(buffer + size);
 		}
 	}
 }

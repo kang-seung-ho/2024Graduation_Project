@@ -2,6 +2,7 @@ export module Iconer.Net.TcpReceiver;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.IoResult;
 import Iconer.Net.IoContext;
+import Iconer.Net.Socket;
 import <cstddef>;
 import <cstdint>;
 import <memory>;
@@ -11,8 +12,6 @@ import <atomic>;
 
 export namespace iconer::net
 {
-	class [[nodiscard]] Socket;
-
 	class [[nodiscard]] TcpReceiver
 	{
 	public:

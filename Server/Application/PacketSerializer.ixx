@@ -6,6 +6,8 @@ export module Iconer.App.PacketSerializer;
 import Iconer.Utility.TypeTraits;
 import iconer.Utility.Serializer;
 import Iconer.App.PacketProtocol;
+import <cstddef>;
+import <array>;
 
 export namespace iconer::app
 {
@@ -27,6 +29,12 @@ export namespace iconer::app
 		((seek = iconer::util::Serialize(seek, std::forward<Ts>(params))), ...);
 
 		return static_cast<std::byte*>(seek);
+	}
+
+	template<size_t Len, typename... Ts>
+	constexpr std::byte* SerializeAt(std::array<std::byte, Len>& buffer, const PacketProtocol protocol, Ts&&... params)
+	{
+		return SerializeAt(buffer.data(), protocol, std::forward<Ts>(params)...);
 	}
 
 	template<typename... Ts>
