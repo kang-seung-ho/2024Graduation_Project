@@ -23,7 +23,7 @@ noexcept
 	, teamUpdateTimer()
 {
 	SetNextLevelName(TEXT("CharacterSelectLevel"));
-	SetPrevLevelName(TEXT("MainMenuLevel"));
+	SetPrevLevelName(TEXT("LobbyLevel"));
 
 	static ConstructorHelpers::FClassFinder<USagaRoomSessionLevelUiWidget> widget_class{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/Level/SagaRoomSessionLevelUI.SagaRoomSessionLevelUI_C'") };
 
@@ -211,7 +211,6 @@ ASagaRoomSessionLevel::OnLeftRoomBySelf()
 {
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnLeftRoomBySelf] Local user has been left from the room."));
 
-	SetPrevLevelName(TEXT("LobbyLevel"));
 	GotoPrevLevel();
 }
 
@@ -446,6 +445,7 @@ ASagaRoomSessionLevel::Fallback()
 	}
 	else
 	{
+		SetPrevLevelName(TEXT("MainMenuLevel"));
 		GotoPrevLevel();
 	}
 }
