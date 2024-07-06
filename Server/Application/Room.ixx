@@ -6,7 +6,6 @@ import Iconer.Utility.ReadOnly;
 import Iconer.Utility.Delegate;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
 import Iconer.App.Settings;
@@ -57,7 +56,7 @@ export namespace iconer::app
 		iconer::util::Delegate<void, iconer::app::Room*, iconer::app::User*> onFailedToOccupy{};
 		iconer::util::Delegate<void, iconer::app::Room*, iconer::app::User*> onFailedToJoinUser{};
 
-		Room() = default;
+		explicit Room() = default;
 		~Room() = default;
 
 		[[nodiscard]]

@@ -27,7 +27,7 @@ export namespace iconer::app
 		static inline constexpr id_type minUserUid = 1000;
 		static inline constexpr id_type maxUserUid = minUserUid + maxUserCount;
 
-		constexpr UserManager() noexcept = default;
+		explicit constexpr UserManager() noexcept = default;
 		constexpr ~UserManager() noexcept = default;
 
 		iconer::net::IoResult Initialize(iconer::net::IoCompletionPort& io_port);
@@ -57,16 +57,7 @@ export namespace iconer::app
 		{
 			for (const pointer_type& ptr : everyUsers)
 			{
-				std::forward<Callable>(fun)(*ptr);
-			}
-		}
-
-		template<invocable<const pointer_type> Callable>
-		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, std::add_const_t<pointer_type>>)
-		{
-			for (const pointer_type& ptr : everyUsers)
-			{
-				std::forward<Callable>(fun)(*ptr);
+				std::forward<Callable>(fun)(ptr);
 			}
 		}
 

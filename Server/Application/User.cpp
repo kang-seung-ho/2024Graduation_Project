@@ -3,6 +3,7 @@ module;
 #define UNLIKELY [[unlikely]]
 
 module Iconer.App.User;
+import Iconer.Net.Socket;
 import Iconer.App.SendContext;
 import Iconer.App.Room;
 

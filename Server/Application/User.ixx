@@ -2,7 +2,7 @@ export module Iconer.App.User;
 import Iconer.Utility.ReadOnly;
 import Iconer.Utility.Delegate;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
+import Iconer.Net.IoResult;
 import Iconer.Net.TcpReceiver;
 import Iconer.App.UserContext;
 import Iconer.App.TaskContext;
@@ -48,10 +48,10 @@ export namespace iconer::app
 
 		iconer::util::Delegate<void, User*> onDisconnected{};
 
-		explicit constexpr User(id_type id, iconer::net::Socket&& socket) noexcept
+		explicit constexpr User(id_type id, iconer::net::Socket* socket_ptr) noexcept
 			: super(id)
 			, mainContext(std::in_place, id, this)
-			, myReceiver(std::move(socket), recvBufferSize)
+			, myReceiver(socket_ptr, recvBufferSize)
 		{}
 
 		void Cleanup();
@@ -99,9 +99,9 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		const iconer::net::Socket& GetSocket() const noexcept
+		constexpr const iconer::net::Socket& GetSocket() const noexcept
 		{
-			return myReceiver.mySocket;
+			return myReceiver.GetSocket();
 		}
 
 		[[nodiscard]]

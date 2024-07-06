@@ -1,6 +1,7 @@
 module;
 module Iconer.Net.IFramework;
 import Iconer.Net;
+import Iconer.Net.Socket;
 import <print>;
 
 iconer::net::IoResult
@@ -17,9 +18,9 @@ iconer::net::IFramework::Initialize()
 		return std::move(io);
 	}
 
-	listenSocket = Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4);
+	listenSocket = new Socket{ Socket::CreateTcpSocket(SocketCategory::Asynchronous, IpAddressFamily::IPv4) };
 
-	if (listenSocket)
+	if (nullptr != listenSocket and *listenSocket)
 	{
 		std::println("The listen socket is created.");
 	}
@@ -66,7 +67,7 @@ iconer::net::IFramework::PostStartup()
 void
 iconer::net::IFramework::Cleanup()
 {
-	listenSocket.Close();
+	GetListenSocket().Close();
 
 	if (eventOnDestructed.IsBound())
 	{

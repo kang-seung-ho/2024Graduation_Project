@@ -8,7 +8,9 @@ module Iconer.Framework;
 import iconer.Utility.Serializer;
 import Iconer.Utility.StringConverter;
 import Iconer.Net;
+import Iconer.Net.Socket;
 import Iconer.App.User;
+import Iconer.App.Room;
 import Iconer.App.TaskContext;
 import Iconer.App.UserContext;
 import Iconer.App.SendContext;
@@ -310,7 +312,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		const auto user_id = user->GetID();
 		auto& socket = user->GetSocket();
 
-		if (auto io = socket.EndAccept(listenSocket); io)
+		if (auto io = socket.EndAccept(GetListenSocket()); io)
 		{
 			std::println("User {} is just accepted.", user_id);
 		}
@@ -345,7 +347,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		// task_ctx is the mainContext of user
 		task_ctx->SetOperation(OpAccept);
 
-		if (auto io = listenSocket.BeginAccept(task_ctx, user->GetSocket()); io)
+		if (auto io = GetListenSocket().BeginAccept(task_ctx, user->GetSocket()); io)
 		{
 			std::println("User {} is reserved.", id);
 		}

@@ -1,12 +1,22 @@
 module;
+#include <algorithm>
+
 module Iconer.App.RoomManager;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
 import Iconer.Net.IoCompletionPort;
 import Iconer.Net.IoContext;
 import Iconer.App.User;
 import Iconer.App.Room;
 import <utility>;
+
+struct IdProjector
+{
+	[[nodiscard]]
+	constexpr iconer::app::RoomManager::id_type operator()(const iconer::app::RoomManager::pointer_type& handle) const noexcept
+	{
+		return handle->GetID();
+	}
+};
 
 void
 iconer::app::RoomManager::Initialize()
@@ -47,6 +57,37 @@ const
 	}
 
 	return std::nullopt;
+}
+
+std::optional<iconer::app::RoomManager::pointer_type>
+iconer::app::RoomManager::FindRoom(id_type id)
+const noexcept
+{
+	auto it = std::ranges::lower_bound(everyRooms, id
+		, std::less<id_type>{}
+	, IdProjector{}
+		);
+
+	if (it != everyRooms.cend() and (*it)->GetID() == id)
+	{
+		return *it;
+	}
+	else
+	{
+		return std::nullopt;
+	}
+}
+
+bool
+iconer::app::RoomManager::HasRoom(id_type id)
+const noexcept
+{
+	auto it = std::ranges::lower_bound(everyRooms, id
+		, std::less<id_type>{}
+	, IdProjector{}
+		);
+
+	return it != everyRooms.cend() and (*it)->GetID() == id;
 }
 
 void

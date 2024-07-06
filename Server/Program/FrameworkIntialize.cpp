@@ -3,6 +3,7 @@ module;
 
 module Iconer.Framework;
 import Iconer.Utility.Delegate;
+import Iconer.Net.Socket;
 import Iconer.App.User;
 import Iconer.App.PacketContext;
 import Iconer.App.SendContext;
@@ -19,7 +20,7 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (auto io = super::listenSocket.BindToHost(serverPort); io)
+	if (auto io = super::GetListenSocket().BindToHost(serverPort); io)
 	{
 		std::println("The listen socket is bound to host:({}).", serverPort);
 	}
@@ -30,9 +31,9 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (auto io = super::listenSocket.ReusableAddress(true); io)
+	if (auto io = super::GetListenSocket().ReusableAddress(true); io)
 	{
-		std::println("The listen socket now would recycle its address. ({})", super::listenSocket.ReusableAddress());
+		std::println("The listen socket now would recycle its address. ({})", super::GetListenSocket().ReusableAddress());
 	}
 	else
 	{
@@ -41,9 +42,9 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (auto io = super::listenSocket.SetTcpNoDelay(false); io)
+	if (auto io = super::GetListenSocket().SetTcpNoDelay(false); io)
 	{
-		std::println("The listen socket would not use Nagle algorithm. ({})", super::listenSocket.IsTcpNoDelay());
+		std::println("The listen socket would not use Nagle algorithm. ({})", super::GetListenSocket().IsTcpNoDelay());
 	}
 	else
 	{
@@ -65,7 +66,7 @@ ServerFramework::Initialize()
 		return std::unexpected{ io.error() };
 	}
 
-	if (auto io = myTaskPool.Register(super::listenSocket, 0); io)
+	if (auto io = myTaskPool.Register(super::GetListenSocket(), 0); io)
 	{
 		std::println("The listen socket is registered to the task pool.");
 	}

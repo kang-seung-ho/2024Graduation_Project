@@ -1,11 +1,13 @@
 export module Iconer.Net.IFramework;
 import Iconer.Utility.Delegate;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
+import Iconer.Net.IoResult;
 import <new>;
 
 export namespace iconer::net
 {
+	class [[nodiscard]] Socket;
+
 	class IFramework
 	{
 	public:
@@ -23,8 +25,20 @@ export namespace iconer::net
 		virtual void PostStartup();
 		virtual void Cleanup();
 
+		[[nodiscard]]
+		constexpr iconer::net::Socket& GetListenSocket() noexcept
+		{
+			return *listenSocket;
+		}
+
+		[[nodiscard]]
+		constexpr const iconer::net::Socket& GetListenSocket() const noexcept
+		{
+			return *listenSocket;
+		}
+
 	protected:
-		alignas(std::hardware_constructive_interference_size) iconer::net::Socket listenSocket;
+		alignas(std::hardware_constructive_interference_size) iconer::net::Socket* listenSocket;
 
 	private:
 		IFramework(const IFramework&) = delete;

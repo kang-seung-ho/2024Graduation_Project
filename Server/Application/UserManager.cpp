@@ -20,19 +20,24 @@ iconer::app::UserManager::Initialize(iconer::net::IoCompletionPort& io_port)
 
 	for (id_type id = minUserUid; id < maxUserUid; ++id)
 	{
-		auto socket = Socket::CreateTcpSocket(SocketCategory::Asynchronous);
+		auto socket_ptr = new Socket{ Socket::CreateTcpSocket(SocketCategory::Asynchronous) };
 
-		if (not socket)
+		if (nullptr == socket_ptr)
+		{
+			return std::unexpected{ iconer::net::ErrorCode::NOT_ENOUGH_MEMORY };
+		}
+		
+		if (not *socket_ptr)
 		{
 			return std::unexpected{ AcquireNetworkError() };
 		}
 
-		if (auto io = ioCompletionPort->Register(socket, id); not io)
+		if (auto io = ioCompletionPort->Register(*socket_ptr, id); not io)
 		{
 			return std::move(io);
 		}
 
-		iconer::app::User* user = new iconer::app::User{ id, std::move(socket) };
+		iconer::app::User* user = new iconer::app::User{ id, socket_ptr };
 		user->mainContext->ClearIoStatus();
 		user->mainContext->SetOperation(iconer::app::TaskCategory::OpReserve);
 		user->recvContext->ClearIoStatus();

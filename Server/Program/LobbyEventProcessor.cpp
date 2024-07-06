@@ -77,7 +77,7 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 
 				if (room->TryJoin(user))
 				{
-					user.SendRoomJoinedPacket(static_cast<std::uintptr_t>(room_id), user.GetID());
+					user.SendJoinedRoomPacket(static_cast<std::uintptr_t>(room_id), user.GetID());
 				}
 				else
 				{

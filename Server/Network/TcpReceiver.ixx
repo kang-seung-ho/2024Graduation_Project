@@ -1,31 +1,35 @@
 export module Iconer.Net.TcpReceiver;
 import Iconer.Net.ErrorCode;
-import Iconer.Net.Socket;
+import Iconer.Net.IoResult;
 import Iconer.Net.IoContext;
-import Iconer.Net.SocketWrapper;
 import <cstddef>;
 import <cstdint>;
 import <memory>;
+import <span>;
 import <vector>;
 import <atomic>;
 
 export namespace iconer::net
 {
-	class [[nodiscard]] TcpReceiver : public iconer::net::SocketWrapper
+	class [[nodiscard]] Socket;
+
+	class [[nodiscard]] TcpReceiver
 	{
 	public:
-		using super = iconer::net::SocketWrapper;
 		using this_class = TcpReceiver;
 
+		iconer::net::Socket* mySocket;
 		std::uint32_t maxRecvSize;
 		std::atomic_uint32_t recvBytes;
 		alignas(std::hardware_constructive_interference_size) std::vector<std::byte> recvBuffer;
 
-		constexpr TcpReceiver(iconer::net::Socket&& socket, std::uint32_t buffer_size)
-			: super(static_cast<iconer::net::Socket&&>(socket))
+		constexpr TcpReceiver(iconer::net::Socket* socket, std::uint32_t buffer_size)
+			: mySocket(socket)
 			, recvBuffer(buffer_size, std::byte{}), maxRecvSize(buffer_size)
 			, recvBytes()
 		{}
+
+		~TcpReceiver() noexcept;
 
 		[[nodiscard]] iconer::util::Expected<int, iconer::net::ErrorCode> Receive();
 
@@ -48,6 +52,12 @@ export namespace iconer::net
 		[[nodiscard]] std::span<std::byte> GetReceiveBuffer() noexcept;
 		[[nodiscard]] std::span<const std::byte> GetReceiveBuffer() const noexcept;
 		[[nodiscard]] std::span<std::byte> GetCurrentReceiveBuffer() noexcept;
+
+		[[nodiscard]]
+		constexpr const iconer::net::Socket& GetSocket() const noexcept
+		{
+			return *mySocket;
+		}
 
 		TcpReceiver(TcpReceiver&&) = default;
 		TcpReceiver& operator=(TcpReceiver&&) = default;

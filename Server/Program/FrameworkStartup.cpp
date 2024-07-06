@@ -5,14 +5,16 @@ module;
 
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
+
 module Iconer.Framework;
+import Iconer.Net.Socket;
 
 void
 ServerFramework::Startup()
 {
 	super::Startup();
 
-	if (auto io = listenSocket.Open(); io)
+	if (auto io = GetListenSocket().Open(); io)
 	{
 		std::println("The listen socket is opened.");
 	}
@@ -38,7 +40,7 @@ ServerFramework::Startup()
 
 	std::println("Reserving {} users...", userManager.maxUserCount);
 
-	userManager.Startup(listenSocket);
+	userManager.Startup(GetListenSocket());
 	roomManager.Startup();
 
 	std::println("Server is started.");
