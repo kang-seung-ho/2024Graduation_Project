@@ -134,11 +134,19 @@ noexcept
 	{
 		iconer::app::Room* self{ this };
 
+		const auto stored_user = member.GetStoredUser();
+
+		if (nullptr == stored_user) continue;
+
+		auto& ctx = user.roomContext;
+
+		while (not ctx->TryChangeOperation(TaskCategory::None, TaskCategory::OpLeaveRoom));
+
 		user.myRoom.compare_exchange_strong(self, nullptr);
 
-		if (member.ChangedToEmpty(&user, std::memory_order_release))
+		if (member.ChangedToEmpty(&user))
 		{
-			std::scoped_lock lock{ memberRemoverLock };
+			//std::scoped_lock lock{ memberRemoverLock };
 
 			if (memberCount.compare_exchange_strong(cnt, cnt - 1, std::memory_order_release))
 			{
@@ -147,19 +155,19 @@ noexcept
 					onUserLeft.Broadcast(this, &user, cnt - 1);
 				}
 
-				if (0 == memberCount)
-				{
-					if (onDestroyed.IsBound())
-					{
-						onDestroyed.Broadcast(this);
-					}
-
-					isTaken.store(false, std::memory_order_release);
-				}
-
 				removed = true;
 			}
 		}
+	}
+
+	if (removed and 0 == memberCount)
+	{
+		if (onDestroyed.IsBound())
+		{
+			onDestroyed.Broadcast(this);
+		}
+
+		isTaken.store(false, std::memory_order_release);
 	}
 
 	return removed;

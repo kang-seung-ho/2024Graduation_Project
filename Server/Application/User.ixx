@@ -48,10 +48,10 @@ export namespace iconer::app
 
 		iconer::util::Delegate<void, User*> onDisconnected{};
 
-		explicit constexpr User(id_type id, iconer::net::Socket* socket_ptr) noexcept
+		explicit constexpr User(id_type id, iconer::net::Socket& socket) noexcept
 			: super(id)
 			, mainContext(std::in_place, id, this)
-			, myReceiver(socket_ptr, recvBufferSize)
+			, myReceiver(socket, recvBufferSize)
 		{}
 
 		void Cleanup();

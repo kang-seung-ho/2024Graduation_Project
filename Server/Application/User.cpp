@@ -18,13 +18,6 @@ iconer::app::User::BeginClose()
 
 	onDisconnected.Broadcast(this);
 	SetConnected(false); // release connection
-	
-	const auto room = myRoom.load();
-
-	if (nullptr != room)
-	{
-		room->Leave(*this);
-	}
 
 	return myReceiver.BeginClose(mainContext);
 }

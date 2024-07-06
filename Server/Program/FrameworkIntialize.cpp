@@ -111,7 +111,7 @@ ServerFramework::Initialize()
 
 	userManager.Foreach([this](iconer::app::User& user)
 		{
-			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::CleanupUser));
+			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::OnUserDisconnected));
 		}
 	);
 

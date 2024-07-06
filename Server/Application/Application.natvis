@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::app::UserManager">
+		<DisplayString>사용자 세션 관리자</DisplayString>
+	</Type>
+
+	<Type Name="iconer::app::RoomManager">
+		<DisplayString>방 세션 관리자</DisplayString>
+	</Type>
+
 	<Type Name="iconer::app::User" Priority="High">
 		<DisplayString>사용자 세션 객체 ({myId})</DisplayString>
 
 		<Expand HideRawView="false">
 			<Item Name="[핸들]">myId</Item>
+			<Item Name="[연결 여부]">isConnected</Item>
 			<Synthetic Name="[이름]">
 				<DisplayString>{myName}</DisplayString>
 			</Synthetic>
-			<Item Name="[연결 여부]">isConnected</Item>
 			<Item Name="[현재 상태]">mainContext</Item>
 			<Item Name="[수신 상태]">recvContext</Item>
 			<Item Name="[방 상태]">roomContext</Item>
@@ -16,10 +24,28 @@
 			<Item Name="[방]">myRoom</Item>
 		</Expand>
 	</Type>
-	
-	<Type Name="iconer::app::Room" Priority="High">
-		<DisplayString>세션 방 객체 ({myId}) [{memberCount}/4]</DisplayString>
 
+	<Type Name="iconer::app::Room" Priority="High">
+		<DisplayString>방 세션 객체 ({myId}) [{memberCount}/4]</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myId</Item>
+			<Item Name="[점유 여부]">isTaken</Item>
+			<Synthetic Name="[제목]">
+				<DisplayString>-</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[현재 멤버]">
+				<DisplayString>{memberCount}명</DisplayString>
+
+				<Expand>
+					<ArrayItems>
+						<Rank>1</Rank>
+						<Size>4</Size>
+						<ValuePointer>myMembers._Elems</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
 	</Type>
 
 	<Type Name="iconer::app::ISession" Priority="Low">
@@ -36,10 +62,10 @@
 			<Item Name="[점유 여부]">isOccupied</Item>
 		</Expand>
 	</Type>
-	
+
 	<Type Name="iconer::app::UserContext" Priority="High">
 		<Intrinsic Category="Method" Name="__HasOwner" Expression="ownerHandle.myValue != nullptr"/>
-		
+
 		<DisplayString>사용자 문맥 객체 ({ownerId})</DisplayString>
 
 		<Expand HideRawView="false">

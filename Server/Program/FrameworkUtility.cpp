@@ -43,13 +43,6 @@ const
 	return std::move(io);
 }
 
-void
-ServerFramework::CleanupUser(iconer::app::User& user)
-const
-{
-
-}
-
 iconer::app::SendContext*
 ServerFramework::AcquireSendContext()
 noexcept

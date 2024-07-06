@@ -37,6 +37,18 @@ export namespace iconer::app
 			return userHandle.compare_exchange_strong(before_user, nullptr, order);
 		}
 
+		[[nodiscard]]
+		iconer::app::User* GetStoredUser(std::memory_order order = std::memory_order_acquire) const volatile noexcept
+		{
+			return userHandle.load(order);
+		}
+
+		[[nodiscard]]
+		bool IsAvailable() const noexcept
+		{
+			return nullptr != userHandle;
+		}
+
 		friend class Room;
 	};
 
@@ -56,7 +68,10 @@ export namespace iconer::app
 		iconer::util::Delegate<void, iconer::app::Room*, iconer::app::User*> onFailedToOccupy{};
 		iconer::util::Delegate<void, iconer::app::Room*, iconer::app::User*> onFailedToJoinUser{};
 
-		explicit Room() = default;
+		explicit constexpr Room(id_type id) noexcept
+			: super(id)
+		{}
+
 		~Room() = default;
 
 		[[nodiscard]]

@@ -2,6 +2,7 @@ export module Iconer.App.UserManager;
 import Iconer.Utility.TypeTraits;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.IoResult;
+import Iconer.Net.SocketPool;
 import Iconer.App.ISession;
 import Iconer.App.Settings;
 import <vector>;
@@ -65,6 +66,7 @@ export namespace iconer::app
 		pointer_type FindUser(id_type id) const noexcept;
 
 	private:
+		alignas(std::hardware_constructive_interference_size) iconer::net::SocketPool everySockets{};
 		alignas(std::hardware_constructive_interference_size) std::vector<pointer_type> everyUsers{};
 		alignas(std::hardware_constructive_interference_size) class iconer::net::IoCompletionPort* ioCompletionPort{ nullptr };
 

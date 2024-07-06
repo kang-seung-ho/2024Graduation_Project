@@ -102,6 +102,12 @@
     <ClCompile Include="IoEvent.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="SocketPool.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Network.natvis" />

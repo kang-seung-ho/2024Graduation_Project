@@ -18,8 +18,6 @@ export namespace iconer::app
 	class [[nodiscard]] TaskContext;
 	class [[nodiscard]] PacketContext;
 	class [[nodiscard]] SendContext;
-	class [[nodiscard]] User;
-	class [[nodiscard]] Room;
 }
 
 export using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, std::byte*>;
@@ -50,6 +48,7 @@ private:
 
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
+	void OnUserDisconnected(iconer::app::User* user);
 
 	/* Set nickname and assign user's id */
 	void EventOnSignIn(iconer::app::User& user, std::byte* data);
@@ -70,7 +69,6 @@ private:
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult StartUser(iconer::app::User& user) const;
-	void CleanupUser(iconer::app::User& user) const;
 	void RoutePackets(iconer::app::User& user);
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);

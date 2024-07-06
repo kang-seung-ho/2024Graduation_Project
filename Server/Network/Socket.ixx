@@ -1,6 +1,6 @@
 export module Iconer.Net.Socket;
 import Iconer.Utility.TypeTraits;
-import Iconer.Utility.Property;
+//import Iconer.Utility.Property;
 export import :SocketOption;
 export import :SocketCategory;
 export import Iconer.Net.ErrorCode;
@@ -26,8 +26,8 @@ export namespace iconer::net
 
 		static inline constexpr std::uintptr_t invalidHandle = static_cast<std::uintptr_t>(-1);
 
-		iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
-		iconer::util::Property<bool, Socket> tcpNoDelay{ this, &Socket::TcpNoDelayImplementation, false };
+		//iconer::util::Property<bool, Socket> reuseAddress{ this, &Socket::ReuseAddressImplementation, false };
+		//iconer::util::Property<bool, Socket> tcpNoDelay{ this, &Socket::TcpNoDelayImplementation, false };
 
 		explicit constexpr Socket() noexcept
 			: myHandle(invalidHandle)

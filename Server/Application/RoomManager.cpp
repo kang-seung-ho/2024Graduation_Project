@@ -23,9 +23,9 @@ iconer::app::RoomManager::Initialize()
 {
 	everyRooms.reserve(maxRoomCount);
 
-	for (size_t i = 0; i < maxRoomCount; ++i)
+	for (id_type id = minRoomUid; id < maxRoomUid; ++id)
 	{
-		iconer::app::Room* room = new iconer::app::Room{};
+		iconer::app::Room* room = new iconer::app::Room{ id };
 
 		AddRoom(room);
 	}

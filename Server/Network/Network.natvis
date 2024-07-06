@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::net::IFramework" Inheritable="false">
+		<DisplayString>프레임워크 인터페이스</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[리슨 소켓]">listenSocket</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="iconer::net::IThreadPool" Inheritable="false">
+		<DisplayString>스레드 풀 인터페이스</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[작업자 최대 개수]">maxWorkerNumber</Item>
+			<Item Name="[작업자 목록]">myWorkers</Item>
+			<Item Name="[IO 완료 포트 핸들]">ioCompletionPort</Item>
+		</Expand>
+	</Type>
+
 	<Type Name="iconer::net::IoContext" Priority="Low">
 		<Intrinsic Category="Property" Name="__IsInProgress" Expression="Internal == 0"/>
 
@@ -28,8 +46,6 @@
 			<Item Name="[핸들]">myHandle</Item>
 			<Item Name="[인터넷 프로토콜]">myProtocol</Item>
 			<Item Name="[주소 패밀리]">myFamily</Item>
-			<Item Name="[주소 재사용 여부]">reuseAddress</Item>
-			<Item Name="[Nagle 알고리즘 사용 여부]">tcpNoDelay</Item>
 		</Expand>
 	</Type>
 
@@ -44,8 +60,6 @@
 			<Item Name="[핸들]">mySocket.myHandle</Item>
 			<Item Name="[인터넷 프로토콜]">mySocket.myProtocol</Item>
 			<Item Name="[주소 패밀리]">mySocket.myFamily</Item>
-			<Item Name="[주소 재사용 여부]">mySocket.reuseAddress.myValue</Item>
-			<Item Name="[Nagle 알고리즘 사용 여부]">mySocket.tcpNoDelay.myValue</Item>
 		</Expand>
 	</Type>
 
@@ -53,19 +67,19 @@
 		<Intrinsic Category="Property" Name="__RecvBuff" Expression="recvBuffer"/>
 		<Intrinsic Category="Property" Name="__RecvMaxL" Expression="maxRecvSize"/>
 		<Intrinsic Category="Property" Name="__RecvCLen" Expression="recvBytes"/>
+		<Intrinsic Category="Property" Name="__SockHandle" Expression="(*mySocket).myHandle"/>
+		<Intrinsic Category="Method" Name="__IsValid" Expression="__SockHandle() != (SOCKET)(-1)"/>
+		<Intrinsic Category="Property" Name="__SockProtocal" Expression="(*mySocket).myProtocol"/>
 
 		<DisplayString Condition="__IsValid()">TCP 수신기 ({__SockHandle()})</DisplayString>
 		<DisplayString Condition="!__IsValid()">TCP 수신기 ({__SockHandle()})</DisplayString>
 
 		<Expand HideRawView="true">
-			<Item Name="[핸들]">mySocket.myHandle</Item>
-			<Item Name="[인터넷 프로토콜]">mySocket.myProtocol</Item>
+			<Item Name="[핸들]">__SockHandle()</Item>
+			<Item Name="[인터넷 프로토콜]">__SockProtocal()</Item>
 			<Item Name="[수신 버퍼]">__RecvBuff()</Item>
 			<Item Name="[수신 크기]">__RecvCLen()</Item>
 			<Item Name="[수신 최대 바이트 크기]">__RecvMaxL()</Item>
-
-			<Item Name="[주소 재사용 여부]">mySocket.reuseAddress.myValue</Item>
-			<Item Name="[Nagle 알고리즘 사용 여부]">mySocket.tcpNoDelay.myValue</Item>
 		</Expand>
 	</Type>
 

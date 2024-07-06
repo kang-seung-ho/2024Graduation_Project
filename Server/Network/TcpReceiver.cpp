@@ -6,16 +6,10 @@ import Iconer.Net.Socket;
 import <memory>;
 import <span>;
 
-iconer::net::TcpReceiver::~TcpReceiver()
-noexcept
-{
-	delete mySocket;
-}
-
 iconer::util::Expected<int, iconer::net::ErrorCode>
 iconer::net::TcpReceiver::Receive()
 {
-	auto io = mySocket->Receive(GetCurrentReceiveBuffer());
+	auto io = GetSocket().Receive(GetCurrentReceiveBuffer());
 
 	if (io)
 	{
@@ -28,7 +22,7 @@ iconer::net::TcpReceiver::Receive()
 iconer::net::IoResult
 iconer::net::TcpReceiver::BeginOptainMemory(iconer::net::IoContext& context)
 {
-	return mySocket->OptainReceiveMemory(context, recvBuffer.data(), maxRecvSize);
+	return GetSocket().OptainReceiveMemory(context, recvBuffer.data(), maxRecvSize);
 }
 
 void
@@ -42,7 +36,7 @@ noexcept
 iconer::net::IoResult
 iconer::net::TcpReceiver::BeginReceive(iconer::net::IoContext& context)
 {
-	return mySocket->Receive(context, GetCurrentReceiveBuffer());
+	return GetSocket().Receive(context, GetCurrentReceiveBuffer());
 }
 
 bool
@@ -70,13 +64,13 @@ noexcept
 iconer::net::IoResult
 iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext& context)
 {
-	return mySocket->AsyncClose(context);
+	return GetSocket().AsyncClose(context);
 }
 
 iconer::net::IoResult
 iconer::net::TcpReceiver::BeginClose(iconer::net::IoContext* context)
 {
-	return mySocket->AsyncClose(context);
+	return GetSocket().AsyncClose(context);
 }
 
 void

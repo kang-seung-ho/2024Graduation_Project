@@ -31,7 +31,7 @@ iconer::net::Socket::ReusableAddress(bool flag)
 noexcept
 {
 	::BOOL iflag = static_cast<::BOOL>(flag);
-	reuseAddress.myValue = flag;
+	//reuseAddress.myValue = flag;
 
 	return SetOption(SocketOption::Recyclable, std::addressof(iflag), sizeof(iflag));
 }
@@ -65,7 +65,7 @@ noexcept
 		, std::to_underlying(SocketOption::NoDelay)
 		, reinterpret_cast<const char*>(std::addressof(iflag)), sizeof(iflag))) UNLIKELY
 	{
-		tcpNoDelay.myValue = flag;
+		//tcpNoDelay.myValue = flag;
 
 		return {};
 	}

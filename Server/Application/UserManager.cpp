@@ -14,36 +14,37 @@ iconer::app::UserManager::Initialize(iconer::net::IoCompletionPort& io_port)
 {
 	using namespace iconer::net;
 
+	auto io = everySockets.Initialize(maxUserCount);
+
+	if (not io)
+	{
+		return std::move(io);
+	}
+
 	ioCompletionPort = std::addressof(io_port);
 
 	everyUsers.reserve(maxUserCount);
 
+	auto sit = everySockets.begin();
+
 	for (id_type id = minUserUid; id < maxUserUid; ++id)
 	{
-		auto socket_ptr = new Socket{ Socket::CreateTcpSocket(SocketCategory::Asynchronous) };
-
-		if (nullptr == socket_ptr)
-		{
-			return std::unexpected{ iconer::net::ErrorCode::NOT_ENOUGH_MEMORY };
-		}
-		
-		if (not *socket_ptr)
-		{
-			return std::unexpected{ AcquireNetworkError() };
-		}
+		const auto socket_ptr = *sit;
 
 		if (auto io = ioCompletionPort->Register(*socket_ptr, id); not io)
 		{
 			return std::move(io);
 		}
 
-		iconer::app::User* user = new iconer::app::User{ id, socket_ptr };
+		iconer::app::User* user = new iconer::app::User{ id, *socket_ptr };
 		user->mainContext->ClearIoStatus();
 		user->mainContext->SetOperation(iconer::app::TaskCategory::OpReserve);
 		user->recvContext->ClearIoStatus();
 		user->roomContext->ClearIoStatus();
 
 		everyUsers.emplace_back(user);
+
+		(void)++sit;
 	}
 
 	return {};
@@ -71,6 +72,8 @@ iconer::app::UserManager::Startup(iconer::net::Socket& listener)
 void
 iconer::app::UserManager::Cleanup()
 {
+	everySockets.Cleanup();
+
 	for (pointer_type& ptr : everyUsers)
 	{
 		delete std::exchange(ptr, nullptr);

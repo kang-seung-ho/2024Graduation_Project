@@ -19,6 +19,8 @@ export namespace iconer::util
 	public:
 		using this_class = Delegate<R, Args...>;
 
+		static inline constexpr size_t argumentNumber = sizeof...(Args);
+
 		constexpr Delegate() noexcept = default;
 		constexpr ~Delegate() noexcept = default;
 
