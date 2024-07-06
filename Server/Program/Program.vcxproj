@@ -213,6 +213,7 @@
     <ClCompile Include="FrameworkUtility.cpp" />
     <ClCompile Include="LobbyEventProcessor.cpp" />
     <ClCompile Include="MainMenuEventProcessor.cpp" />
+    <ClCompile Include="RoomSessionEventProcessor.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="ThreadPool.ixx" />
   </ItemGroup>

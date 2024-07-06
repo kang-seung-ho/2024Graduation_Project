@@ -6,6 +6,7 @@ module Iconer.Framework;
 import Iconer.App.User;
 import Iconer.App.Room;
 import Iconer.App.TaskContext;
+import Iconer.App.SendContext;
 import Iconer.App.PacketSerializer;
 
 void
@@ -85,12 +86,12 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 
 				if (room->TryJoin(user))
 				{
-					user.SendJoinedRoomPacket(static_cast<std::uintptr_t>(room_id), user.GetID());
+					user.SendJoinedRoomPacket(static_cast<std::uintptr_t>(room_id));
 				}
 				else
 				{
 					// rollback
-					room->Leave(user);
+					room->Leave(user, false);
 					ctx->TryChangeOperation(OpEnterRoom, None);
 				}
 			}
@@ -109,7 +110,49 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 }
 
 void
-ServerFramework::EventOnFailedToJoinRoom(iconer::app::User& user)
+ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
+{
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+
+	auto& ctx = user.roomContext;
+
+	const auto room = user.myRoom.load();
+
+	if (nullptr != room)
+	{
+		constexpr auto len = iconer::app::Settings::nickNameLength;
+
+		const auto id = static_cast<std::int32_t>(user.GetID());
+		const auto team = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+
+		wchar_t nickname_buf[len]{};
+		const auto nickname = user.myName.substr(0, len);
+		std::copy(nickname.cbegin(), nickname.cend(), nickname_buf);
+
+		const auto rid = static_cast<std::int32_t>(room->GetID());
+
+		// broadcast
+		room->Foreach([&](iconer::app::User& mem)
+			{
+				if (mem.GetID() == user.GetID()) return;
+
+				auto ctx = storedSendContexts.pop();
+
+				auto [pk, length] = iconer::app::Serialize(SC_ROOM_JOINED, id, team, nickname_buf, rid);
+
+				ctx->myBuffer = std::move(pk);
+
+				mem.SendGeneralData(*ctx, static_cast<size_t>(length));
+			}
+		);
+	}
+
+	ctx->TryChangeOperation(OpEnterRoom, None);
+}
+
+void
+ServerFramework::EventOnFailedToNotifyRoomJoin(iconer::app::User& user)
 {
 	using enum iconer::app::TaskCategory;
 
@@ -120,13 +163,14 @@ ServerFramework::EventOnFailedToJoinRoom(iconer::app::User& user)
 
 	if (nullptr != room)
 	{
-		room->Leave(user);
+		room->Leave(user, false);
 	}
 }
 
 void
 ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 {
+	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
 	const auto room = user.myRoom.load();
@@ -136,6 +180,19 @@ ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 		if (room->Leave(user))
 		{
 			// broadcast
+			room->Foreach([&, id = static_cast<std::int32_t>(user.GetID())](iconer::app::User& mem)
+				{
+					if (mem.GetID() == user.GetID()) return;
+
+					auto ctx = storedSendContexts.pop();
+
+					auto [pk, length] = iconer::app::Serialize(SC_ROOM_LEFT, id);
+
+					ctx->myBuffer = std::move(pk);
+
+					mem.SendGeneralData(*ctx, static_cast<size_t>(length));
+				}
+			);
 		}
 	}
 }

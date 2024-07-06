@@ -39,14 +39,14 @@ export namespace iconer::app
 
 	template<typename... Ts>
 	[[nodiscard]]
-	constexpr std::unique_ptr<std::byte[]> Serialize(const PacketProtocol protocol, Ts&&... params)
+	constexpr std::pair<std::unique_ptr<std::byte[]>, std::int16_t> Serialize(const PacketProtocol protocol, Ts&&... params)
 	{
-		constexpr std::int16_t packet_size = sizeof(PacketProtocol) + sizeof(std::int16_t) + iconer::util::GetTotalByteSize(params...);
+		const std::int16_t packet_size = sizeof(PacketProtocol) + sizeof(std::int16_t) + iconer::util::GetTotalByteSize(params...);
 
 		auto result = std::make_unique<std::byte[]>(packet_size);
 
 		(void)SerializeAt(result.get(), protocol, std::forward<Ts>(params)...);
 
-		return std::move(result);
+		return std::make_pair(std::move(result), packet_size);
 	}
 }

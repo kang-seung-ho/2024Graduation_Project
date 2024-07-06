@@ -56,16 +56,17 @@ export namespace iconer::app
 
 		void Cleanup();
 
-		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data);
-		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length);
-		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data) const;
-		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::size_t length);
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::size_t length) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data);
+		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length);
+		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length) const;
 		iconer::net::IoResult SendSignInPacket();
 		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
 		iconer::net::IoResult SendRoomCreatedPacket(id_type room_id);
-		iconer::net::IoResult SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason);
-		iconer::net::IoResult SendJoinedRoomPacket(id_type room_id, id_type user_id);
-		iconer::net::IoResult SendOtherJoinedRoomPacket(id_type room_id, id_type user_id);
+		iconer::net::IoResult SendFailedCreateRoomPacket(iconer::app::TaskContext& ctx, iconer::app::RoomContract reason);
+		iconer::net::IoResult SendJoinedRoomPacket(id_type room_id);
 		iconer::net::IoResult SendRoomJoinFailedPacket(iconer::app::RoomContract reason);
 
 		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();

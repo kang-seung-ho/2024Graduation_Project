@@ -91,6 +91,8 @@ export namespace iconer::app
 			{
 				const pointer_type ptr = member.GetStoredUser();
 
+				if (nullptr == ptr) continue;
+
 				std::forward<Callable>(fun)(*ptr);
 			}
 		}
@@ -101,6 +103,8 @@ export namespace iconer::app
 			for (const session_type& member : myMembers)
 			{
 				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr == ptr) continue;
 
 				std::forward<Callable>(fun)(*ptr);
 			}

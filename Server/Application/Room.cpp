@@ -123,7 +123,6 @@ noexcept
 	auto& ctx = user.roomContext;
 
 	auto is_taken = isTaken.load(std::memory_order_acquire);
-	auto cnt = memberCount.load(std::memory_order_acquire);
 
 	bool removed{ false };
 
@@ -131,6 +130,8 @@ noexcept
 
 	for (auto& member : myMembers)
 	{
+		auto cnt = memberCount.load(std::memory_order_acquire);
+
 		iconer::app::Room* self{ this };
 
 		const auto stored_user = member.GetStoredUser();

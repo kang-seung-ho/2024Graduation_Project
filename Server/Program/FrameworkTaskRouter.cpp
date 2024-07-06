@@ -46,8 +46,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			break;
 		};
 
-		// task_ctx is the roomContext of user
-		task_ctx->TryChangeOperation(OpEnterRoom, None);
+		EventOnNotifyRoomJoin(*user);
 
 		std::println("User {} joined to room {}.", id, user->myRoom.load()->GetID());
 	}
@@ -85,7 +84,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 		else LIKELY
 		{
-			std::println("User {} is attempting to create a room.", id);
+			//std::println("User {} is attempting to create a room.", id);
 		};
 
 		// task_ctx is the roomContext of user
@@ -198,7 +197,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 		else
 		{
-			std::println("Packet processor from id {} ({} bytes)", id, bytes);
+			//std::println("Packet processor from id {} ({} bytes)", id, bytes);
 		}
 
 		ProcessPackets(*user, static_cast<iconer::app::PacketContext*>(context), bytes);
@@ -249,7 +248,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (0 == bytes)
 		{
-			std::println("User {} is just disconnected.", id);
+			//std::println("User {} is just disconnected.", id);
 
 			user->BeginClose();
 
@@ -263,7 +262,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = user->BeginReceive(); io)
 		{
-			std::println("User {} restarted receiving.", id);
+			//std::println("User {} restarted receiving.", id);
 		}
 		else
 		{
@@ -287,7 +286,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (not user->EndOptainReceiveMemory(true))
 		{
-			std::println("User {} optained its memory for receiving, but the task has an invalid state.", id);
+			//std::println("User {} optained its memory for receiving, but the task has an invalid state.", id);
 
 			// Atomic errors would not be detected by io completion port
 			user->BeginClose();
@@ -297,7 +296,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = StartUser(*user); io)
 		{
-			std::println("User {} started receiving.", id);
+			//std::println("User {} started receiving.", id);
 		}
 		else
 		{
@@ -331,7 +330,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = TriggerUser(*user); io)
 		{
-			std::println("User {} started optaining its memory for receiving.", user->GetID());
+			//std::println("User {} started optaining its memory for receiving.", user->GetID());
 		}
 		else
 		{
@@ -392,22 +391,6 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
-	case OpEnterRoom:
-	{
-		const auto user = userManager.FindUser(id);
-
-		if (nullptr == user)
-		{
-			std::println("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
-
-			delete task_ctx;
-			break;
-		}
-
-		EventOnFailedToJoinRoom(*user);
-	}
-	break;
-	
 	case OpCreateRoom:
 	{
 		const auto user = userManager.FindUser(id);
@@ -497,6 +480,22 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		user->myName.clear();
 		user->BeginClose();
+	}
+	break;
+
+	case OpEnterRoom:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnFailedToNotifyRoomJoin(*user);
 	}
 	break;
 

@@ -4,6 +4,9 @@ import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.IoResult;
+import Iconer.App.User;
+import Iconer.App.Room;
+import Iconer.App.TaskContext;
 import Iconer.App.UserManager;
 import Iconer.App.RoomManager;
 import Iconer.App.PacketProtocol;
@@ -15,7 +18,6 @@ import <unordered_map>;
 
 export namespace iconer::app
 {
-	class [[nodiscard]] TaskContext;
 	class [[nodiscard]] PacketContext;
 	class [[nodiscard]] SendContext;
 }
@@ -50,6 +52,8 @@ private:
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 
 	void OnUserDisconnected(iconer::app::User* user);
+	void OnUserJoined(iconer::app::Room* room, iconer::app::User* user, std::int32_t member_cnt);
+	void OnUserLeft(iconer::app::Room* room, iconer::app::User* user, std::int32_t member_cnt);
 	void OnRoomClosed(iconer::app::Room* room);
 
 	/* Set nickname and assign user's id */
@@ -60,7 +64,9 @@ private:
 	void EventOnFailedToMakeRoom(iconer::app::User& user);
 	/* Join to the room */
 	void EventOnJoinRoom(iconer::app::User& user, std::byte* data);
-	void EventOnFailedToJoinRoom(iconer::app::User& user);
+	/* Notify to self as joined the room */
+	void EventOnNotifyRoomJoin(iconer::app::User& user);
+	void EventOnFailedToNotifyRoomJoin(iconer::app::User& user);
 	/* Exit from the room */
 	void EventOnExitRoom(iconer::app::User& user, std::byte* data);
 	/* Match a random room */

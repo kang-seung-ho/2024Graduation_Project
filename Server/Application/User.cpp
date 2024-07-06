@@ -4,8 +4,10 @@ module;
 
 module Iconer.App.User;
 import Iconer.Net.Socket;
-import Iconer.App.SendContext;
 import Iconer.App.Room;
+import Iconer.App.TaskContext;
+import Iconer.App.SendContext;
+import Iconer.App.PacketSerializer;
 
 iconer::net::IoResult
 iconer::app::User::BeginClose()
@@ -49,26 +51,39 @@ iconer::app::User::Cleanup()
 }
 
 iconer::net::IoResult
-iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data)
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::size_t length)
+{
+	return GetSocket().Send(ctx, ctx.myBuffer.get(), length);
+}
+
+iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::size_t length)
+const
+{
+	return GetSocket().Send(ctx, ctx.myBuffer.get(), length);
+}
+
+iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data)
 {
 	return GetSocket().Send(ctx, data);
 }
 
 iconer::net::IoResult
-iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length)
+iconer::app::User::SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length)
 {
 	return GetSocket().Send(ctx, data, length);
 }
 
 iconer::net::IoResult
-iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data)
+iconer::app::User::SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data)
 const
 {
 	return GetSocket().Send(ctx, data);
 }
 
 iconer::net::IoResult
-iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length)
+iconer::app::User::SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length)
 const
 {
 	return GetSocket().Send(ctx, data, length);
@@ -93,21 +108,15 @@ iconer::app::User::SendRoomCreatedPacket(id_type room_id)
 }
 
 iconer::net::IoResult
-iconer::app::User::SendFailedCreateRoomPacket(iconer::app::SendContext& ctx, iconer::app::RoomContract reason)
+iconer::app::User::SendFailedCreateRoomPacket(iconer::app::TaskContext& ctx, iconer::app::RoomContract reason)
 {
 	return GetSocket().Send(ctx, mainContext->GetRoomCreateFailedPacketData(reason));
 }
 
 iconer::net::IoResult
-iconer::app::User::SendJoinedRoomPacket(id_type room_id, id_type user_id)
+iconer::app::User::SendJoinedRoomPacket(id_type room_id)
 {
 	return GetSocket().Send(roomContext, mainContext->GetRoomJoinedPacketData(static_cast<std::int32_t>(room_id)));
-}
-
-iconer::net::IoResult
-iconer::app::User::SendOtherJoinedRoomPacket(id_type room_id, id_type user_id)
-{
-	return iconer::net::IoResult();
 }
 
 iconer::net::IoResult
