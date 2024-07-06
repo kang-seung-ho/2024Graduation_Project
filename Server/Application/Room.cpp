@@ -122,13 +122,17 @@ iconer::app::Room::TryJoin(iconer::app::User& user)
 }
 
 bool
-iconer::app::Room::Leave(iconer::app::User& user)
+iconer::app::Room::Leave(iconer::app::User& user, bool notify)
 noexcept
 {
+	auto& ctx = user.roomContext;
+
 	auto is_taken = isTaken.load(std::memory_order_acquire);
 	auto cnt = memberCount.load(std::memory_order_acquire);
 
 	bool removed{ false };
+
+	while (not ctx->TryChangeOperation(TaskCategory::None, TaskCategory::OpLeaveRoom));
 
 	for (auto& member : myMembers)
 	{
@@ -138,9 +142,6 @@ noexcept
 
 		if (nullptr == stored_user) continue;
 
-		auto& ctx = user.roomContext;
-
-		while (not ctx->TryChangeOperation(TaskCategory::None, TaskCategory::OpLeaveRoom));
 
 		user.myRoom.compare_exchange_strong(self, nullptr);
 
@@ -148,20 +149,22 @@ noexcept
 		{
 			//std::scoped_lock lock{ memberRemoverLock };
 
-			if (memberCount.compare_exchange_strong(cnt, cnt - 1, std::memory_order_release))
-			{
-				if (onUserLeft.IsBound())
-				{
-					onUserLeft.Broadcast(this, &user, cnt - 1);
-				}
+			memberCount.compare_exchange_strong(cnt, cnt - 1, std::memory_order_release);
 
-				removed = true;
+			if (notify and onUserLeft.IsBound())
+			{
+				onUserLeft.Broadcast(this, &user, cnt - 1);
+
+				notify = false; // Notifty only once
 			}
+
+			removed = true;
 		}
 	}
 
 	if (removed and 0 == memberCount)
 	{
+		// must be run
 		if (onDestroyed.IsBound())
 		{
 			onDestroyed.Broadcast(this);
@@ -169,6 +172,8 @@ noexcept
 
 		isTaken.store(false, std::memory_order_release);
 	}
+
+	ctx->TryChangeOperation(TaskCategory::OpLeaveRoom, TaskCategory::None);
 
 	return removed;
 }

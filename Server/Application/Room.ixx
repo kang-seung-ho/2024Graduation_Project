@@ -80,7 +80,13 @@ export namespace iconer::app
 		[[nodiscard]]
 		bool TryJoin(iconer::app::User& user);
 
-		bool Leave(iconer::app::User& user) noexcept;
+		bool Leave(iconer::app::User& user, bool notify = true) noexcept;
+
+		[[nodiscard]]
+		std::int32_t GetMemberCount() const noexcept
+		{
+			return memberCount.load(std::memory_order_acquire);
+		}
 
 		[[nodiscard]]
 		bool IsTaken() const noexcept

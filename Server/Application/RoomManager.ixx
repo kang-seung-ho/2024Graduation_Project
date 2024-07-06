@@ -30,6 +30,33 @@ export namespace iconer::app
 		void Startup();
 		void Cleanup();
 
+		template<invocable<session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (const pointer_type& ptr : everyRooms)
+			{
+				std::forward<Callable>(fun)(*ptr);
+			}
+		}
+
+		template<invocable<const session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		{
+			for (const pointer_type& ptr : everyRooms)
+			{
+				std::forward<Callable>(fun)(*ptr);
+			}
+		}
+
+		template<invocable<pointer_type> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, pointer_type>)
+		{
+			for (const pointer_type& ptr : everyRooms)
+			{
+				std::forward<Callable>(fun)(ptr);
+			}
+		}
+
 		[[nodiscard]]
 		std::optional<pointer_type> AcquireEmptyRoom(iconer::app::User& user) const;
 

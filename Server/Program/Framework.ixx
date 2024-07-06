@@ -49,6 +49,7 @@ private:
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnUserDisconnected(iconer::app::User* user);
+	void OnRoomClosed(iconer::app::Room* room);
 
 	/* Set nickname and assign user's id */
 	void EventOnSignIn(iconer::app::User& user, std::byte* data);

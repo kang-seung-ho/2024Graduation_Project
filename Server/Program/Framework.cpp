@@ -5,6 +5,7 @@ module;
 module Iconer.Framework;
 import Iconer.App.User;
 import Iconer.App.Room;
+import <print>;
 
 void
 ServerFramework::OnUserDisconnected(iconer::app::User* user)
@@ -15,4 +16,10 @@ ServerFramework::OnUserDisconnected(iconer::app::User* user)
 	{
 		room->Leave(*user);
 	}
+}
+
+void
+ServerFramework::OnRoomClosed(iconer::app::Room* room)
+{
+	std::println("Room {} is just closed.", room->GetID());
 }

@@ -2,9 +2,6 @@ module;
 #include <algorithm>
 
 module Iconer.App.RoomManager;
-import Iconer.Net.ErrorCode;
-import Iconer.Net.IoCompletionPort;
-import Iconer.Net.IoContext;
 import Iconer.App.User;
 import Iconer.App.Room;
 import <utility>;
@@ -64,9 +61,7 @@ iconer::app::RoomManager::FindRoom(id_type id)
 const noexcept
 {
 	auto it = std::ranges::lower_bound(everyRooms, id
-		, std::less<id_type>{}
-	, IdProjector{}
-		);
+		, std::less<id_type>{}, IdProjector{});
 
 	if (it != everyRooms.cend() and (*it)->GetID() == id)
 	{
@@ -83,9 +78,7 @@ iconer::app::RoomManager::HasRoom(id_type id)
 const noexcept
 {
 	auto it = std::ranges::lower_bound(everyRooms, id
-		, std::less<id_type>{}
-	, IdProjector{}
-		);
+		, std::less<id_type>{}, IdProjector{});
 
 	return it != everyRooms.cend() and (*it)->GetID() == id;
 }

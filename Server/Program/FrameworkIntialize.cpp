@@ -5,6 +5,7 @@ module Iconer.Framework;
 import Iconer.Utility.Delegate;
 import Iconer.Net.Socket;
 import Iconer.App.User;
+import Iconer.App.Room;
 import Iconer.App.PacketContext;
 import Iconer.App.SendContext;
 
@@ -114,8 +115,14 @@ ServerFramework::Initialize()
 			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::OnUserDisconnected));
 		}
 	);
-
+	
 	roomManager.Initialize();
+
+	roomManager.Foreach([this](iconer::app::Room& room)
+		{
+			room.onDestroyed.Add(MakeInvoker(this, &ServerFramework::OnRoomClosed));
+		}
+	);
 
 	return {};
 }
