@@ -67,6 +67,7 @@ private:
 	/* Send a list of room */
 	void EventOnRoomList(iconer::app::User& user, std::byte* data);
 
+	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult StartUser(iconer::app::User& user) const;

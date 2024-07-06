@@ -9,7 +9,6 @@ import <vector>;
 
 export namespace iconer::net
 {
-	class [[nodiscard]] Socket;
 	class [[nodiscard]] IoCompletionPort;
 }
 
@@ -32,7 +31,7 @@ export namespace iconer::app
 		constexpr ~UserManager() noexcept = default;
 
 		iconer::net::IoResult Initialize(iconer::net::IoCompletionPort& io_port);
-		void Startup(class iconer::net::Socket& listener);
+		void Startup(iconer::net::Socket& listener);
 		void Cleanup();
 
 		template<invocable<session_type&> Callable>

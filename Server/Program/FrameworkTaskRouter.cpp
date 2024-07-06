@@ -306,31 +306,25 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			throw "AcceptError!";
 		}
 
-		// task_ctx is the mainContext of user
-		task_ctx->SetOperation(OpValidation);
-
-		const auto user_id = user->GetID();
-		auto& socket = user->GetSocket();
-
-		if (auto io = socket.EndAccept(GetListenSocket()); io)
+		if (auto io = AcceptUser(*user); io)
 		{
-			std::println("User {} is just accepted.", user_id);
+			std::println("User {} is just accepted.", user->GetID());
 		}
 		else
 		{
-			std::println("Acceptance of user {} is failed, due to {}.", user_id, std::to_string(io.error()));
+			std::println("Acceptance of user {} is failed, due to {}.", user->GetID(), std::to_string(io.error()));
 
 			throw "AcceptError!";
 		}
 
 		if (auto io = TriggerUser(*user); io)
 		{
-			std::println("User {} started optaining its memory for receiving.", user_id);
+			std::println("User {} started optaining its memory for receiving.", user->GetID());
 		}
 		else
 		{
 			// Would trigger OnTaskFailure
-			std::println("User {} failed to optain its memory for receiving, due to {}.", user_id, std::to_string(io.error()));
+			std::println("User {} failed to optain its memory for receiving, due to {}.", user->GetID(), std::to_string(io.error()));
 		}
 	}
 	break;

@@ -1,7 +1,17 @@
 module Iconer.Framework;
 
+import Iconer.Net.Socket;
 import Iconer.App.User;
 import Iconer.App.SendContext;
+
+iconer::net::IoResult
+ServerFramework::AcceptUser(iconer::app::User& user)
+{
+	auto& ctx = user.mainContext;
+	ctx->SetOperation(iconer::app::TaskCategory::OpValidation);
+
+	return user.GetSocket().EndAccept(GetListenSocket());
+}
 
 void
 ServerFramework::ReserveUser(iconer::app::User& user)
