@@ -88,7 +88,15 @@ iconer::app::RoomManager::AcquireCachedRoomData()
 			if (not room->IsTaken()) continue;
 
 			seek = iconer::util::Serialize(seek, static_cast<std::int32_t>(room->GetID()));
-			seek = iconer::util::Serialize(seek, room->GetTitle());
+
+			constexpr auto len = iconer::app::Settings::roomTitleLength;
+
+			wchar_t serialized_title[len]{};
+			const auto title = room->GetTitle().substr(0, len);
+
+			std::copy(title.cbegin(), title.cend(), serialized_title);
+
+			seek = iconer::util::Serialize(seek, serialized_title);
 			seek = iconer::util::Serialize(seek, room->GetMemberCount());
 
 			++count;

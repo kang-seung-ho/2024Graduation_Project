@@ -64,6 +64,7 @@ export namespace iconer::app
 		using size_type = std::int32_t;
 
 		static inline constexpr size_t userLimits = Settings::roomMembersLimit;
+		static inline constexpr size_t titleLength = Settings::roomTitleLength;
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};
@@ -74,7 +75,7 @@ export namespace iconer::app
 		explicit constexpr Room(id_type id) noexcept
 			: super(id)
 		{
-			myTitle.reserve(Settings::roomTitleLength * 2);
+			myTitle.resize(titleLength * 2);
 		}
 
 		~Room() = default;
@@ -110,7 +111,6 @@ export namespace iconer::app
 		{
 			if (0 < title.length())
 			{
-				//std::copy(title.cbegin(), title.cend(), myTitle.begin());
 				myTitle = title;
 			}
 		}

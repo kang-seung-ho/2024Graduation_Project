@@ -314,11 +314,12 @@ export namespace iconer::util
 			}
 
 			return buffer;
+
 		}
 		else
 		{
 			const size_t size = sizeof(T) * str.length();
-			std::memcpy(buffer, str.data(), size);
+			memcpy(buffer, str.data(), size);
 			return static_cast<std::byte*>(buffer + size);
 		}
 	}

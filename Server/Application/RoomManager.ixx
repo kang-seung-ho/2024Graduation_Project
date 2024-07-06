@@ -102,10 +102,10 @@ export namespace iconer::app
 		bool HasRoom(id_type id) const noexcept;
 
 	private:
-		std::vector<pointer_type> everyRooms{};
-		std::array<std::byte, maxSerializeRoomDataSize> precachedRoomListData{};
-		size_t precachedRoomListDataSize{};
+		alignas(std::hardware_constructive_interference_size) std::vector<pointer_type> everyRooms{};
 		std::atomic_bool isRoomDirty{};
+		alignas(std::hardware_constructive_interference_size) std::array<std::byte, maxSerializeRoomDataSize> precachedRoomListData{};
+		size_t precachedRoomListDataSize{};
 
 		void AddRoom(pointer_type session);
 

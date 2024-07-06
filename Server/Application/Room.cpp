@@ -163,6 +163,8 @@ noexcept
 			onDestroyed.Broadcast(this);
 		}
 
+		myTitle.clear();
+
 		isTaken.store(false, std::memory_order_release);
 	}
 

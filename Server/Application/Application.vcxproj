@@ -146,6 +146,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointExceptions>true</FloatingPointExceptions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -171,6 +172,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -194,6 +196,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <FloatingPointExceptions>true</FloatingPointExceptions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -219,6 +222,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>
