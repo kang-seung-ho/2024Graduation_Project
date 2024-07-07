@@ -57,11 +57,17 @@ export namespace iconer::app
 		void Cleanup();
 
 		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::size_t length);
-		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::size_t length) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data);
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length);
 		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data);
 		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length);
+
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::size_t length) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data) const;
+		iconer::net::IoResult SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length) const;
 		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, std::span<const std::byte> data) const;
 		iconer::net::IoResult SendGeneralData(iconer::app::TaskContext& ctx, const std::byte* data, std::size_t length) const;
+
 		iconer::net::IoResult SendSignInPacket();
 		iconer::net::IoResult SendFailedSignInPacket(iconer::app::ConnectionContract reason);
 		iconer::net::IoResult SendRoomCreatedPacket(id_type room_id);
@@ -92,12 +98,6 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		std::span<const std::byte> GetReceivedData() const noexcept
-		{
-			return myReceiver.GetReceiveBuffer();
-		}
-
-		[[nodiscard]]
 		std::unique_ptr<std::byte[]> AcquireReceivedData(size_t size)
 		{
 			return myReceiver.AcquireReceivedData(size);
@@ -107,6 +107,18 @@ export namespace iconer::app
 		constexpr const iconer::net::Socket& GetSocket() const noexcept
 		{
 			return myReceiver.GetSocket();
+		}
+
+		[[nodiscard]]
+		std::span<const std::byte> GetReceivedData() const noexcept
+		{
+			return myReceiver.GetReceiveBuffer();
+		}
+
+		[[nodiscard]]
+		const std::wstring& GetName() const noexcept
+		{
+			return myName;
 		}
 
 		[[nodiscard]]

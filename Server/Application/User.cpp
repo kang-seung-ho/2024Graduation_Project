@@ -57,10 +57,34 @@ iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::size_t le
 }
 
 iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data)
+{
+	return GetSocket().Send(ctx, data);
+}
+
+iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length)
+{
+	return GetSocket().Send(ctx, data, length);
+}
+
+iconer::net::IoResult
 iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::size_t length)
 const
 {
 	return GetSocket().Send(ctx, ctx.myBuffer.get(), length);
+}
+
+iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, std::span<const std::byte> data) const
+{
+	return GetSocket().Send(ctx, data);
+}
+
+iconer::net::IoResult
+iconer::app::User::SendGeneralData(iconer::app::SendContext& ctx, const std::byte* data, std::size_t length) const
+{
+	return GetSocket().Send(ctx, data, length);
 }
 
 iconer::net::IoResult

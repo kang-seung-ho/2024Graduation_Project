@@ -104,7 +104,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 		else UNLIKELY
 		{
-			user->SendFailedCreateRoomPacket(*storedSendContexts.pop(), iconer::app::RoomContract::InvalidOperation);
+			user->SendFailedCreateRoomPacket(*AcquireSendContext(), iconer::app::RoomContract::InvalidOperation);
 		}
 	}
 	break;
@@ -155,14 +155,14 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		{
 			//std::byte namebuf[iconer::app::Settings::nickNameLength * 2 + 1]{};
 
-			//(void)iconer::util::Serialize(namebuf, user->myName);
+			//(void)iconer::util::Serialize(namebuf, user->GetName());
 
 			//const char* nickname = reinterpret_cast<const char*>(namebuf);
 
-			//auto nickname = iconer::util::ToString(user->myName);
+			//auto nickname = iconer::util::ToString(user->GetName());
 
 			//char namebuf[iconer::app::Settings::nickNameLength * 2 + 1]{};
-			//const wchar_t* nickname_ptr = user->myName.data();
+			//const wchar_t* nickname_ptr = user->GetName().data();
 
 			//size_t len{};
 			//std::mbstate_t state{};
@@ -170,7 +170,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 			std::print("User {} is signed in. (name=", id);
 
-			fputws(user->myName.data(), stdout);
+			fputws(user->GetName().data(), stdout);
 
 			std::println(", {} bytes)", bytes);
 		}
@@ -228,7 +228,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	case OpSend:
 	{
 		//delete task_ctx;
-		storedSendContexts.push(static_cast<iconer::app::SendContext*>(task_ctx));
+		AddSendContext(static_cast<iconer::app::SendContext*>(task_ctx));
 	}
 	break;
 
@@ -445,7 +445,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	{
 		//delete task_ctx;
 
-		storedSendContexts.push(static_cast<iconer::app::SendContext*>(task_ctx));
+		AddSendContext(static_cast<iconer::app::SendContext*>(task_ctx));
 	}
 	break;
 
@@ -461,7 +461,6 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 			break;
 		}
 
-		user->myName.clear();
 		user->BeginClose();
 	}
 	break;
@@ -478,7 +477,6 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 			break;
 		}
 
-		user->myName.clear();
 		user->BeginClose();
 	}
 	break;

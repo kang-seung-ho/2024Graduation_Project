@@ -4,11 +4,11 @@ import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
 import Iconer.Net.IoResult;
+import Iconer.App.UserManager;
+import Iconer.App.RoomManager;
 import Iconer.App.User;
 import Iconer.App.Room;
 import Iconer.App.TaskContext;
-import Iconer.App.UserManager;
-import Iconer.App.RoomManager;
 import Iconer.App.PacketProtocol;
 import Iconer.App.Settings;
 import Iconer.ThreadPool;
@@ -30,6 +30,7 @@ public:
 	using super = iconer::net::IFramework;
 
 	static inline constexpr std::uint16_t serverPort = iconer::app::Settings::serverPort;
+	static inline constexpr std::uint16_t reservedSendContextCount = 10000;
 
 	ServerFramework() = default;
 	~ServerFramework() = default;
@@ -44,7 +45,6 @@ private:
 	alignas(std::hardware_constructive_interference_size) iconer::app::RoomManager roomManager{};
 
 	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue<iconer::app::PacketContext*, 3000> storedPacketContexts{};
-	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue<iconer::app::SendContext*, 10000> storedSendContexts{};
 
 	alignas(std::hardware_constructive_interference_size) std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors{};
 
@@ -84,8 +84,8 @@ private:
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);
 
-	[[nodiscard]]
-	iconer::app::SendContext* AcquireSendContext() noexcept;
+	void AddSendContext(iconer::app::SendContext* context) noexcept;
+	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;

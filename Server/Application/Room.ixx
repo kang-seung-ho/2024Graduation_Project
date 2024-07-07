@@ -6,6 +6,7 @@ import Iconer.Net.ErrorCode;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
 import Iconer.App.Settings;
+import <span>;
 import <string_view>;
 import <string>;
 import <array>;
@@ -20,15 +21,17 @@ export namespace iconer::app
 	private:
 		using pointer = iconer::app::User*;
 
-		std::atomic<pointer> userHandle{};
-
 	public:
+		std::atomic<pointer> userHandle{};
+		char team_id{};
+
 		Member() noexcept = default;
 
 		[[nodiscard]]
 		bool TryJoin(pointer user) noexcept
 		{
 			pointer null = nullptr;
+
 			return userHandle.compare_exchange_strong(null, user);
 		}
 
@@ -51,6 +54,21 @@ export namespace iconer::app
 		}
 	};
 
+	struct [[nodiscard]] SerializedMember
+	{
+		static inline constexpr size_t nameLength = 16;
+
+		std::int32_t id{ -1 };
+		char team_id{ 0 }; // 1: red, 2: blue
+		std::array<wchar_t, nameLength + 1> nickname{};
+
+		[[nodiscard]]
+		static consteval size_t GetSerializedSize() noexcept
+		{
+			return sizeof(std::int32_t) + sizeof(wchar_t) * nameLength + sizeof(char);
+		}
+	};
+
 	class [[nodiscard]] Room : public ISession
 	{
 	public:
@@ -65,6 +83,7 @@ export namespace iconer::app
 
 		static inline constexpr size_t userLimits = Settings::roomMembersLimit;
 		static inline constexpr size_t titleLength = Settings::roomTitleLength;
+		static inline constexpr std::int16_t maxSerializeMemberDataSize = 3 + SerializedMember::GetSerializedSize() * userLimits + sizeof(size_t);
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};
@@ -79,6 +98,8 @@ export namespace iconer::app
 		}
 
 		~Room() = default;
+
+		void Initialize();
 
 		[[nodiscard]] bool TryOccupy(reference user);
 		[[nodiscard]] bool TryJoin(reference user);
@@ -119,6 +140,9 @@ export namespace iconer::app
 			}
 		}
 
+		[[nodiscard]] std::span<const std::byte> MakeMemberListPacket();
+		[[nodiscard]] std::pair<std::unique_ptr<std::byte[]>, std::int16_t> MakeMemberJoinedPacket(const_reference user) const;
+
 		[[nodiscard]]
 		constexpr std::wstring_view GetTitle() const noexcept
 		{
@@ -140,8 +164,11 @@ export namespace iconer::app
 	private:
 		std::atomic_bool isTaken{};
 		std::wstring myTitle{};
-		std::array<session_type, userLimits> myMembers{};
+		alignas(std::hardware_constructive_interference_size) std::array<session_type, userLimits> myMembers{};
 		std::atomic<size_type> memberCount{};
+		std::array<std::byte, maxSerializeMemberDataSize> precachedMemberListData{};
+		size_t precachedMemberListDataSize{};
+		std::atomic_bool isDirty{};
 
 		[[nodiscard]]
 		bool ChangedIsTaken(bool before, bool flag, std::memory_order order = std::memory_order_release) noexcept

@@ -34,6 +34,8 @@ iconer::app::RoomManager::Initialize()
 		room->onUserLeft.Add(MakeInvoker(this, &RoomManager::OnUserLeft));
 		room->onDestroyed.Add(MakeInvoker(this, &RoomManager::OnRoomClosed));
 
+		room->Initialize();
+
 		AddRoom(room);
 	}
 
@@ -57,7 +59,7 @@ iconer::app::RoomManager::Cleanup()
 }
 
 std::optional<iconer::app::RoomManager::pointer_type>
-iconer::app::RoomManager::AcquireEmptyRoom(iconer::app::RoomManager::member_type& user)
+iconer::app::RoomManager::AcquireEmptyRoom(iconer::app::RoomManager::value_type& user)
 const
 {
 	for (auto& ptr : everyRooms)
@@ -147,19 +149,19 @@ iconer::app::RoomManager::AddRoom(pointer_type session)
 }
 
 void
-iconer::app::RoomManager::OnRoomMade(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::member_type* user)
+iconer::app::RoomManager::OnRoomMade(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::value_type* user)
 {
 	isRoomDirty.store(true, std::memory_order_release);
 }
 
 void
-iconer::app::RoomManager::OnUserJoined(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::member_type* user, std::int32_t member_cnt)
+iconer::app::RoomManager::OnUserJoined(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::value_type* user, std::int32_t member_cnt)
 {
 	isRoomDirty.store(true, std::memory_order_release);
 }
 
 void
-iconer::app::RoomManager::OnUserLeft(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::member_type* user, std::int32_t member_cnt)
+iconer::app::RoomManager::OnUserLeft(iconer::app::RoomManager::pointer_type room, iconer::app::RoomManager::value_type* user, std::int32_t member_cnt)
 {
 	isRoomDirty.store(true, std::memory_order_release);
 }

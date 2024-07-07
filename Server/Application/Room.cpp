@@ -4,7 +4,17 @@ module;
 #define UNLIKELY [[unlikely]]
 
 module Iconer.App.Room;
+import iconer.Utility.Serializer;
 import Iconer.App.User;
+import Iconer.App.PacketSerializer;
+
+void
+iconer::app::Room::Initialize()
+{
+	isDirty = true;
+
+	(void)SerializeAt(precachedMemberListData, PacketProtocol::SC_RESPOND_USERS, 0ULL);
+}
 
 bool
 iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
@@ -18,7 +28,7 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 	iconer::app::Room* self{ this };
 	iconer::app::Room* empty_room{ nullptr };
 
-	if (users_room.compare_exchange_strong(empty_room, this))
+	if (users_room.compare_exchange_strong(empty_room, this)) LIKELY
 	{
 		if (memberCount.compare_exchange_strong(zero, 1, std::memory_order_acq_rel)) LIKELY
 		{
@@ -29,8 +39,11 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 					if (onOccupied.IsBound())
 					{
 						onOccupied.Broadcast(this, &user);
-					}
+					};
 
+					/// NOTICE: set team here (occupy)
+					first.team_id = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+					isDirty = true;
 					return true;
 				}
 				else UNLIKELY
@@ -84,8 +97,11 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 							if (onUserJoined.IsBound())
 							{
 								onUserJoined.Broadcast(this, &user, ncnt);
-							}
+							};
 
+							/// NOTICE: set team here (join)
+							member.team_id = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+							isDirty.store(true, std::memory_order_release);
 							return true;
 						}
 						else UNLIKELY // IF (TryJoin)
@@ -104,9 +120,9 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 						memberCount.compare_exchange_strong(ncnt, cnt);
 					};
 				};
-			} // IF (members < userLimits)
+			}; // IF (members < userLimits)
 		} // FOREACH (myMembers)
-	} // IF (IsTaken)
+	}; // IF (IsTaken)
 
 	if (onFailedToJoinUser.IsBound())
 	{
@@ -151,13 +167,14 @@ noexcept
 				notify = false; // Notifty only once
 			}
 
+			isDirty.store(true, std::memory_order_release);
 			removed = true;
 		}
 
 		user.myRoom.compare_exchange_strong(self, nullptr);
 	}
 
-	if (removed and 0 == memberCount)
+	if (removed and 0 == memberCount) LIKELY
 	{
 		if (onDestroyed.IsBound())
 		{
@@ -167,9 +184,74 @@ noexcept
 		myTitle.clear();
 
 		isTaken.store(false, std::memory_order_release);
-	}
+	};
 
 	ctx->TryChangeOperation(TaskCategory::OpLeaveRoom, TaskCategory::None);
 
 	return removed;
+}
+
+std::span<const std::byte>
+iconer::app::Room::MakeMemberListPacket()
+{
+	auto is_dirty = isDirty.load(std::memory_order_acquire);
+
+	if (is_dirty)
+	{
+		auto seek = precachedMemberListData.data() + 3 + sizeof(size_t);
+
+		// Serialize rooms
+		size_t count{};
+
+		for (auto& member : myMembers)
+		{
+			if (not member.IsAvailable()) continue;
+
+			const auto user = member.GetStoredUser();
+
+			constexpr auto len = iconer::app::Settings::nickNameLength;
+
+			wchar_t serialized_name[len]{};
+			const auto nickname = user->GetName().substr(0, len);
+			std::copy(nickname.cbegin(), nickname.cend(), serialized_name);
+
+			seek = iconer::util::Serialize(seek, static_cast<std::int32_t>(user->GetID()));
+			seek = iconer::util::Serialize(seek, member.team_id);
+			seek = iconer::util::Serialize(seek, serialized_name);
+
+			++count;
+		}
+
+		precachedMemberListDataSize = 3 + sizeof(size_t) + SerializedMember::GetSerializedSize() * count;
+
+		auto post = iconer::util::Serialize(precachedMemberListData.data() + 1, static_cast<std::int16_t>(precachedMemberListDataSize));
+		iconer::util::Serialize(post, count);
+
+		isDirty.compare_exchange_strong(is_dirty, false, std::memory_order_acq_rel);
+	}
+
+	return std::span<const std::byte>{ precachedMemberListData.data(), precachedMemberListDataSize };
+}
+
+std::pair<std::unique_ptr<std::byte[]>, std::int16_t>
+iconer::app::Room::MakeMemberJoinedPacket(iconer::app::Room::const_reference user)
+const
+{
+	for (auto& member : myMembers)
+	{
+		const auto member_ptr = member.GetStoredUser();
+
+		if (member_ptr == &user)
+		{
+			constexpr auto len = iconer::app::Settings::nickNameLength;
+
+			wchar_t serialized_name[len]{};
+			const auto nickname = user.GetName().substr(0, len);
+			std::copy(nickname.cbegin(), nickname.cend(), serialized_name);
+
+			return Serialize(PacketProtocol::SC_ROOM_JOINED, static_cast<std::int32_t>(user.GetID()), member.team_id, serialized_name);
+		}
+	}
+
+	return std::make_pair(std::unique_ptr<std::byte[]>(), 0);
 }

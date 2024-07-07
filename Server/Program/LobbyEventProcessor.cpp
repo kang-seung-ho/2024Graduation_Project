@@ -86,7 +86,11 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 
 				if (room->TryJoin(user))
 				{
-					user.SendJoinedRoomPacket(static_cast<std::uintptr_t>(room_id));
+					const auto ctx = AcquireSendContext();
+					auto [pk, size] = room->MakeMemberJoinedPacket(user);
+					ctx->myBuffer = std::move(pk);
+
+					user.SendGeneralData(*ctx, pk.get(), size);
 				}
 				else
 				{
@@ -127,7 +131,7 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 		const auto team = user.GetID() % 2 == 0 ? (char)1 : (char)2;
 
 		wchar_t nickname_buf[len]{};
-		const auto nickname = user.myName.substr(0, len);
+		const auto nickname = user.GetName().substr(0, len);
 		std::copy(nickname.cbegin(), nickname.cend(), nickname_buf);
 
 		const auto rid = static_cast<std::int32_t>(room->GetID());
@@ -137,7 +141,7 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 			{
 				if (mem.GetID() == user.GetID()) return;
 
-				auto ctx = storedSendContexts.pop();
+				auto ctx = AcquireSendContext();
 
 				auto [pk, length] = iconer::app::Serialize(SC_ROOM_JOINED, id, team, nickname_buf, rid);
 
@@ -184,7 +188,7 @@ ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 				{
 					if (mem.GetID() == user.GetID()) return;
 
-					auto ctx = storedSendContexts.pop();
+					auto ctx = AcquireSendContext();
 
 					auto [pk, length] = iconer::app::Serialize(SC_ROOM_LEFT, id);
 
@@ -206,5 +210,5 @@ ServerFramework::EventOnSeekRoom(iconer::app::User& user, std::byte* data)
 void
 ServerFramework::EventOnRoomList(iconer::app::User& user, std::byte*)
 {
-	user.SendGeneralData(*storedSendContexts.pop(), roomManager.AcquireCachedRoomData());
+	user.SendGeneralData(*AcquireSendContext(), roomManager.AcquireCachedRoomData());
 }

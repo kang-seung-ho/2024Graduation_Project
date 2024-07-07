@@ -54,8 +54,6 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	std::println("Allocating necessary memory...");
-
 	if (auto io = myTaskPool.Initialize(); io)
 	{
 		std::println("The task pool is created.");
@@ -78,14 +76,22 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
+	using iconer::util::MakeInvoker;
+	using iconer::util::MakeSharedInvoker;
+
+	myTaskPool.eventOnTaskSucceed.Add(MakeInvoker(this, &ServerFramework::OnTaskSucceed));
+	myTaskPool.eventOnTaskFailure.Add(MakeInvoker(this, &ServerFramework::OnTaskFailure));
+
+	std::println("Allocating necessary memory...");
+
 	for (unsigned i = 0; i < storedPacketContexts.capacity(); ++i)
 	{
 		storedPacketContexts.push(new iconer::app::PacketContext{});
 	}
 
-	for (unsigned i = 0; i < storedSendContexts.capacity(); ++i)
+	for (unsigned i = 0; i < reservedSendContextCount; ++i)
 	{
-		storedSendContexts.push(new iconer::app::SendContext{});
+		AddSendContext(new iconer::app::SendContext{});
 	}
 
 	packetProcessors.reserve(100);
@@ -96,12 +102,9 @@ ServerFramework::Initialize()
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_USERS, &ServerFramework::EventOnUserList);
 
-	using iconer::util::MakeInvoker;
-	using iconer::util::MakeSharedInvoker;
-
-	myTaskPool.eventOnTaskSucceed.Add(MakeInvoker(this, &ServerFramework::OnTaskSucceed));
-	myTaskPool.eventOnTaskFailure.Add(MakeInvoker(this, &ServerFramework::OnTaskFailure));
+	std::println("Generating {} users...", iconer::app::UserManager::maxUserCount);
 
 	if (auto io = userManager.Initialize(myTaskPool.ioCompletionPort); not io)
 	{
@@ -115,7 +118,9 @@ ServerFramework::Initialize()
 			user.onDisconnected.Add(MakeInvoker(this, &ServerFramework::OnUserDisconnected));
 		}
 	);
-	
+
+	std::println("Generating {} rooms...", iconer::app::RoomManager::maxRoomCount);
+
 	roomManager.Initialize();
 
 	roomManager.Foreach([this](iconer::app::Room& room)

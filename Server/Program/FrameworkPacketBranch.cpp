@@ -29,7 +29,7 @@ ServerFramework::RoutePackets(iconer::app::User& user)
 		const auto byte = *ptr;
 
 		const iconer::app::PacketProtocol protocol = static_cast<iconer::app::PacketProtocol>(*ptr);
-		//std::println("Received packet protocol: {}.", std::to_underlying(protocol));
+		std::println("Received packet protocol: {}.", std::to_underlying(protocol));
 
 		const std::int16_t size = *reinterpret_cast<const std::int16_t*>(ptr + 1);
 
@@ -93,7 +93,7 @@ ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketCont
 
 		if (auto it = packetProcessors.find(protocol); it != packetProcessors.cend())
 		{
-			//std::println("Processing a packet {}.", protocol_value);
+			std::println("Processing a packet {}.", protocol_value);
 
 			const auto& method = it->second;
 

@@ -20,35 +20,26 @@ export namespace iconer::app
 	{
 		static inline constexpr size_t nameLength = 16;
 
+		std::int32_t id{ -1 };
+		std::array<wchar_t, nameLength + 1> title{};
+		size_t member_cnt{};
+
 		[[nodiscard]]
 		static consteval size_t GetSerializedSize() noexcept
 		{
 			return sizeof(std::int32_t) + sizeof(wchar_t) * nameLength + sizeof(size_t);
 		}
-
-		std::int32_t id{ -1 };
-		std::array<wchar_t, nameLength + 1> title{};
-		size_t member_cnt{};
-	};
-
-	struct [[nodiscard]] SerializedUser
-	{
-		static inline constexpr size_t nameLength = 16;
-
-		std::int32_t id{ -1 };
-		char team_id{ 0 }; // 1: red, 2: blue
-		std::array<wchar_t, nameLength + 1> nickname{};
 	};
 
 	class [[nodiscard]] RoomManager
 	{
 	public:
 		using id_type = iconer::app::ISession::id_type;
-		using session_type = iconer::app::Room;
-		using member_type = iconer::app::User;
-		using pointer_type = session_type*;
-		using reference = session_type&;
-		using const_reference = const session_type&;
+		using key_type = iconer::app::Room;
+		using value_type = iconer::app::User;
+		using pointer_type = key_type*;
+		using reference = key_type&;
+		using const_reference = const key_type&;
 
 		static inline constexpr size_t maxRoomCount = iconer::app::Settings::roomsLimit;
 		static inline constexpr id_type minRoomUid = 2000;
@@ -90,7 +81,7 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		std::optional<pointer_type> AcquireEmptyRoom(member_type& user) const;
+		std::optional<pointer_type> AcquireEmptyRoom(value_type& user) const;
 
 		[[nodiscard]]
 		std::span<const std::byte> AcquireCachedRoomData();
@@ -109,9 +100,9 @@ export namespace iconer::app
 
 		void AddRoom(pointer_type session);
 
-		void OnRoomMade(pointer_type room, member_type* user);
-		void OnUserJoined(pointer_type room, member_type* user, std::int32_t member_cnt);
-		void OnUserLeft(pointer_type room, member_type* user, std::int32_t member_cnt);
+		void OnRoomMade(pointer_type room, value_type* user);
+		void OnUserJoined(pointer_type room, value_type* user, std::int32_t member_cnt);
+		void OnUserLeft(pointer_type room, value_type* user, std::int32_t member_cnt);
 		void OnRoomClosed(pointer_type room);
 	};
 }

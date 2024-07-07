@@ -45,6 +45,9 @@
 					</ArrayItems>
 				</Expand>
 			</Synthetic>
+			<Item Name="[멤버 목록 패킷의 캐시]">precachedMemberListData</Item>
+			<Item Name="[멤버 목록 패킷 캐시의 크기]">precachedMemberListDataSize</Item>
+			<Item Name="[멤버 목록 패킷의 더티 여부]">isDirty</Item>
 		</Expand>
 	</Type>
 

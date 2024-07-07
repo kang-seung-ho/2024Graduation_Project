@@ -4,6 +4,11 @@ import Iconer.Net.Socket;
 import Iconer.App.User;
 import Iconer.App.SendContext;
 
+namespace
+{
+	iconer::util::AtomicQueue<iconer::app::SendContext*, ServerFramework::reservedSendContextCount> storedSendContexts{};
+}
+
 iconer::net::IoResult
 ServerFramework::AcceptUser(iconer::app::User& user)
 {
@@ -53,12 +58,20 @@ const
 	return std::move(io);
 }
 
+void
+ServerFramework::AddSendContext(iconer::app::SendContext* context)
+noexcept
+{
+	storedSendContexts.push(context);
+}
+
 iconer::app::SendContext*
 ServerFramework::AcquireSendContext()
 noexcept
 {
 	return storedSendContexts.pop();
 }
+
 void
 ServerFramework::AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor)
 {
