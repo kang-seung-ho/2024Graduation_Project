@@ -159,7 +159,10 @@ ASagaRoomSessionLevel::BeginPlay()
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[ASagaRoomSessionLevel][BeginPlay] Could not create user interface for lobby."));
+#endif
 	}
 
 	net->OnDisconnected.AddDynamic(this, &ASagaRoomSessionLevel::OnDisconnected);
@@ -209,7 +212,10 @@ ASagaRoomSessionLevel::OnJoinedRoom(int32 user_id)
 void
 ASagaRoomSessionLevel::OnLeftRoomBySelf()
 {
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnLeftRoomBySelf] Local user has been left from the room."));
+#endif
 
 	GotoPrevLevel();
 }
@@ -218,7 +224,11 @@ void
 ASagaRoomSessionLevel::OnLeftRoom(int32 user_id)
 {
 	PauseTimer();
+
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnLeftRoom] Remote user %d has been left from the room."), user_id);
+#endif
 
 	UpdateRoomSessionUI();
 
