@@ -9,6 +9,11 @@ import Iconer.App.User;
 import Iconer.App.PacketContext;
 import Iconer.App.PacketProtocol;
 
+namespace
+{
+	iconer::util::AtomicQueue<iconer::app::PacketContext*, ServerFramework::reservedPacketContextCount> storedPacketContexts{};
+}
+
 void
 ServerFramework::RoutePackets(iconer::app::User& user)
 {
@@ -71,7 +76,7 @@ ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketCont
 		{
 			ctx->ClearIoStatus();
 			ctx->myData.reset();
-			framework->storedPacketContexts.push(ctx);
+			storedPacketContexts.push(ctx);
 		}
 	};
 
@@ -106,4 +111,11 @@ ServerFramework::ProcessPackets(iconer::app::User& user, iconer::app::PacketCont
 
 		offset += size;
 	}
+}
+
+void
+ServerFramework::AddPacketContext(iconer::app::PacketContext* context)
+noexcept
+{
+	storedPacketContexts.push(context);
 }

@@ -131,7 +131,8 @@ export namespace iconer::app
 			}
 		}
 
-		[[nodiscard]]
+		void SetMemberTeam(const_reference user, bool is_red_team);
+
 		constexpr void SetTitle(std::wstring_view title) noexcept
 		{
 			if (0 < title.length())

@@ -31,6 +31,7 @@ public:
 
 	static inline constexpr std::uint16_t serverPort = iconer::app::Settings::serverPort;
 	static inline constexpr std::uint16_t reservedSendContextCount = 10000;
+	static inline constexpr std::uint16_t reservedPacketContextCount = 5000;
 
 	ServerFramework() = default;
 	~ServerFramework() = default;
@@ -44,7 +45,6 @@ private:
 	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
 	alignas(std::hardware_constructive_interference_size) iconer::app::RoomManager roomManager{};
 
-	alignas(std::hardware_constructive_interference_size) iconer::util::AtomicQueue<iconer::app::PacketContext*, 3000> storedPacketContexts{};
 
 	alignas(std::hardware_constructive_interference_size) std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors{};
 
@@ -75,6 +75,11 @@ private:
 	void EventOnRoomList(iconer::app::User& user, std::byte* data);
 	/* Send a list of member in the room */
 	void EventOnUserList(iconer::app::User& user, std::byte* data);
+	/* Broadcast the changed team state to members */
+	void EventOnChangeTeam(iconer::app::User& user, std::byte* data);
+	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
+	/* Broadcast signals to members */
+	void EventOnGameStartSignal(iconer::app::User& user, std::byte* data);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;
@@ -84,6 +89,7 @@ private:
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);
 
+	void AddPacketContext(iconer::app::PacketContext* context) noexcept;
 	void AddSendContext(iconer::app::SendContext* context) noexcept;
 	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
 

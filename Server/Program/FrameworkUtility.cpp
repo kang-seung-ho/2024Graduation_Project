@@ -2,7 +2,6 @@ module Iconer.Framework;
 
 import Iconer.Net.Socket;
 import Iconer.App.User;
-import Iconer.App.SendContext;
 
 namespace
 {

@@ -84,9 +84,9 @@ ServerFramework::Initialize()
 
 	std::println("Allocating necessary memory...");
 
-	for (unsigned i = 0; i < storedPacketContexts.capacity(); ++i)
+	for (unsigned i = 0; i < reservedPacketContextCount; ++i)
 	{
-		storedPacketContexts.push(new iconer::app::PacketContext{});
+		AddPacketContext(new iconer::app::PacketContext{});
 	}
 
 	for (unsigned i = 0; i < reservedSendContextCount; ++i)
@@ -97,12 +97,15 @@ ServerFramework::Initialize()
 	packetProcessors.reserve(100);
 
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn);
+
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList);
+
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_USERS, &ServerFramework::EventOnUserList);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_SET_TEAM, &ServerFramework::EventOnChangeTeam);
 
 	std::println("Generating {} users...", iconer::app::UserManager::maxUserCount);
 

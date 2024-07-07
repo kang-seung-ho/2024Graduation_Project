@@ -191,6 +191,29 @@ noexcept
 	return removed;
 }
 
+void
+iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool is_red_team)
+{
+	for (auto& member : myMembers)
+	{
+		const auto member_ptr = member.GetStoredUser();
+
+		if (member_ptr == &user)
+		{
+			if (is_red_team)
+			{
+				member.team_id = 1;
+			}
+			else
+			{
+				member.team_id = 2;
+			}
+
+			isDirty.store(true, std::memory_order_release);
+		}
+	}
+}
+
 std::span<const std::byte>
 iconer::app::Room::MakeMemberListPacket()
 {

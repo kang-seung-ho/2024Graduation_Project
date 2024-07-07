@@ -425,15 +425,13 @@ export namespace iconer::util
 	private:
 		using Base = AtomicQueueCommon<AtomicQueue<T, SIZE, NIL, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>;
 
-		friend class Base;
+		static inline constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
+		static inline constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(std::atomic<T>)>::value;
+		static inline constexpr bool total_order_ = TOTAL_ORDER;
+		static inline constexpr bool spsc_ = SPSC;
+		static inline constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
 
-		static constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
-		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(std::atomic<T>)>::value;
-		static constexpr bool total_order_ = TOTAL_ORDER;
-		static constexpr bool spsc_ = SPSC;
-		static constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
-
-		alignas(CACHE_LINE_SIZE) std::atomic<T> elements_[mySize];
+		alignas(CACHE_LINE_SIZE) std::atomic<T> elements_[mySize]{};
 
 		[[nodiscard]]
 		T do_pop(const unsigned tail) noexcept
@@ -448,18 +446,15 @@ export namespace iconer::util
 			Base::template do_push_atomic<T, NIL>(element, q_element);
 		}
 
+		friend class Base;
+
 	public:
 		using value_type = T;
 
-		AtomicQueue() noexcept
+		constexpr AtomicQueue() noexcept
 		{
 			// Queue element type T is not atomic. Use AtomicQueue2/AtomicQueueB2 for such element types.
 			assert(std::atomic<T>{NIL}.is_lock_free());
-
-			for (auto p = elements_, q = elements_ + mySize; p != q; ++p)
-			{
-				p->store(NIL, X);
-			}
 		}
 
 		AtomicQueue(AtomicQueue const&) = delete;
@@ -476,16 +471,14 @@ export namespace iconer::util
 		using Base = AtomicQueueCommon<AtomicQueue2<T, SIZE, MINIMIZE_CONTENTION, MAXIMIZE_THROUGHPUT, TOTAL_ORDER, SPSC>>;
 		using State = typename Base::State;
 
-		friend class Base;
+		static inline constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
+		static inline constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(State)>::value;
+		static inline constexpr bool total_order_ = TOTAL_ORDER;
+		static inline constexpr bool spsc_ = SPSC;
+		static inline constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
 
-		static constexpr unsigned mySize = MINIMIZE_CONTENTION ? details::round_up_to_power_of_2(SIZE) : SIZE;
-		static constexpr int SHUFFLE_BITS = details::GetIndexShuffleBits<MINIMIZE_CONTENTION, mySize, CACHE_LINE_SIZE / sizeof(State)>::value;
-		static constexpr bool total_order_ = TOTAL_ORDER;
-		static constexpr bool spsc_ = SPSC;
-		static constexpr bool maximize_throughput_ = MAXIMIZE_THROUGHPUT;
-
-		alignas(CACHE_LINE_SIZE) std::atomic<unsigned char> states_[mySize] = {};
-		alignas(CACHE_LINE_SIZE) T elements_[mySize] = {};
+		alignas(CACHE_LINE_SIZE) std::atomic<unsigned char> states_[mySize]{};
+		alignas(CACHE_LINE_SIZE) T elements_[mySize]{};
 
 		[[nodiscard]]
 		T do_pop(const unsigned tail) noexcept
@@ -500,6 +493,8 @@ export namespace iconer::util
 			const unsigned index = details::remap_index<SHUFFLE_BITS>(head % mySize);
 			Base::template do_push_any(std::forward<U>(element), states_[index], elements_[index]);
 		}
+
+		friend class Base;
 
 	public:
 		using value_type = T;
@@ -556,7 +551,7 @@ export namespace iconer::util
 
 		// The special member functions are not thread-safe.
 
-		AtomicQueueB(unsigned size, A const& allocator = A{})
+		constexpr AtomicQueueB(unsigned size, A const& allocator = A{})
 			: AllocatorElements(allocator)
 			, mySize(std::max(details::round_up_to_power_of_2(size), 1u << (SHUFFLE_BITS * 2)))
 			, elements_(AllocatorElements::allocate(mySize))
@@ -589,7 +584,7 @@ export namespace iconer::util
 		}
 
 		[[nodiscard]]
-		A get_allocator() const noexcept
+		constexpr A get_allocator() const noexcept
 		{
 			return *this; // The standard requires implicit conversion between rebound allocators.
 		}
@@ -716,7 +711,7 @@ export namespace iconer::util
 		}
 
 		[[nodiscard]]
-		A get_allocator() const noexcept
+		constexpr A get_allocator() const noexcept
 		{
 			return *this; // The standard requires implicit conversion between rebound allocators.
 		}

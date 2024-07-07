@@ -34,6 +34,22 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpNotifyTeam:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed notifying team from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnNotifyTeamChanged(*user, bytes);
+	}
+	break;
+
 	case OpEnterRoom:
 	{
 		const auto user = userManager.FindUser(id);
