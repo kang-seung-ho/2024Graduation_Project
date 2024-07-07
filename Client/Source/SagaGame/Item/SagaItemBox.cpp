@@ -47,6 +47,8 @@ void
 ASagaItemBox::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// TODO: 박스가 월드에 스폰될 때 바로 아이템 유형 설정해야함
 	SetRandomItemType();
 }
 
