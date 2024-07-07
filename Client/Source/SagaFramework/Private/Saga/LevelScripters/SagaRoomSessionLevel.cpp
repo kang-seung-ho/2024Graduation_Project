@@ -238,8 +238,12 @@ ASagaRoomSessionLevel::OnTeamChanged(int32 user_id, bool is_red_team)
 {
 	PauseTimer();
 
+#if WITH_EDITOR
+
 	const TCHAR* team_name = is_red_team ? TEXT("Red") : TEXT("Blue");
-	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnLeftRoom] User %d changed team to %s team."), user_id, team_name);
+
+	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnTeamChanged] User %d changed team to %s team."), user_id, team_name);
+#endif
 
 	UpdateRoomSessionUI();
 
@@ -417,9 +421,6 @@ ASagaRoomSessionLevel::HandlePeriodicUpdate()
 		else
 		{
 			UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][HandlePeriodicUpdate] Network subsystem is not ready."));
-
-			// NOTICE: HandlePeriodicUpdate - Fallback
-			//Fallback();
 		}
 	}
 	else
