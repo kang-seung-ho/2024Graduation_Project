@@ -94,14 +94,21 @@ ASagaPlayableCharacter::ExecuteAttackAnimation()
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter] mAnimInst is null."));
+#endif
 	}
 }
 
 void
 ASagaPlayableCharacter::ExecuteAttack()
 {
+#if WITH_EDITOR
+
 	const auto name = GetName();
+#endif
+
 	const auto weapon = GetWeapon();
 
 	float damage{};
@@ -147,11 +154,17 @@ ASagaPlayableCharacter::ExecuteAttack()
 
 		if (hit_result.bBlockingHit && IsValid(hit_result.GetActor()))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] Trace hit actor: %s"), *hit_result.GetActor()->GetName());
+#endif
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s': No Actors were hit"), *name);
+#endif
 		}
 
 		damage = 20.f;
@@ -171,7 +184,11 @@ ASagaPlayableCharacter::ExecuteAttack()
 
 	default:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][Attack] '%s' has no Weapon."), *name);
+#endif
+
 		return;
 	}
 	break;
@@ -188,7 +205,10 @@ ASagaPlayableCharacter::ExecuteAttack()
 
 		if (IsValid(bear))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' hits a gummy bear."), *name);
+#endif
 
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
