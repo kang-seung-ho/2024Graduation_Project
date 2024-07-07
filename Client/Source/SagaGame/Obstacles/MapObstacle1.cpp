@@ -1,7 +1,11 @@
 #include "Obstacles/MapObstacle1.h"
+#include <Math/MathFwd.h>
 #include <Components/StaticMeshComponent.h>
+#include <Engine/World.h>
 #include <GameFramework/Controller.h>
 
+#include "Item/SagaItemTypes.h"
+#include "Item/SagaWeaponData.h"
 #include "Item/SagaItemBox.h"
 
 AMapObstacle1::AMapObstacle1()
@@ -26,7 +30,7 @@ AMapObstacle1::BeginPlay()
 
 	if (HPComponent)
 	{
-		health = HPComponent->GetCurrentHealth();
+		myHealth = HPComponent->GetCurrentHealth();
 	}
 }
 
@@ -42,7 +46,7 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 
-	health -= DamageApplied;
+	myHealth -= DamageApplied;
 
 	if (HPComponent)
 	{
@@ -55,13 +59,13 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 void
 AMapObstacle1::SpawnItemBox()
 {
-	FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f); // Adjust the z value if needed
-	FRotator SpawnRotation = FRotator::ZeroRotator;
-	FActorSpawnParameters SpawnParameters;
+	const FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
+	const FRotator SpawnRotation = FRotator::ZeroRotator;
+	FActorSpawnParameters SpawnParameters{};
 
 	ASagaItemBox* SpawnedItemBox = GetWorld()->SpawnActor<ASagaItemBox>(ASagaItemBox::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
 
-	if (SpawnedItemBox)
+	if (IsValid(SpawnedItemBox))
 	{
 		UStaticMeshComponent* ItemMesh = SpawnedItemBox->GetMesh();
 
@@ -69,9 +73,11 @@ AMapObstacle1::SpawnItemBox()
 		{
 			ItemMesh->SetSimulatePhysics(true);
 			ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			// Ensure it has a suitable collision profile
+			//ItemMesh->SetCollisionProfileName(TEXT("Item"));
 
-			//ItemMesh->SetCollisionProfileName(TEXT("Item")); // Ensure it has a suitable collision profile
-			FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f); // z value for the popping-up effect
+			// z value for the popping-up effect
+			FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f);
 			ItemMesh->AddImpulse(LaunchVelocity, NAME_None, true);
 		}
 	}

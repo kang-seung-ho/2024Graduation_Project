@@ -16,19 +16,26 @@ class SAGAGAME_API ASagaItemBox : public AActor
 public:
 	ASagaItemBox();
 
-	ASagaItemBox();
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	FORCEINLINE UStaticMeshComponent* GetMesh() const noexcept
+	{
+		return Mesh;
+	}
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
-	FORCEINLINE UStaticMeshComponent* GetMesh() const noexcept { return Mesh; }
-	
+	FORCEINLINE ESagaItemTypes GetStoredItem() const noexcept
+	{
+		return storedItemType;
+	}
+
 	template<typename T>
 	[[nodiscard]]
-	static T* CreateItemBox(int32 id, UWorld* world, TSubclassOf<ASagaItemBox> uclass, const FTransform* transform, const FActorSpawnParameters& params = {})
+	static T* CreateItemBox(ESagaItemTypes type, UWorld* world, TSubclassOf<ASagaItemBox> uclass, const FTransform* transform, const FActorSpawnParameters& params = {})
 	{
 		const auto actor = world->SpawnActor(uclass, transform, params);
 		const auto as_box = static_cast<ASagaItemBox*>(actor);
 
-		//as_box->myId = id;
+		as_box->storedItemType = type;
 
 		return Cast<T>(actor);
 	}

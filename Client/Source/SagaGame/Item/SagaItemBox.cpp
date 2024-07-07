@@ -56,7 +56,7 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	ISagaCharacterItemInterface* OverlappingPawn = Cast<ISagaCharacterItemInterface>(OtherActor);
 	if (OverlappingPawn)
 	{
-		OverlappingPawn->TakeItem(ItemType);
+		OverlappingPawn->TakeItem(storedItemType);
 		Effect->Activate(true);
 		Mesh->SetHiddenInGame(true);
 		SetActorEnableCollision(false);
@@ -73,7 +73,8 @@ void
 ASagaItemBox::SetRandomItemType()
 {
 	int32 RandomIndex = FMath::RandRange(0, 2);
-	ItemType = static_cast<EItemType>(RandomIndex);
+
+	storedItemType = static_cast<ESagaItemTypes>(RandomIndex);
 }
 
 void

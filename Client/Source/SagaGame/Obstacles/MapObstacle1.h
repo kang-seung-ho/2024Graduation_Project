@@ -20,7 +20,7 @@ public:
 	UObstacleHPComponent* HPComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Obstacle")
-	float health;
+	float myHealth;
 
 	AMapObstacle1();
 
@@ -31,7 +31,12 @@ public:
 	void SpawnItemBox();
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
-	FORCEINLINE int32 GetItemId() const noexcept { return myItemId; }
+	FORCEINLINE int32 GetItemId() const noexcept
+	{
+		return myItemId;
+	}
+
+	friend class ASagaInGameMode;
 
 protected:
 	/* 아이템의 고유 번호
@@ -42,4 +47,10 @@ protected:
 	int32 myItemId;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	FORCEINLINE void SetItemId(int32 id) noexcept
+	{
+		myItemId = id;
+	}
 };

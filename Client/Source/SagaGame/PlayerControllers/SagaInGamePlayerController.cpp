@@ -4,6 +4,7 @@
 #include <UObject/ObjectPtr.h>
 #include <UObject/UObjectGlobals.h>
 #include <Engine/EngineBaseTypes.h>
+#include <Engine/Texture2D.h>
 #include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
@@ -179,14 +180,14 @@ ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)
 			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/Tex_heart.Tex_heart'");
 			ItemName = TEXT("EnergyDrink");
 		}
-			break;
+		break;
 
 		case ESagaItemTypes::Gum:
 		{
 			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/gumball_machine.gumball_machine'");
 			ItemName = TEXT("Gumball");
 		}
-			break;
+		break;
 
 		case ESagaItemTypes::SmokeBomb:
 		{
