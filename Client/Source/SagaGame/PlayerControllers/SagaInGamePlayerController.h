@@ -26,7 +26,7 @@ public:
 	ESlateVisibility GetInventoryVisibility() const;
 	UFUNCTION()
 	bool IsInventoryVisible() const;
-	void AddItemToInventory(EItemType ItemType);
+	void AddItemToInventory(ESagaItemTypes ItemType);
 
 	/* Actions */
 #pragma region =========================

@@ -19,6 +19,7 @@
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Character/SagaGummyBearAnimInstance.h"
+#include "Item/SagaItemTypes.h"
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
@@ -349,31 +350,40 @@ ASagaCharacterBase::BeginPlay()
 	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
-void ASagaCharacterBase::TakeItem(EItemType ItemType)
+void ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 {
 	switch (ItemType)
 	{
-	case EItemType::Drink:
 		// Add Drink to Player's Inventory
+	case ESagaItemTypes::Drink:
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Drink"));
 		AddItemToInventory(ItemType);
-		break;
-	case EItemType::Gum:
-		// Add Gum to Player's Inventory
+	}
+	break;
+
+	// Add Gum to Player's Inventory
+	case ESagaItemTypes::Gum:
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Gum"));
 		AddItemToInventory(ItemType);
-		break;
-	case EItemType::SmokeBomb:
-		// Add SmokeBomb to Player's Inventory
+	}
+	break;
+
+	// Add SmokeBomb to Player's Inventory
+	case ESagaItemTypes::SmokeBomb:
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Item Taken : SmokeBomb"));
 		AddItemToInventory(ItemType);
-		break;
+	}
+	break;
+
 	default:
 		break;
 	}
 }
 
-void ASagaCharacterBase::AddItemToInventory(EItemType ItemType)
+void ASagaCharacterBase::AddItemToInventory(ESagaItemTypes ItemType)
 {
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)

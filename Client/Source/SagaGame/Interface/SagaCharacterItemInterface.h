@@ -15,5 +15,5 @@ class SAGAGAME_API ISagaCharacterItemInterface
 	GENERATED_BODY()
 
 public:
-	virtual void TakeItem(EItemType Item) = 0;
+	virtual void TakeItem(ESagaItemTypes Item) = 0;
 };

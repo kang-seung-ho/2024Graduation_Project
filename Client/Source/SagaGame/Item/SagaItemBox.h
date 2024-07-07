@@ -4,7 +4,8 @@
 #include <GameFramework/Actor.h>
 #include <Engine/World.h>
 
-#include "SagaWeaponData.h"
+#include "Item/SagaItemTypes.h"
+#include "Item/SagaWeaponData.h"
 #include "SagaItemBox.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Item")
@@ -13,9 +14,7 @@ class SAGAGAME_API ASagaItemBox : public AActor
 	GENERATED_BODY()
 
 public:
-	//prevent null var
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Item")
-	EItemType ItemType = EItemType::Drink;
+	ASagaItemBox();
 
 	ASagaItemBox();
 
@@ -35,6 +34,10 @@ public:
 	}
 
 protected:
+	// prevent null var
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Item")
+	ESagaItemTypes storedItemType = ESagaItemTypes::Drink;
+
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UBoxComponent> Trigger;
 

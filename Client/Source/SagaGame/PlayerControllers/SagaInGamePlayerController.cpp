@@ -7,9 +7,10 @@
 #include <Kismet/GameplayStatics.h>
 #include <EnhancedInputSubsystems.h>
 #include <EnhancedInputComponent.h>
+#include <Blueprint/UserWidget.h>
 
 #include "Input/SagaInputSystem.h"
-#include "Blueprint/UserWidget.h"
+#include "Item/SagaItemTypes.h"
 #include "UI/InventoryItemData.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
@@ -163,7 +164,8 @@ ASagaInGamePlayerController::IsInventoryVisible() const
 	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
 }
 
-void ASagaInGamePlayerController::AddItemToInventory(EItemType ItemType)
+void
+ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)
 {
 	if (InventoryWidget)
 	{
@@ -172,17 +174,28 @@ void ASagaInGamePlayerController::AddItemToInventory(EItemType ItemType)
 
 		switch (ItemType)
 		{
-		case EItemType::Drink:
+		case ESagaItemTypes::Drink:
+		{
 			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/Tex_heart.Tex_heart'");
 			ItemName = TEXT("EnergyDrink");
+		}
 			break;
-		case EItemType::Gum:
+
+		case ESagaItemTypes::Gum:
+		{
 			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/gumball_machine.gumball_machine'");
 			ItemName = TEXT("Gumball");
+		}
 			break;
-		case EItemType::SmokeBomb:
+
+		case ESagaItemTypes::SmokeBomb:
+		{
 			IconPath = TEXT("/Script/Engine.Texture2D'/Game/UI/Images/smoke_bomb.smoke_bomb'");
 			ItemName = TEXT("SmokeBomb");
+		}
+		break;
+
+		default:
 			break;
 		}
 

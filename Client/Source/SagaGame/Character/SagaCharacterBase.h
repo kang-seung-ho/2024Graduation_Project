@@ -208,9 +208,9 @@ protected:
 	TSubclassOf<UUserWidget> healthbarWidgetClass;
 
 public:
-	virtual void TakeItem(EItemType ItemType) override;
+	virtual void TakeItem(ESagaItemTypes ItemType) override;
 
-	void AddItemToInventory(EItemType ItemType);
+	void AddItemToInventory(ESagaItemTypes ItemType);
 
 protected:
 	UPROPERTY(VisibleAnywhere)
