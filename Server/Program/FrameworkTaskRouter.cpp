@@ -46,6 +46,10 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			break;
 		};
 
+		// task_ctx is a SendContext
+		task_ctx->SetOperation(OpSend);
+		AddSendContext(static_cast<iconer::app::SendContext*>(task_ctx));
+
 		EventOnNotifyRoomJoin(*user);
 
 		std::println("User {} joined to room {}.", id, user->myRoom.load()->GetID());
@@ -391,6 +395,26 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpEnterRoom:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		// task_ctx is a SendContext
+		task_ctx->SetOperation(OpSend);
+		AddSendContext(static_cast<iconer::app::SendContext*>(task_ctx));
+
+		EventOnFailedToNotifyRoomJoin(*user);
+	}
+	break;
+
 	case OpCreateRoom:
 	{
 		const auto user = userManager.FindUser(id);
@@ -478,22 +502,6 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 		}
 
 		user->BeginClose();
-	}
-	break;
-
-	case OpEnterRoom:
-	{
-		const auto user = userManager.FindUser(id);
-
-		if (nullptr == user)
-		{
-			std::println("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
-
-			delete task_ctx;
-			break;
-		}
-
-		EventOnFailedToNotifyRoomJoin(*user);
 	}
 	break;
 

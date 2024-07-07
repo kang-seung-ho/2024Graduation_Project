@@ -86,11 +86,14 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 
 				if (room->TryJoin(user))
 				{
-					const auto ctx = AcquireSendContext();
+					const auto sender = AcquireSendContext();
 					auto [pk, size] = room->MakeMemberJoinedPacket(user);
-					ctx->myBuffer = std::move(pk);
+					
+					const auto data_ptr = pk.get();
+					sender->myBuffer = std::move(pk);
+					sender->SetOperation(OpEnterRoom);
 
-					user.SendGeneralData(*ctx, pk.get(), size);
+					user.SendGeneralData(*sender, size);
 				}
 				else
 				{
@@ -127,13 +130,12 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 	{
 		constexpr auto len = iconer::app::Settings::nickNameLength;
 
-		const auto id = static_cast<std::int32_t>(user.GetID());
-		const auto team = user.GetID() % 2 == 0 ? (char)1 : (char)2;
-
 		wchar_t nickname_buf[len]{};
 		const auto nickname = user.GetName().substr(0, len);
 		std::copy(nickname.cbegin(), nickname.cend(), nickname_buf);
 
+		const auto id = static_cast<std::int32_t>(user.GetID());
+		const auto team = user.GetID() % 2 == 0 ? (char)1 : (char)2;
 		const auto rid = static_cast<std::int32_t>(room->GetID());
 
 		// broadcast
@@ -141,13 +143,13 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 			{
 				if (mem.GetID() == user.GetID()) return;
 
-				auto ctx = AcquireSendContext();
+				auto sender = AcquireSendContext();
 
 				auto [pk, length] = iconer::app::Serialize(SC_ROOM_JOINED, id, team, nickname_buf, rid);
 
-				ctx->myBuffer = std::move(pk);
+				sender->myBuffer = std::move(pk);
 
-				mem.SendGeneralData(*ctx, static_cast<size_t>(length));
+				mem.SendGeneralData(*sender, static_cast<size_t>(length));
 			}
 		);
 	}
