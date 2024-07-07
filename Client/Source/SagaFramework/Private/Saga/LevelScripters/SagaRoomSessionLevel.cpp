@@ -138,11 +138,12 @@ ASagaRoomSessionLevel::BeginPlay()
 
 	OnDestroyed.AddDynamic(this, &ASagaRoomSessionLevel::HandleDestroy);
 
-	GetWorldTimerManager().SetTimer(teamUpdateTimer, this, &ASagaRoomSessionLevel::HandlePeriodicUpdate, 10.0f, true, 0.1f);
+	GetWorldTimerManager().SetTimer(teamUpdateTimer, this, &ASagaRoomSessionLevel::HandlePeriodicUpdate, 8.0f, true, 0.1f);
 
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	levelUiInstance = CreateWidget<USagaRoomSessionLevelUiWidget>(GetWorld(), levelUiClass);
+
 	if (IsValid(levelUiInstance))
 	{
 		levelUiInstance->AddToViewport(1);
@@ -239,7 +240,9 @@ void
 ASagaRoomSessionLevel::OnUpdateUserList(const TArray<struct FSagaVirtualUser>& list)
 {
 	PauseTimer();
+
 	UpdateRoomSessionUI();
+
 	UnPauseTimer();
 }
 
@@ -254,6 +257,17 @@ ASagaRoomSessionLevel::OnTeamChanged(int32 user_id, bool is_red_team)
 
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnTeamChanged] User %d changed team to %s team."), user_id, team_name);
 #endif
+
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (is_red_team)
+	{
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
+	}
+	else
+	{
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
+	}
 
 	UpdateRoomSessionUI();
 
