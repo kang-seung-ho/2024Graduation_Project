@@ -1,9 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "SagaGame.h"
+#include <GameFramework/Actor.h>
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "ObjectComponents/ObstacleHPComponent.h"
 #include "MapObstacle1.generated.h"
 
@@ -11,23 +9,8 @@ UCLASS()
 class SAGAGAME_API AMapObstacle1 : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AMapObstacle1();
 
-	UPROPERTY(EditAnywhere, Category = "Obstacle")
-	float health;
-	void SpawnItemBox();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+public:
 	// Static Mesh Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
@@ -36,7 +19,27 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UObstacleHPComponent* HPComponent;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	UPROPERTY(EditAnywhere, Category = "Obstacle")
+	float health;
 
+	AMapObstacle1();
 
+	virtual void Tick(float DeltaTime) override;
+
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	void SpawnItemBox();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	FORCEINLINE int32 GetItemId() const noexcept { return myItemId; }
+
+protected:
+	/* 아이템의 고유 번호
+
+	*  서버, 클라 모두 같게 동기화됨
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Item", meta = (ClampMin = "0"))
+	int32 myItemId;
+
+	virtual void BeginPlay() override;
 };
