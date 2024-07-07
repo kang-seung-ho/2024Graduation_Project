@@ -528,7 +528,7 @@ namespace atomic_queue
 		}
 
 		AtomicQueueB(AtomicQueueB&& b) noexcept
-			: AllocatorElements(static_cast<AllocatorElements&&>(b)) // TODO: This must be noexcept, static_assert that.
+			: AllocatorElements(static_cast<AllocatorElements&&>(b))
 			, Base(static_cast<Base&&>(b))
 			, size_(std::exchange(b.size_, 0))
 			, elements_(std::exchange(b.elements_, nullptr))
@@ -545,7 +545,7 @@ namespace atomic_queue
 			if (elements_)
 			{
 				details::destroy_n(elements_, size_);
-				AllocatorElements::deallocate(elements_, size_); // TODO: This must be noexcept, static_assert that.
+				AllocatorElements::deallocate(elements_, size_);
 			}
 		}
 
@@ -623,7 +623,7 @@ namespace atomic_queue
 		template<class U>
 		void deallocate_(U* p) noexcept
 		{
-			StorageAllocator::deallocate(reinterpret_cast<unsigned char*>(p), size_ * sizeof(U)); // TODO: This must be noexcept, static_assert that.
+			StorageAllocator::deallocate(reinterpret_cast<unsigned char*>(p), size_ * sizeof(U));
 		}
 
 	public:
@@ -646,7 +646,7 @@ namespace atomic_queue
 		}
 
 		AtomicQueueB2(AtomicQueueB2&& b) noexcept
-			: StorageAllocator(static_cast<StorageAllocator&&>(b)) // TODO: This must be noexcept, static_assert that.
+			: StorageAllocator(static_cast<StorageAllocator&&>(b))
 			, Base(static_cast<Base&&>(b))
 			, size_(std::exchange(b.size_, 0))
 			, states_(std::exchange(b.states_, nullptr))

@@ -201,7 +201,6 @@ ASagaPlayableCharacter::ExecuteAttack()
 float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
-	// TODO: ASagaPlayableCharacter의 ExecuteHurt 구조 갈아엎기
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (net->IsOfflineMode() or not HasValidOwnerId())

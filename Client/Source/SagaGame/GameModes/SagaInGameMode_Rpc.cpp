@@ -465,11 +465,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			if (IsValid(other_character))
 			{
 				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_PLYER] User %d is taking damage from user %d."), id, causer_id);
-				// TODO: RPC_DMG_PLYER
-				//character->ExecuteHurt(dmg);
-
-				//FDamageEvent event{};
-				//character->TakeDamage(dmg, event, character->GetController(), other_character);
 
 				character->ExecuteHurt(dmg);
 			}
@@ -613,7 +608,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		// TODO: RPC_DEAD
 		character->ExecuteDeath();
 	}
 	break;
