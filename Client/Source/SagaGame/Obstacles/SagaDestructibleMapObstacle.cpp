@@ -90,7 +90,7 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
 
         if (NiagaraComponent)
         {
-            // 3ÃÊ ÈÄ¿¡ ³ªÀÌ¾Æ°¡¶ó ÀÌÆåÆ® Á¤Áö
+            // 3ì´ˆ í›„ì— ë‚˜ì´ì•„ê°€ë¼ ì´í™íŠ¸ ì •ì§€
             FTimerHandle NiagaraTimerHandle;
             GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
         }

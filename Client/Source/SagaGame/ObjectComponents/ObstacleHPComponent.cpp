@@ -55,7 +55,7 @@ void UObstacleHPComponent::SetObjectHealth(float hp)
 //			ThisObstacleActor->SetActorEnableCollision(false);
 //			ThisObstacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
 //
-//			// Å¸ÀÌ¸Ó ¼³Á¤
+//			// íƒ€ì´ë¨¸ ì„¤ì •
 //			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
 //		}
 //	}
@@ -85,7 +85,7 @@ void UObstacleHPComponent::CheckDeath()
 
 void UObstacleHPComponent::HandleDestruction()
 {
-	// Ä«¿À½º µğ½ºÆ®·°¼Ç Á¶°¢ Á¦°Å ·ÎÁ÷ ÇÔ¼ö È£Ãâ
+	// ì¹´ì˜¤ìŠ¤ ë””ìŠ¤íŠ¸ëŸ­ì…˜ ì¡°ê° ì œê±° ë¡œì§ í•¨ìˆ˜ í˜¸ì¶œ
 	RemoveDestructionPieces();
 }
 
