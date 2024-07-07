@@ -1,9 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "SagaGameInfo.h"
+#include <Templates/SubclassOf.h>
+#include <GameFramework/Actor.h>
 
-#include "../SagaGame/Public/SagaGameInfo.h"
-#include "GameFramework/Actor.h"
 #include "SagaSpawnPoint.generated.h"
 
 UENUM(BlueprintType)
@@ -17,18 +16,18 @@ UCLASS()
 class SAGAGAME_API ASagaSpawnPoint : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASagaSpawnPoint();
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	USceneComponent* mRoot;
+	class USceneComponent* mRoot;
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY()
-	TObjectPtr<UArrowComponent> mArrowComponent;
+	TObjectPtr<class UArrowComponent> mArrowComponent;
 #endif
 
 	UPROPERTY(EditAnywhere)
@@ -51,7 +50,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

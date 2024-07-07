@@ -1,13 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AI/SagaSpawnPoint.h"
+#include <Components/SceneComponent.h>
+#include <Components/ArrowComponent.h>
+
 #include "AI/SagaAIPawn.h"
 
-// Sets default values
 ASagaSpawnPoint::ASagaSpawnPoint()
 {
-// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	mRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -18,16 +16,16 @@ ASagaSpawnPoint::ASagaSpawnPoint()
 	mArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 
 	mArrowComponent->SetupAttachment(mRoot);
-#endif
 
 	mRoot->bVisualizeComponent = true;
+#endif
 }
 
 // Called when the game starts or when spawned
 void ASagaSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (mSpawnType != ESpawnType::Loop)
 	{
 		Spawn();
@@ -42,6 +40,7 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 	switch (mSpawnType)
 	{
 	case ESpawnType::Normal:
+	{
 		if (!IsValid(mSpawnActor))
 		{
 			mSpawnAccTime += DeltaTime;
@@ -52,8 +51,11 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 				mSpawnAccTime = 0.f;
 			}
 		}
-		break;
+	}
+	break;
+
 	case ESpawnType::Loop:
+	{
 		mSpawnAccTime += DeltaTime;
 
 		if (mSpawnAccTime >= mSpawnTime)
@@ -69,7 +71,8 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 					Destroy();
 			}
 		}
-		break;
+	}
+	break;
 	}
 }
 
@@ -103,10 +106,10 @@ void ASagaSpawnPoint::Spawn()
 	if (IsValid(AIPawn))
 	{
 		// ThisClass : it means the current Class. => SpawnPoint Class
-		AIPawn->AddDeathDelegate<ThisClass>(this, &ASagaSpawnPoint::DeathCallback);
+		AIPawn->AddDeathDelegate(this, &ASagaSpawnPoint::DeathCallback);
 	}
 
-	//// ÀÌµ¿°æ·Î¸¦ Ãß°¡ÇÑ´Ù.
+	//// ï¿½Ìµï¿½ï¿½ï¿½Î¸ï¿½ ï¿½ß°ï¿½ï¿½Ñ´ï¿½.
 	//if (!mPatrolPointArray.IsEmpty())
 	//{
 	//	AIPawn->AddPatrolPoint(GetActorLocation());
