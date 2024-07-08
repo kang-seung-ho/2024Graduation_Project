@@ -106,6 +106,8 @@ ServerFramework::Initialize()
 
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_USERS, &ServerFramework::EventOnUserList);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_SET_TEAM, &ServerFramework::EventOnChangeTeam);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_START, &ServerFramework::EventOnGameStartSignal);
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_LOADED, &ServerFramework::EventOnGameReadySignal);
 
 	std::println("Generating {} users...", iconer::app::UserManager::maxUserCount);
 

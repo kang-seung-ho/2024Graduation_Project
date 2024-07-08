@@ -24,6 +24,8 @@ export namespace iconer::app
 	public:
 		std::atomic<pointer> userHandle{};
 		char team_id{};
+		char myWeapon;
+		std::atomic_bool isReady;
 
 		Member() noexcept = default;
 
@@ -85,6 +87,8 @@ export namespace iconer::app
 		static inline constexpr size_t titleLength = Settings::roomTitleLength;
 		static inline constexpr std::int16_t maxSerializeMemberDataSize = 3 + SerializedMember::GetSerializedSize() * userLimits + sizeof(size_t);
 
+		std::atomic_bool isStartingGame;
+
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};
 		iconer::util::Delegate<void, this_class*, pointer_type, size_type> onUserJoined{};
@@ -104,6 +108,20 @@ export namespace iconer::app
 		[[nodiscard]] bool TryOccupy(reference user);
 		[[nodiscard]] bool TryJoin(reference user);
 		bool Leave(reference user, bool notify = true) noexcept;
+
+		[[nodiscard]]
+		bool TryStartGame() noexcept
+		{
+			bool flag = false;
+			return isStartingGame.compare_exchange_strong(flag, true, std::memory_order_acq_rel);
+		}
+		
+		[[nodiscard]]
+		bool CancelStartGame() noexcept
+		{
+			bool flag = true;
+			return isStartingGame.compare_exchange_strong(flag, false, std::memory_order_acq_rel);
+		}
 
 		template<invocable<reference> Callable>
 		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, reference>)

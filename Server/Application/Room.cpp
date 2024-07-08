@@ -76,7 +76,7 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 {
 	auto& users_room = user.myRoom;
 
-	if (IsTaken()) LIKELY
+	if (IsTaken() and not isStartingGame.load(std::memory_order_acquire)) LIKELY
 	{
 		for (auto& member : myMembers)
 		{
@@ -182,6 +182,7 @@ noexcept
 		}
 
 		myTitle.clear();
+		isStartingGame.store(false, std::memory_order_release);
 
 		isTaken.store(false, std::memory_order_release);
 	};

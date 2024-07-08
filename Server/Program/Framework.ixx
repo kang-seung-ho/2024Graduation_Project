@@ -80,6 +80,8 @@ private:
 	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
 	/* Broadcast signals to members */
 	void EventOnGameStartSignal(iconer::app::User& user, std::byte* data);
+	/* Mark the player ready and starts game if they all are ready */
+	void EventOnGameReadySignal(iconer::app::User& user, std::byte* data);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;

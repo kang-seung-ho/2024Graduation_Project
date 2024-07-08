@@ -87,6 +87,30 @@ ServerFramework::EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t
 void
 ServerFramework::EventOnGameStartSignal(iconer::app::User& user, std::byte* data)
 {
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+
+	const auto room = user.myRoom.load();
+
+	if (nullptr != room) LIKELY
+	{
+		if (room->TryStartGame())
+		{
+			room->Foreach([&](iconer::app::User& mem)
+			{
+				auto [pk, length] = iconer::app::Serialize(SC_SET_TEAM, id, team);
+
+				sender->myBuffer = std::move(pk);
+
+				mem.SendGeneralData(*sender, static_cast<size_t>(length));
+			}
+		}
+				};
+}
+
+void
+ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data)
+{
 	const auto room = user.myRoom.load();
 
 	if (nullptr != room) LIKELY
