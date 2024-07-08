@@ -17,7 +17,7 @@ public:
 	void StopAI();
 
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UAIPerceptionComponent* mAIPerception;
 	
 	class UAISenseConfig_Sight* mSightConfig;
@@ -29,13 +29,13 @@ protected:
 	float mLoseSightInRadius = 150.0f; //limit the inbound radius => Making the AI Pawn not get to the exact player's location
 
 	UPROPERTY(VisibleAnywhere)
-	float mAIFieldOfView = 360.0f; //AI's perceptible angle
+	float mAIFieldOfView = 180.0f; //AI's perceptible angle
 
 	UPROPERTY(VisibleAnywhere)
-	float mAISightAge = 5.0f; //AI's sight age(duration)
+	float mAISightAge = 0.f; //AI's sight age(duration)
 
 	UPROPERTY(VisibleAnywhere)
-	float mAISeenLocation = 800.f; //AI's seen location
+	float mAISeenLocation = -1.f; //AI's seen location
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -53,5 +53,6 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION()
 	void OnTargetDetect(AActor* Target, FAIStimulus const Stimulus);
 };

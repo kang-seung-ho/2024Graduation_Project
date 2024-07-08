@@ -55,7 +55,7 @@ void UObstacleHPComponent::SetObjectHealth(float hp)
 //			ThisObstacleActor->SetActorEnableCollision(false);
 //			ThisObstacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
 //
-//			// 타이머 설정
+//			// TimerSet
 //			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
 //		}
 //	}
@@ -85,7 +85,7 @@ void UObstacleHPComponent::CheckDeath()
 
 void UObstacleHPComponent::HandleDestruction()
 {
-	// 카오스 디스트럭션 조각 제거 로직 함수 호출
+	// Call the function to remove the chaos destruction pieces
 	RemoveDestructionPieces();
 }
 

@@ -15,7 +15,7 @@ public class SagaGame : ModuleRules
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "Networking", "Sockets" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "AIModule", "GameplayDebugger" });
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{

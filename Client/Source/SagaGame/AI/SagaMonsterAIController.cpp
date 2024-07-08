@@ -26,9 +26,9 @@ ASagaMonsterAIController::ASagaMonsterAIController()
 	mSightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	mSightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 
+	mAIPerception->SetDominantSense(mSightConfig->GetSenseImplementation());
 	mAIPerception->ConfigureSense(*mSightConfig);
 
-	mAIPerception->SetDominantSense(mSightConfig->GetSenseImplementation());
 	
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/AI/BB_SagaSmallBear.BB_SagaSmallBear'"));
