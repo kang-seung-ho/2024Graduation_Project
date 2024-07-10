@@ -37,10 +37,8 @@ ASagaItemBox::ASagaItemBox()
 
 	Trigger->SetCollisionProfileName(TEXT("Item"));
 
-	// Enable physics simulation
-	Mesh->SetSimulatePhysics(true);
-	// Ensure it has a suitable collision profile
-	Mesh->SetCollisionProfileName(TEXT("PhysicsActor"));
+	// Make Mesh Collision Profile to NoCollision because the TriggerBox has the Item Collision Profile
+	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 void

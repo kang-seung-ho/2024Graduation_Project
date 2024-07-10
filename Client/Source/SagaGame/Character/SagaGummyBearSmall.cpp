@@ -5,10 +5,14 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+#include "AI/SagaSmallBearAIController.h"
+
 // Sets default values
 ASagaGummyBearSmall::ASagaGummyBearSmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	AIControllerClass = ASagaSmallBearAIController::StaticClass();
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/NPCAssets/Modeling/Bear.Bear'"));
 	if (MeshAsset.Succeeded())
@@ -31,7 +35,7 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 		mMesh->SetAnimInstanceClass(AnimAsset.Class);
 	}
 
-	AIControllerClass = ASagaMonsterAIController::StaticClass();
+	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 

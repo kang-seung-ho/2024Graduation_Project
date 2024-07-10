@@ -1,7 +1,4 @@
 #include "AI/SagaMonsterAIController.h"
-#include <BehaviorTree/BehaviorTree.h>
-#include <BehaviorTree/BlackboardData.h>
-#include <BehaviorTree/BlackboardComponent.h>
 
 #include "SagaGameInfo.h"
 
@@ -26,12 +23,17 @@ ASagaMonsterAIController::ASagaMonsterAIController()
 	mSightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	mSightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 
-	mAIPerception->SetDominantSense(mSightConfig->GetSenseImplementation());
 	mAIPerception->ConfigureSense(*mSightConfig);
 
+	mDamageConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Damage>(TEXT("DamageConfig"));
 	
+	mDamageConfig->SetMaxAge(1.f);
 
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/AI/BB_SagaSmallBear.BB_SagaSmallBear'"));
+	mAIPerception->ConfigureSense(*mDamageConfig);
+
+	mAIPerception->SetDominantSense(mSightConfig->GetSenseImplementation());
+
+	/*static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/AI/BB_SagaSmallBear.BB_SagaSmallBear'"));
 	if(nullptr != BBAssetRef.Object)
 	{
 		BBAsset = BBAssetRef.Object;
@@ -41,32 +43,48 @@ ASagaMonsterAIController::ASagaMonsterAIController()
 	if(nullptr != BTAssetRef.Object)
 	{
 		BTAsset = BTAssetRef.Object;
-	}
+	}*/
 }
 
-void ASagaMonsterAIController::RunAI()
-{
-	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
-	if (UseBlackboard(BBAsset, BlackboardPtr))
-	{
-		bool RunResult = RunBehaviorTree(BTAsset);
-	}
-}
-
-void ASagaMonsterAIController::StopAI()
-{
-	UBehaviorTreeComponent* BTComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
-	if (BTComponent)
-	{
-		BTComponent->StopTree();
-	}
-}
+//void ASagaMonsterAIController::RunAI()
+//{
+//	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
+//	if (UseBlackboard(BBAsset, BlackboardPtr))
+//	{
+//		bool RunResult = RunBehaviorTree(BTAsset);
+//	}
+//}
+//
+//void ASagaMonsterAIController::StopAI()
+//{
+//	UBehaviorTreeComponent* BTComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+//	if (BTComponent)
+//	{
+//		BTComponent->StopTree();
+//	}
+//}
 
 void ASagaMonsterAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	RunAI();
+	if(IsValid(mAITreeAsset) && IsValid(mBlackboardAsset))
+	{
+		//Set the blackboard to use and use the data in the blackboard through the AI controller which has the BlackboardComponent.
+		UBlackboardComponent* BlackboardRef = Blackboard;
+		if(UseBlackboard(mBlackboardAsset, BlackboardRef))
+		{
+			//Run the behavior tree
+			RunBehaviorTree(mAITreeAsset);
+		}
+	}
+}
+
+void ASagaMonsterAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
+
 }
 
 void ASagaMonsterAIController::BeginPlay()
@@ -74,6 +92,8 @@ void ASagaMonsterAIController::BeginPlay()
 	Super::BeginPlay();
 
 	mAIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &ThisClass::OnTargetDetect);
+
+	mAIPerception->OnTargetPerceptionForgotten.AddDynamic(this, &ThisClass::OnTargetForget);
 }
 
 void ASagaMonsterAIController::Tick(float DeltaTime)
@@ -84,4 +104,20 @@ void ASagaMonsterAIController::Tick(float DeltaTime)
 void ASagaMonsterAIController::OnTargetDetect(AActor* Target, FAIStimulus const Stimulus)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Detected"));
+	
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		Blackboard->SetValueAsObject(TEXT("Target"), Target);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Successfully Sensed"));
+	}
+	else
+	{
+		Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Lost Target Sense"));
+	}
+}
+
+void ASagaMonsterAIController::OnTargetForget(AActor* Target)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Forgotten"));
 }

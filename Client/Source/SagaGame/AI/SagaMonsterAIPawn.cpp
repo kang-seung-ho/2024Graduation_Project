@@ -8,17 +8,17 @@ ASagaMonsterAIPawn::ASagaMonsterAIPawn()
 {
 	AIControllerClass = ASagaMonsterAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-   
+       
 
     mCapsule->SetCollisionProfileName(TEXT("Enemy"));
+
+    mMovement->MaxSpeed = 400.f;
 }
 
 void ASagaMonsterAIPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-    // �������� ���� ������ Ȯ��
     if (!HasAuthority())
     {
         return;
@@ -28,7 +28,6 @@ void ASagaMonsterAIPawn::BeginPlay()
     AutoPossessAI = EAutoPossessAI::Spawned;
 
 
-    // �ʿ��� ��� �⺻ ��Ʈ�ѷ��� ����
     /*if (AIControllerClass != nullptr && GetController() == nullptr)
     {
         SpawnDefaultController();
@@ -44,10 +43,11 @@ float ASagaMonsterAIPawn::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
     DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+    UAISense_Damage::ReportDamageEvent(GetWorld(), this, EventInstigator, DamageAmount, DamageCauser->GetActorLocation(), GetActorLocation());
 
-    DetachFromControllerPendingDestroy();
+    /*DetachFromControllerPendingDestroy();
 
-    Destroy();
+    Destroy();*/
 
     return DamageAmount;
 }

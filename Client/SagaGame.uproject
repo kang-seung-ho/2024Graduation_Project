@@ -39,7 +39,8 @@
 				"Engine",
 				"UMG",
 				"CoreUObject",
-				"SagaFramework"
+				"SagaFramework",
+				"AIModule"
 			]
 		}
 	],
