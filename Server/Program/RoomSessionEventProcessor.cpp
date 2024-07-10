@@ -9,7 +9,7 @@ import Iconer.App.PacketSerializer;
 void
 ServerFramework::EventOnUserList(iconer::app::User& user, std::byte* data)
 {
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -22,7 +22,7 @@ ServerFramework::EventOnChangeTeam(iconer::app::User& user, std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -62,7 +62,7 @@ ServerFramework::EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t
 
 	auto& ctx = user.roomContext;
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -90,28 +90,74 @@ ServerFramework::EventOnGameStartSignal(iconer::app::User& user, std::byte* data
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
-		if (room->TryStartGame())
+		auto & ctx = user.mainContext;
+
+		if (ctx->TryChangeOperation(OpSignIn, OpCreateGame))
 		{
-			room->Foreach([&](iconer::app::User& mem)
+			if (not myTaskPool.Schedule(ctx, user.GetID(), static_cast<unsigned long>(room->GetID())))
 			{
-				auto [pk, length] = iconer::app::Serialize(SC_SET_TEAM, id, team);
-
-				sender->myBuffer = std::move(pk);
-
-				mem.SendGeneralData(*sender, static_cast<size_t>(length));
+				ctx->TryChangeOperation(OpCreateGame, OpSignIn);
 			}
 		}
-				};
+	}
+}
+
+void
+ServerFramework::EventOnMakeGame(iconer::app::User& user)
+{
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+
+	const auto room = user.GetRoom();
+
+	if (nullptr != room) LIKELY
+	{
+		if (room->TryStartGame()) LIKELY
+		{
+			room->startingMemberProceedCount = 0;
+
+			room->Foreach([&](iconer::app::User& mem)
+				{
+					auto& ctx = mem.mainContext;
+
+					if (ctx->TryChangeOperation(OpSignIn, OpReadyGame)) LIKELY
+					{
+						const auto mem_room = mem.GetRoom();
+
+						if (nullptr == mem_room)
+						{
+
+						}
+						else if (mem_room != room) UNLIKELY
+						{
+							auto before = room;
+							mem.myRoom.compare_exchange_strong(before, nullptr);
+							ctx->TryChangeOperation(OpSignIn, OpReadyGame);
+						}
+						else if (not mem.IsConnected()) UNLIKELY
+						{
+							mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
+						}
+						else LIKELY
+						{
+						};
+					};
+
+					room->startingMemberProceedCount.fetch_add(1);
+				}
+			);
+		};
+	};
 }
 
 void
 ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data)
 {
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{

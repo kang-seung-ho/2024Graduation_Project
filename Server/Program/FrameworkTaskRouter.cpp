@@ -34,6 +34,27 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpReadyGame:
+	{
+	}
+	break;
+
+	case OpCreateGame:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed creating a game from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnMakeGame(*user);
+	}
+	break;
+
 	case OpNotifyTeam:
 	{
 		const auto user = userManager.FindUser(id);
@@ -68,7 +89,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		EventOnNotifyRoomJoin(*user);
 
-		std::println("User {} joined to room {}.", id, user->myRoom.load()->GetID());
+		std::println("User {} joined to room {}.", id, user->GetRoom()->GetID());
 	}
 	break;
 
@@ -87,7 +108,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		// task_ctx is the roomContext of user
 		task_ctx->TryChangeOperation(OpCreateRoom, None);
 
-		std::println("User {} created a room {}.", id, user->myRoom.load()->GetID());
+		std::println("User {} created a room {}.", id, user->GetRoom()->GetID());
 	}
 	break;
 

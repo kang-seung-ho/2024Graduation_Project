@@ -10,7 +10,7 @@ import <print>;
 void
 ServerFramework::OnUserDisconnected(iconer::app::User* user)
 {
-	const auto room = user->myRoom.load();
+	const auto room = user->GetRoom();
 
 	if (nullptr != room)
 	{

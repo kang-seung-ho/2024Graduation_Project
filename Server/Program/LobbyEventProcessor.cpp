@@ -123,7 +123,7 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 
 	auto& ctx = user.roomContext;
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room)
 	{
@@ -164,7 +164,7 @@ ServerFramework::EventOnFailedToNotifyRoomJoin(iconer::app::User& user)
 	auto& ctx = user.roomContext;
 	ctx->TryChangeOperation(OpEnterRoom, None);
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room)
 	{
@@ -178,7 +178,7 @@ ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.myRoom.load();
+	const auto room = user.GetRoom();
 
 	if (nullptr != room)
 	{

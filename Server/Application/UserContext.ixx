@@ -25,6 +25,7 @@ export namespace iconer::app
 		static inline constexpr size_t roomCreateFailedPacketSize = 3 + sizeof(iconer::app::RoomContract);
 		static inline constexpr size_t roomJoinedPacketSize = 3 + sizeof(std::int32_t) * 2 + 32;
 		static inline constexpr size_t roomJoinFailedPacketSize = 3 + sizeof(iconer::app::RoomContract);
+		static inline constexpr size_t gameReadyPacketSize = 3;
 
 		iconer::util::ReadOnly<id_type> ownerId;
 		iconer::util::ReadOnly<class User*> ownerHandle;
@@ -44,6 +45,8 @@ export namespace iconer::app
 
 			(void)SerializeAt(roomJoinedPacketData, PacketProtocol::SC_ROOM_JOINED, small_id, -1);
 			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
+
+			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
 		}
 
 		[[nodiscard]]
@@ -51,13 +54,13 @@ export namespace iconer::app
 		{
 			return signInPacketData;
 		}
-		
+
 		[[nodiscard]]
 		constexpr auto& GetSignInFailurePacketData() const noexcept
 		{
 			return signInFailedPacketData;
 		}
-		
+
 		[[nodiscard]]
 		constexpr auto& GetRoomCreatedPacketData(std::int32_t room_id) noexcept
 		{
@@ -65,7 +68,7 @@ export namespace iconer::app
 
 			return roomCreatedPacketData;
 		}
-		
+
 		[[nodiscard]]
 		constexpr auto& GetRoomCreateFailedPacketData(iconer::app::RoomContract reason) noexcept
 		{
@@ -90,6 +93,12 @@ export namespace iconer::app
 			return roomJoinFailedPacketData;
 		}
 
+		[[nodiscard]]
+		static constexpr auto& GetGameReadyPacketData() noexcept
+		{
+			return gameReadyPacketData;
+		}
+
 	private:
 		std::array<std::byte, signInPacketSize> signInPacketData{};
 		std::array<std::byte, signInFailedPacketSize> signInFailedPacketData{};
@@ -97,5 +106,12 @@ export namespace iconer::app
 		std::array<std::byte, roomCreateFailedPacketSize> roomCreateFailedPacketData{};
 		std::array<std::byte, roomJoinedPacketSize> roomJoinedPacketData{};
 		std::array<std::byte, roomJoinFailedPacketSize> roomJoinFailedPacketData{};
+
+		// 139 => SC_GAME_GETTING_READY
+		// 3 => size
+		static inline constexpr std::array<std::byte, gameReadyPacketSize> gameReadyPacketData
+		{
+			(std::byte)139, (std::byte)3, (std::byte)0
+		};
 	};
 }

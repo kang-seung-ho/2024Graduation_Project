@@ -88,6 +88,7 @@ export namespace iconer::app
 		static inline constexpr std::int16_t maxSerializeMemberDataSize = 3 + SerializedMember::GetSerializedSize() * userLimits + sizeof(size_t);
 
 		std::atomic_bool isStartingGame;
+		std::atomic_int32_t startingMemberProceedCount;
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};

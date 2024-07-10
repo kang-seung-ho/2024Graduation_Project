@@ -122,6 +122,18 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
+		iconer::app::Room* GetRoom() const noexcept
+		{
+			return myRoom.load();
+		}
+
+		[[nodiscard]]
+		iconer::app::Room* GetRoom() const volatile noexcept
+		{
+			return myRoom.load();
+		}
+
+		[[nodiscard]]
 		bool IsConnected() const volatile noexcept
 		{
 			return isConnected.load(std::memory_order_acquire);
