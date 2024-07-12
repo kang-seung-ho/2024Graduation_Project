@@ -29,6 +29,7 @@ void ASagaAIPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	mAnimInst = mMesh->GetAnimInstance();
 }
 
 void ASagaAIPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)

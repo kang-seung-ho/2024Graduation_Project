@@ -35,7 +35,7 @@ EBTNodeResult::Type USagaBTTask_TraceTarget::ExecuteTask(UBehaviorTreeComponent&
 		Controller->StopMovement();
 
 		//switch the animation to IDLE
-
+		Monster->ChangeAnim(EAIMonsterAnim::Idle);
 
 		return EBTNodeResult::Failed;
 	}
@@ -44,7 +44,7 @@ EBTNodeResult::Type USagaBTTask_TraceTarget::ExecuteTask(UBehaviorTreeComponent&
 	UAIBlueprintHelperLibrary::SimpleMoveToActor(Controller, Target);
 
 	//Switch the animation to Moving motion
-
+	Monster->ChangeAnim(EAIMonsterAnim::Run);
 
 	// The task is not completed until the AI reaches the target
 	// So it has to keep checking whether the AI reaches the target or not.
@@ -67,7 +67,7 @@ void USagaBTTask_TraceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 		Controller->StopMovement();
 
 		// Switch the animation to Idle.
-		
+		Monster->ChangeAnim(EAIMonsterAnim::Idle);
 
 		return;
 	}
@@ -81,17 +81,60 @@ void USagaBTTask_TraceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 		Controller->StopMovement();
 
 		// Switch the animation to Idle
-		
+		Monster->ChangeAnim(EAIMonsterAnim::Idle);
 
 		return;
 	}
 
 	// Rotate to the target's direction in order to face the target when moving
+	// Get the direction to the target
+	//FVector TargetLocation = Target->GetActorLocation();
+	//FVector MonsterLocation = Monster->GetActorLocation();
+
+	////using the speed vector
+	////FVector Velocity = Monster->GetMovementComponent()->Velocity;
+
+	//TargetLocation.Z = 0.0;
+	//MonsterLocation.Z = 0.0;
+
+	//FVector Dir = TargetLocation - MonsterLocation;
+	//// Normalize the direction
+	//Dir.Normalize();
+
+	//// Get the rotation / only Yaw value
+	//FRotator DirRot = Dir.Rotation();
+
+	//Monster->SetActorRotation(FRotator(0.0, DirRot.Yaw, 0.0));
+
+	// Check whether the AI has reached the target
+	FVector TargetLocation = Target->GetActorLocation();
+	FVector MonsterLocation = Monster->GetActorLocation();
+
+	MonsterLocation.Z -= Monster->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	UCapsuleComponent* TargetCapsule = Cast<UCapsuleComponent>(Target->GetRootComponent());
+	if (IsValid(TargetCapsule))
+	{
+		TargetLocation.Z -= TargetCapsule->GetScaledCapsuleHalfHeight();
+	}
+
+	float Distance = FVector::Distance(MonsterLocation, TargetLocation);
+
+	// If the AI reaches the attack range, start the attack
+	if (Distance < 150.f)
+	{
+		//The attack will only work if the state is failure.
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+
+		Controller->StopMovement();
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Trace End"));
+	}
 
 }
 
 void USagaBTTask_TraceTarget::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
 {
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+
 
 }

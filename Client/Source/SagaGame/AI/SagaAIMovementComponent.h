@@ -10,4 +10,6 @@ class SAGAGAME_API USagaAIMovementComponent : public UFloatingPawnMovement
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

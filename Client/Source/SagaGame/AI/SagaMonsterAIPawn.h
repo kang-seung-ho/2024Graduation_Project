@@ -12,6 +12,15 @@ class SAGAGAME_API ASagaMonsterAIPawn : public ASagaAIPawn
 public:
 	ASagaMonsterAIPawn();
 
+	UPROPERTY()
+	float AIHP = 200.f;
+
+protected:
+	TObjectPtr<class UAIMonsterAnimInstance> mMonsterAnim;
+
+public:
+	void ChangeAnim(EAIMonsterAnim Anim);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionComponent* mAIPerception; //This is Actor component type

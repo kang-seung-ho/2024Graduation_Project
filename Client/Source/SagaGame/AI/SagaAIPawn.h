@@ -29,6 +29,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USagaAIMovementComponent> mMovement;
 
+	TObjectPtr<UAnimInstance> mAnimInst;
+
 	FAIDeathDelegate mDeathDelegate;
 
 #if WITH_EDITORONLY_DATA
@@ -40,6 +42,11 @@ public:
 	UCapsuleComponent* GetCapsuleComponent() const
 	{
 		return mCapsule;
+	}
+
+	USagaAIMovementComponent* GetMovementComponent()
+	{
+		return mMovement;	
 	}
 
 protected:

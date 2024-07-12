@@ -15,4 +15,14 @@
 
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
-//#include "SagaAIInfo.generated.h"
+#include "SagaAIInfo.generated.h"
+
+UENUM(BlueprintType)
+enum class EAIMonsterAnim : uint8
+{
+	Idle,
+	Walk,
+	Run,
+	Attack,
+	Death
+};

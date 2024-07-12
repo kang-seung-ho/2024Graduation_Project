@@ -6,6 +6,7 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 #include "AI/SagaSmallBearAIController.h"
+#include "AI/AIMonsterAnimInstance.h"
 
 // Sets default values
 ASagaGummyBearSmall::ASagaGummyBearSmall()
@@ -29,7 +30,7 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 	mMesh->SetWorldScale3D(FVector(0.3, 0.3, 0.3));
 	mMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/NPCAssets/Animation/AB_GummyBear.AB_GummyBear_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimAsset(TEXT("AnimBlueprint'/Game/AI/AB_SmallBear.AB_SmallBear_C'"));
 	if (AnimAsset.Succeeded())
 	{
 		mMesh->SetAnimInstanceClass(AnimAsset.Class);
@@ -44,6 +45,7 @@ void ASagaGummyBearSmall::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//mAnimInst = Cast<UAIMonsterAnimInstance>(mMesh->GetAnimInstance());
 }
 
 // Called every frame
