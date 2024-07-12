@@ -34,6 +34,14 @@ iconer::app::User::EndClose()
 
 	roomContext->SetOperation(TaskCategory::None);
 
+	if (iconer::app::Room* room = GetRoom(); nullptr != room)
+	{
+		if (room->IsStartingGame())
+		{
+			room->gameLoadedMemberProceedCount.fetch_add(1);
+		}
+	}
+
 	myReceiver.EndClose();
 }
 

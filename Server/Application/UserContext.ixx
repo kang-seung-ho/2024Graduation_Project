@@ -99,6 +99,12 @@ export namespace iconer::app
 			return gameReadyPacketData;
 		}
 
+		[[nodiscard]]
+		static constexpr auto& GetGameStartPacketData() noexcept
+		{
+			return gameStartPacketData;
+		}
+
 	private:
 		std::array<std::byte, signInPacketSize> signInPacketData{};
 		std::array<std::byte, signInFailedPacketSize> signInFailedPacketData{};
@@ -109,9 +115,15 @@ export namespace iconer::app
 
 		// 139 => SC_GAME_GETTING_READY
 		// 3 => size
-		static inline constexpr std::array<std::byte, gameReadyPacketSize> gameReadyPacketData
+		static inline constexpr std::array<std::byte, 3> gameReadyPacketData
 		{
-			(std::byte)139, (std::byte)3, (std::byte)0
+			(std::byte)139U, (std::byte)3U, (std::byte)0U
+		};
+		// 138 => SC_GAME_START
+		// 3 => size
+		static inline constexpr std::array<std::byte, 3> gameStartPacketData
+		{
+			(std::byte)138U, (std::byte)3U, (std::byte)0U
 		};
 	};
 }

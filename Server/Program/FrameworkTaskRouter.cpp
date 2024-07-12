@@ -39,6 +39,22 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	}
 	break;
 
+	case OpSpreadGameTicket:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnSpreadGameTickets(*user);
+	}
+	break;
+
 	case OpCreateGame:
 	{
 		const auto user = userManager.FindUser(id);
@@ -131,9 +147,9 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		// task_ctx is the roomContext of user
 
 		const auto room_id = bytes;
-		const auto room = roomManager.FindRoom(room_id);
+		const auto place = roomManager.FindRoom(room_id);
 
-		if (not room.has_value()) UNLIKELY
+		if (not place.has_value()) UNLIKELY
 		{
 			std::println("Unknown operation of room creation from id {} has no room. ({} bytes)", id, bytes);
 

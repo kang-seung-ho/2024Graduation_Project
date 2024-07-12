@@ -21,7 +21,7 @@ ServerFramework::EventOnMakeRoom(iconer::app::User& user, std::byte* data)
 
 		if (ptr.has_value()) LIKELY
 		{
-			const auto room = ptr.value();
+			iconer::app::Room* const room = ptr.value();
 
 			constexpr auto len = iconer::app::Settings::roomTitleLength;
 
@@ -81,7 +81,7 @@ ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
 
 			if (room_seek.has_value()) LIKELY
 			{
-				const auto room = room_seek.value();
+				iconer::app::Room* const room = room_seek.value();
 
 				if (room->TryJoin(user))
 				{
@@ -123,7 +123,7 @@ ServerFramework::EventOnNotifyRoomJoin(iconer::app::User& user)
 
 	auto& ctx = user.roomContext;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room)
 	{
@@ -164,7 +164,7 @@ ServerFramework::EventOnFailedToNotifyRoomJoin(iconer::app::User& user)
 	auto& ctx = user.roomContext;
 	ctx->TryChangeOperation(OpEnterRoom, None);
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room)
 	{
@@ -178,7 +178,7 @@ ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room)
 	{

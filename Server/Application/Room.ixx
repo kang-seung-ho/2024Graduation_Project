@@ -14,15 +14,14 @@ import <atomic>;
 
 export namespace iconer::app
 {
-	class [[nodiscard]] User;
-
 	class [[nodiscard]] Member
 	{
-	private:
-		using pointer = iconer::app::User*;
-
 	public:
-		std::atomic<pointer> userHandle{};
+		using pointer_type = class User*;
+		using reference = class User&;
+		using const_reference = class User const&;
+
+		std::atomic<pointer_type> userHandle{};
 		char team_id{};
 		char myWeapon;
 		std::atomic_bool isReady;
@@ -30,21 +29,34 @@ export namespace iconer::app
 		Member() noexcept = default;
 
 		[[nodiscard]]
-		bool TryJoin(pointer user) noexcept
+		bool TryJoin(pointer_type user) noexcept
 		{
-			pointer null = nullptr;
+			pointer_type null = nullptr;
 
 			return userHandle.compare_exchange_strong(null, user);
 		}
 
 		[[nodiscard]]
-		bool ChangedToEmpty(pointer before_user, std::memory_order order = std::memory_order_release) noexcept
+		bool ChangedToEmpty(pointer_type before_user, std::memory_order order = std::memory_order_release) noexcept
 		{
 			return userHandle.compare_exchange_strong(before_user, nullptr, order);
 		}
 
 		[[nodiscard]]
-		pointer GetStoredUser(std::memory_order order = std::memory_order_acquire) const volatile noexcept
+		bool TryReady() noexcept
+		{
+			bool before = false;
+			return isReady.compare_exchange_strong(before, true);
+		}
+
+		bool UnReady() noexcept
+		{
+			bool before = true;
+			return isReady.compare_exchange_strong(before, false);
+		}
+
+		[[nodiscard]]
+		pointer_type GetStoredUser(std::memory_order order = std::memory_order_acquire) const volatile noexcept
 		{
 			return userHandle.load(order);
 		}
@@ -71,6 +83,11 @@ export namespace iconer::app
 		}
 	};
 
+	enum class [[nodiscard]] RoomState
+	{
+		Idle, PrepareGame, Gaming
+	};
+
 	class [[nodiscard]] Room : public ISession
 	{
 	public:
@@ -78,17 +95,18 @@ export namespace iconer::app
 		using this_class = Room;
 		using id_type = super::id_type;
 		using session_type = Member;
-		using pointer_type = iconer::app::User*;
-		using reference = iconer::app::User&;
-		using const_reference = const iconer::app::User&;
+		using pointer_type = session_type::pointer_type;
+		using reference = session_type::reference;
+		using const_reference = session_type::const_reference;
 		using size_type = std::int32_t;
 
 		static inline constexpr size_t userLimits = Settings::roomMembersLimit;
 		static inline constexpr size_t titleLength = Settings::roomTitleLength;
 		static inline constexpr std::int16_t maxSerializeMemberDataSize = 3 + SerializedMember::GetSerializedSize() * userLimits + sizeof(size_t);
 
-		std::atomic_bool isStartingGame;
+		std::atomic<RoomState> myState;
 		std::atomic_int32_t startingMemberProceedCount;
+		std::atomic_int32_t gameLoadedMemberProceedCount;
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};
@@ -113,15 +131,15 @@ export namespace iconer::app
 		[[nodiscard]]
 		bool TryStartGame() noexcept
 		{
-			bool flag = false;
-			return isStartingGame.compare_exchange_strong(flag, true, std::memory_order_acq_rel);
+			RoomState state{ RoomState::Idle };
+			return myState.compare_exchange_strong(state, RoomState::PrepareGame, std::memory_order_acq_rel);
 		}
-		
+
 		[[nodiscard]]
 		bool CancelStartGame() noexcept
 		{
-			bool flag = true;
-			return isStartingGame.compare_exchange_strong(flag, false, std::memory_order_acq_rel);
+			RoomState state{ RoomState::PrepareGame };
+			return myState.compare_exchange_strong(state, RoomState::Idle, std::memory_order_acq_rel);
 		}
 
 		template<invocable<reference> Callable>
@@ -181,6 +199,18 @@ export namespace iconer::app
 			return isTaken.load(std::memory_order_acquire);
 		}
 
+		[[nodiscard]]
+		bool IsIdle() const noexcept
+		{
+			return RoomState::Idle == myState.load(std::memory_order_acquire);
+		}
+		
+		[[nodiscard]]
+		bool IsStartingGame() const noexcept
+		{
+			return RoomState::PrepareGame == myState.load(std::memory_order_acquire);
+		}
+
 	private:
 		std::atomic_bool isTaken{};
 		std::wstring myTitle{};
@@ -195,5 +225,10 @@ export namespace iconer::app
 		{
 			return isTaken.compare_exchange_strong(before, flag, order);
 		}
+
+		Room(const Room&) = delete;
+		Room& operator=(const Room&) = delete;
+		Room(Room&&) = delete;
+		Room& operator=(Room&&) = delete;
 	};
 }

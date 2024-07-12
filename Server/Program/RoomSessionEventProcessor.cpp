@@ -9,7 +9,7 @@ import Iconer.App.PacketSerializer;
 void
 ServerFramework::EventOnUserList(iconer::app::User& user, std::byte* data)
 {
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -22,7 +22,7 @@ ServerFramework::EventOnChangeTeam(iconer::app::User& user, std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -62,7 +62,7 @@ ServerFramework::EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t
 
 	auto& ctx = user.roomContext;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -90,7 +90,7 @@ ServerFramework::EventOnGameStartSignal(iconer::app::User& user, std::byte* data
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
@@ -109,58 +109,135 @@ ServerFramework::EventOnGameStartSignal(iconer::app::User& user, std::byte* data
 void
 ServerFramework::EventOnMakeGame(iconer::app::User& user)
 {
+	auto& master_ctx = user.mainContext;
+
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
 
-	const auto room = user.GetRoom();
+	iconer::app::Room* const room = user.GetRoom();
+	bool cancelled = false;
 
 	if (nullptr != room) LIKELY
 	{
 		if (room->TryStartGame()) LIKELY
 		{
 			room->startingMemberProceedCount = 0;
+			room->gameLoadedMemberProceedCount = 0;
 
-			room->Foreach([&](iconer::app::User& mem)
-				{
-					auto& ctx = mem.mainContext;
+			if (0 < room->GetMemberCount()) LIKELY
+			{
+				master_ctx->TryChangeOperation(OpCreateGame, OpSignIn);
 
-					if (ctx->TryChangeOperation(OpSignIn, OpReadyGame)) LIKELY
+				room->Foreach([&](iconer::app::User& mem)
 					{
-						const auto mem_room = mem.GetRoom();
+						auto& ctx = mem.mainContext;
 
-						if (nullptr == mem_room)
+						if (ctx->TryChangeOperation(OpSignIn, OpSpreadGameTicket)) LIKELY
 						{
+							const auto mem_room = mem.GetRoom();
 
-						}
-						else if (mem_room != room) UNLIKELY
-						{
-							auto before = room;
-							mem.myRoom.compare_exchange_strong(before, nullptr);
-							ctx->TryChangeOperation(OpSignIn, OpReadyGame);
-						}
-						else if (not mem.IsConnected()) UNLIKELY
-						{
-							mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
-						}
-						else LIKELY
-						{
+							if (nullptr == mem_room) UNLIKELY
+							{
+								ctx->TryChangeOperation(OpSpreadGameTicket, None);
+
+								cancelled = true;
+							}
+							else if (not mem.IsConnected()) UNLIKELY
+							{
+								ctx->TryChangeOperation(OpSpreadGameTicket, None);
+								mem.myRoom = nullptr;
+
+								cancelled = true;
+							}
+							else if (mem_room != room) UNLIKELY
+							{
+								ctx->TryChangeOperation(OpSpreadGameTicket, OpSignIn);
+
+								cancelled = true;
+							}
+							else if (cancelled) UNLIKELY
+							{
+							}
+							else LIKELY
+							{
+								mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
+							};
 						};
-					};
 
-					room->startingMemberProceedCount.fetch_add(1);
-				}
-			);
+						room->startingMemberProceedCount.fetch_add(1);
+					}
+				);
+			}
+			else UNLIKELY
+			{
+				cancelled = true;
+			};
 		};
+	};
+
+	if (cancelled) UNLIKELY
+	{
+		room->Foreach([&](iconer::app::User& mem)
+			{
+				auto& ctx = mem.mainContext;
+
+				if (user.IsConnected())
+				{
+					ctx->TryChangeOperation(OpCreateGame, OpSignIn);
+				}
+				else
+				{
+					ctx->TryChangeOperation(OpCreateGame, None);
+				}
+			}
+		);
+
+		room->CancelStartGame();
+	};
+}
+
+void
+ServerFramework::EventOnSpreadGameTickets(iconer::app::User& user)
+{
+	iconer::app::Room* const room = user.GetRoom();
+
+	if (nullptr != room) LIKELY
+	{
+		room->startingMemberProceedCount.fetch_add(1);
 	};
 }
 
 void
 ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data)
 {
-	const auto room = user.GetRoom();
+	using enum iconer::app::RoomState;
+
+	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
+		auto & cnt = room->gameLoadedMemberProceedCount;
 
+		cnt.fetch_add(1);
+
+		if (room->GetMemberCount() <= cnt)
+		{
+			iconer::app::RoomState state = PrepareGame;
+
+			if (room->myState.compare_exchange_strong(state, Gaming))
+			{
+				room->Foreach([&](iconer::app::User& mem)
+					{
+						auto& ctx = mem.mainContext;
+
+						mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
+					}
+				);
+			}
+			else
+			{
+				// TODO
+			}
+		}
 	};
 }

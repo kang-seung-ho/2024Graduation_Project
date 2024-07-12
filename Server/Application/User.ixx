@@ -18,7 +18,6 @@ import <atomic>;
 
 export namespace iconer::app
 {
-	class [[nodiscard]] Room;
 	class [[nodiscard]] SendContext;
 
 	class [[nodiscard]] User : public ISession
@@ -39,7 +38,7 @@ export namespace iconer::app
 		//static inline constinit std::mdspan userRoomTable{ globalMemberTable, std::extents<size_t, Settings::usersLimit, Settings::roomMembersLimit>{} };
 
 		std::wstring myName{};
-		std::atomic<Room*> myRoom{};
+		std::atomic<class Room*> myRoom{};
 
 		iconer::util::ReadOnly<UserContext> mainContext;
 		iconer::util::ReadOnly<TaskContext> recvContext{};
@@ -122,13 +121,13 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		iconer::app::Room* GetRoom() const noexcept
+		auto GetRoom() const noexcept
 		{
 			return myRoom.load();
 		}
 
 		[[nodiscard]]
-		iconer::app::Room* GetRoom() const volatile noexcept
+		auto GetRoom() const volatile noexcept
 		{
 			return myRoom.load();
 		}
@@ -144,5 +143,11 @@ export namespace iconer::app
 		{
 			return lhs.GetID() == rhs.GetID();
 		}
+
+	private:
+		User(const User&) = delete;
+		User& operator=(const User&) = delete;
+		User(User&&) = delete;
+		User& operator=(User&&) = delete;
 	};
 }

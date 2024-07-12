@@ -22,9 +22,9 @@ export namespace iconer::app
 		CS_ROOM_MATCH,
 		CS_ROOM_LEAVE,
 
-		CS_SET_TEAM,
-		CS_READY,
-		CS_GAME_START, // 방장
+		CS_SET_TEAM, // 12
+		CS_READY, // 13
+		CS_GAME_START, // 방장, 14
 		CS_GAME_LOADED, // 
 		CS_MY_POSITION, // 좌표
 		CS_MY_TRANSFORM, // 좌표, 회전각

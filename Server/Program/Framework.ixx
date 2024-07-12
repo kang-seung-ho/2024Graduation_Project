@@ -78,9 +78,11 @@ private:
 	/* Broadcast the changed team state to members */
 	void EventOnChangeTeam(iconer::app::User& user, std::byte* data);
 	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
-	/* Broadcast signals to members */
+	/* Schdule a room for game */
 	void EventOnGameStartSignal(iconer::app::User& user, std::byte* data);
+	/* Broadcast game ticket to members */
 	void EventOnMakeGame(iconer::app::User& user);
+	void EventOnSpreadGameTickets(iconer::app::User& user);
 	/* Mark the player ready and starts game if they all are ready */
 	void EventOnGameReadySignal(iconer::app::User& user, std::byte* data);
 
