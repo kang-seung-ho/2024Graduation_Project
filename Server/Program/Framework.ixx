@@ -2,13 +2,11 @@ export module Iconer.Framework;
 import Iconer.Net.IFramework;
 import Iconer.Utility.TypeTraits;
 import Iconer.Utility.Container.AtomicQueue;
-import Iconer.Net.ErrorCode;
 import Iconer.Net.IoResult;
 import Iconer.App.UserManager;
 import Iconer.App.RoomManager;
 import Iconer.App.User;
 import Iconer.App.Room;
-import Iconer.App.TaskContext;
 import Iconer.App.PacketProtocol;
 import Iconer.App.Settings;
 import Iconer.ThreadPool;
@@ -85,6 +83,7 @@ private:
 	void EventOnSpreadGameTickets(iconer::app::User& user);
 	/* Mark the player ready and starts game if they all are ready */
 	void EventOnGameReadySignal(iconer::app::User& user, std::byte* data);
+	void EventOnRpc(iconer::app::User& user, std::byte* data);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;

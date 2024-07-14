@@ -5,6 +5,7 @@ module;
 module Iconer.Framework;
 import Iconer.App.User;
 import Iconer.App.Room;
+import Iconer.App.TaskCategory;
 import Iconer.App.SendContext;
 import Iconer.App.PacketSerializer;
 

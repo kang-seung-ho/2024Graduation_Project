@@ -1,11 +1,14 @@
 export module Iconer.App.Room;
+import Iconer.Utility.TypeTraits;
 import Iconer.Utility.ReadOnly;
 import Iconer.Utility.Delegate;
 import Iconer.Utility.Container.AtomicQueue;
 import Iconer.Net.ErrorCode;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
+import Iconer.App.GameSession;
 import Iconer.App.Settings;
+import <chrono>;
 import <span>;
 import <string_view>;
 import <string>;
@@ -21,10 +24,19 @@ export namespace iconer::app
 		using reference = class User&;
 		using const_reference = class User const&;
 
+		static inline constexpr float maxHp = 500;
+
 		std::atomic<pointer_type> userHandle{};
 		char team_id{};
-		char myWeapon;
+		std::atomic_uint8_t myWeapon;
 		std::atomic_bool isReady;
+		std::atomic_bool isRidingGuardian;
+		std::atomic<float> myHp{ maxHp };
+		std::chrono::system_clock::time_point respawnTime;
+
+		SagaTeamStatus sagaTeams[2]{};
+		SagaSummonPoint sagaSummons[3]{};
+		SagaGuardian sagaGuardians[3]{};
 
 		Member() noexcept = default;
 
@@ -53,6 +65,40 @@ export namespace iconer::app
 		{
 			bool before = true;
 			return isReady.compare_exchange_strong(before, false);
+		}
+
+		template<invocable<reference> Callable>
+		bool ProcessMember(pointer_type user, Callable&& fun) const noexcept(nothrow_invocable<Callable, reference>)
+		{
+			const auto mem_ptr = GetStoredUser();
+
+			if (nullptr != mem_ptr and user == mem_ptr)
+			{
+				std::forward<Callable>(fun)(*user);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		template<invocable<const_reference> Callable>
+		bool ProcessMember(pointer_type user, Callable&& fun) const noexcept(nothrow_invocable<Callable, const_reference>)
+		{
+			const auto mem_ptr = GetStoredUser();
+
+			if (nullptr != mem_ptr and user == mem_ptr)
+			{
+				std::forward<Callable>(fun)(*user);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		[[nodiscard]]
@@ -107,6 +153,8 @@ export namespace iconer::app
 		std::atomic<RoomState> myState;
 		std::atomic_int32_t startingMemberProceedCount;
 		std::atomic_int32_t gameLoadedMemberProceedCount;
+		std::chrono::system_clock::time_point selectionPhaseTime;
+		std::chrono::system_clock::time_point gamePhaseTime;
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};
@@ -135,11 +183,64 @@ export namespace iconer::app
 			return myState.compare_exchange_strong(state, RoomState::PrepareGame, std::memory_order_acq_rel);
 		}
 
-		[[nodiscard]]
 		bool CancelStartGame() noexcept
 		{
 			RoomState state{ RoomState::PrepareGame };
 			return myState.compare_exchange_strong(state, RoomState::Idle, std::memory_order_acq_rel);
+		}
+
+		template<invocable<session_type&> Callable>
+		bool ProcessMember(pointer_type user, Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and user == ptr)
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		template<invocable<const session_type&> Callable>
+		bool ProcessMember(pointer_type user, Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		{
+			for (const session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and user == ptr)
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		template<invocable<session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (session_type& member : myMembers)
+			{
+				std::forward<Callable>(fun)(member);
+			}
+		}
+
+		template<invocable<const session_type&> Callable>
+		constexpr void Foreach(Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
+		{
+			for (const session_type& member : myMembers)
+			{
+				std::forward<Callable>(fun)(member);
+			}
 		}
 
 		template<invocable<reference> Callable>
@@ -204,7 +305,7 @@ export namespace iconer::app
 		{
 			return RoomState::Idle == myState.load(std::memory_order_acquire);
 		}
-		
+
 		[[nodiscard]]
 		bool IsStartingGame() const noexcept
 		{
