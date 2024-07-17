@@ -2,6 +2,7 @@
 #include <Math/UnrealMathUtility.h>
 #include <UObject/Object.h>
 #include <Delegates/Delegate.h>
+#include <Async/Async.h>
 #include <Blueprint/UserWidget.h>
 
 #include "Saga/Interface/SagaUiButton.h"
@@ -122,9 +123,11 @@ ASagaCharacterChoiceLevel::HandleStartGame()
 void
 ASagaCharacterChoiceLevel::OnDisconnected()
 {
-	GetWorldTimerManager().ClearTimer(choiceTimer);
-
-	GotoPrevLevel();
+	AsyncTask(ENamedThreads::GameThread, [this]()
+		{
+			GotoPrevLevel();
+		}
+	);
 }
 
 void
