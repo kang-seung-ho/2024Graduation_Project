@@ -54,6 +54,8 @@ private:
 	FRotator lastCharacterRotation;
 	UPROPERTY()
 	TArray<TObjectPtr<class ASagaGummyBearPlayer>> everyBears;
+	UPROPERTY()
+	TArray<TObjectPtr<class AMapObstacle1>> everyItemSpawnEntities;
 
 	UFUNCTION()
 	void OnLeftRoom(int32 user_id);
