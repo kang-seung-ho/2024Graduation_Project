@@ -131,12 +131,14 @@ ASagaInGameMode::StartPlay()
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
+	break;
 
 	case ESagaPlayerTeam::Blue:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
+	break;
 
 	default:
 	{
