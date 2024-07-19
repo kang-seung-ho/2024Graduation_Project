@@ -18,6 +18,19 @@ public:
 protected:
 	TObjectPtr<class UAIMonsterAnimInstance> mMonsterAnim;
 
+	bool mAttackAnimEnd = false;
+
+public:
+	bool GetAttackAnimEnd() const
+	{ 
+		return mAttackAnimEnd;
+	}
+
+	void SetAttackAnimEnd(bool End)
+	{
+		mAttackAnimEnd = End;
+	}
+
 public:
 	void ChangeAnim(EAIMonsterAnim Anim);
 
@@ -31,5 +44,9 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	void ExecuteAttack();
+
+private:
+	ASagaMonsterAIPawn* GetPawnOwner() const;
 
 };

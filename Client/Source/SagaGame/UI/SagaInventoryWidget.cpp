@@ -170,6 +170,7 @@ void USagaInventoryWidget::UseEnergyDrink()
 	//�÷��̾� HP ȸ�� ���� �߰�
 	// + �÷��̾� HPȸ�� �� ����Ʈ ��� �߰�
 
+	//
 
 }
 

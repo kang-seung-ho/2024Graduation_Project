@@ -120,14 +120,13 @@ void USagaBTTask_TraceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8*
 	float Distance = FVector::Distance(MonsterLocation, TargetLocation);
 
 	// If the AI reaches the attack range, start the attack
-	if (Distance < 150.f)
+	if (Distance <= 150.f)
 	{
 		//The attack will only work if the state is failure.
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 
 		Controller->StopMovement();
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Trace End"));
 	}
 
 }

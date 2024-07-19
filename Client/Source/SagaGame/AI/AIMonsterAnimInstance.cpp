@@ -1,5 +1,6 @@
 #include "AI/AIMonsterAnimInstance.h"
 #include "SagaGameInfo.h"
+#include "SagaMonsterAIPawn.h"
 
 void UAIMonsterAnimInstance::NativeInitializeAnimation()
 {
@@ -31,4 +32,24 @@ void UAIMonsterAnimInstance::NativeUninitializeAnimation()
 void UAIMonsterAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
+}
+
+void UAIMonsterAnimInstance::AnimNotify_AttackEnd()
+{
+	ASagaMonsterAIPawn* Monster = Cast<ASagaMonsterAIPawn>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->SetAttackAnimEnd(true);
+	}
+}
+
+void UAIMonsterAnimInstance::AnimNotify_Attack()
+{
+	ASagaMonsterAIPawn* Monster = Cast<ASagaMonsterAIPawn>(TryGetPawnOwner());
+
+	if (IsValid(Monster))
+	{
+		Monster->ExecuteAttack();
+	}
 }

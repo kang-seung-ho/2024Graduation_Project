@@ -22,16 +22,16 @@ protected:
 	UAISenseConfig_Damage* mDamageConfig;
 
 	UPROPERTY(VisibleAnywhere)
-	float mAISightRadius = 500.0f;
+	float mAISightRadius = 400.0f;
 
 	UPROPERTY(VisibleAnywhere)
 	float mLoseSightInRadius = 150.0f; //limit the inbound radius => Making the AI Pawn not get to the exact player's location
 
 	UPROPERTY(VisibleAnywhere)
-	float mAIFieldOfView = 120.0f; //AI's perceptible angle
+	float mAIFieldOfView = 180.0f; //AI's perceptible angle
 
 	UPROPERTY(VisibleAnywhere)
-	float mAISightAge = 1.f; //AI's sight age(duration)
+	float mAISightAge = 3.f; //AI's sight age(duration)
 
 	UPROPERTY(VisibleAnywhere)
 	float mAISeenLocation = -1.f; //AI's seen location
