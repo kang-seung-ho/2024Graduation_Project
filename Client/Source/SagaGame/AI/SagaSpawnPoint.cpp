@@ -127,7 +127,7 @@ void ASagaSpawnPoint::Spawn()
 
 void ASagaSpawnPoint::DeathCallback()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Death"));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("Death"));
 
 	mSpawnActor = nullptr;
 }

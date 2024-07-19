@@ -18,6 +18,9 @@ public:
 	UFUNCTION()
 	void DestroyObstacle();
 
+	UFUNCTION()
+	void ChangeLevel();
+
 	UPROPERTY()
 	float health = 100.0f;
 
@@ -34,6 +37,9 @@ protected:
 private:
 	UPROPERTY()
 	FTimerHandle TimerHandle;
+
+	UPROPERTY()
+	FTimerHandle LevelChangeTimerHandle;
 
 public:	
 	// Called every frame

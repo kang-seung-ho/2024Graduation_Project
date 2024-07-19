@@ -103,21 +103,21 @@ void ASagaMonsterAIController::Tick(float DeltaTime)
 
 void ASagaMonsterAIController::OnTargetDetect(AActor* Target, FAIStimulus const Stimulus)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Detected"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Detected"));
 	
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		Blackboard->SetValueAsObject(TEXT("Target"), Target);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Successfully Sensed"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Successfully Sensed"));
 	}
 	else
 	{
 		Blackboard->SetValueAsObject(TEXT("Target"), nullptr);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Lost Target Sense"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Lost Target Sense"));
 	}
 }
 
 void ASagaMonsterAIController::OnTargetForget(AActor* Target)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Forgotten"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target Forgotten"));
 }

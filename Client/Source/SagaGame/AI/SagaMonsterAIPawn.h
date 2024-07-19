@@ -13,7 +13,7 @@ public:
 	ASagaMonsterAIPawn();
 
 	UPROPERTY()
-	float AIHP = 200.f;
+	float AIHP = 100.f;
 
 protected:
 	TObjectPtr<class UAIMonsterAnimInstance> mMonsterAnim;

@@ -64,6 +64,11 @@ void ASagaDestructibleMapObstacle::DestroyObstacle()
     Destroy();
 }
 
+void ASagaDestructibleMapObstacle::ChangeLevel()
+{
+    UGameplayStatics::OpenLevel(this, FName("GameEndLevel"));
+}
+
 float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
     float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -99,7 +104,9 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
         // GetWorld()->SpawnActor<ASagaItemBox>(ASagaItemBox::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
 
         // Set a timer to destroy the obstacle after 3 seconds
-        GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASagaDestructibleMapObstacle::DestroyObstacle, 3.0f, false);
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASagaDestructibleMapObstacle::DestroyObstacle, 4.0f, false);
+
+        GetWorld()->GetTimerManager().SetTimer(LevelChangeTimerHandle, this, &ASagaDestructibleMapObstacle::ChangeLevel, 3.0f, false);
     }
     else
     {

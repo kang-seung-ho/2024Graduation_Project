@@ -53,7 +53,7 @@ float ASagaMonsterAIPawn::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
     if (AIHP <= 0)
     {
-        // Handle death logic
+        Destroy();
     }
 
     return DamageAmount;
@@ -73,7 +73,7 @@ void ASagaMonsterAIPawn::ExecuteAttack()
         Start,
         End,
         FQuat::Identity,
-        ECC_GameTraceChannel4,
+        ECC_GameTraceChannel2,
         FCollisionShape::MakeSphere(50.f),
         Params
     );
@@ -84,7 +84,7 @@ void ASagaMonsterAIPawn::ExecuteAttack()
     {
         // Apply damage to the hit actor
         FDamageEvent DamageEvent;
-        HitResult.GetActor()->TakeDamage(100.f, DamageEvent, GetController(), this);
+        HitResult.GetActor()->TakeDamage(90.f, DamageEvent, GetController(), this);
 
 
     }
