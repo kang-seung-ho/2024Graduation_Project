@@ -402,6 +402,20 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{}
 	break;
 
+	///TODO: RPC_DESTROY_ITEM_BOX
+	case ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX:
+	{
+
+	}
+	break;
+
+	///TODO: RPC_GRAB_ITEM
+	case ESagaRpcProtocol::RPC_GRAB_ITEM:
+	{
+
+	}
+	break;
+
 	case ESagaRpcProtocol::RPC_USE_ITEM_0:
 	{}
 	break;
