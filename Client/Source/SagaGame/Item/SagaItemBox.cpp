@@ -1,10 +1,16 @@
 ﻿#include "SagaItemBox.h"
+#include <Math/UnrealMathUtility.h>
+#include <Templates/Casts.h>
 #include <Kismet/GameplayStatics.h>
 
+#include "Item/SagaWeaponData.h"
 #include "Interface/SagaCharacterItemInterface.h"
+
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaItemBox::ASagaItemBox()
 	: Super()
+	, myItemId(-1)
 {
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -42,21 +48,37 @@ ASagaItemBox::ASagaItemBox()
 }
 
 void
-ASagaItemBox::BeginPlay()
+ASagaItemBox::SetItemId(int32 id)
+noexcept
 {
-	Super::BeginPlay();
-
-	// TODO: 박스가 월드에 스폰될 때 바로 아이템 유형 설정해야함
-	SetRandomItemType();
+	myItemId = id;
 }
 
 void
-ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+ASagaItemBox::BeginPlay()
 {
-	ISagaCharacterItemInterface* OverlappingPawn = Cast<ISagaCharacterItemInterface>(OtherActor);
-	if (OverlappingPawn)
+	Super::BeginPlay();
+}
+
+void
+ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool sweep, const FHitResult& SweepResult)
+{
+	ISagaCharacterItemInterface* pawn = Cast<ISagaCharacterItemInterface>(other);
+
+	if (pawn)
 	{
-		OverlappingPawn->TakeItem(storedItemType);
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (net->IsOfflineMode())
+		{
+			pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
+		}
+		else
+		{
+			// TODO
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
+		}
+
 		Effect->Activate(true);
 		Mesh->SetHiddenInGame(true);
 		SetActorEnableCollision(false);
@@ -65,16 +87,8 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	}
 	else
 	{
-		Destroy();
+		//Destroy();
 	}
-}
-
-void
-ASagaItemBox::SetRandomItemType()
-{
-	int32 RandomIndex = FMath::RandRange(0, 2);
-
-	storedItemType = static_cast<ESagaItemTypes>(RandomIndex);
 }
 
 void
