@@ -8,6 +8,8 @@
 #include "Item/SagaWeaponData.h"
 #include "Item/SagaItemBox.h"
 
+#include "Saga/Network/SagaNetworkSubSystem.h"
+
 AMapObstacle1::AMapObstacle1()
 	: Super()
 {
@@ -45,7 +47,6 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 {
 	float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-
 	myHealth -= DamageApplied;
 
 	if (HPComponent)
@@ -59,29 +60,37 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 void
 AMapObstacle1::SpawnItemBox()
 {
-	const FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
-	const FRotator SpawnRotation = FRotator::ZeroRotator;
-	FActorSpawnParameters SpawnParameters{};
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	ASagaItemBox* SpawnedItemBox = GetWorld()->SpawnActor<ASagaItemBox>(ASagaItemBox::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
-
-	if (IsValid(SpawnedItemBox))
+	if (net->IsOfflineMode())
 	{
-		UStaticMeshComponent* ItemMesh = SpawnedItemBox->GetMesh();
+		const FVector loc = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
+		FActorSpawnParameters params{};
 
-		if (ItemMesh)
+		ASagaItemBox* box = GetWorld()->SpawnActor<ASagaItemBox>(loc, FRotator::ZeroRotator, params);
+
+		if (IsValid(box))
 		{
-			ItemMesh->SetSimulatePhysics(true);
-			ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			// Ensure it has a suitable collision profile
-			//ItemMesh->SetCollisionProfileName(TEXT("Item"));
+			box->SetItemId(myItemId);
 
-			// z value for the popping-up effect
-			FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f);
-			ItemMesh->AddImpulse(LaunchVelocity, NAME_None, true);
+			if (UStaticMeshComponent* ItemMesh = box->GetMesh())
+			{
+				ItemMesh->SetSimulatePhysics(true);
+				ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				// Ensure it has a suitable collision profile
+				//ItemMesh->SetCollisionProfileName(TEXT("Item"));
+
+				// z value for the popping-up effect
+				FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f);
+				ItemMesh->AddImpulse(LaunchVelocity, NAME_None, true);
+			}
 		}
 	}
+	else
+	{
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX, 0, myItemId);
+	}
 
-	// Destroy the obstacle
+	// Destroy this obstacle
 	Destroy();
 }
