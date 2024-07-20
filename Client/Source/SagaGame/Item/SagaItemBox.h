@@ -4,8 +4,6 @@
 #include <GameFramework/Actor.h>
 #include <Engine/World.h>
 
-#include "Item/SagaItemTypes.h"
-#include "Item/SagaWeaponData.h"
 #include "SagaItemBox.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Item")
@@ -17,33 +15,17 @@ public:
 	ASagaItemBox();
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	void SetItemId(int32 id) noexcept;
+
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
 	FORCEINLINE UStaticMeshComponent* GetMesh() const noexcept
 	{
 		return Mesh;
 	}
 
-	UFUNCTION(Category = "CandyLandSaga|Game|Item")
-	FORCEINLINE ESagaItemTypes GetStoredItem() const noexcept
-	{
-		return storedItemType;
-	}
-
-	template<typename T>
-	[[nodiscard]]
-	static T* CreateItemBox(ESagaItemTypes type, UWorld* world, TSubclassOf<ASagaItemBox> uclass, const FTransform* transform, const FActorSpawnParameters& params = {})
-	{
-		const auto actor = world->SpawnActor(uclass, transform, params);
-		const auto as_box = static_cast<ASagaItemBox*>(actor);
-
-		as_box->storedItemType = type;
-
-		return Cast<T>(actor);
-	}
-
 protected:
-	// prevent null var
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Item")
-	ESagaItemTypes storedItemType = ESagaItemTypes::Drink;
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
+	int32 myItemId;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UBoxComponent> Trigger;
@@ -57,10 +39,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(class UPrimitiveComponent* component, class AActor* other, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool sweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnEffectFinished(class UParticleSystemComponent* ParticleSystem);
-
-	void SetRandomItemType();
 };

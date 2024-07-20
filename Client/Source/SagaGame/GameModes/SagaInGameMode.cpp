@@ -17,6 +17,7 @@
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
+#include "Obstacles/MapObstacle1.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -31,6 +32,7 @@ ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	, playerSpawners()
 	, lastCharacterPosition(), lastCharacterRotation()
 	, everyBears()
+	, everyItemSpawnEntities()
 {
 	SetControllerClass(ASagaInGamePlayerController::StaticClass());
 
@@ -46,6 +48,7 @@ ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	}
 
 	everyBears.Reserve(3);
+	everyItemSpawnEntities.Reserve(100);
 }
 
 ASagaGummyBearPlayer*
@@ -131,12 +134,14 @@ ASagaInGameMode::StartPlay()
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
+	break;
 
 	case ESagaPlayerTeam::Blue:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
+	break;
 
 	default:
 	{
@@ -156,13 +161,47 @@ ASagaInGameMode::StartPlay()
 		storedLocalPlayerController->SetAsLocalPlayerController();
 	}
 
-	// Store every gummy bear
+	// Seek and store every gummy bear
 	for (TActorIterator<ASagaGummyBearPlayer> it{ world }; it; ++it)
 	{
 		const auto bear = *it;
 
 		everyBears.Add(bear);
 	}
+
+	int32 item_spawner_id = 0;
+
+	// Seek and store every item spawner
+	for (TActorIterator<AMapObstacle1> it{ world }; it; ++it)
+	{
+		const auto entity = *it;
+		entity->SetID(item_spawner_id++);
+
+		everyItemSpawnEntities.Add(entity);
+	}
+
+#if WITH_EDITOR
+
+	const auto bear_num = everyBears.Num();
+	if (0 < bear_num)
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d bears are detected."), bear_num);
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no bear."));
+	}
+
+	const auto item_entity_num = everyItemSpawnEntities.Num();
+	if (0 < item_entity_num)
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d item spawners are detected."), item_entity_num);
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no item spawner."));
+	}
+#endif
 
 	if (not net->IsOfflineMode())
 	{
@@ -176,6 +215,8 @@ ASagaInGameMode::StartPlay()
 	else
 	{
 		OnCreatingCharacter(net->GetLocalUserId(), net->GetLocalUserTeam(), net->GetLocalUserWeapon());
+
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_ASSIGN_ITEM_ID, 0, everyItemSpawnEntities.Num());
 	}
 
 	// First find the local controller and enumerate actors' BeginPlay
