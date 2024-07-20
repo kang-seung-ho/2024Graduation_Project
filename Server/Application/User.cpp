@@ -38,7 +38,7 @@ iconer::app::User::EndClose()
 	{
 		if (room->IsStartingGame())
 		{
-			room->gameLoadedMemberProceedCount.fetch_add(1);
+			room->startingMemberProceedCount.fetch_add(1);
 		}
 	}
 

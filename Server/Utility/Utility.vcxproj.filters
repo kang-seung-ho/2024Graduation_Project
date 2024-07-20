@@ -63,6 +63,7 @@
     <ClCompile Include="StringConverter.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="Boolean.ixx" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Utility.natvis" />

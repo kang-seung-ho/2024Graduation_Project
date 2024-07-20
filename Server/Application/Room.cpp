@@ -1,5 +1,7 @@
 module;
-#include <mutex>
+#include <cstddef>
+#include <memory>
+#include <utility>
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
 
@@ -43,6 +45,8 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 
 					/// NOTICE: set team here (occupy)
 					first.team_id = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+					myState = RoomState::Idle;
+
 					isDirty = true;
 					return true;
 				}
@@ -181,6 +185,14 @@ noexcept
 			onDestroyed.Broadcast(this);
 		}
 
+		for (auto& item : sagaItemList)
+		{
+			item.isAvailable = false;
+			item.isBoxDestroyed = false;
+		}
+		sagaItemListSize = 0;
+		sagaItemListLock = false;
+
 		myTitle.clear();
 		myState.store(RoomState::Idle, std::memory_order_release);
 
@@ -197,9 +209,7 @@ iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool i
 {
 	for (auto& member : myMembers)
 	{
-		const auto member_ptr = member.GetStoredUser();
-
-		if (member_ptr == &user)
+		if (const auto member_ptr = member.GetStoredUser(); member_ptr == &user)
 		{
 			if (is_red_team)
 			{
@@ -218,9 +228,7 @@ iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool i
 std::span<const std::byte>
 iconer::app::Room::MakeMemberListPacket()
 {
-	auto is_dirty = isDirty.load(std::memory_order_acquire);
-
-	if (is_dirty)
+	if (auto is_dirty = isDirty.load(std::memory_order_acquire); is_dirty)
 	{
 		auto seek = precachedMemberListData.data() + 3 + sizeof(size_t);
 

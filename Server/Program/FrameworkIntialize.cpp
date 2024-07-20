@@ -109,6 +109,8 @@ ServerFramework::Initialize()
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_START, &ServerFramework::EventOnGameStartSignal);
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_LOADED, &ServerFramework::EventOnGameReadySignal);
 
+	AddPacketProcessor(iconer::app::PacketProtocol::CS_RPC, &ServerFramework::EventOnRpc);
+
 	std::println("Generating {} users...", iconer::app::UserManager::maxUserCount);
 
 	if (auto io = userManager.Initialize(myTaskPool.ioCompletionPort); not io)

@@ -1,10 +1,17 @@
 module;
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
+#include <chrono>
 
 module Iconer.Framework;
 import Iconer.App.SendContext;
 import Iconer.App.PacketSerializer;
+
+namespace
+{
+	inline constexpr std::chrono::seconds weaponPhasePeriod{ 31 };
+	inline constexpr std::chrono::seconds gamePhasePeriod{ 301 };
+}
 
 void
 ServerFramework::EventOnUserList(iconer::app::User& user, std::byte* data)
@@ -124,6 +131,8 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 			room->startingMemberProceedCount = 0;
 			room->gameLoadedMemberProceedCount = 0;
 
+			room->selectionPhaseTime = std::chrono::system_clock::now() + weaponPhasePeriod;
+
 			if (0 < room->GetMemberCount()) LIKELY
 			{
 				master_ctx->TryChangeOperation(OpCreateGame, OpSignIn);
@@ -163,8 +172,6 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 								mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
 							};
 						};
-
-						room->startingMemberProceedCount.fetch_add(1);
 					}
 				);
 			}
@@ -183,11 +190,11 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 
 				if (user.IsConnected())
 				{
-					ctx->TryChangeOperation(OpCreateGame, OpSignIn);
+					ctx->TryChangeOperation(OpSpreadGameTicket, OpSignIn);
 				}
 				else
 				{
-					ctx->TryChangeOperation(OpCreateGame, None);
+					ctx->TryChangeOperation(OpSpreadGameTicket, None);
 				}
 			}
 		);
@@ -199,12 +206,42 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 void
 ServerFramework::EventOnSpreadGameTickets(iconer::app::User& user)
 {
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+
 	iconer::app::Room* const room = user.GetRoom();
 
-	if (nullptr != room) LIKELY
+	auto& ctx = user.mainContext;
+
+	if (not user.IsConnected()) UNLIKELY
 	{
-		room->startingMemberProceedCount.fetch_add(1);
-	};
+		ctx->TryChangeOperation(OpSpreadGameTicket, None);
+		user.myRoom = nullptr;
+	}
+	else if (ctx->TryChangeOperation(OpSpreadGameTicket, OpStartGame)) LIKELY
+	{
+		if (nullptr != room) LIKELY
+		{
+			room->gameLoadedMemberProceedCount;
+		}
+		else
+		{
+
+		};
+	}
+	else
+	{
+		if (nullptr != room) LIKELY
+		{
+
+		}
+		else
+		{
+
+		};
+
+		user.myRoom = nullptr;
+	}
 }
 
 void
@@ -216,7 +253,7 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 
 	if (nullptr != room) LIKELY
 	{
-		auto & cnt = room->gameLoadedMemberProceedCount;
+		auto & cnt = room->startingMemberProceedCount;
 
 		cnt.fetch_add(1);
 
@@ -224,13 +261,16 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 		{
 			iconer::app::RoomState state = PrepareGame;
 
+			// now let's start a game
+			room->gamePhaseTime = std::chrono::system_clock::now() + gamePhasePeriod;
+
 			if (room->myState.compare_exchange_strong(state, Gaming))
 			{
 				room->Foreach([&](iconer::app::User& mem)
 					{
 						auto& ctx = mem.mainContext;
 
-						mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
+						mem.SendGeneralData(ctx, ctx->GetGameStartPacketData());
 					}
 				);
 			}

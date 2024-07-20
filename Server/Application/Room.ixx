@@ -34,10 +34,6 @@ export namespace iconer::app
 		std::atomic<float> myHp{ maxHp };
 		std::chrono::system_clock::time_point respawnTime;
 
-		SagaTeamStatus sagaTeams[2]{};
-		SagaSummonPoint sagaSummons[3]{};
-		SagaGuardian sagaGuardians[3]{};
-
 		Member() noexcept = default;
 
 		[[nodiscard]]
@@ -155,6 +151,13 @@ export namespace iconer::app
 		std::atomic_int32_t gameLoadedMemberProceedCount;
 		std::chrono::system_clock::time_point selectionPhaseTime;
 		std::chrono::system_clock::time_point gamePhaseTime;
+
+		SagaTeamStatus sagaTeams[2]{};
+		SagaSummonPoint sagaSummons[3]{};
+		SagaGuardian sagaGuardians[3]{};
+		std::atomic_bool sagaItemListLock{};
+		std::vector<SagaItem> sagaItemList{};
+		std::atomic_size_t sagaItemListSize{};
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};
 		iconer::util::Delegate<void, this_class*> onDestroyed{};

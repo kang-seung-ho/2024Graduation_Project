@@ -3,6 +3,7 @@ module;
 #define UNLIKELY [[unlikely]]
 #define ICONER_RPC_ENUM_ITEM(name) RPC_BEG_##name, RPC_END_##name
 #include <chrono>
+#include <atomic>
 
 module Iconer.Framework;
 import Iconer.App.Room;
@@ -36,9 +37,9 @@ enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	RPC_USE_ITEM_4,
 	RPC_ASSIGN_ITEM_ID,
 	RPC_DESTROY_ITEM_BOX,
-
 	RPC_SPAWN_ITEM = 150,
 	RPC_GRAB_ITEM,
+
 	RPC_MAIN_WEAPON,
 	RPC_CHANGE_HAND_ITEM,
 	/// <summary>
@@ -99,8 +100,129 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 
 		switch (protocol)
 		{
+		case RPC_ASSIGN_ITEM_ID:
+		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
+			auto& items = room->sagaItemList;
+			auto& cap = room->sagaItemListSize;
+
+			auto was_cap = cap.load();
+			auto new_cap = static_cast<size_t>(arg1);
+
+			if (was_cap < new_cap)
+			{
+				if (cap.compare_exchange_strong(was_cap, new_cap))
+				{
+					items.reserve(new_cap);
+
+					std::println("User {} claims {} item spawners.", user_id, new_cap);
+				}
+			}
+			else
+			{
+				std::println("Room {}'s item list already has reserved {} items.", room_id, was_cap);
+			}
+		}
+		break;
+
+		// arg0 - nothing
+		// arg1 - id
+		case RPC_DESTROY_ITEM_BOX:
+		{
+			auto& items = room->sagaItemList;
+			auto& ilock = room->sagaItemListLock;
+
+			while (true)
+			{
+				bool flag = false;
+				if (ilock.compare_exchange_strong(flag, true) or not room->IsTaken()) break;
+			}
+
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
+			const auto index = static_cast<size_t>(arg1);
+			auto&& item = items[index];
+
+			bool destroyed = false;
+			if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
+			{
+				room->Foreach
+				(
+					[&](iconer::app::User& member)
+					{
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+						auto [pk, size] = MAKE_RPC_PACKET(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
+
+						ctx->myBuffer = std::move(pk);
+
+						member.SendGeneralData(*ctx, size);
+					}
+				);
+			}
+
+			ilock = false;
+		}
+		break;
+
+		// 
+		// arg0 - nothing
+		// arg1 - id
+		case RPC_GRAB_ITEM:
+		{
+			auto& items = room->sagaItemList;
+			auto& ilock = room->sagaItemListLock;
+
+			while (true)
+			{
+				bool flag = false;
+				if (ilock.compare_exchange_strong(flag, true) or not room->IsTaken()) break;
+			}
+
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
+
+
+			ilock = false;
+		}
+		break;
+
+		// 
+		// arg0 - 
+		// arg1 - item type
+		case RPC_USE_ITEM_0:
+		{
+			room->Foreach
+			(
+				[&](iconer::app::User& member)
+				{
+					iconer::app::SendContext* const ctx = AcquireSendContext();
+					auto [pk, size] = MAKE_RPC_PACKET(RPC_USE_ITEM_0, user_id, arg0, arg1);
+
+					ctx->myBuffer = std::move(pk);
+
+					member.SendGeneralData(*ctx, size);
+				}
+			);
+		}
+		break;
+
 		case RPC_MAIN_WEAPON:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			// Change the weapon first
 			// arg0: kind of weapon
 			// 0: lightsaber
@@ -118,7 +240,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 					[&](iconer::app::User& member)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
-						auto [pk, size] = MAKE_RPC_PACKET(protocol, user_id, arg0, arg1);
+						auto [pk, size] = MAKE_RPC_PACKET(RPC_MAIN_WEAPON, user_id, arg0, arg1);
 
 						// NOTICE: RPC_MAIN_WEAPON(arg0, 0)
 						ctx->myBuffer = std::move(pk);
@@ -138,6 +260,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 
 		case RPC_BEG_RIDE:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			std::println("[RPC_BEG_RIDE] at room {}.", room_id);
 
 			// arg1: index of guardian
@@ -159,14 +286,14 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 
 						room->Foreach
 						(
-							[&](iconer::app::User& target)
+							[&](iconer::app::User& member)
 							{
 								iconer::app::SendContext* const ctx = AcquireSendContext();
 								auto [pk, size] = MAKE_RPC_PACKET(RPC_BEG_RIDE, user_id, arg0, arg1);
 
 								ctx->myBuffer = std::move(pk);
 
-								target.SendGeneralData(*ctx, size);
+								member.SendGeneralData(*ctx, size);
 							}
 						);
 
@@ -185,6 +312,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 
 		case RPC_END_RIDE:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			std::println("[RPC_END_RIDE] at room {}.", room_id);
 
 			// arg1: index of guardian
@@ -443,7 +575,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			//std::println(L"\tRoom {}'s weapon phase: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(protocol, user_id, cnt, 0);
+			auto [pk, size] = MAKE_RPC_PACKET(RPC_WEAPON_TIMER, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);
@@ -463,7 +595,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			const size_t cnt = gap.count();
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(protocol, user_id, cnt, 0);
+			auto [pk, size] = MAKE_RPC_PACKET(RPC_GAME_TIMER, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);
@@ -484,7 +616,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			//std::println(L"\tRoom {}'s game time: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(protocol, user_id, cnt, 0);
+			auto [pk, size] = MAKE_RPC_PACKET(RPC_NOTIFY_GAME_COUNTDOWN, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);

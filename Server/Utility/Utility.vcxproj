@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Atomic.ixx" />
     <ClCompile Include="AtomicQueue.ixx" />
+    <ClCompile Include="Boolean.ixx" />
     <ClCompile Include="Delegate.ixx" />
     <ClCompile Include="Expected.ixx" />
     <ClCompile Include="File.cpp" />

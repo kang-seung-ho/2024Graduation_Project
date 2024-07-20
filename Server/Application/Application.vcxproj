@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConnectionContract.ixx" />
+    <ClCompile Include="GameSession.ixx" />
     <ClCompile Include="ISession.ixx" />
     <ClCompile Include="PacketContext.ixx" />
     <ClCompile Include="PacketProcessor.ixx" />
