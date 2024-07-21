@@ -29,4 +29,9 @@ void ASagaGameEndController::BeginPlay()
 			mGameResultWidget->AddToViewport(1);
 		}
 	}
+
+	FInputModeGameAndUI mode{};
+	SetInputMode(mode);
+
+	SetShowMouseCursor(true);
 }
