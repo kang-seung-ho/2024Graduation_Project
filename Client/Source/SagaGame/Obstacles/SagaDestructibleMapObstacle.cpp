@@ -30,7 +30,7 @@ ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
         HitAnimation = HitAnimRef.Object;
     }
 
-    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/PartyFX/Niagara/NS_Ribbon_Party_2.NS_Ribbon_Party_2'"));
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/PartyFX/Niagara/NS_Ribbon_Party_2.NS_Ribbon_Party_2'"));
     if (NiagaraEffect.Succeeded())
     {
         HitEffect = NiagaraEffect.Object;
