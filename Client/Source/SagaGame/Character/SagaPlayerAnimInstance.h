@@ -84,6 +84,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mGunAttackMontageArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<UAnimMontage*> mHammerAttackMontageArray;
+
 	UPROPERTY()
 	int32 mAttackIndex = 0;
 

@@ -31,11 +31,11 @@ USagaPlayerAnimInstance::PlayAttackMontage()
 		}
 		else if (mWeaponTypes == EPlayerWeapon::Hammer)
 		{
-			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
+			Montage_SetPosition(mHammerAttackMontageArray[mAttackIndex], 0.f);
 
-			Montage_Play(mAttackMontageArray[mAttackIndex]);
+			Montage_Play(mHammerAttackMontageArray[mAttackIndex]);
 
-			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
+			mAttackIndex = (mAttackIndex + 1) % mHammerAttackMontageArray.Num();
 		}
 	}
 }
