@@ -222,7 +222,7 @@ ASagaInGamePlayerController::Tick(float delta_time)
 	auto pos = pawn->GetActorLocation();
 
 	bool out_of_boundary = false;
-	if (pos.X < -4500)
+	/*if (pos.X < -4500)
 	{
 		pos.X = -4500;
 		out_of_boundary = true;
@@ -242,7 +242,7 @@ ASagaInGamePlayerController::Tick(float delta_time)
 	{
 		pos.Y = 4500;
 		out_of_boundary = true;
-	}
+	}*/
 
 	if (out_of_boundary)
 	{
