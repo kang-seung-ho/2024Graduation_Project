@@ -117,7 +117,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			{
 				if (cap.compare_exchange_strong(was_cap, new_cap))
 				{
-					items.reserve(new_cap);
+					//items.reserve(new_cap);
 
 					std::println("User {} claims {} item spawners.", user_id, new_cap);
 				}
@@ -148,7 +148,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			}
 
 			const auto index = static_cast<size_t>(arg1);
-			auto&& item = items[index];
+			auto& item = items[index];
 
 			bool destroyed = false;
 			if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
@@ -158,6 +158,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 					[&](iconer::app::User& member)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
+
 						auto [pk, size] = MAKE_RPC_PACKET(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
 
 						ctx->myBuffer = std::move(pk);
@@ -190,7 +191,28 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 				break;
 			}
 
+			const auto index = static_cast<size_t>(arg1);
+			auto&& item = items[index];
 
+			if (item.isBoxDestroyed)
+			{
+				bool grabbed = true;
+				if (item.isAvailable.compare_exchange_strong(grabbed, false))
+				{
+					room->Foreach
+					(
+						[&](iconer::app::User& member)
+						{
+							iconer::app::SendContext* const ctx = AcquireSendContext();
+							auto [pk, size] = MAKE_RPC_PACKET(RPC_GRAB_ITEM, user_id, arg0, arg1);
+
+							ctx->myBuffer = std::move(pk);
+
+							member.SendGeneralData(*ctx, size);
+						}
+					);
+				}
+			}
 
 			ilock = false;
 		}

@@ -137,6 +137,8 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 			{
 				master_ctx->TryChangeOperation(OpCreateGame, OpSignIn);
 
+				auto& cnt = room->startingMemberProceedCount;
+
 				room->Foreach([&](iconer::app::User& mem)
 					{
 						auto& ctx = mem.mainContext;
@@ -149,29 +151,46 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 							{
 								ctx->TryChangeOperation(OpSpreadGameTicket, None);
 
-								cancelled = true;
+								if (not cancelled) UNLIKELY
+								{
+									cancelled = true;
+									cnt.fetch_add(1);
+								};
 							}
 							else if (not mem.IsConnected()) UNLIKELY
 							{
 								ctx->TryChangeOperation(OpSpreadGameTicket, None);
 								mem.myRoom = nullptr;
 
-								cancelled = true;
+								if (not cancelled) UNLIKELY
+								{
+									cancelled = true;
+									cnt.fetch_add(1);
+								};
 							}
 							else if (mem_room != room) UNLIKELY
 							{
 								ctx->TryChangeOperation(OpSpreadGameTicket, OpSignIn);
 
-								cancelled = true;
+								if (not cancelled) UNLIKELY
+								{
+									cancelled = true;
+									cnt.fetch_add(1);
+								};
 							}
 							else if (cancelled) UNLIKELY
 							{
+								cnt.fetch_add(1);
 							}
 							else LIKELY
 							{
 								mem.SendGeneralData(ctx, ctx->GetGameReadyPacketData());
 							};
-						};
+						}
+						else
+						{
+							cnt.fetch_add(1);
+						}
 					}
 				);
 			}
@@ -218,42 +237,62 @@ ServerFramework::EventOnSpreadGameTickets(iconer::app::User& user)
 		ctx->TryChangeOperation(OpSpreadGameTicket, None);
 		user.myRoom = nullptr;
 	}
-	else if (ctx->TryChangeOperation(OpSpreadGameTicket, OpStartGame)) LIKELY
-	{
-		if (nullptr != room) LIKELY
-		{
-			room->gameLoadedMemberProceedCount;
-		}
-		else
-		{
-
-		};
-	}
 	else
 	{
 		if (nullptr != room) LIKELY
 		{
+			ctx->TryChangeOperation(OpSpreadGameTicket, OpReadyGame);
 
+			auto & cnt = room->startingMemberProceedCount;
+			cnt.fetch_add(1);
 		}
-		else
+		else UNLIKELY
 		{
-
+			ctx->TryChangeOperation(OpSpreadGameTicket, OpSignIn);
 		};
+	};
+}
 
+void
+ServerFramework::EventOnFailedToSpreadGameTickets(iconer::app::User& user)
+{
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+
+	iconer::app::Room* const room = user.GetRoom();
+
+	auto& ctx = user.mainContext;
+
+	if (not user.IsConnected()) UNLIKELY
+	{
+		ctx->TryChangeOperation(OpSpreadGameTicket, None);
 		user.myRoom = nullptr;
 	}
+	else if (room != nullptr) LIKELY
+	{
+		auto & cnt = room->startingMemberProceedCount;
+		cnt.fetch_add(1);
+
+		ctx->TryChangeOperation(OpSpreadGameTicket, OpSignIn);
+	}
+	else
+	{
+
+	};
 }
 
 void
 ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data)
 {
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
 	using enum iconer::app::RoomState;
 
 	iconer::app::Room* const room = user.GetRoom();
 
 	if (nullptr != room) LIKELY
 	{
-		auto & cnt = room->startingMemberProceedCount;
+		auto & cnt = room->readyMemberProceedCount;
 
 		cnt.fetch_add(1);
 
@@ -266,11 +305,54 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 
 			if (room->myState.compare_exchange_strong(state, Gaming))
 			{
-				room->Foreach([&](iconer::app::User& mem)
-					{
-						auto& ctx = mem.mainContext;
+				bool cancelled = false;
 
-						mem.SendGeneralData(ctx, ctx->GetGameStartPacketData());
+				room->Foreach([&](iconer::app::User& member)
+					{
+						auto& ctx = member.mainContext;
+
+						if (not ctx->TryChangeOperation(OpReadyGame, OpStartGame))
+						{
+							cancelled = true;
+						}
+					}
+				);
+
+				if (not cancelled)
+				{
+					room->Foreach([&](iconer::app::User& member)
+						{
+							// OpStartGame
+							auto& ctx = member.mainContext;
+							member.SendGeneralData(ctx, ctx->GetGameStartPacketData());
+						}
+					);
+				}
+				else
+				{
+					room->Foreach([&](iconer::app::User& member)
+						{
+							auto& ctx = member.mainContext;
+
+							ctx->TryChangeOperation(OpReadyGame, OpSignIn);
+							ctx->TryChangeOperation(OpStartGame, OpSignIn);
+						}
+					);
+
+					iconer::app::RoomState gaming_state = Gaming;
+
+					room->myState.compare_exchange_strong(gaming_state, Idle);
+				}
+
+				room->Foreach
+				(
+					[&](iconer::app::User& member)
+					{
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+
+						auto& mem_ctx = member.mainContext;
+
+						member.SendGeneralData(*ctx, mem_ctx->GetCreatCharactersPacketData());
 					}
 				);
 			}

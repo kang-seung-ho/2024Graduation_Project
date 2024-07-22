@@ -148,6 +148,7 @@ export namespace iconer::app
 
 		std::atomic<RoomState> myState;
 		std::atomic_int32_t startingMemberProceedCount;
+		std::atomic_int32_t readyMemberProceedCount;
 		std::atomic_int32_t gameLoadedMemberProceedCount;
 		std::chrono::system_clock::time_point selectionPhaseTime;
 		std::chrono::system_clock::time_point gamePhaseTime;
@@ -156,7 +157,7 @@ export namespace iconer::app
 		SagaSummonPoint sagaSummons[3]{};
 		SagaGuardian sagaGuardians[3]{};
 		std::atomic_bool sagaItemListLock{};
-		std::vector<SagaItem> sagaItemList{};
+		std::array<SagaItem, 200> sagaItemList{};
 		std::atomic_size_t sagaItemListSize{};
 
 		iconer::util::Delegate<void, this_class*, pointer_type> onOccupied{};

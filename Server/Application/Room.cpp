@@ -187,7 +187,7 @@ noexcept
 
 		for (auto& item : sagaItemList)
 		{
-			item.isAvailable = false;
+			item.isAvailable = true;
 			item.isBoxDestroyed = false;
 		}
 		sagaItemListSize = 0;

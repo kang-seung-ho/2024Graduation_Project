@@ -81,6 +81,7 @@ private:
 	/* Broadcast game ticket to members */
 	void EventOnMakeGame(iconer::app::User& user);
 	void EventOnSpreadGameTickets(iconer::app::User& user);
+	void EventOnFailedToSpreadGameTickets(iconer::app::User& user);
 	/* Mark the player ready and starts game if they all are ready */
 	void EventOnGameReadySignal(iconer::app::User& user, std::byte* data);
 	void EventOnRpc(iconer::app::User& user, std::byte* data);

@@ -34,6 +34,11 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpStartGame:
+	{
+	}
+	break;
+	
 	case OpReadyGame:
 	{
 	}
@@ -448,6 +453,22 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	switch (task_ctx->myCategory)
 	{
+	case OpSpreadGameTicket:
+	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnFailedToSpreadGameTickets(*user);
+	}
+	break;
+
 	case OpEnterRoom:
 	{
 		const auto user = userManager.FindUser(id);

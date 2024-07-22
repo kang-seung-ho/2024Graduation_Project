@@ -104,6 +104,12 @@ export namespace iconer::app
 		{
 			return gameStartPacketData;
 		}
+		
+		[[nodiscard]]
+		static constexpr auto& GetCreatCharactersPacketData() noexcept
+		{
+			return createCharactersPacketData;
+		}
 
 	private:
 		std::array<std::byte, signInPacketSize> signInPacketData{};
@@ -124,6 +130,12 @@ export namespace iconer::app
 		static inline constexpr std::array<std::byte, 3> gameStartPacketData
 		{
 			(std::byte)138U, (std::byte)3U, (std::byte)0U
+		};
+		// 143 => SC_CREATE_PLAYER
+		// 3 => size
+		static inline constexpr std::array<std::byte, 3> createCharactersPacketData
+		{
+			(std::byte)143U, (std::byte)3U, (std::byte)0U
 		};
 	};
 }

@@ -13,8 +13,8 @@ export namespace iconer::app
 	struct SagaItem
 	{
 		ESagaItemTypes myType{};
-		std::atomic_bool isAvailable{};
-		std::atomic_bool isBoxDestroyed{};
+		std::atomic_bool isAvailable{ true };
+		std::atomic_bool isBoxDestroyed{ false };
 	};
 
 	struct SagaSummonPoint
