@@ -37,7 +37,7 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	switch (mSpawnType)
+	/*switch (mSpawnType)
 	{
 	case ESpawnType::Normal:
 	{
@@ -73,55 +73,36 @@ void ASagaSpawnPoint::Tick(float DeltaTime)
 		}
 	}
 	break;
-	}
+	}*/
 }
 
 void ASagaSpawnPoint::Spawn()
 {
-	if (!IsValid(mSpawnClass))
+	if (!IsValid(mSpawnClass) || IsValid(mSpawnActor))
 		return;
 
-	FActorSpawnParameters	param;
+	FActorSpawnParameters param;
+	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	param.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	FVector	Location = GetActorLocation();
-	FRotator	Rot = GetActorRotation();
+	FVector Location = GetActorLocation();
+	FRotator Rot = GetActorRotation();
 
 	ASagaAIPawn* AIPawn = Cast<ASagaAIPawn>(mSpawnClass->GetDefaultObject());
 
 	if (IsValid(AIPawn))
 	{
-		float	HalfHeight = AIPawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-
+		float HalfHeight = AIPawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 		Location.Z += HalfHeight;
 	}
 
-	mSpawnActor = GetWorld()->SpawnActor<AActor>(mSpawnClass, Location, Rot,
-		param);
+	mSpawnActor = GetWorld()->SpawnActor<AActor>(mSpawnClass, Location, Rot, param);
 
 	AIPawn = Cast<ASagaAIPawn>(mSpawnActor);
 
 	if (IsValid(AIPawn))
 	{
-		// ThisClass : it means the current Class. => SpawnPoint Class
 		AIPawn->AddDeathDelegate(this, &ASagaSpawnPoint::DeathCallback);
 	}
-
-	//// �̵���θ� �߰��Ѵ�.
-	//if (!mPatrolPointArray.IsEmpty())
-	//{
-	//	AIPawn->AddPatrolPoint(GetActorLocation());
-
-	//	for (auto Point : mPatrolPointArray)
-	//	{
-	//		AIPawn->AddPatrolPoint(Point->GetActorLocation());
-	//	}
-
-	//	AIPawn->SetPatrolType(mPatrolType);
-	//}
-
 }
 
 
