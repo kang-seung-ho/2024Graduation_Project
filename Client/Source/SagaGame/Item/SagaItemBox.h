@@ -23,6 +23,12 @@ public:
 		return Mesh;
 	}
 
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	FORCEINLINE int32 GetItemId() const noexcept
+	{
+		return myItemId;
+	}
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	int32 myItemId;
@@ -35,6 +41,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UParticleSystemComponent> Effect;
+
+	bool isGrabbed;
 
 	virtual void BeginPlay() override;
 

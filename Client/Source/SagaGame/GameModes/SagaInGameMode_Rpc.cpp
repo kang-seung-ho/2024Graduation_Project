@@ -8,6 +8,7 @@
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
+#include "Obstacles/MapObstacle1.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -402,22 +403,41 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{}
 	break;
 
-	///TODO: RPC_DESTROY_ITEM_BOX
 	case ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX:
 	{
+#if WITH_EDITOR
 
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] target item id: %d"), arg1);
+#endif
+
+		for (auto& item_entity : everyItemSpawnEntities)
+		{
+			if (IsValid(item_entity.Get()) and item_entity->GetID() == arg1)
+			{
+				item_entity->Destroy();
+
+#if WITH_EDITOR
+				const auto name = item_entity->GetName();
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] item %s is destroyed."), *name);
+#endif
+			}
+		}
 	}
 	break;
 
-	///TODO: RPC_GRAB_ITEM
 	case ESagaRpcProtocol::RPC_GRAB_ITEM:
 	{
-
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] item id: %d"), arg1);
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_USE_ITEM_0:
-	{}
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] item id: %d"), arg1);
+
+
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_USE_ITEM_1:

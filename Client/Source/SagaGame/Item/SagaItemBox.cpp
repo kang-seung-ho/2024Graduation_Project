@@ -45,6 +45,8 @@ ASagaItemBox::ASagaItemBox()
 
 	// Make Mesh Collision Profile to NoCollision because the TriggerBox has the Item Collision Profile
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+	isGrabbed = false;
 }
 
 void
