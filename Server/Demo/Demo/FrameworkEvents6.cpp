@@ -66,13 +66,6 @@ demo::Framework::OnCreatingCharacters(Room& room)
 	return false;
 }
 
-void
-demo::Framework::OnFailedToCreateCharacters(Room& room)
-noexcept
-{
-
-}
-
 bool
 demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 {
@@ -122,6 +115,113 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	switch (rpc_ctx->rpcCategory)
 	{
+	case RPC_ASSIGN_ITEM_ID:
+	{
+		if (room->IsEmpty())
+		{
+			break;
+		}
+
+		std::println("User {} claims {} item spawners.", user_id, arg1);
+	}
+	break;
+
+	// arg0 - nothing
+	// arg1 - id
+	case RPC_DESTROY_ITEM_BOX:
+	{
+		auto& items = room->sagaItemList;
+		auto& ilock = room->sagaItemListLock;
+
+		while (true)
+		{
+			bool flag = false;
+			if (ilock.compare_exchange_strong(flag, true)) break;
+		}
+
+		if (room->IsEmpty())
+		{
+			break;
+		}
+
+		const auto index = static_cast<size_t>(arg1);
+		iconer::app::game::SagaItem& item = items[index];
+
+		bool destroyed = false;
+		if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
+		{
+			room->ForEach
+			(
+				[&](iconer::app::User& member)
+				{
+					SEND(member, SendRpcPacket, user_id, RPC_DESTROY_ITEM_BOX, arg0, arg1);
+				}
+			);
+		}
+
+		ilock = false;
+	}
+	break;
+
+	// 
+	// arg0 - nothing
+	// arg1 - id
+	case RPC_GRAB_ITEM:
+	{
+		auto& items = room->sagaItemList;
+		auto& ilock = room->sagaItemListLock;
+
+		while (true)
+		{
+			bool flag = false;
+			if (ilock.compare_exchange_strong(flag, true)) break;
+		}
+
+		if (room->IsEmpty())
+		{
+			break;
+		};
+
+		///TODO: max item count
+		if (arg1 < 0 or 10 <= arg1) break;
+
+		const auto index = static_cast<size_t>(arg1);
+		iconer::app::game::SagaItem& item = items[index];
+
+		if (item.isBoxDestroyed)
+		{
+			bool grabbed = true;
+			if (item.isAvailable.compare_exchange_strong(grabbed, false))
+			{
+				room->ForEach
+				(
+					[&](iconer::app::User& member)
+					{
+						SEND(member, SendRpcPacket, user_id, RPC_GRAB_ITEM, arg0, arg1);
+					}
+				);
+			}
+		}
+
+		ilock = false;
+	}
+	break;
+
+	// 
+	// arg0 - 
+	// arg1 - item type
+	case RPC_USE_ITEM_0:
+	{
+		room->ForEach
+		(
+			[&](iconer::app::User& member)
+			{
+				SEND(member, SendRpcPacket, user_id, RPC_USE_ITEM_0, arg0, arg1);
+			}
+		);
+	}
+	break;
+
 	case RPC_MAIN_WEAPON:
 	{
 		// arg0: kind of weapon
@@ -523,3 +623,8 @@ noexcept
 
 	}
 }
+
+void
+demo::Framework::OnFailedToCreateCharacters(Room& room)
+noexcept
+{}

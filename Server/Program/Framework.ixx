@@ -20,7 +20,7 @@ export namespace iconer::app
 	class [[nodiscard]] SendContext;
 }
 
-export using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, std::byte*>;
+export using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, const std::byte*>;
 
 export class ServerFramework final : public iconer::net::IFramework
 {
@@ -55,41 +55,43 @@ private:
 	void OnRoomClosed(iconer::app::Room* room);
 
 	/* Set nickname and assign user's id */
-	void EventOnSignIn(iconer::app::User& user, std::byte* data);
+	void EventOnSignIn(iconer::app::User& user, const std::byte* data);
 	/* Make a room */
-	void EventOnMakeRoom(iconer::app::User& user, std::byte* data);
+	void EventOnMakeRoom(iconer::app::User& user, const std::byte* data);
 	void EventOnFailedToReserveRoom(iconer::app::User& user);
 	void EventOnFailedToMakeRoom(iconer::app::User& user);
 	/* Join to the room */
-	void EventOnJoinRoom(iconer::app::User& user, std::byte* data);
+	void EventOnJoinRoom(iconer::app::User& user, const std::byte* data);
 	/* Notify to self as joined the room */
 	void EventOnNotifyRoomJoin(iconer::app::User& user);
 	void EventOnFailedToNotifyRoomJoin(iconer::app::User& user);
 	/* Exit from the room */
-	void EventOnExitRoom(iconer::app::User& user, std::byte* data);
+	void EventOnExitRoom(iconer::app::User& user, const std::byte* data);
 	/* Match a random room */
-	void EventOnSeekRoom(iconer::app::User& user, std::byte* data);
+	void EventOnSeekRoom(iconer::app::User& user, const std::byte* data);
 	/* Send a list of room */
-	void EventOnRoomList(iconer::app::User& user, std::byte* data);
+	void EventOnRoomList(iconer::app::User& user, const std::byte* data);
 	/* Send a list of member in the room */
-	void EventOnUserList(iconer::app::User& user, std::byte* data);
+	void EventOnUserList(iconer::app::User& user, const std::byte* data);
 	/* Broadcast the changed team state to members */
-	void EventOnChangeTeam(iconer::app::User& user, std::byte* data);
+	void EventOnChangeTeam(iconer::app::User& user, const std::byte* data);
 	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
 	/* Schdule a room for game */
-	void EventOnGameStartSignal(iconer::app::User& user, std::byte* data);
+	void EventOnGameStartSignal(iconer::app::User& user, const std::byte* data);
 	/* Broadcast game ticket to members */
 	void EventOnMakeGame(iconer::app::User& user);
 	void EventOnSpreadGameTickets(iconer::app::User& user);
 	void EventOnFailedToSpreadGameTickets(iconer::app::User& user);
 	/* Mark the player ready and starts game if they all are ready */
-	void EventOnGameReadySignal(iconer::app::User& user, std::byte* data);
-	void EventOnRpc(iconer::app::User& user, std::byte* data);
+	void EventOnGameReadySignal(iconer::app::User& user, const std::byte* data);
+	void EventOnGameStarted(iconer::app::User& user);
+	void EventOnRpc(iconer::app::User& user, const std::byte* data);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult StartUser(iconer::app::User& user) const;
+	void ProcessPacketsInline(iconer::app::User& user);
 	void RoutePackets(iconer::app::User& user);
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);

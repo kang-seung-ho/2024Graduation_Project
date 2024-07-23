@@ -36,11 +36,17 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 	{
 	case OpStartGame:
 	{
-	}
-	break;
-	
-	case OpReadyGame:
-	{
+		const auto user = userManager.FindUser(id);
+
+		if (nullptr == user)
+		{
+			std::println("Unknown game starter from id {}. ({} bytes)", id, bytes);
+
+			delete task_ctx;
+			break;
+		}
+
+		EventOnGameStarted(*user);
 	}
 	break;
 
@@ -190,7 +196,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		}
 		else
 		{
-			std::println("User {} has failed to signed in. ({} bytes)", id, bytes);
+			std::println("User {} has failed to sign in. ({} bytes)", id, bytes);
 		}
 
 		// task_ctx is the mainContext of user
@@ -230,11 +236,11 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 			//std::mbstate_t state{};
 			//auto err = wcsrtombs_s(&len, namebuf, &nickname_ptr, iconer::app::Settings::nickNameLength, &state);
 
-			std::print("User {} is signed in. (name=", id);
+			//std::print("User {} is signed in. (name=", id);
 
-			fputws(user->GetName().data(), stdout);
+			//fputws(user->GetName().data(), stdout);
 
-			std::println(", {} bytes)", bytes);
+			//std::println(", {} bytes)", bytes);
 		}
 		else
 		{
@@ -310,17 +316,17 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (0 == bytes)
 		{
-			//std::println("User {} is just disconnected.", id);
+			std::println("User {} is just disconnected.", id);
 
 			user->BeginClose();
 
 			break;
 		}
 
-		std::println("User {} received {} bytes.", id, bytes);
+		//std::println("User {} received {} bytes.", id, bytes);
 
 		//auto buffer = user->AcquireReceivedData();
-		RoutePackets(*user);
+		ProcessPacketsInline(*user);
 
 		if (auto io = user->BeginReceive(); io)
 		{
@@ -330,6 +336,8 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		{
 			// Would trigger OnTaskFailure
 			std::println("User {} has failed to restart receiving, due to {}.", id, std::to_string(io.error()));
+
+			user->BeginClose();
 		}
 	}
 	break;
@@ -416,7 +424,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = GetListenSocket().BeginAccept(task_ctx, user->GetSocket()); io)
 		{
-			std::println("User {} is reserved.", id);
+			//std::println("User {} is reserved.", id);
 		}
 		else
 		{

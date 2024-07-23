@@ -11,6 +11,20 @@ namespace iconer::app
 
 export namespace iconer::app::game
 {
+	enum class ESagaItemTypes : std::uint8_t
+	{
+		Drink = 0,
+		Gum,
+		SmokeBomb
+	};
+
+	struct SagaItem
+	{
+		ESagaItemTypes myType{};
+		std::atomic_bool isAvailable{ true };
+		std::atomic_bool isBoxDestroyed{ false };
+	};
+
 	struct SagaSummonPoint
 	{
 		void Cleanup() noexcept
@@ -73,7 +87,7 @@ export namespace iconer::app::game
 
 		SagaBasePoint myBase;
 		int myScore;
-		User* myMembers[3];
+		class User* myMembers[3];
 	};
 
 	namespace SagaGuardianState

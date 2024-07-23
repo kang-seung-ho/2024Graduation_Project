@@ -79,7 +79,7 @@ void
 iconer::net::Socket::ReuseAddressImplementation(bool flag)
 noexcept
 {
-	std::println("Socket::ReuseAddressImplementation({}) called", flag);
+	//std::println("Socket::ReuseAddressImplementation({}) called", flag);
 
 	(void)ReusableAddress(flag);
 }
@@ -88,7 +88,7 @@ void
 iconer::net::Socket::TcpNoDelayImplementation(bool flag)
 noexcept
 {
-	std::println("Socket::TcpNoDelayImplementation({}) called", flag);
+	//std::println("Socket::TcpNoDelayImplementation({}) called", flag);
 
 	(void)SetTcpNoDelay(flag);
 }

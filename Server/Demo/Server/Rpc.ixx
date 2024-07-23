@@ -11,25 +11,28 @@ export namespace iconer::app::inline rpc
 	enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	{
 		RPC_UNKNOWN = 0,
-		ICONER_RPC_ENUM_ITEM(WALK),
-		ICONER_RPC_ENUM_ITEM(RUN),
-		ICONER_RPC_ENUM_ITEM(JUMP),
-		ICONER_RPC_ENUM_ITEM(ATTACK_0), // Normal attack #1
-		ICONER_RPC_ENUM_ITEM(ATTACK_1), // Normal attack #2
-		ICONER_RPC_ENUM_ITEM(ATTACK_2), // Normal attack #3
-		ICONER_RPC_ENUM_ITEM(ATTACK_3), // Normal attack #4
-		ICONER_RPC_ENUM_ITEM(RIDE),
+		RPC_BEG_WALK, RPC_END_WALK,
+		RPC_BEG_RUN, RPC_END_RUN,
+		RPC_BEG_JUMP, RPC_END_JUMP,
+		RPC_BEG_ATTACK_0, RPC_END_ATTACK_0, // Normal attack #1
+		RPC_BEG_ATTACK_1, RPC_END_ATTACK_1, // Normal attack #2
+		RPC_BEG_ATTACK_2, RPC_END_ATTACK_2, // Normal attack #3
+		RPC_BEG_ATTACK_3, RPC_END_ATTACK_3, // Normal attack #4
+		RPC_BEG_RIDE, RPC_END_RIDE,
 		RPC_POSITION,
 		RPC_ROTATION,
 		RPC_SKILL_0 = 100, // Ability #1
 		RPC_SKILL_1, // Ability #2
 		RPC_SKILL_2, // Ability #3
 		RPC_SKILL_3, // Ability #4
-		RPC_USE_ITEM_0,
+
+		RPC_USE_ITEM_0 = 120,
 		RPC_USE_ITEM_1,
 		RPC_USE_ITEM_2,
 		RPC_USE_ITEM_3,
 		RPC_USE_ITEM_4,
+		RPC_ASSIGN_ITEM_ID,
+		RPC_DESTROY_ITEM_BOX,
 
 		RPC_SPAWN_ITEM = 150,
 		RPC_GRAB_ITEM,

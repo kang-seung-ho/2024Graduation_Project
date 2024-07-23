@@ -10,7 +10,7 @@ import Iconer.App.SendContext;
 import Iconer.App.PacketSerializer;
 
 void
-ServerFramework::EventOnMakeRoom(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnMakeRoom(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 
@@ -64,7 +64,7 @@ ServerFramework::EventOnFailedToMakeRoom(iconer::app::User& user)
 }
 
 void
-ServerFramework::EventOnJoinRoom(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnJoinRoom(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 
@@ -174,7 +174,7 @@ ServerFramework::EventOnFailedToNotifyRoomJoin(iconer::app::User& user)
 }
 
 void
-ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnExitRoom(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
@@ -204,13 +204,13 @@ ServerFramework::EventOnExitRoom(iconer::app::User& user, std::byte* data)
 }
 
 void
-ServerFramework::EventOnSeekRoom(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnSeekRoom(iconer::app::User& user, const std::byte* data)
 {
 
 }
 
 void
-ServerFramework::EventOnRoomList(iconer::app::User& user, std::byte*)
+ServerFramework::EventOnRoomList(iconer::app::User& user, const std::byte* data)
 {
 	user.SendGeneralData(*AcquireSendContext(), roomManager.AcquireCachedRoomData());
 }

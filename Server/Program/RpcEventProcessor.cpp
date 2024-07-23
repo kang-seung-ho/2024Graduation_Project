@@ -79,7 +79,7 @@ namespace
 #define MAKE_RPC_PACKET(_proc, _id, _arg0, _arg1) iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, (std::int32_t)(_id), (_proc), (std::int64_t)(_arg0), (std::int32_t)(_arg1))
 
 void
-ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 {
 	using enum RpcProtocol;
 
@@ -190,6 +190,9 @@ ServerFramework::EventOnRpc(iconer::app::User& user, std::byte* data)
 			{
 				break;
 			}
+
+			///TODO: max item count
+			if (arg1 < 0 or 10 <= arg1) break;
 
 			const auto index = static_cast<size_t>(arg1);
 			auto&& item = items[index];

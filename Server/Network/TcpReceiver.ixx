@@ -7,7 +7,7 @@ import <cstddef>;
 import <cstdint>;
 import <memory>;
 import <span>;
-import <vector>;
+import <array>;
 import <atomic>;
 
 export namespace iconer::net
@@ -17,14 +17,15 @@ export namespace iconer::net
 	public:
 		using this_class = TcpReceiver;
 
+		static inline constexpr std::uint32_t maxRecvSize = 512;
+
 		iconer::net::Socket* mySocket;
-		std::uint32_t maxRecvSize;
-		std::atomic_uint32_t recvBytes;
-		alignas(std::hardware_constructive_interference_size) std::vector<std::byte> recvBuffer;
+		alignas(std::hardware_constructive_interference_size) std::array<std::byte, maxRecvSize> recvBuffer;
+		std::atomic_int32_t recvBytes;
 
 		constexpr TcpReceiver(iconer::net::Socket& socket, std::uint32_t buffer_size)
 			: mySocket(std::addressof(socket))
-			, recvBuffer(buffer_size, std::byte{}), maxRecvSize(buffer_size)
+			, recvBuffer()
 			, recvBytes()
 		{}
 
@@ -43,11 +44,11 @@ export namespace iconer::net
 		iconer::net::IoResult BeginClose(iconer::net::IoContext* context);
 		void EndClose();
 
+		void PullReceivedData(const size_t& size);
 		[[nodiscard]]
-		std::unique_ptr<std::byte[]> AcquireReceivedData(size_t size);
+		std::unique_ptr<std::byte[]> AcquireReceivedData(const size_t& size);
 
 		[[nodiscard]] std::span<std::byte> GetReceiveBuffer() noexcept;
-		[[nodiscard]] std::span<const std::byte> GetReceiveBuffer() const noexcept;
 		[[nodiscard]] std::span<std::byte> GetCurrentReceiveBuffer() noexcept;
 
 		[[nodiscard]]
@@ -61,9 +62,6 @@ export namespace iconer::net
 		{
 			return *mySocket;
 		}
-
-		TcpReceiver(TcpReceiver&&) = default;
-		TcpReceiver& operator=(TcpReceiver&&) = default;
 
 	private:
 		TcpReceiver(const TcpReceiver&) = delete;

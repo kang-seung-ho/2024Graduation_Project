@@ -14,7 +14,7 @@ namespace
 }
 
 void
-ServerFramework::EventOnUserList(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnUserList(iconer::app::User& user, const std::byte* data)
 {
 	iconer::app::Room* const room = user.GetRoom();
 
@@ -25,7 +25,7 @@ ServerFramework::EventOnUserList(iconer::app::User& user, std::byte* data)
 }
 
 void
-ServerFramework::EventOnChangeTeam(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnChangeTeam(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 
@@ -92,7 +92,7 @@ ServerFramework::EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t
 }
 
 void
-ServerFramework::EventOnGameStartSignal(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnGameStartSignal(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
@@ -129,6 +129,7 @@ ServerFramework::EventOnMakeGame(iconer::app::User& user)
 		if (room->TryStartGame()) LIKELY
 		{
 			room->startingMemberProceedCount = 0;
+			room->readyMemberProceedCount = 0;
 			room->gameLoadedMemberProceedCount = 0;
 
 			room->selectionPhaseTime = std::chrono::system_clock::now() + weaponPhasePeriod;
@@ -241,8 +242,6 @@ ServerFramework::EventOnSpreadGameTickets(iconer::app::User& user)
 	{
 		if (nullptr != room) LIKELY
 		{
-			ctx->TryChangeOperation(OpSpreadGameTicket, OpReadyGame);
-
 			auto & cnt = room->startingMemberProceedCount;
 			cnt.fetch_add(1);
 		}
@@ -282,7 +281,7 @@ ServerFramework::EventOnFailedToSpreadGameTickets(iconer::app::User& user)
 }
 
 void
-ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnGameReadySignal(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::PacketProtocol;
 	using enum iconer::app::TaskCategory;
@@ -311,7 +310,7 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 					{
 						auto& ctx = member.mainContext;
 
-						if (not ctx->TryChangeOperation(OpReadyGame, OpStartGame))
+						if (not ctx->TryChangeOperation(OpSpreadGameTicket, OpStartGame))
 						{
 							cancelled = true;
 						}
@@ -324,6 +323,7 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 						{
 							// OpStartGame
 							auto& ctx = member.mainContext;
+
 							member.SendGeneralData(ctx, ctx->GetGameStartPacketData());
 						}
 					);
@@ -334,7 +334,6 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 						{
 							auto& ctx = member.mainContext;
 
-							ctx->TryChangeOperation(OpReadyGame, OpSignIn);
 							ctx->TryChangeOperation(OpStartGame, OpSignIn);
 						}
 					);
@@ -343,23 +342,43 @@ ServerFramework::EventOnGameReadySignal(iconer::app::User& user, std::byte* data
 
 					room->myState.compare_exchange_strong(gaming_state, Idle);
 				}
-
-				room->Foreach
-				(
-					[&](iconer::app::User& member)
-					{
-						iconer::app::SendContext* const ctx = AcquireSendContext();
-
-						auto& mem_ctx = member.mainContext;
-
-						member.SendGeneralData(*ctx, mem_ctx->GetCreatCharactersPacketData());
-					}
-				);
 			}
 			else
 			{
 				// TODO
 			}
+		}
+	};
+}
+
+void
+ServerFramework::EventOnGameStarted(iconer::app::User& user)
+{
+	using enum iconer::app::PacketProtocol;
+	using enum iconer::app::TaskCategory;
+	using enum iconer::app::RoomState;
+
+	iconer::app::Room* const room = user.GetRoom();
+
+	if (nullptr != room) LIKELY
+	{
+		auto & cnt = room->gameLoadedMemberProceedCount;
+
+		cnt.fetch_add(1);
+
+		if (room->GetMemberCount() <= cnt)
+		{
+			room->Foreach
+			(
+				[&](iconer::app::User& member)
+				{
+					const auto ctx = AcquireSendContext();
+
+					auto& mem_ctx = member.mainContext;
+
+					member.SendGeneralData(*ctx, mem_ctx->GetCreatCharactersPacketData());
+				}
+			);
 		}
 	};
 }

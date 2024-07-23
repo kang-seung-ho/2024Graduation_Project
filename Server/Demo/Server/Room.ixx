@@ -3,6 +3,7 @@ module;
 #include <initializer_list>
 #include <memory>
 #include <chrono>
+#include <array>
 #include <span>
 
 export module Iconer.Application.Room;
@@ -52,6 +53,9 @@ export namespace iconer::app
 
 		static inline constexpr size_t maxUsersNumberInRoom = 4;
 		static inline constexpr size_t minUsersNumberForGame = 2;
+
+		std::atomic_bool sagaItemListLock{};
+		std::array<game::SagaItem, 200> sagaItemList{};
 
 		template<typename ForwardedId>
 		explicit constexpr Room(ForwardedId&& id)

@@ -4,7 +4,7 @@ import Iconer.App.User;
 import Iconer.App.TaskCategory;
 
 void
-ServerFramework::EventOnSignIn(iconer::app::User& user, std::byte* data)
+ServerFramework::EventOnSignIn(iconer::app::User& user, const std::byte* data)
 {
 	using enum iconer::app::TaskCategory;
 

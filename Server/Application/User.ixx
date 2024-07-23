@@ -109,7 +109,7 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		std::span<const std::byte> GetReceivedData() const noexcept
+		auto GetReceivedData() noexcept
 		{
 			return myReceiver.GetReceiveBuffer();
 		}
