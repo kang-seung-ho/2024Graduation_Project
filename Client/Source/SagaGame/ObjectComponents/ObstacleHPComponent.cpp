@@ -71,7 +71,7 @@ void UObstacleHPComponent::CheckDeath()
 			*/
 			if (AMapObstacle1* Obstacle = Cast<AMapObstacle1>(owner))
 			{
-				Obstacle->SpawnItemBox();
+				Obstacle->OnDestroy();
 			}
 
 			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);

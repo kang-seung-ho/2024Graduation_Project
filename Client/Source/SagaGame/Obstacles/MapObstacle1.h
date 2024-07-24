@@ -29,7 +29,7 @@ public:
 	*  서버, 클라 모두 같게 동기화됨
 	*/
 	UPROPERTY()
-	int32 myItemId;
+	int32 myItemId{ -1 };
 
 	AMapObstacle1();
 
@@ -37,9 +37,11 @@ public:
 
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
 
-	/// TODO: 서버에서 방마다에 생성할 아이템을 저장해놓은 ID-아이템 유형 테이블을 읽어서 아이템을 생성해야함
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
-	void SpawnItemBox();
+	void OnDestroy();
+
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	ASagaItemBox* SpawnItemBox() const;
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
 	FORCEINLINE void SetID(int32 id) noexcept

@@ -8,6 +8,9 @@
 #include "Character/SagaCharacterBase.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
+#include "Obstacles/MapObstacle1.h"
+#include "Item/SagaItemBox.h"
+#include "Interface/SagaCharacterItemInterface.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -402,22 +405,103 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{}
 	break;
 
-	///TODO: RPC_DESTROY_ITEM_BOX
 	case ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX:
 	{
+#if WITH_EDITOR
 
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] target item id: %d"), arg1);
+#endif
+
+		for (auto& item_spawner : everyItemSpawnEntities)
+		{
+			if (IsValid(item_spawner.Get()) and item_spawner->GetID() == arg1)
+			{
+				const auto box = item_spawner->SpawnItemBox();
+				everyItemBoxes.Add(box);
+
+#if WITH_EDITOR
+
+				const auto name = item_spawner->GetName();
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] item %s is destroyed."), *name);
+#endif
+				item_spawner->Destroy();
+				//everyItemSpawnEntities.RemoveSwap(item_spawner);
+				break;
+			}
+		}
 	}
 	break;
 
-	///TODO: RPC_GRAB_ITEM
 	case ESagaRpcProtocol::RPC_GRAB_ITEM:
 	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] item id: %d"), arg1);
 
+		for (auto& item_spawner : everyItemSpawnEntities)
+		{
+			if (IsValid(item_spawner.Get()) and item_spawner->GetID() == arg1)
+			{
+				const auto box = item_spawner->SpawnItemBox();
+				everyItemBoxes.Add(box);
+
+#if WITH_EDITOR
+
+				const auto name = item_spawner->GetName();
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] item spawner %s is destroyed."), *name);
+#endif
+				item_spawner->Destroy();
+				//everyItemSpawnEntities.RemoveSwap(item_spawner);
+				break;
+			}
+		}
+
+		for (auto& item_box : everyItemBoxes)
+		{
+			if (IsValid(item_box.Get()) and item_box->GetItemId() == arg1)
+			{
+#if WITH_EDITOR
+
+				const auto name = item_box->GetName();
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] item %d (%s) is destroyed."), arg1, *name);
+#endif
+
+				item_box->Destroy();
+				//everyItemBoxes.RemoveSwap(item_box);
+				break;
+			}
+		}
+
+		if (not is_remote)
+		{
+			ISagaCharacterItemInterface* item_inf = Cast<ISagaCharacterItemInterface>(character);
+
+			if (item_inf)
+			{
+				const auto rng_item = FMath::RandRange(0, 2);
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] User %d is getting item."), rng_item);
+
+				item_inf->TakeItem(static_cast<ESagaItemTypes>(rng_item));
+			}
+		}
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_USE_ITEM_0:
-	{}
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] item id: %d"), arg1);
+
+		if (is_remote)
+		{
+
+		}
+		else
+		{
+
+		}
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_USE_ITEM_1:

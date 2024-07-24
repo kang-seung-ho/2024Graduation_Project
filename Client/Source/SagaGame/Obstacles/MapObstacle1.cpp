@@ -58,39 +58,57 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 }
 
 void
-AMapObstacle1::SpawnItemBox()
+AMapObstacle1::OnDestroy()
 {
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 	if (net->IsOfflineMode())
 	{
-		const FVector loc = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
-		FActorSpawnParameters params{};
+		UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %d is destroyed (Offline Mode)."), myItemId);
 
-		ASagaItemBox* box = GetWorld()->SpawnActor<ASagaItemBox>(loc, FRotator::ZeroRotator, params);
-
-		if (IsValid(box))
-		{
-			box->SetItemId(myItemId);
-
-			if (UStaticMeshComponent* ItemMesh = box->GetMesh())
-			{
-				ItemMesh->SetSimulatePhysics(true);
-				ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				// Ensure it has a suitable collision profile
-				//ItemMesh->SetCollisionProfileName(TEXT("Item"));
-
-				// z value for the popping-up effect
-				FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f);
-				ItemMesh->AddImpulse(LaunchVelocity, NAME_None, true);
-			}
-		}
+		(void)SpawnItemBox();
 	}
 	else
 	{
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX, 0, myItemId);
+		UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %d is destroyed."), myItemId);
+
+		if (0 < myItemId)
+		{
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX, 0, myItemId);
+		}
 	}
 
 	// Destroy this obstacle
 	Destroy();
+}
+
+ASagaItemBox*
+AMapObstacle1::SpawnItemBox()
+const
+{
+	UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Spawning an item with an id %d."), myItemId);
+
+	const FVector loc = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
+	FActorSpawnParameters params{};
+
+	ASagaItemBox* box = GetWorld()->SpawnActor<ASagaItemBox>(loc, FRotator::ZeroRotator, params);
+
+	if (IsValid(box))
+	{
+		box->SetItemId(myItemId);
+
+		if (UStaticMeshComponent* ItemMesh = box->GetMesh())
+		{
+			ItemMesh->SetSimulatePhysics(true);
+			ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			// Ensure it has a suitable collision profile
+			//ItemMesh->SetCollisionProfileName(TEXT("Item"));
+
+			// z value for the popping-up effect
+			FVector LaunchVelocity = FVector(0.0f, 0.0f, 500.0f);
+			ItemMesh->AddImpulse(LaunchVelocity, NAME_None, true);
+		}
+	}
+
+	return box;
 }

@@ -18,6 +18,7 @@
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
 #include "Obstacles/MapObstacle1.h"
+#include "Item/SagaItemBox.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -178,6 +179,15 @@ ASagaInGameMode::StartPlay()
 		entity->SetID(item_spawner_id++);
 
 		everyItemSpawnEntities.Add(entity);
+	}
+	
+	// Seek and store every item box
+	for (TActorIterator<ASagaItemBox> it{ world }; it; ++it)
+	{
+		const auto box = *it;
+		box->SetItemId(item_spawner_id++);
+
+		everyItemBoxes.Add(box);
 	}
 
 #if WITH_EDITOR

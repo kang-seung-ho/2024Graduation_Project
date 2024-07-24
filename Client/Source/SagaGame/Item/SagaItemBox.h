@@ -3,6 +3,7 @@
 #include <Templates/SubclassOf.h>
 #include <GameFramework/Actor.h>
 #include <Engine/World.h>
+#include <NiagaraFunctionLibrary.h>
 
 #include "SagaItemBox.generated.h"
 
@@ -23,6 +24,12 @@ public:
 		return Mesh;
 	}
 
+	UFUNCTION(Category = "CandyLandSaga|Game|Item")
+	FORCEINLINE int32 GetItemId() const noexcept
+	{
+		return myItemId;
+	}
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	int32 myItemId;
@@ -34,7 +41,10 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	TObjectPtr<class UParticleSystemComponent> Effect;
+	TObjectPtr<class UNiagaraSystem> itemGrabEffect;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
+	bool isGrabbed;
 
 	virtual void BeginPlay() override;
 

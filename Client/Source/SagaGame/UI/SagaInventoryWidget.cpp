@@ -185,6 +185,7 @@ void USagaInventoryWidget::UseGumball()
 		if (PlayerPawn)
 		{
 			FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 200.0f;
+			SpawnLocation.Z -= 60.0f;
 			FRotator SpawnRotation = PlayerPawn->GetActorRotation();
 			FActorSpawnParameters SpawnParams;
 			GetWorld()->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);

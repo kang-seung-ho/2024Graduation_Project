@@ -2,6 +2,9 @@
 #include <Math/UnrealMathUtility.h>
 #include <Templates/Casts.h>
 #include <Kismet/GameplayStatics.h>
+#include <Components/BoxComponent.h>
+#include <NiagaraSystem.h>
+#include <NiagaraComponent.h>
 
 #include "Item/SagaWeaponData.h"
 #include "Interface/SagaCharacterItemInterface.h"
@@ -14,12 +17,10 @@ ASagaItemBox::ASagaItemBox()
 {
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Effect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect"));
 
 	RootComponent = Trigger;
 
 	Mesh->SetupAttachment(Trigger);
-	Effect->SetupAttachment(Trigger);
 
 	Trigger->SetBoxExtent(FVector(30.f, 30.f, 30.f));
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ASagaItemBox::OnOverlapBegin);
@@ -34,17 +35,23 @@ ASagaItemBox::ASagaItemBox()
 	Mesh->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> EffectRef(TEXT(""));
-	if (EffectRef.Object)
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Get/NS_Get.NS_Get'"));
+	if (NiagaraEffect.Succeeded())
 	{
-		Effect->SetTemplate(EffectRef.Object);
-		Effect->bAutoActivate = false;
+		itemGrabEffect = NiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Item Niagara Effect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item Niagara Effect Not Loaded"));
 	}
 
 	Trigger->SetCollisionProfileName(TEXT("Item"));
 
 	// Make Mesh Collision Profile to NoCollision because the TriggerBox has the Item Collision Profile
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+	isGrabbed = false;
 }
 
 void
@@ -67,23 +74,42 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 
 	if (pawn)
 	{
-		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (net->IsOfflineMode())
+		if (not isGrabbed)
 		{
-			pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
-		}
-		else
-		{
-			// TODO
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
-		}
+			const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		Effect->Activate(true);
-		Mesh->SetHiddenInGame(true);
-		SetActorEnableCollision(false);
+			if (net->IsOfflineMode())
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed (Offline Mode)."), myItemId);
 
-		Effect->OnSystemFinished.AddDynamic(this, &ASagaItemBox::OnEffectFinished);
+				pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed."), myItemId);
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
+			}
+
+			if (itemGrabEffect)
+			{
+				FVector SpawnLocation = GetActorLocation();
+				FRotator SpawnRotation = GetActorRotation();
+
+				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, itemGrabEffect, SpawnLocation, SpawnRotation);
+
+				if (NiagaraComponent)
+				{
+					FTimerHandle NiagaraTimerHandle;
+					GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
+				}
+			}
+
+			Mesh->SetHiddenInGame(true);
+			SetActorEnableCollision(false);
+
+			isGrabbed = true;
+		}
 	}
 	else
 	{

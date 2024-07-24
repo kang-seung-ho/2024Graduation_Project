@@ -139,12 +139,12 @@ ASagaCharacterBase::ExecuteRespawn()
 
 	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
-		spawn_pos = FVector{ 3100.0, 3400.0, 320.0 };
+		spawn_pos = FVector{ 20.0, 5110.0, 157.0 };
 		spawn_rot = FRotator::ZeroRotator;
 	}
 	else // blue team
 	{
-		spawn_pos = FVector{ -3892.0, -3540.0, 320.0 };
+		spawn_pos = FVector{ 28.0, -5080.0, 153.0 };
 		//spawn_rot = FRotator{ 0, -129.0, 0 };
 		spawn_rot = FRotator::ZeroRotator;
 	}
