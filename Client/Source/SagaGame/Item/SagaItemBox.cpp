@@ -2,6 +2,9 @@
 #include <Math/UnrealMathUtility.h>
 #include <Templates/Casts.h>
 #include <Kismet/GameplayStatics.h>
+#include <Components/BoxComponent.h>
+#include <NiagaraSystem.h>
+#include <NiagaraComponent.h>
 
 #include "Item/SagaWeaponData.h"
 #include "Interface/SagaCharacterItemInterface.h"
@@ -71,34 +74,43 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 
 	if (pawn)
 	{
-		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-		if (net->IsOfflineMode())
+		if (not isGrabbed)
 		{
-			pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
-		}
-		else
-		{
-			// TODO
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
-		}
+			const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (Effect)
-		{
-			FVector SpawnLocation = GetActorLocation();
-			FRotator SpawnRotation = GetActorRotation();
-			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Effect, SpawnLocation, SpawnRotation);
-
-			if (NiagaraComponent)
+			if (net->IsOfflineMode())
 			{
-				FTimerHandle NiagaraTimerHandle;
-				GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed (Offline Mode)."), myItemId);
+
+				pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
 			}
+			else
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed."), myItemId);
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
+			}
+
+			if (Effect)
+			{
+				FVector SpawnLocation = GetActorLocation();
+				FRotator SpawnRotation = GetActorRotation();
+				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Effect, SpawnLocation, SpawnRotation);
+
+				if (NiagaraComponent)
+				{
+					FTimerHandle NiagaraTimerHandle;
+					GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
+				}
+			}
+
+			Mesh->SetHiddenInGame(true);
+			SetActorEnableCollision(false);
+
+			Effect->OnSystemFinished.AddDynamic(this, &ASagaItemBox::OnEffectFinished);
+
+			isGrabbed = true;
 		}
-
-		Mesh->SetHiddenInGame(true);
-		SetActorEnableCollision(false);
-
 	}
 	else
 	{
