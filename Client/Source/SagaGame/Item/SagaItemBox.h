@@ -3,9 +3,7 @@
 #include <Templates/SubclassOf.h>
 #include <GameFramework/Actor.h>
 #include <Engine/World.h>
-
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
+#include <NiagaraFunctionLibrary.h>
 
 #include "SagaItemBox.generated.h"
 
@@ -43,8 +41,9 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	TObjectPtr<UNiagaraSystem> Effect;
+	TObjectPtr<class UNiagaraSystem> itemGrabEffect;
 
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	bool isGrabbed;
 
 	virtual void BeginPlay() override;

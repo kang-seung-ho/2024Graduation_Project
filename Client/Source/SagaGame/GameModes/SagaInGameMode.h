@@ -56,6 +56,8 @@ private:
 	TArray<TObjectPtr<class ASagaGummyBearPlayer>> everyBears;
 	UPROPERTY()
 	TArray<TObjectPtr<class AMapObstacle1>> everyItemSpawnEntities;
+	UPROPERTY()
+	TArray<TObjectPtr<class ASagaItemBox>> everyItemBoxes;
 
 	UFUNCTION()
 	void OnLeftRoom(int32 user_id);

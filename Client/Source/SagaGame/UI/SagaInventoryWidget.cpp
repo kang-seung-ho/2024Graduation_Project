@@ -68,12 +68,14 @@ USagaInventoryWidget::NativeConstruct()
 	//}
 }
 
-void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void
+USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void USagaInventoryWidget::CloseButtonClick()
+void
+USagaInventoryWidget::CloseButtonClick()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CloseButton clicked"));
 	SetVisibility(ESlateVisibility::Collapsed);
@@ -89,7 +91,8 @@ void USagaInventoryWidget::CloseButtonClick()
 	}
 }
 
-void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
+void
+USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 {
 	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
@@ -112,7 +115,8 @@ void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 	}
 }
 
-void USagaInventoryWidget::OnListItemSelection(UObject* Item)
+void
+USagaInventoryWidget::OnListItemSelection(UObject* Item)
 {
 	if (IsValid(mSelectionItem))
 	{
@@ -137,7 +141,8 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 	}
 }
 
-void USagaInventoryWidget::OnListItemClick(UObject* Item)
+void
+USagaInventoryWidget::OnListItemClick(UObject* Item)
 {
 	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
@@ -163,14 +168,10 @@ void USagaInventoryWidget::OnListItemClick(UObject* Item)
 	}
 }
 
-void USagaInventoryWidget::UseEnergyDrink()
+void
+USagaInventoryWidget::UseEnergyDrink()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));
-
-	//�÷��̾� HP ȸ�� ���� �߰�
-	// + �÷��̾� HPȸ�� �� ����Ʈ ��� �߰�
-
-	//
 
 }
 
