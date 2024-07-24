@@ -14,12 +14,10 @@ ASagaItemBox::ASagaItemBox()
 {
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Effect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect"));
 
 	RootComponent = Trigger;
 
 	Mesh->SetupAttachment(Trigger);
-	Effect->SetupAttachment(Trigger);
 
 	Trigger->SetBoxExtent(FVector(30.f, 30.f, 30.f));
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ASagaItemBox::OnOverlapBegin);
@@ -34,11 +32,15 @@ ASagaItemBox::ASagaItemBox()
 	Mesh->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> EffectRef(TEXT(""));
-	if (EffectRef.Object)
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Get/NS_Get.NS_Get'"));
+	if (NiagaraEffect.Succeeded())
 	{
-		Effect->SetTemplate(EffectRef.Object);
-		Effect->bAutoActivate = false;
+		Effect = NiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Item Niagara Effect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item Niagara Effect Not Loaded"));
 	}
 
 	Trigger->SetCollisionProfileName(TEXT("Item"));
@@ -81,11 +83,22 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
 		}
 
-		Effect->Activate(true);
+		if (Effect)
+		{
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Effect, SpawnLocation, SpawnRotation);
+
+			if (NiagaraComponent)
+			{
+				FTimerHandle NiagaraTimerHandle;
+				GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
+			}
+		}
+
 		Mesh->SetHiddenInGame(true);
 		SetActorEnableCollision(false);
 
-		Effect->OnSystemFinished.AddDynamic(this, &ASagaItemBox::OnEffectFinished);
 	}
 	else
 	{

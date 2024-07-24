@@ -4,6 +4,9 @@
 #include <GameFramework/Actor.h>
 #include <Engine/World.h>
 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+
 #include "SagaItemBox.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Item")
@@ -40,7 +43,7 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	TObjectPtr<class UParticleSystemComponent> Effect;
+	TObjectPtr<UNiagaraSystem> Effect;
 
 	bool isGrabbed;
 
