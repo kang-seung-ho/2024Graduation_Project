@@ -38,7 +38,7 @@ ASagaItemBox::ASagaItemBox()
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Get/NS_Get.NS_Get'"));
 	if (NiagaraEffect.Succeeded())
 	{
-		Effect = NiagaraEffect.Object;
+		itemGrabEffect = NiagaraEffect.Object;
 		UE_LOG(LogTemp, Warning, TEXT("Item Niagara Effect Loaded"));
 	}
 	else
@@ -91,11 +91,12 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
 			}
 
-			if (Effect)
+			if (itemGrabEffect)
 			{
 				FVector SpawnLocation = GetActorLocation();
 				FRotator SpawnRotation = GetActorRotation();
-				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Effect, SpawnLocation, SpawnRotation);
+
+				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, itemGrabEffect, SpawnLocation, SpawnRotation);
 
 				if (NiagaraComponent)
 				{

@@ -41,7 +41,7 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	TObjectPtr<class UNiagaraSystem> Effect;
+	TObjectPtr<class UNiagaraSystem> itemGrabEffect;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	bool isGrabbed;
