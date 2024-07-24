@@ -74,7 +74,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	class UNiagaraComponent* NiagaraComponentTemplate;
 	UPROPERTY()
-	TArray<int32> ActiveIndx;
+	TArray<int32> ActiveIndex;
 	UPROPERTY()
 	TArray<class UGeometryCollectionComponent*> GeometryCollections;
 	class UGeometryCollectionComponent* r_arm;
@@ -91,6 +91,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
 	class UStaticMesh* GetTargetMesh(int32 Index);
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* HitEffect;
 
 	virtual void BeginPlay() override;
 

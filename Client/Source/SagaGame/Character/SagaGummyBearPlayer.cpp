@@ -17,6 +17,9 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
@@ -156,7 +159,24 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 
 	if (0 < current_hp)
 	{
-		// 피격 이펙트
+		// Hit Effect When the hp is greater than 0
+
+		if (HitEffect)
+		{
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, HitEffect, SpawnLocation, SpawnRotation);
+
+			if (NiagaraComponent)
+			{
+				FTimerHandle NiagaraTimerHandle;
+				GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
+					{
+						NiagaraComponent->Deactivate();
+						NiagaraComponent->DestroyComponent();
+					}, 3.0f, false);
+			}
+		}
 
 	}
 
@@ -202,8 +222,8 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 		{
 			if (IsPointInsideBox(DismCollisionBox[i], Location))
 			{
-				ActiveIndx[i]--;
-				if (ActiveIndx[i] == 0)
+				ActiveIndex[i]--;
+				if (ActiveIndex[i] == 0)
 				{
 					//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 					DismPartID = i;
@@ -214,10 +234,10 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 					break;
 				}
 			}
-			UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+			UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndex[i]);
 		}
 
-		if (ActiveIndx[1] <= 0 && ActiveIndx[3] <= 0)
+		if (ActiveIndex[1] <= 0 && ActiveIndex[3] <= 0)
 		{
 			ExecuteHurt(GetHealth());
 		}
@@ -533,6 +553,17 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	// 오버랩 이벤트 바인드
 	//myInteractionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapBegin);
 	//myInteractionBox->OnComponentEndOverlap.AddDynamic(this, &ASagaGummyBearPlayer::OnOverlapEnd);
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Hit/NS_Hit.NS_Hit'"));
+	if (NiagaraEffect.Succeeded())
+	{
+		HitEffect = NiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Bear Niagara Hit Effect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Bear Item Niagara Hit Effect Not Loaded"));
+	}
 }
 
 void
@@ -540,7 +571,7 @@ ASagaGummyBearPlayer::BeginPlay()
 {
 	myGameStat->OnHpZero.AddDynamic(this, &ASagaGummyBearPlayer::ExecuteDeath);
 
-	ActiveIndx.Init(DismThreshold, 4);
+	ActiveIndex.Init(DismThreshold, 4);
 
 	Super::BeginPlay();
 }
