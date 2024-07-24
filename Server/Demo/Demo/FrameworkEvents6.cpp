@@ -117,6 +117,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	{
 	case RPC_ASSIGN_ITEM_ID:
 	{
+		myLogger.Log(L"\t[RPC_ASSIGN_ITEM_ID] at room {}\n", room_id);
+
 		if (room->IsEmpty())
 		{
 			break;
@@ -130,6 +132,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_DESTROY_ITEM_BOX:
 	{
+		myLogger.Log(L"\t[RPC_DESTROY_ITEM_BOX] at room {}\n", room_id);
+
 		auto& items = room->sagaItemList;
 		auto& ilock = room->sagaItemListLock;
 
@@ -150,6 +154,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		bool destroyed = false;
 		if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
 		{
+			std::println("User {} destroys item spawner {}.", user_id, arg1);
+
 			room->ForEach
 			(
 				[&](iconer::app::User& member)
@@ -168,6 +174,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_GRAB_ITEM:
 	{
+		myLogger.Log(L"\t[RPC_GRAB_ITEM] at room {}\n", room_id);
+
 		auto& items = room->sagaItemList;
 		auto& ilock = room->sagaItemListLock;
 
@@ -188,18 +196,14 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		const auto index = static_cast<size_t>(arg1);
 		iconer::app::game::SagaItem& item = items[index];
 
-		if (item.isBoxDestroyed)
+		//if (item.isBoxDestroyed)
 		{
+			std::println("User {} gets item {}.", user_id, arg1);
+
 			bool grabbed = true;
 			if (item.isAvailable.compare_exchange_strong(grabbed, false))
 			{
-				room->ForEach
-				(
-					[&](iconer::app::User& member)
-					{
-						SEND(member, SendRpcPacket, user_id, RPC_GRAB_ITEM, arg0, arg1);
-					}
-				);
+				SEND(*user, SendRpcPacket, user_id, RPC_GRAB_ITEM, arg0, arg1);
 			}
 		}
 
@@ -212,6 +216,8 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - item type
 	case RPC_USE_ITEM_0:
 	{
+		myLogger.Log(L"\t[RPC_USE_ITEM_0] at room {}\n", room_id);
+
 		room->ForEach
 		(
 			[&](iconer::app::User& member)
