@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class AS
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterRespawned, class ASagaCharacterBase*, character);
 
-UCLASS(BlueprintType, Abstract, NotPlaceable, Category = "CandyLandSaga|Game|Character")
+UCLASS(BlueprintType, Abstract, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API ASagaCharacterBase : public ACharacter, public ISagaCharacterItemInterface
 {
 	GENERATED_BODY()
