@@ -108,7 +108,8 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 			Mesh->SetHiddenInGame(true);
 			SetActorEnableCollision(false);
 
-			Effect->OnSystemFinished.AddDynamic(this, &ASagaItemBox::OnEffectFinished);
+			///TODO: 왜인지 메서드가 없다고 오류 뜸
+			//itemGrabEffect->OnSystemFinished.AddDynamic(this, &ASagaItemBox::OnEffectFinished);
 
 			isGrabbed = true;
 		}
