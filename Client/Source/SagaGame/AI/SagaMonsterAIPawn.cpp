@@ -84,7 +84,7 @@ void ASagaMonsterAIPawn::ExecuteAttack()
     {
         // Apply damage to the hit actor
         FDamageEvent DamageEvent;
-        HitResult.GetActor()->TakeDamage(90.f, DamageEvent, GetController(), this);
+        HitResult.GetActor()->TakeDamage(50.f, DamageEvent, GetController(), this);
 
 
     }
