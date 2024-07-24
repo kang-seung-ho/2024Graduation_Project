@@ -28,12 +28,13 @@ const FString SagaBluTeamName = TEXT("Blue");
 ASagaInGameMode::ASagaInGameMode(const FObjectInitializer& initializer)
 	: Super(initializer)
 	, storedLocalPlayerController()
-	, readyTimerHandle()
-	, transformUpdateTimer()
 	, playerSpawners()
 	, lastCharacterPosition(), lastCharacterRotation()
 	, everyBears()
-	, everyItemSpawnEntities()
+	, everyItemSpawnEntities(), everyItemBoxes()
+	, readyTimerHandle()
+	, transformUpdateTimer()
+	, guardianScannerTimer()
 {
 	SetControllerClass(ASagaInGamePlayerController::StaticClass());
 
@@ -162,14 +163,6 @@ ASagaInGameMode::StartPlay()
 		storedLocalPlayerController->SetAsLocalPlayerController();
 	}
 
-	// Seek and store every gummy bear
-	for (TActorIterator<ASagaGummyBearPlayer> it{ world }; it; ++it)
-	{
-		const auto bear = *it;
-
-		everyBears.Add(bear);
-	}
-
 	int32 item_spawner_id = 0;
 
 	// Seek and store every item spawner
@@ -202,7 +195,7 @@ ASagaInGameMode::StartPlay()
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no bear."));
 	}
 
-	const auto item_entity_num = everyItemSpawnEntities.Num();
+	const auto item_entity_num = everyItemSpawnEntities.Num() + everyItemBoxes.Num();
 	if (0 < item_entity_num)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d item spawners are detected."), item_entity_num);
@@ -231,6 +224,8 @@ ASagaInGameMode::StartPlay()
 
 	// First find the local controller and enumerate actors' BeginPlay
 	Super::StartPlay();
+
+	GetWorldTimerManager().SetTimer(guardianScannerTimer, this, &ASagaInGameMode::ScanGuardians, 1.0f, false);
 }
 
 AActor*
@@ -359,6 +354,22 @@ ASagaInGameMode::HandleUpdateTransform()
 	else
 	{
 		GetWorldTimerManager().ClearTimer(transformUpdateTimer);
+	}
+}
+
+void
+ASagaInGameMode::ScanGuardians()
+{
+	int32 bear_id = 0;
+
+	// Seek and store every gummy bear
+	for (TActorIterator<ASagaGummyBearPlayer> it{ GetWorld() }; it; ++it)
+	{
+		const auto bear = *it;
+
+		bear->bearUniqueId = bear_id++;
+
+		everyBears.Add(bear);
 	}
 }
 
