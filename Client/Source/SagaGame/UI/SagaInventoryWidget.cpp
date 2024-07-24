@@ -68,14 +68,12 @@ USagaInventoryWidget::NativeConstruct()
 	//}
 }
 
-void
-USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void
-USagaInventoryWidget::CloseButtonClick()
+void USagaInventoryWidget::CloseButtonClick()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CloseButton clicked"));
 	SetVisibility(ESlateVisibility::Collapsed);
@@ -91,8 +89,7 @@ USagaInventoryWidget::CloseButtonClick()
 	}
 }
 
-void
-USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
+void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 {
 	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
@@ -115,8 +112,7 @@ USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 	}
 }
 
-void
-USagaInventoryWidget::OnListItemSelection(UObject* Item)
+void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 {
 	if (IsValid(mSelectionItem))
 	{
@@ -141,8 +137,7 @@ USagaInventoryWidget::OnListItemSelection(UObject* Item)
 	}
 }
 
-void
-USagaInventoryWidget::OnListItemClick(UObject* Item)
+void USagaInventoryWidget::OnListItemClick(UObject* Item)
 {
 	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
@@ -168,10 +163,14 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 	}
 }
 
-void
-USagaInventoryWidget::UseEnergyDrink()
+void USagaInventoryWidget::UseEnergyDrink()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));
+
+	//�÷��̾� HP ȸ�� ���� �߰�
+	// + �÷��̾� HPȸ�� �� ����Ʈ ��� �߰�
+
+	//
 
 }
 
@@ -186,6 +185,7 @@ void USagaInventoryWidget::UseGumball()
 		if (PlayerPawn)
 		{
 			FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 200.0f;
+			SpawnLocation.Z -= 60.0f;
 			FRotator SpawnRotation = PlayerPawn->GetActorRotation();
 			FActorSpawnParameters SpawnParams;
 			GetWorld()->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
