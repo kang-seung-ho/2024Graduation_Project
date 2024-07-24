@@ -24,6 +24,9 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 public:
+	UPROPERTY()
+	bool awaitingItemRpc{ false };
+
 	UFUNCTION()
 	void CloseButtonClick();
 
