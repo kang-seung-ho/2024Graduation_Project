@@ -11,6 +11,10 @@
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "UI/InventoryItemData.h"
 
+#include "Saga/Network/SagaRpcProtocol.h"
+#include "Saga/Network/SagaVirtualUser.h"
+#include "Saga/Network/SagaNetworkSubSystem.h"
+
 void
 USagaInventoryWidget::NativeConstruct()
 {
