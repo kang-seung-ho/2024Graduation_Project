@@ -65,7 +65,7 @@ public:
 		mName = Name;
 		mCount = Count;
 
-		UE_LOG(LogTemp, Warning, TEXT("SetInfo called: %s"), *mName);  // SetInfo 호출 로그
+		UE_LOG(LogTemp, Warning, TEXT("SetInfo called: %s"), *mName);
 	}
 
 	void SetInfo(const FString* IconPath, const FString& Name, int32 Count)

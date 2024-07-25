@@ -13,6 +13,7 @@
 #include "Input/SagaInputSystem.h"
 #include "Item/SagaItemTypes.h"
 #include "UI/InventoryItemData.h"
+#include "UI/SagaInventoryWidget.h"
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept

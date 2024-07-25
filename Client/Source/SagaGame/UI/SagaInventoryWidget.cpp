@@ -141,33 +141,60 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 	}
 }
 
-void USagaInventoryWidget::OnListItemClick(UObject* Item)
+void
+USagaInventoryWidget::OnListItemClick(UObject* Item)
 {
 	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
 	if (IsValid(ItemData))
 	{
+		const auto index = mInventory->GetIndexForItem(Item);
+		const auto world = GetWorld();
+		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+#if WITH_EDITOR
+
 		FString ItemName = ItemData->GetItemName();
 		UE_LOG(LogTemp, Warning, TEXT("Item clicked: %s"), *ItemName);
+#endif
 
-		if (ItemName == "EnergyDrink")
+		if (net->IsOfflineMode())
 		{
-			UseEnergyDrink();
-		}
-		else if (ItemName == "Gumball")
-		{
-			UseGumball();
-		}
-		else if (ItemName == "SmokeBomb")
-		{
-			UseSmokeBomb();
-		}
+			if (ItemName == "EnergyDrink")
+			{
+				UseEnergyDrink();
+			}
+			else if (ItemName == "Gumball")
+			{
+				UseGumball();
+			}
+			else if (ItemName == "SmokeBomb")
+			{
+				UseSmokeBomb();
+			}
 
-		mInventory->RemoveItem(ItemData);
+			mInventory->RemoveItem(ItemData);
+		}
+		else
+		{
+			if (ItemName == "EnergyDrink")
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 0);
+			}
+			else if (ItemName == "Gumball")
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
+			}
+			else if (ItemName == "SmokeBomb")
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 2);
+			}
+		}
 	}
 }
 
-void USagaInventoryWidget::UseEnergyDrink()
+void
+USagaInventoryWidget::UseEnergyDrink()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));
 
@@ -178,7 +205,8 @@ void USagaInventoryWidget::UseEnergyDrink()
 
 }
 
-void USagaInventoryWidget::UseGumball()
+void
+USagaInventoryWidget::UseGumball()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using Gumball"));
 
@@ -197,7 +225,8 @@ void USagaInventoryWidget::UseGumball()
 	}
 }
 
-void USagaInventoryWidget::UseSmokeBomb()
+void
+USagaInventoryWidget::UseSmokeBomb()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using Smoke Bomb"));
 	APlayerController* PlayerController = GetOwningPlayer();
@@ -221,7 +250,6 @@ void USagaInventoryWidget::UseSmokeBomb()
 			}
 		}
 	}
-
 }
 
 void USagaInventoryWidget::AddItemToInventory(UInventoryItemData* ItemData)
