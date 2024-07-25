@@ -491,6 +491,12 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	}
 
 	collideBears.Reserve(3);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> RedHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BlueHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/BlueHat.BlueHat'"));
+
+
+
 }
 
 void
@@ -504,7 +510,36 @@ ASagaPlayableCharacter::PostInitializeComponents()
 	{
 		myWeapon->SetCollisionProfileName(TEXT("Weapon"));
 	}
+
+	UStaticMesh* RedHatMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
+	UStaticMesh* BlueHatMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/BlueHat.BlueHat'"));
+
+	UStaticMeshComponent* HatComponent = NewObject<UStaticMeshComponent>(this);
+
+	if (ownerData.myTeam == ESagaPlayerTeam::Red)
+	{
+		if (RedHatMesh)
+		{
+			HatComponent->SetStaticMesh(RedHatMesh);
+		}
+	}
+	else
+	{
+		if (BlueHatMesh)
+		{
+			HatComponent->SetStaticMesh(BlueHatMesh);
+		}
+	}
+
+	HatComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); 
+	HatComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+
+	// Head 소켓에 부착
+	HatComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("head_x_PartyHat_Socket"));
+
+	HatComponent->RegisterComponent();
 }
+
 
 void
 ASagaPlayableCharacter::BeginPlay()
