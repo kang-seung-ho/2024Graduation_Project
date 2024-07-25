@@ -85,7 +85,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
-	auto room = FindRoom(room_id);
+	const auto room = FindRoom(room_id);
 	if (nullptr == room)
 	{
 		delete rpc_ctx;
@@ -100,7 +100,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
-	auto user = FindUser(user_id);
+	const auto user = FindUser(user_id);
 	if (nullptr == user)
 	{
 		delete rpc_ctx;
@@ -117,14 +117,14 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	{
 	case RPC_ASSIGN_ITEM_ID:
 	{
-		myLogger.Log(L"\t[RPC_ASSIGN_ITEM_ID] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_ASSIGN_ITEM_ID] at room {}\n", room_id);
 
 		if (room->IsEmpty())
 		{
 			break;
 		}
 
-		std::println("User {} claims {} item spawners.", user_id, arg1);
+		myLogger.DebugLog(L"User {} claims {} item spawners.\n", user_id, arg1);
 	}
 	break;
 
@@ -132,7 +132,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_DESTROY_ITEM_BOX:
 	{
-		myLogger.Log(L"\t[RPC_DESTROY_ITEM_BOX] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_DESTROY_ITEM_BOX] at room {}\n", room_id);
 
 		auto& items = room->sagaItemList;
 		auto& ilock = room->sagaItemListLock;
@@ -154,7 +154,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		bool destroyed = false;
 		if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
 		{
-			std::println("User {} destroys item spawner {}.", user_id, arg1);
+			myLogger.DebugLog(L"\tUser {} destroys item spawner {}.\n", user_id, arg1);
 
 			room->ForEach
 			(
@@ -174,7 +174,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_GRAB_ITEM:
 	{
-		myLogger.Log(L"\t[RPC_GRAB_ITEM] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] at room {}\n", room_id);
 
 		auto& items = room->sagaItemList;
 		auto& ilock = room->sagaItemListLock;
@@ -198,7 +198,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		//if (item.isBoxDestroyed)
 		{
-			std::println("User {} gets item {}.", user_id, arg1);
+			myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] User {} gets item {}.\n", user_id, arg1);
 
 			bool grabbed = true;
 			if (item.isAvailable.compare_exchange_strong(grabbed, false))
@@ -216,7 +216,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - item type
 	case RPC_USE_ITEM_0:
 	{
-		myLogger.Log(L"\t[RPC_USE_ITEM_0] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_USE_ITEM_0] at room {}\n", room_id);
 
 		room->ForEach
 		(
@@ -246,13 +246,13 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 			}
 		);
 
-		myLogger.Log(L"\tUser {} changed weapon to {}\n", user_id, arg0);
+		myLogger.DebugLog(L"\tUser {} changed weapon to {}\n", user_id, arg0);
 	}
 	break;
 
 	case RPC_BEG_RIDE:
 	{
-		myLogger.Log(L"\t[RPC_BEG_RIDE] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_BEG_RIDE] at room {}\n", room_id);
 
 		// arg1: index of guardian
 		if (arg1 < 0 or 3 <= arg1)
