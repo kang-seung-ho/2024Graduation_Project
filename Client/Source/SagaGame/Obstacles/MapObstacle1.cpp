@@ -65,8 +65,6 @@ AMapObstacle1::OnDestroy()
 	if (net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %d is destroyed (Offline Mode)."), myItemId);
-
-		(void)SpawnItemBox();
 	}
 	else
 	{
@@ -83,6 +81,8 @@ AMapObstacle1::OnDestroy()
 			UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %s has an invalid id."), *name);
 		}
 	}
+
+	(void)SpawnItemBox();
 
 	// Destroy this obstacle
 	Destroy();
