@@ -158,7 +158,7 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 		UE_LOG(LogTemp, Warning, TEXT("Item clicked: %s"), *ItemName);
 #endif
 
-		if (net->IsOfflineMode())
+		//if (net->IsOfflineMode())
 		{
 			if (ItemName == "EnergyDrink")
 			{
@@ -175,6 +175,7 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 
 			mInventory->RemoveItem(ItemData);
 		}
+		/*
 		else
 		{
 			if (ItemName == "EnergyDrink")
@@ -189,7 +190,7 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 2);
 			}
-		}
+		}*/
 	}
 }
 
