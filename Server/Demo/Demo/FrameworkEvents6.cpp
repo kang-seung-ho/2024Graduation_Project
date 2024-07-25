@@ -77,7 +77,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		return false;
 	}
 
-	const IdType room_id = rpc_ctx->roomId;
+	const IdType& room_id = rpc_ctx->roomId;
 	if (room_id <= -1)
 	{
 		delete rpc_ctx;
@@ -212,7 +212,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	break;
 
 	// 
-	// arg0 - 
+	// arg0 - inventory index
 	// arg1 - item type
 	case RPC_USE_ITEM_0:
 	{
@@ -261,37 +261,51 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 			break;
 		}
 
-		bool is_riding = user->isRidingGuardian.Load(std::memory_order_acquire);
-
 		auto& guardian = room->sagaGuardians[arg1];
+		auto& riding = user->isRidingGuardian;
 
 		// TODO: RPC_BEG_RIDE
-		if (0 < user->myHealth and guardian.IsAlive() and guardian.TryRide(user_id))
+
+		if (0 < user->myHealth and riding.CompareAndSet(false, true, std::memory_order_acq_rel))
 		{
-			myLogger.Log(L"\tUser {} would ride the Guardian {}\n", user_id, arg1);
+			if (guardian.IsAlive())
+			{
+				myLogger.DebugLog(L"\tUser {} would ride the Guardian {}.\n", user_id, arg1);
 
-			room->ForEach
-			(
-				[&](User& member)
+				if (guardian.TryRide(user_id))
 				{
-					SEND(member, SendRpcPacket, user_id, RPC_BEG_RIDE, arg0, arg1);
+					room->ForEach
+					(
+						[&](User& member)
+						{
+							SEND(member, SendRpcPacket, user_id, RPC_BEG_RIDE, arg0, arg1);
+						}
+					);
 				}
-			);
+				else
+				{
+					myLogger.LogWarning(L"\tGuardian {} is already occupied.\n", arg1);
 
-			user->isRidingGuardian.Store(true, std::memory_order_release);
+					riding.CompareAndSet(true, false, std::memory_order_acq_rel);
+				}
+			}
+			else
+			{
+				myLogger.LogWarning(L"\tGuardian {} is dead so user {} cannot ride it.\n", user_id, arg1);
+
+				riding.CompareAndSet(true, false, std::memory_order_acq_rel);
+			}
 		}
 		else
 		{
-			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}\n", user_id, arg1);
-
-			user->isRidingGuardian.Store(false, std::memory_order_release);
+			myLogger.LogWarning(L"\tUser {} cannot ride the Guardian {}.\n", user_id, arg1);
 		}
 	}
 	break;
 
 	case RPC_END_RIDE:
 	{
-		myLogger.Log(L"\t[RPC_END_RIDE] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_END_RIDE] at room {}\n", room_id);
 
 		// arg1: index of guardian
 		if (arg1 < 0 or 3 <= arg1)
@@ -306,7 +320,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		if (guardian.TryUnride(user_id))
 		{
-			myLogger.Log(L"\tUser {} would unride from guardian {}\n", user_id, arg1);
+			myLogger.DebugLog(L"\tUser {} would unride from guardian {}\n", user_id, arg1);
 
 			room->ForEach
 			(
@@ -329,7 +343,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_ATTACK_0:
 	{
-		myLogger.Log(L"\t[RPC_BEG_ATTACK_0] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_BEG_ATTACK_0] at room {}\n", room_id);
 
 		//if (0 < user->myHealth)
 		{
@@ -354,7 +368,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		float dmg{};
 		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-		myLogger.Log(L"\t[RPC_DMG_PLYER] At room {} - {} dmg to user {}\n", room_id, dmg, arg1);
+		myLogger.DebugLog(L"\t[RPC_DMG_PLYER] At room {} - {} dmg from user {}\n", room_id, dmg, arg1);
 
 		if (0 < hp)
 		{
@@ -362,8 +376,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 			if (hp <= 0)
 			{
-				// TODO: 수호자 파괴
-
 				// 하차 처리
 				{
 					//room->ForEach
@@ -373,10 +385,10 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 							//SEND(member, SendRpcPacket, user_id, RPC_END_RIDE, arg0, arg1);
 						//}
 					//);
-					//user->isRidingGuardian = false;
 				}
 
 				// 사망
+				user->isRidingGuardian = false;
 				user->respawnTime = std::chrono::system_clock::now() + User::respawnPeriod;
 
 				room->ForEach
@@ -404,11 +416,11 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_DMG_GUARDIAN:
 	{
-		myLogger.Log(L"\t[RPC_DMG_GUARDIAN] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] at room {}\n", room_id);
 
 		float dmg{};
 		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-		myLogger.Log(L"\t[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}\n", room_id, dmg, arg1);
+		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}\n", room_id, dmg, arg1);
 
 		// 데미지 처리
 		room->ForEach
@@ -449,7 +461,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		const auto gap = user->respawnTime - now;
 		const auto cnt = gap.count();
-		myLogger.Log(L"\tUser {}'s respawn time: {}\n", user_id, cnt);
+		myLogger.DebugLog(L"\tUser {}'s respawn time: {}\n", user_id, cnt);
 
 		if (0 < cnt)
 		{
@@ -474,7 +486,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_DMG_GUARDIANS_PART:
 	{
-		myLogger.Log(L"\t[RPC_DMG_GUARDIANS_PART] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIANS_PART] at room {}\n", room_id);
 
 	}
 	break;
@@ -490,7 +502,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		const auto gap = room->selectionPhaseTime - now;
 		const auto cnt = gap.count();
-		//myLogger.Log(L"\tRoom {}'s weapon phase: {}\n", room_id, cnt);
+		//myLogger.DebugLog(L"\tRoom {}'s weapon phase: {}\n", room_id, cnt);
 
 		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
 	}
@@ -524,7 +536,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		const auto gap = room->gamePhaseTime - now;
 		const auto cnt = gap.count();
-		//myLogger.Log(L"\tRoom {}'s game time: {}\n", room_id, cnt);
+		//myLogger.DebugLog(L"\tRoom {}'s game time: {}\n", room_id, cnt);
 
 		SEND(*user, SendRpcPacket, user_id, rpc_ctx->rpcCategory, cnt, arg1);
 	}
@@ -532,7 +544,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	default:
 	{
-		//myLogger.Log(L"\tRPC is proceed at room {}\n", room_id);
+		//myLogger.DebugLog(L"\tRPC is proceed at room {}\n", room_id);
 
 		room->ForEach
 		(
