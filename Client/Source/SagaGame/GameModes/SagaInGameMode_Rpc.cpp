@@ -382,19 +382,19 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			if (IsValid(item_spawner.Get()) and item_spawner->GetID() == arg1)
 			{
-				const auto box = item_spawner->SpawnItemBox();
-				ensure(IsValid(box));
+				//const auto box = item_spawner->SpawnItemBox();
+				//ensure(IsValid(box));
 
-				everyItemBoxes.Add(box);
+				//everyItemBoxes.Add(box);
 
 #if WITH_EDITOR
 
-				const auto name = box->GetName();
+				//const auto name = box->GetName();
 
-				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] item %s is spawned."), *name);
+				//UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] item %s is spawned."), *name);
 #endif
 
-				item_spawner->Destroy();
+				//item_spawner->Destroy();
 				//everyItemSpawnEntities.RemoveSwap(item_spawner);
 				break;
 			}
@@ -410,17 +410,14 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			if (IsValid(item_spawner.Get()) and item_spawner->GetID() == arg1)
 			{
-				const auto box = item_spawner->SpawnItemBox();
-				everyItemBoxes.Add(box);
-
 #if WITH_EDITOR
 
 				const auto name = item_spawner->GetName();
 
 				UE_LOG(LogSagaGame, Log, TEXT("[RPC_GRAB_ITEM] item spawner %s is destroyed."), *name);
 #endif
+
 				item_spawner->Destroy();
-				//everyItemSpawnEntities.RemoveSwap(item_spawner);
 				break;
 			}
 		}
