@@ -117,5 +117,5 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 void
 ASagaItemBox::OnEffectFinished(UParticleSystemComponent* ParticleSystem)
 {
-	Destroy();
+	//Destroy();
 }
