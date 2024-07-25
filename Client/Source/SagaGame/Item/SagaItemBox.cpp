@@ -6,6 +6,7 @@
 #include <NiagaraSystem.h>
 #include <NiagaraComponent.h>
 
+#include "Character/SagaCharacterBase.h"
 #include "Item/SagaWeaponData.h"
 #include "Interface/SagaCharacterItemInterface.h"
 
@@ -67,9 +68,11 @@ ASagaItemBox::BeginPlay()
 void
 ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool sweep, const FHitResult& SweepResult)
 {
-	ISagaCharacterItemInterface* pawn = Cast<ISagaCharacterItemInterface>(other);
+	ISagaCharacterItemInterface* item_interface = Cast<ISagaCharacterItemInterface>(other);
 
-	if (pawn)
+	const auto pawn = Cast<ASagaCharacterBase>(item_interface);
+
+	if (item_interface)
 	{
 		if (not isGrabbed)
 		{
@@ -79,13 +82,19 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 			{
 				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed (Offline Mode)."), myItemId);
 
-				pawn->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
+				item_interface->TakeItem(static_cast<ESagaItemTypes>(FMath::RandRange(0, 2)));
+			}
+			else if (pawn->GetUserId() == net->GetLocalUserId())
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1][Local] Item spawner %d is destroyed."), myItemId);
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
 			}
 			else
 			{
-				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item spawner %d is destroyed."), myItemId);
+				UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1][Remote] Item spawner %d is destroyed."), myItemId);
 
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
+				//net->SendRpcPacket(ESagaRpcProtocol::RPC_GRAB_ITEM, 0, myItemId);
 			}
 
 			if (itemGrabEffect)
