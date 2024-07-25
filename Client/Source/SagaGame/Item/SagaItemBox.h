@@ -32,7 +32,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	int32 myItemId;
+	int32 myItemId{ -1 };
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UBoxComponent> Trigger;
@@ -44,7 +44,7 @@ protected:
 	TObjectPtr<class UNiagaraSystem> itemGrabEffect;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	bool isGrabbed;
+	bool isGrabbed{};
 
 	virtual void BeginPlay() override;
 

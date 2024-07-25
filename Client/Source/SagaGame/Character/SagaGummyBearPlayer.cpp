@@ -36,7 +36,7 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 #if WITH_EDITOR
 
 			const auto name = GetName();
-			UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Guardian {} would take {} damages."), *name, dmg);
+			UE_LOG(LogSagaGame, Log, TEXT("[TakeDamage] Guardian %d would take %f damages."), *name, dmg);
 #endif
 
 			return Super::TakeDamage(dmg, event, instigator, causer);
@@ -48,7 +48,7 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 			{
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Error, TEXT("[TakeDamage] Handling gummy bear's damage by {}."), dmg);
+				UE_LOG(LogSagaGame, Log, TEXT("[TakeDamage] Handling gummy bear's damage by {}."), dmg);
 #endif
 
 				// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조

@@ -13,7 +13,6 @@
 
 ASagaItemBox::ASagaItemBox()
 	: Super()
-	, myItemId(-1)
 {
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -50,8 +49,6 @@ ASagaItemBox::ASagaItemBox()
 
 	// Make Mesh Collision Profile to NoCollision because the TriggerBox has the Item Collision Profile
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
-
-	isGrabbed = false;
 }
 
 void
@@ -120,5 +117,5 @@ ASagaItemBox::OnOverlapBegin(UPrimitiveComponent* component, AActor* other, UPri
 void
 ASagaItemBox::OnEffectFinished(UParticleSystemComponent* ParticleSystem)
 {
-	Destroy();
+	//Destroy();
 }

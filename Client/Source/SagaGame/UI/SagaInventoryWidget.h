@@ -1,9 +1,9 @@
 #pragma once
 #include "SagaGame.h"
-#include "Saga/Interface/SagaUserWidget.h"
 #include <UObject/ObjectPtr.h>
 #include <Blueprint/UserWidget.h>
 
+#include "Saga/Interface/SagaUserWidget.h"
 #include "SagaInventoryWidget.generated.h"
 
 UCLASS()

@@ -43,10 +43,6 @@ public:
 
 private:
 	UPROPERTY()
-	FTimerHandle readyTimerHandle;
-	UPROPERTY()
-	FTimerHandle transformUpdateTimer;
-	UPROPERTY()
 	TArray<TObjectPtr<class ASagaCharacterSpawner>> playerSpawners;
 	UPROPERTY()
 	FVector lastCharacterPosition;
@@ -58,6 +54,12 @@ private:
 	TArray<TObjectPtr<class AMapObstacle1>> everyItemSpawnEntities;
 	UPROPERTY()
 	TArray<TObjectPtr<class ASagaItemBox>> everyItemBoxes;
+	UPROPERTY()
+	FTimerHandle readyTimerHandle;
+	UPROPERTY()
+	FTimerHandle transformUpdateTimer;
+	UPROPERTY()
+	FTimerHandle guardianScannerTimer;
 
 	UFUNCTION()
 	void OnLeftRoom(int32 user_id);
@@ -70,6 +72,8 @@ private:
 
 	UFUNCTION()
 	void HandleUpdateTransform();
+	UFUNCTION()
+	void ScanGuardians();
 };
 
 extern const FString SagaRedTeamName;
