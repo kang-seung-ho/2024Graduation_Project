@@ -28,12 +28,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Item")
 	UObstacleHPComponent* HPComponent;
 
-	UPROPERTY(EditAnywhere, Category = "CandyLandSaga|Game|Item")
-	float myHealth;
-
 	AMapObstacle1();
-
-	virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
 

@@ -5,7 +5,6 @@
 #include <GameFramework/Controller.h>
 
 #include "Item/SagaItemTypes.h"
-#include "Item/SagaWeaponData.h"
 #include "Item/SagaItemBox.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -18,36 +17,15 @@ AMapObstacle1::AMapObstacle1()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	RootComponent = MeshComponent;
 
-	// Initialize HPComponent
 	HPComponent = CreateDefaultSubobject<UObstacleHPComponent>(TEXT("HPComponent"));
 
-	// Set initial HP
 	HPComponent->SetObjectHealth(50.0f);
-}
-
-void
-AMapObstacle1::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (HPComponent)
-	{
-		myHealth = HPComponent->GetCurrentHealth();
-	}
-}
-
-void
-AMapObstacle1::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 float
 AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	myHealth -= DamageApplied;
 
 	if (HPComponent)
 	{
