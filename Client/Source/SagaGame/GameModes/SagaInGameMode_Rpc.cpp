@@ -481,7 +481,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		case 1:
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Gumball"));
+			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Gumball"));
 
 			character->ExecuteUseItem(ESagaItemTypes::Gum);
 		}
