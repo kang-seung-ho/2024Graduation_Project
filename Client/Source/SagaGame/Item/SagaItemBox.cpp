@@ -1,7 +1,6 @@
 ﻿#include "SagaItemBox.h"
 #include <Math/UnrealMathUtility.h>
 #include <Templates/Casts.h>
-#include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
 #include <NiagaraSystem.h>
 #include <NiagaraComponent.h>

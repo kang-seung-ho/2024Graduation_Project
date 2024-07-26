@@ -2,13 +2,11 @@
 #include <Components/Button.h>
 #include <Components/ListView.h>
 #include <Blueprint/UserWidget.h>
-#include <NiagaraFunctionLibrary.h>
-#include <NiagaraComponent.h>
 
 #include "InventoryItemData.h"
 #include "SagaInventoryListWidget.h"
 #include "Character/SagaCharacterBase.h"
-#include "Item/Gumball.h"
+#include "Item/SagaItemTypes.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "UI/InventoryItemData.h"
 
@@ -300,14 +298,14 @@ USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
 				pawn->ExecuteUseItem(ESagaItemTypes::SmokeBomb);
 			}
 			else
-					{
+			{
 				UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no pawn. (Offline Mode)"));
 			}
-					}
+		}
 		else
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
-				}
+		}
 		if (IsValid(PlayerController))
 		{
 			const APawn* const pawn = PlayerController->GetPawn();
