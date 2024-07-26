@@ -49,7 +49,4 @@ public:
 	{
 		return myItemId;
 	}
-
-protected:
-	virtual void BeginPlay() override;
 };
