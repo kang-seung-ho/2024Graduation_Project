@@ -169,7 +169,11 @@ ASagaInGameMode::StartPlay()
 	for (TActorIterator<AMapObstacle1> it{ world }; it; ++it)
 	{
 		const auto entity = *it;
-		entity->SetID(item_spawner_id++);
+
+		if (entity->GetID() < 0)
+		{
+			entity->SetID(item_spawner_id++);
+		}
 
 		everyItemSpawnEntities.Add(entity);
 	}
@@ -178,7 +182,11 @@ ASagaInGameMode::StartPlay()
 	for (TActorIterator<ASagaItemBox> it{ world }; it; ++it)
 	{
 		const auto box = *it;
-		box->SetItemId(item_spawner_id++);
+
+		if (box->GetItemId() < 0)
+		{
+			box->SetItemId(item_spawner_id++);
+		}
 
 		everyItemBoxes.Add(box);
 	}
