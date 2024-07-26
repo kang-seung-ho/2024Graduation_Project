@@ -311,7 +311,7 @@ USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb RPC"));
 
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 2);
 	}
 
 	mInventory->RemoveItem(item_entry);
