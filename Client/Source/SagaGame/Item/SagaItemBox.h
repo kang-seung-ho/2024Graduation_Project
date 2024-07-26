@@ -13,6 +13,9 @@ class SAGAGAME_API ASagaItemBox : public AActor
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Item")
+	int32 myItemId{ -1 };
+
 	ASagaItemBox();
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
@@ -31,9 +34,6 @@ public:
 	}
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	int32 myItemId{ -1 };
-
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UBoxComponent> Trigger;
 
