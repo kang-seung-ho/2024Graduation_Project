@@ -174,16 +174,9 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_GRAB_ITEM:
 	{
-		myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] at room {}\n", room_id);
+		myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] at room {} by user {}\n", room_id, user_id);
 
 		auto& items = room->sagaItemList;
-		auto& ilock = room->sagaItemListLock;
-
-		while (true)
-		{
-			bool flag = false;
-			if (ilock.compare_exchange_strong(flag, true)) break;
-		}
 
 		if (room->IsEmpty())
 		{
@@ -191,23 +184,19 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		};
 
 		///TODO: max item count
-		if (arg1 < 0 or 10 <= arg1) break;
+		if (arg1 < 0) break;
 
 		const auto index = static_cast<size_t>(arg1);
 		iconer::app::game::SagaItem& item = items[index];
 
-		//if (item.isBoxDestroyed)
+		bool grabbed = true;
+
+		if (item.isAvailable.compare_exchange_strong(grabbed, false))
 		{
 			myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] User {} gets item {}.\n", user_id, arg1);
 
-			bool grabbed = true;
-			if (item.isAvailable.compare_exchange_strong(grabbed, false))
-			{
-				SEND(*user, SendRpcPacket, user_id, RPC_GRAB_ITEM, arg0, arg1);
-			}
+			SEND(*user, SendRpcPacket, user_id, RPC_GRAB_ITEM, arg0, arg1);
 		}
-
-		ilock = false;
 	}
 	break;
 
@@ -216,7 +205,38 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - item type
 	case RPC_USE_ITEM_0:
 	{
-		myLogger.DebugLog(L"\t[RPC_USE_ITEM_0] at room {}\n", room_id);
+		switch (arg1)
+		{
+		case 0:
+		{
+			myLogger.DebugLog(L"\t[RPC_USE_ITEM] Energy Drink at room {}\n", room_id);
+
+			user->myHealth.FetchAdd(30);
+		}
+		break;
+
+		case 1:
+		{
+			myLogger.DebugLog(L"\t[RPC_USE_ITEM] Gumball at room {}\n", room_id);
+
+			//user->myHealth.FetchAdd(30);
+		}
+		break;
+
+		case 2:
+		{
+			myLogger.DebugLog(L"\t[RPC_USE_ITEM] Smoke bomb at room {}\n", room_id);
+
+			//user->myHealth.FetchAdd(30);
+		}
+		break;
+
+		default:
+		{
+			myLogger.DebugLogError(L"\t[RPC_USE_ITEM] Unknown item {} at room {}\n", arg1, room_id);
+		}
+		break;
+		}
 
 		room->ForEach
 		(
@@ -343,7 +363,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_BEG_ATTACK_0:
 	{
-		myLogger.DebugLog(L"\t[RPC_BEG_ATTACK_0] at room {}\n", room_id);
+		//myLogger.DebugLog(L"\t[RPC_BEG_ATTACK_0] at room {}\n", room_id);
 
 		//if (0 < user->myHealth)
 		{
@@ -461,7 +481,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 		const auto gap = user->respawnTime - now;
 		const auto cnt = gap.count();
-		myLogger.DebugLog(L"\tUser {}'s respawn time: {}\n", user_id, cnt);
+		//myLogger.DebugLog(L"\tUser {}'s respawn time: {}\n", user_id, cnt);
 
 		if (0 < cnt)
 		{
