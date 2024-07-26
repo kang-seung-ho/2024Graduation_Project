@@ -227,7 +227,7 @@ USagaInventoryWidget::UseEnergyDrink(UInventoryItemData* item_entry)
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Energy Drink"));
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Energy Drink RPC"));
 
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 0);
 	}
@@ -268,7 +268,7 @@ USagaInventoryWidget::UseGumball(UInventoryItemData* item_entry)
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Gumball"));
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Gumball RPC"));
 
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
 	}
@@ -306,26 +306,10 @@ USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
 		}
-		if (IsValid(PlayerController))
-		{
-			const APawn* const pawn = PlayerController->GetPawn();
-
-			if (IsValid(pawn))
-			{
-			}
-			else
-			{
-				UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no pawn. (Offline Mode)"));
-			}
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
-		}
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb"));
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb RPC"));
 
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
 	}
