@@ -1,14 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "SagaGameInfo.h"
 
-#include "../SagaGame/Public/SagaGameInfo.h"
-#include "UObject/NoExportTypes.h"
 #include "InventoryItemData.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class SAGAGAME_API UInventoryItemData : public UObject
 {
@@ -22,43 +16,18 @@ private:
 	bool mOnMouse = false;
 
 public:
-	bool IsSelect() const
-	{
-		return mSelect;
-	}
-
 	bool IsMouseOn() const
 	{
 		return mOnMouse;
 	}
 
+	UFUNCTION()
 	void SetSelect(bool Select)
 	{
 		mSelect = Select;
 	}
 
-	void SetMouseOn(bool MouseOn)
-	{
-		mOnMouse = MouseOn;
-	}
-
-
-	UTexture2D* GetIconTexture()
-	{
-		return mIconTexture;
-	}
-
-	const FString& GetItemName()
-	{
-		return mName;
-	}
-
-	int32 GetCount()
-	{
-		return mCount;
-	}
-
-
+	UFUNCTION()
 	void SetInfo(UTexture2D* Icon, const FString& Name, int32 Count)
 	{
 		mIconTexture = Icon;
@@ -68,16 +37,47 @@ public:
 		UE_LOG(LogTemp, Warning, TEXT("SetInfo called: %s"), *mName);
 	}
 
-	void SetInfo(const FString* IconPath, const FString& Name, int32 Count)
+	UFUNCTION()
+	void SetInfoFrom(const FString& IconPath, const FString& Name, int32 Count)
 	{
-		mIconTexture = LoadObject<UTexture2D>(GetWorld(), **IconPath);
+		mIconTexture = LoadObject<UTexture2D>(GetWorld(), *IconPath);
 		mName = Name;
 		mCount = Count;
 	}
 
+	UFUNCTION()
 	void AddCount(int32 Count)
 	{
 		mCount += Count;
 	}
 
+	UFUNCTION()
+	void SetMouseOn(bool MouseOn)
+	{
+		mOnMouse = MouseOn;
+	}
+
+	UFUNCTION()
+	UTexture2D* GetIconTexture() const noexcept
+	{
+		return mIconTexture;
+	}
+
+	UFUNCTION()
+	const FString& GetItemName() const noexcept
+	{
+		return mName;
+	}
+
+	UFUNCTION()
+	int32 GetCount() const noexcept
+	{
+		return mCount;
+	}
+
+	UFUNCTION()
+	bool IsSelect() const noexcept
+	{
+		return mSelect;
+	}
 };
