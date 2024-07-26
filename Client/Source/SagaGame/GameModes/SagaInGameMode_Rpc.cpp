@@ -9,6 +9,7 @@
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearPlayer.h"
 #include "Obstacles/MapObstacle1.h"
+#include "Item/SagaItemTypes.h"
 #include "Item/SagaItemBox.h"
 #include "Interface/SagaCharacterItemInterface.h"
 
@@ -466,6 +467,39 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		else
 		{
 
+		}
+
+		switch (arg1)
+		{
+		case 0:
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] Using Energy Drink"));
+
+			character->ExecuteUseItem(ESagaItemTypes::Drink);
+		}
+		break;
+
+		case 1:
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Gumball"));
+
+			character->ExecuteUseItem(ESagaItemTypes::Gum);
+		}
+		break;
+
+		case 2:
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb"));
+
+			character->ExecuteUseItem(ESagaItemTypes::SmokeBomb);
+		}
+		break;
+
+		default:
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] Invalid item id"));
+		}
+		break;
 		}
 	}
 	break;
