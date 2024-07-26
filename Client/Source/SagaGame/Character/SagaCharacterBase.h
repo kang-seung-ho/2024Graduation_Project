@@ -146,9 +146,11 @@ public:
 	virtual float ExecuteHurt(const float dmg);
 	UFUNCTION()
 	virtual void ExecuteDeath();
-
 	UFUNCTION()
 	virtual void ExecuteRespawn();
+
+	UFUNCTION()
+	void ExecuteUseItem(ESagaItemTypes item);
 #pragma endregion
 
 	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")

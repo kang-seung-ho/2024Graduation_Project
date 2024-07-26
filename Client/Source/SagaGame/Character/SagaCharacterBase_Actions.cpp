@@ -1,9 +1,17 @@
 #include "Character/SagaCharacterBase.h"
 #include <Engine/EngineTypes.h>
+#include <UObject/UObjectGlobals.h>
 #include <UObject/Object.h>
+#include <Engine/World.h>
 #include <GameFramework/CharacterMovementComponent.h>
+#include <NiagaraSystem.h>
+#include <NiagaraCommon.h>
+#include <NiagaraFunctionLibrary.h>
+#include <NiagaraComponent.h>
 
 #include "Player/SagaPlayerTeam.h"
+#include "Item/SagaItemTypes.h"
+#include "Item/Gumball.h"
 #include "UI/SagaWidgetComponent.h"
 
 void
@@ -159,5 +167,57 @@ ASagaCharacterBase::ExecuteRespawn()
 	if (OnCharacterRespawned.IsBound())
 	{
 		OnCharacterRespawned.Broadcast(this);
+	}
+}
+
+void
+ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
+{
+	const auto world = GetWorld();
+
+	switch (item)
+	{
+	case ESagaItemTypes::Drink:
+	{
+		SetHealth(GetHealth() + 30);
+	}
+	break;
+
+	case ESagaItemTypes::Gum:
+	{
+		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f;
+		SpawnLocation.Z -= 30.0f;
+
+		FRotator SpawnRotation = GetActorRotation();
+		FActorSpawnParameters SpawnParams{};
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		world->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+	}
+	break;
+
+	case ESagaItemTypes::SmokeBomb:
+	{
+		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 50.0f;
+		SpawnLocation.Z += 50.0f;
+
+		FRotator SpawnRotation = GetActorRotation();
+
+		UNiagaraSystem* SmokeEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
+		if (SmokeEffect)
+		{
+			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, SmokeEffect, SpawnLocation, SpawnRotation);
+
+			if (NiagaraComponent)
+			{
+				NiagaraComponent->SetAutoDestroy(true);  // auto destroy after effect is done
+			}
+		}
+	}
+	break;
+
+	default:
+	{}
+	break;
 	}
 }
