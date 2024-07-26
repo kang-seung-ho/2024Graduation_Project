@@ -134,7 +134,7 @@ ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
 
 	if (flag)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("Setting input mode to UI only"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game on UI both"));
 
 		SetInputMode(FInputModeGameAndUI());
 
@@ -142,7 +142,7 @@ ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("Setting input mode to Game only"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game only"));
 
 		SetInputMode(FInputModeGameOnly());
 
