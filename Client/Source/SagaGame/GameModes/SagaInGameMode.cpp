@@ -212,7 +212,6 @@ ASagaInGameMode::StartPlay()
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
 			net->SendGameIsLoadedPacket();
-
 		}
 	}
 	else
@@ -372,20 +371,6 @@ ASagaInGameMode::ScanGuardians()
 		everyBears.Add(bear);
 	}
 }
-
-void
-ASagaInGameMode::HandleUseEnergyDrink(ASagaCharacterBase* character)
-{
-	character->SetHealth(character->GetHealth() + 30);
-}
-
-void
-ASagaInGameMode::HandleUseGumball(ASagaCharacterBase* character)
-{}
-
-void
-ASagaInGameMode::HandleUseSmokeBomb(ASagaCharacterBase* character)
-{}
 
 void
 SerializePosition(const FVector& vector, int64& arg0, int32& arg1)
