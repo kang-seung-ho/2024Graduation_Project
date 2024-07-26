@@ -74,6 +74,13 @@ private:
 	void HandleUpdateTransform();
 	UFUNCTION()
 	void ScanGuardians();
+
+	UFUNCTION()
+	static void HandleUseEnergyDrink(class ASagaCharacterBase* character);
+	UFUNCTION()
+	static void HandleUseGumball(class ASagaCharacterBase* character);
+	UFUNCTION()
+	static void HandleUseSmokeBomb(class ASagaCharacterBase* character);
 };
 
 extern const FString SagaRedTeamName;

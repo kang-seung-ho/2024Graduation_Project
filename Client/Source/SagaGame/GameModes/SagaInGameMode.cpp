@@ -374,6 +374,20 @@ ASagaInGameMode::ScanGuardians()
 }
 
 void
+ASagaInGameMode::HandleUseEnergyDrink(ASagaCharacterBase* character)
+{
+	character->SetHealth(character->GetHealth() + 30);
+}
+
+void
+ASagaInGameMode::HandleUseGumball(ASagaCharacterBase* character)
+{}
+
+void
+ASagaInGameMode::HandleUseSmokeBomb(ASagaCharacterBase* character)
+{}
+
+void
 SerializePosition(const FVector& vector, int64& arg0, int32& arg1)
 {
 	const auto x = static_cast<float>(vector.X);
