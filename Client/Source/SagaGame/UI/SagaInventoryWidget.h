@@ -6,7 +6,7 @@
 #include "Saga/Interface/SagaUserWidget.h"
 #include "SagaInventoryWidget.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|System")
 class SAGAGAME_API USagaInventoryWidget : public USagaUserWidget
 {
 	GENERATED_BODY()
