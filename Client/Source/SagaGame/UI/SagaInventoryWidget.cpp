@@ -7,6 +7,7 @@
 
 #include "InventoryItemData.h"
 #include "SagaInventoryListWidget.h"
+#include "Character/SagaCharacterBase.h"
 #include "Item/Gumball.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 #include "UI/InventoryItemData.h"
@@ -144,36 +145,37 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 void
 USagaInventoryWidget::OnListItemClick(UObject* Item)
 {
-	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
+	UInventoryItemData* entry = Cast<UInventoryItemData>(Item);
 
-	if (IsValid(ItemData))
+	if (IsValid(entry))
 	{
-		const auto index = mInventory->GetIndexForItem(Item);
-		const auto world = GetWorld();
-		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
 #if WITH_EDITOR
 
-		FString ItemName = ItemData->GetItemName();
-		UE_LOG(LogTemp, Warning, TEXT("Item clicked: %s"), *ItemName);
+		FString ItemName = entry->GetItemName();
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Item clicked: %s"), *ItemName);
 #endif
+
+		if (ItemName == "EnergyDrink")
+		{
+			UseEnergyDrink(entry);
+		}
+		else if (ItemName == "Gumball")
+		{
+			UseGumball(entry);
+		}
+		else if (ItemName == "SmokeBomb")
+		{
+			UseSmokeBomb(entry);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("[USagaInventoryWidget] There is no item '%s'."), *ItemName);
+		}
 
 		//if (net->IsOfflineMode())
 		{
-			if (ItemName == "EnergyDrink")
-			{
-				UseEnergyDrink();
-			}
-			else if (ItemName == "Gumball")
-			{
-				UseGumball();
-			}
-			else if (ItemName == "SmokeBomb")
-			{
-				UseSmokeBomb();
-			}
 
-			mInventory->RemoveItem(ItemData);
 		}
 		/*
 		else
@@ -195,65 +197,151 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 }
 
 void
-USagaInventoryWidget::UseEnergyDrink()
+USagaInventoryWidget::UseEnergyDrink(UInventoryItemData* item_entry)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Using Energy Drink"));
+	const auto index = mInventory->GetIndexForItem(item_entry);
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	//�÷��̾� HP ȸ�� ���� �߰�
-	// + �÷��̾� HPȸ�� �� ����Ʈ ��� �߰�
-
-	//
-
-}
-
-void
-USagaInventoryWidget::UseGumball()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Using Gumball"));
-
-	APlayerController* PlayerController = GetOwningPlayer();
-	if (PlayerController)
+	if (net->IsOfflineMode())
 	{
-		APawn* PlayerPawn = PlayerController->GetPawn();
-		if (PlayerPawn)
-		{
-			FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 200.0f;
-			SpawnLocation.Z -= 60.0f;
-			FRotator SpawnRotation = PlayerPawn->GetActorRotation();
-			FActorSpawnParameters SpawnParams;
-			GetWorld()->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
-		}
-	}
-}
+		const APlayerController* const PlayerController = GetOwningPlayer();
 
-void
-USagaInventoryWidget::UseSmokeBomb()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Using Smoke Bomb"));
-	APlayerController* PlayerController = GetOwningPlayer();
-	if (PlayerController)
-	{
-		APawn* PlayerPawn = PlayerController->GetPawn();
-		if (PlayerPawn)
+		if (IsValid(PlayerController))
 		{
-			FVector SpawnLocation = PlayerPawn->GetActorLocation() + PlayerPawn->GetActorForwardVector() * 50.0f;
-			SpawnLocation.Z += 200.0f;  // 200 unit above player
+			const auto pawn = PlayerController->GetPawn<ASagaCharacterBase>();
 
-			FRotator SpawnRotation = PlayerPawn->GetActorRotation();
-			UNiagaraSystem* SmokeEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
-			if (SmokeEffect)
+			if (IsValid(pawn))
 			{
-				UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SmokeEffect, SpawnLocation, SpawnRotation);
-				if (NiagaraComponent)
-				{
-					NiagaraComponent->SetAutoDestroy(true);  // auto destroy after effect is done
-				}
+				UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Energy Drink (Offline Mode)"));
+
+				pawn->SetHealth(pawn->GetHealth() + 30);
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no pawn. (Offline Mode)"));
 			}
 		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
+		}
 	}
+	else
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Energy Drink"));
+
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 0);
+	}
+
+	mInventory->RemoveItem(item_entry);
 }
 
-void USagaInventoryWidget::AddItemToInventory(UInventoryItemData* ItemData)
+void
+USagaInventoryWidget::UseGumball(UInventoryItemData* item_entry)
+{
+	const auto index = mInventory->GetIndexForItem(item_entry);
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode())
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Gumball (Offline Mode)"));
+
+		const APlayerController* const PlayerController = GetOwningPlayer();
+
+		if (IsValid(PlayerController))
+		{
+			const APawn* const pawn = PlayerController->GetPawn();
+
+			if (IsValid(pawn))
+			{
+				FVector SpawnLocation = pawn->GetActorLocation() + pawn->GetActorForwardVector() * 200.0f;
+				SpawnLocation.Z -= 30.0f;
+
+				FRotator SpawnRotation = pawn->GetActorRotation();
+				FActorSpawnParameters SpawnParams{};
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+				world->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no pawn. (Offline Mode)"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Using Gumball"));
+
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
+	}
+
+	mInventory->RemoveItem(item_entry);
+}
+
+void
+USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
+{
+	const auto index = mInventory->GetIndexForItem(item_entry);
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode())
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb (Offline Mode)"));
+
+		const APlayerController* const PlayerController = GetOwningPlayer();
+
+		if (IsValid(PlayerController))
+		{
+			const APawn* const pawn = PlayerController->GetPawn();
+
+			if (IsValid(pawn))
+			{
+				FVector SpawnLocation = pawn->GetActorLocation() + pawn->GetActorForwardVector() * 50.0f;
+				SpawnLocation.Z += 50.0f;
+
+				FRotator SpawnRotation = pawn->GetActorRotation();
+
+				UNiagaraSystem* SmokeEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
+				if (SmokeEffect)
+				{
+					UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, SmokeEffect, SpawnLocation, SpawnRotation);
+
+					if (NiagaraComponent)
+					{
+						NiagaraComponent->SetAutoDestroy(true);  // auto destroy after effect is done
+					}
+				}
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no pawn. (Offline Mode)"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[USagaInventoryWidget] There is no controller. (Offline Mode)"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb"));
+
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
+	}
+
+	mInventory->RemoveItem(item_entry);
+}
+
+void
+USagaInventoryWidget::AddItemToInventory(UInventoryItemData* ItemData)
 {
 	if (mInventory)
 	{

@@ -19,29 +19,30 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UInventoryItemData> mSelectionItem;
 	
-protected:
-	virtual void NativeConstruct();
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
-
-public:
 	UPROPERTY()
 	bool awaitingItemRpc{ false };
 
 	UFUNCTION()
-	void CloseButtonClick();
+	void AddItemToInventory(class UInventoryItemData* ItemData);
 
 	UFUNCTION()
 	void OnListItemHover(UObject* Item, bool IsHovered);
-
 	UFUNCTION()
 	void OnListItemSelection(UObject* Item);
-
 	UFUNCTION()
 	void OnListItemClick(UObject* Item);
 
-	void UseEnergyDrink();
-	void UseGumball();
-	void UseSmokeBomb();
+	UFUNCTION()
+	void UseEnergyDrink(class UInventoryItemData* item_entry);
+	UFUNCTION()
+	void UseGumball(class UInventoryItemData* item_entry);
+	UFUNCTION()
+	void UseSmokeBomb(class UInventoryItemData* item_entry);
 
-	void AddItemToInventory(class UInventoryItemData* ItemData);
+	UFUNCTION()
+	void CloseButtonClick();
+
+protected:
+	virtual void NativeConstruct();
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 };
