@@ -12,15 +12,19 @@
 #include <cstring>
 #include <ctime>
 
-import <bit>;
-import <utility>;
-import <string>;
-import <string_view>;
-import <print>;
+#include <bit>
+#include <utility>
+#include <string_view>
+#include <string>
+#include <print>
 
 static inline constexpr std::uint16_t serverPort = 40000;
 
-constinit std::uintptr_t mySocket;
+static inline constexpr std::size_t dummyCount = 7000;
+constinit std::uintptr_t dummySockets[dummyCount]{};
+constinit std::uintptr_t dummyClientIds[dummyCount]{};
+
+constinit std::uintptr_t mySocket{ INVALID_SOCKET };
 
 int main()
 {

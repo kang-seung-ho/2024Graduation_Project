@@ -96,6 +96,7 @@ demo::Framework::InitializeUsers()
 		}
 	}
 
+	userManager->MakeHoldUniques();
 	return true;
 }
 

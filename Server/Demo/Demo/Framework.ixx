@@ -34,9 +34,9 @@ export namespace demo
 
 		static inline constexpr std::uint16_t lobbySidePort{ 40000 };
 		static inline constexpr std::uint16_t gameSidePort{ 40001 };
-		static inline constexpr size_t maxUsersNumber = 20;
-		static inline constexpr size_t maxUsersInRoomNumber = 6;
-		static inline constexpr size_t maxRoomsNumber = maxUsersNumber;
+		static inline constexpr size_t maxUsersNumber = 8000;
+		static inline constexpr size_t maxUsersInRoomNumber = 4;
+		static inline constexpr size_t maxRoomsNumber = 8000;
 		static inline constexpr IdType lobbyServerID = 0;
 		static inline constexpr IdType gameServerID = 1;
 		static inline constexpr IdType beginUserID = 2;
@@ -152,8 +152,8 @@ export namespace demo
 
 		iconer::app::ISessionManager<iconer::app::User>* userManager;
 		std::array<iconer::app::Room*, Framework::maxRoomsNumber> everyRoom;
-		std::array<std::atomic<iconer::app::RpcContext*>, 10000> everyRpcContexts;
-		std::array<std::atomic<iconer::app::RpcContext*>, 10000>::iterator lastRpcIterator;
+		std::array<std::atomic<iconer::app::RpcContext*>, 30000> everyRpcContexts;
+		std::array<std::atomic<iconer::app::RpcContext*>, 30000>::iterator lastRpcIterator;
 		std::atomic_bool lastRpcLock;
 
 		std::unique_ptr<iconer::app::User[]> userSpace;

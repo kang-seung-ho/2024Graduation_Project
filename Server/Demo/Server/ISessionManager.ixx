@@ -160,7 +160,6 @@ export namespace iconer::app
 			if (not UncheckedContains(object.GetID()))
 			{
 				myData.push_back(std::make_pair(std::move(object).GetID(), std::move(object)));
-				MakeHoldUniques();
 			}
 		}
 
@@ -177,10 +176,14 @@ export namespace iconer::app
 
 			iterator bound = std::lower_bound(myData.begin(), myData.end(), id, KeyComparator{});
 			auto result = myData.insert(bound, factory.Create(std::forward<Args>(args)...));
-			MakeHoldUniques();
 
 			return result;
 
+		}
+
+		constexpr void MakeHoldUniques() noexcept
+		{
+			std::sort(myData.begin(), myData.end(), KeyComparator{});
 		}
 
 		template<invocable_results<bool, const mapped_type&> Fn>
@@ -360,11 +363,6 @@ export namespace iconer::app
 		}
 
 	protected:
-		constexpr void MakeHoldUniques()
-		{
-			std::sort(myData.begin(), myData.end(), KeyComparator{});
-		}
-
 		template<typename Fn>
 		[[nodiscard]]
 		constexpr iterator UncheckedSearch(Fn&& fn) noexcept
