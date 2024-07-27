@@ -481,7 +481,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		case 1:
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Gumball"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] Gumball"));
 
 			character->ExecuteUseItem(ESagaItemTypes::Gum);
 		}
@@ -489,7 +489,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		case 2:
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] Smoke Bomb"));
 
 			character->ExecuteUseItem(ESagaItemTypes::SmokeBomb);
 		}
