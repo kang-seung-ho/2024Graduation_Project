@@ -174,7 +174,7 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	// arg1 - id
 	case RPC_GRAB_ITEM:
 	{
-		myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] at room {} by user {}\n", room_id, user_id);
+		//myLogger.DebugLog(L"\t[RPC_GRAB_ITEM] at room {} by user {}\n", room_id, user_id);
 
 		auto& items = room->sagaItemList;
 
@@ -211,7 +211,17 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		{
 			myLogger.DebugLog(L"\t[RPC_USE_ITEM] Energy Drink at room {}\n", room_id);
 
-			user->myHealth.FetchAdd(30);
+			auto& hp = user->myHealth;
+
+			if (user->IsOnline())
+			{
+				auto newhp = hp.FetchAdd(30);
+
+				if (100.0f <= newhp)
+				{
+					hp.CompareAndSet(newhp, 100.0f);
+				}
+			}
 		}
 		break;
 
