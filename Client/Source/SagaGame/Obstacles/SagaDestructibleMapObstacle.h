@@ -22,7 +22,7 @@ public:
 	void ChangeLevel();
 
 	UPROPERTY()
-	float health = 100.0f;
+	float health = 500.0f;
 
 protected:
 	// Called when the game starts or when spawned
