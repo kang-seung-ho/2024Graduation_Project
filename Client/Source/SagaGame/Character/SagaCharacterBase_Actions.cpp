@@ -186,7 +186,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 	case ESagaItemTypes::Gum:
 	{
 		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f;
-		SpawnLocation.Z -= 30.0f;
+		SpawnLocation.Z -= 70.0f;
 
 		FRotator SpawnRotation = GetActorRotation();
 		FActorSpawnParameters SpawnParams{};
