@@ -46,7 +46,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tAcceptance is reserved on user {}\n", id);
+			//myLogger.Log(L"\tAcceptance is reserved on user {}\n", id);
 		}
 	}
 	break;
@@ -226,7 +226,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} reserved room {}\n", user_id, room_id);
+			//myLogger.Log(L"\tUser {} reserved room {}\n", user_id, room_id);
 		}
 	}
 	break;
@@ -251,7 +251,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} created a room at {}\n", user_id, room_id);
+			//myLogger.Log(L"\tUser {} created a room at {}\n", user_id, room_id);
 		}
 	}
 	break;
@@ -278,7 +278,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} entered to room {}\n", user_id, room_id);
+			//myLogger.Log(L"\tUser {} entered to room {}\n", user_id, room_id);
 
 			OnSucceedToJoinRoom(*room, *user);
 		}
