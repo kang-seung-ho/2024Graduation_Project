@@ -1,14 +1,15 @@
 #include "SagaInGameMode.h"
 #include <Math/MathFwd.h>
-#include <Engine/World.h>
-#include <EngineUtils.h>
-#include <Kismet/GameplayStatics.h>
-#include <UObject/Object.h>
-#include <UObject/ConstructorHelpers.h>
-#include <GameFramework/Controller.h>
 #include <Containers/UnrealString.h>
 #include <Containers/Array.h>
+#include <UObject/Object.h>
+#include <UObject/ConstructorHelpers.h>
 #include <Templates/Casts.h>
+#include <Kismet/GameplayStatics.h>
+#include <Engine/World.h>
+#include <EngineUtils.h>
+#include <GameFramework/Controller.h>
+#include <NiagaraSystem.h>
 
 #include "SagaGameSubsystem.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
@@ -377,7 +378,11 @@ ASagaInGameMode::ScanGuardians()
 	{
 		const auto bear = *it;
 
-		bear->bearUniqueId = bear_id++;
+		//NOTICE: 조건 달면 안됨. 달려면 곰도 수정해야 함
+		//if (bear->bearUniqueId < 0)
+		{
+			bear->bearUniqueId = bear_id++;
+		}
 
 		everyBears.Add(bear);
 	}
