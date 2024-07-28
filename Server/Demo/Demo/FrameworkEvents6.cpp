@@ -446,8 +446,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 
 	case RPC_DMG_GUARDIAN:
 	{
-		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] at room {}\n", room_id);
-
 		float dmg{};
 		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
 		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}\n", room_id, dmg, arg1);
@@ -460,6 +458,15 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 				SEND(member, SendRpcPacket, user_id, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
 		);
+	}
+	break;
+
+	case RPC_DMG_GUARDIANS_PART:
+	{
+		float dmg{};
+		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}\n", room_id, dmg, arg1);
+
 	}
 	break;
 
@@ -511,13 +518,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 				}
 			);
 		}
-	}
-	break;
-
-	case RPC_DMG_GUARDIANS_PART:
-	{
-		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIANS_PART] at room {}\n", room_id);
-
 	}
 	break;
 
