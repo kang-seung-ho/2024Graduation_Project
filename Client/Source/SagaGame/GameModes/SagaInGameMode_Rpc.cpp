@@ -563,20 +563,18 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			if (IsValid(other_character))
 			{
 				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_PLYER] User %d is taking damage from user %d."), id, causer_id);
-
-				character->ExecuteHurt(dmg);
 			}
 			else
 			{
 				UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not have a character."), causer_id);
-
-				character->ExecuteHurt(dmg);
 			}
 		}
 		else
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not exist."), causer_id);
 		}
+
+		character->ExecuteHurt(dmg);
 	}
 	break;
 
@@ -596,7 +594,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		const auto guardian_info = arg0;
 		const auto guardian_id = arg1;
 
-		// 현재 id는 수호자(guardian)을 타고 있다가 데미지를 받은 플레이어임.
+		// 현재 id는 수호자(guardian)를 타고 있다가 데미지를 받은 플레이어임.
 		const auto guardian = FindBear(guardian_id);
 
 		if (IsValid(guardian))
