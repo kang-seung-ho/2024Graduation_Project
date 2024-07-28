@@ -152,9 +152,10 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 
 	if (IsValid(entry))
 	{
+		FString ItemName = entry->GetItemName();
+
 #if WITH_EDITOR
 
-		FString ItemName = entry->GetItemName();
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Item clicked: %s"), *ItemName);
 #endif
 
@@ -172,29 +173,11 @@ USagaInventoryWidget::OnListItemClick(UObject* Item)
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[USagaInventoryWidget] There is no item '%s'."), *ItemName);
+#endif
 		}
-
-		//if (net->IsOfflineMode())
-		{
-
-		}
-		/*
-		else
-		{
-			if (ItemName == "EnergyDrink")
-			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 0);
-			}
-			else if (ItemName == "Gumball")
-			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
-			}
-			else if (ItemName == "SmokeBomb")
-			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 2);
-			}
-		}*/
 	}
 }
 
