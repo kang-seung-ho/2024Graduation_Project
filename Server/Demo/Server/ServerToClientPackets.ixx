@@ -125,7 +125,7 @@ export namespace iconer::app::packets::inline sc
 	/// <param name="clientId">- An id of the target client</param>
 	/// <param name="teamId">Team's id of user</param>
 	/// <remarks>Aerver would send it to the client</remarks>
-	MAKE_PACKET_2VAR_WITH_DEFAULT(SC_SetTeamPacket, PacketProtocol::SC_SET_TEAM, std::int32_t, clientId, user_id, 0, std::int8_t, teamId, team_id, 0);
+	MAKE_PACKET_2VAR(SC_SetTeamPacket, PacketProtocol::SC_SET_TEAM, std::int32_t, clientId, user_id, std::int8_t, teamId, team_id);
 	/// <summary>
 	/// Getting game ready notification packet for server
 	/// </summary>
