@@ -40,28 +40,37 @@ int main()
 		return error_code;
 	}
 
-	mySocket = ::WSASocket(AF_INET, SOCK_DGRAM, ::IPPROTO::IPPROTO_UDP, nullptr, 0, 0);
-	if (INVALID_SOCKET == mySocket)
+	for (auto& socket : dummySockets)
 	{
-		const auto error_code = ::WSAGetLastError();
-		std::println("Error when creating a socket: {}", error_code);
+		socket = ::WSASocket(AF_INET, SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
-		return error_code;
+		if (INVALID_SOCKET == socket)
+		{
+			const auto error_code = ::WSAGetLastError();
+
+			std::println("Error when creating a socket: {}", error_code);
+
+			return error_code;
+		}
 	}
 
-	std::println("The socket is created.");
+	std::println("{} sockets are created.", dummyCount);
 
 	constexpr int reuse_address = true;
-	if (0 != ::setsockopt(mySocket
-		, SOL_SOCKET
-		, SO_REUSEADDR
-		, reinterpret_cast<const char*>(&reuse_address), sizeof(int)))
+
+	for (auto& socket : dummySockets)
 	{
-		const auto error_code = ::WSAGetLastError();
+		if (0 != ::setsockopt(socket
+			, SOL_SOCKET
+			, SO_REUSEADDR
+			, reinterpret_cast<const char*>(&reuse_address), sizeof(int)))
+		{
+			const auto error_code = ::WSAGetLastError();
 
-		std::println("Error when setting up socket: {}", error_code);
+			std::println("Error when setting up socket {}: {}", socket, error_code);
 
-		return error_code;
+			return error_code;
+		}
 	}
 
 	const ::SOCKADDR_IN server_address
@@ -72,21 +81,29 @@ int main()
 		.sin_zero{}
 	};
 
-	if (0 != WSAConnect(mySocket
-		, reinterpret_cast<const SOCKADDR*>(&server_address), sizeof(SOCKADDR_IN)
-		, nullptr, nullptr
-		, nullptr, nullptr))
+	for (auto& socket : dummySockets)
 	{
-		const auto error_code = ::WSAGetLastError();
+		if (0 != WSAConnect(socket
+			, reinterpret_cast<const SOCKADDR*>(&server_address), sizeof(SOCKADDR_IN)
+			, nullptr, nullptr
+			, nullptr, nullptr))
+		{
+			const auto error_code = ::WSAGetLastError();
 
-		std::println("Error when connecting to the server: {}", error_code);
+			std::println("Error when socket {} is connecting to the server: {}", socket, error_code);
 
-		return error_code;
+			return error_code;
+		}
 	}
 
-	std::println("Sending data.");
+	std::println("Sending data...");
 
 	std::srand((unsigned int)std::time(NULL));
+
+	for (auto& socket : dummySockets)
+	{
+
+	}
 
 	for (int i = 0; i < 100; ++i)
 	{
