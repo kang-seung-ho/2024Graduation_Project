@@ -135,13 +135,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 		myLogger.DebugLog(L"\t[RPC_DESTROY_ITEM_BOX] at room {}\n", room_id);
 
 		auto& items = room->sagaItemList;
-		auto& ilock = room->sagaItemListLock;
-
-		while (true)
-		{
-			bool flag = false;
-			if (ilock.compare_exchange_strong(flag, true)) break;
-		}
 
 		if (room->IsEmpty())
 		{
@@ -164,8 +157,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 				}
 			);
 		}
-
-		ilock = false;
 	}
 	break;
 

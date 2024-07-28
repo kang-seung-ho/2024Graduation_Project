@@ -91,13 +91,13 @@ iconer::app::Room::Cleanup()
 noexcept
 {
 	Clear();
-	SetState(RoomStates::None);
-	SetOperation(AsyncOperations::None);
 
-	ClearMembers();
-	membersCount = 0;
-	isMemberUpdated = true;
-	proceedMemberCount = 0;
+	for (auto& item : sagaItemList)
+	{
+		item.myType = {};
+		item.isAvailable = true;
+		item.isBoxDestroyed = false;
+	}
 
 	for (auto& team : sagaTeams)
 	{
@@ -115,6 +115,14 @@ noexcept
 	}
 
 	isGameReadyFailed = false;
+
+	ClearMembers();
+	membersCount = 0;
+	isMemberUpdated = true;
+	proceedMemberCount = 0;
+
+	SetState(RoomStates::None);
+	SetOperation(AsyncOperations::None);
 }
 
 void
@@ -122,13 +130,13 @@ iconer::app::Room::Cleanup()
 volatile noexcept
 {
 	Clear();
-	SetState(RoomStates::None);
-	SetOperation(AsyncOperations::None);
 
-	ClearMembers();
-	membersCount = 0;
-	isMemberUpdated = true;
-	proceedMemberCount = 0;
+	for (auto& item : sagaItemList)
+	{
+		item.myType = {};
+		item.isAvailable = true;
+		item.isBoxDestroyed = false;
+	}
 
 	for (auto& team : sagaTeams)
 	{
@@ -146,6 +154,14 @@ volatile noexcept
 	}
 
 	isGameReadyFailed = false;
+
+	ClearMembers();
+	membersCount = 0;
+	isMemberUpdated = true;
+	proceedMemberCount = 0;
+
+	SetState(RoomStates::None);
+	SetOperation(AsyncOperations::None);
 }
 
 bool

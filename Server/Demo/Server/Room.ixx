@@ -54,8 +54,8 @@ export namespace iconer::app
 		static inline constexpr size_t maxUsersNumberInRoom = 4;
 		static inline constexpr size_t minUsersNumberForGame = 2;
 
-		std::atomic_bool sagaItemListLock{};
-		std::array<game::SagaItem, 200> sagaItemList{};
+		//std::array<game::SagaItem, 200> sagaItemList{};
+		game::SagaItem sagaItemList[200];
 
 		template<typename ForwardedId>
 		explicit constexpr Room(ForwardedId&& id)
@@ -68,7 +68,7 @@ export namespace iconer::app
 			, selectionPhaseTime(), gamePhaseTime()
 			, sagaTeams()
 			, sagaSummons{ game::SagaSummonPoint{ 0 }, game::SagaSummonPoint{ 1 }, game::SagaSummonPoint{ 2 } }
-			, sagaGuardians()
+			, sagaGuardians(), sagaItemList()
 			, preRespondMembersPacket()
 		{}
 
