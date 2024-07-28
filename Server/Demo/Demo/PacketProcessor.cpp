@@ -220,8 +220,10 @@ demo::OnTeamChanged(demo::Framework& framework, User& user, bool is_red_team)
 			const auto team_id = user.myTeamId.Load(std::memory_order_acquire);
 			const auto target = is_red_team ? Team::Red : Team::Blue;
 
-			if (team_id != target and user.myTeamId.CompareAndSet(team_id, target, std::memory_order_release))
+			if (team_id != target)
 			{
+				user.myTeamId.Store(target, std::memory_order_release);
+
 				room->Dirty(true);
 				framework.SetRoomModifiedFlag();
 			}

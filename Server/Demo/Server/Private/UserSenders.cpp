@@ -156,8 +156,11 @@ const
 	}
 	else
 	{
-		pk.Write(packetmap[user_id].get());
-		return SendGeneralData(packetmap[user_id].get(), pk.WannabeSize());
+		const auto& elem = packetmap[user_id];
+		const auto ptr = elem.get();
+
+		pk.Write(ptr);
+		return SendGeneralData(ptr, pk.WannabeSize());
 	}
 }
 

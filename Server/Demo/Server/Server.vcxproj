@@ -848,11 +848,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Colourful-Console\ColourfulConsole\ColourfulConsole.vcxproj">
-      <Project>{d123b380-57e9-4327-9b21-2df0902cb5b5}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="BehaviourTreeHelper.hpp">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsHeaderUnit</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsHeaderUnit</CompileAs>
@@ -866,6 +861,11 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="PacketHelper.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Colourful-Console\ColourfulConsole\ColourfulConsole.vcxproj">
+      <Project>{d123b380-57e9-4327-9b21-2df0902cb5b5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

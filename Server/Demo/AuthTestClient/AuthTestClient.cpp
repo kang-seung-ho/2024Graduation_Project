@@ -23,7 +23,7 @@ namespace
 {
 	inline constexpr std::uint16_t serverPort = 40000;
 
-	inline constexpr std::size_t dummyCount = 100;
+	inline constexpr std::size_t dummyCount = 6000;
 	inline constexpr std::size_t dummyRoomCount = dummyCount / 4;
 
 	constinit std::uintptr_t dummySockets[dummyCount]{};
@@ -44,7 +44,10 @@ namespace
 	u_long nonBlockingMode = 1;
 	u_long blockingMode = 0;
 
-	void Pause() noexcept;
+	void Pause() noexcept
+	{
+		std::system("pause");
+	}
 }
 
 int main()
@@ -203,11 +206,11 @@ int main()
 	index = 0;
 
 	std::println("----------------------------------------");
-	std::println("Entering to the rooms...");
+	std::println("(4) Entering to the rooms...");
 
 	char room_enter_pk_buffer[7] =
 	{
-		9, 7, 0, 
+		9, 7, 0,
 	};
 
 	send_wbuffer.buf = room_enter_pk_buffer;
@@ -261,7 +264,7 @@ int main()
 
 	Sleep(1000);
 	std::println("----------------------------------------");
-	std::println("Starting games...");
+	std::println("(5) Starting games...");
 
 	char game_start_pk_buffer[3] =
 	{
@@ -295,7 +298,7 @@ int main()
 	index = 0;
 
 	std::println("----------------------------------------");
-	std::println("Getting game tickets...");
+	std::println("(6) Getting game tickets...");
 
 	for (auto& socket : dummySockets)
 	{
@@ -329,7 +332,7 @@ int main()
 			}
 			else
 			{
-				std::println("(6) User {} got a ticket ({} bytes)", socket, recv_g_bytes);
+				//std::println("(6) User {} got a ticket ({} bytes)", socket, recv_g_bytes);
 
 				//break;
 			}
@@ -363,32 +366,61 @@ int main()
 
 	for (auto& socket : dummySockets)
 	{
-		const auto recv = ::WSARecv(socket
-			, &recv_wbuffer_g, 1, &recv_g_bytes
-			, &recv_g_flags
-			, nullptr, nullptr);
+		ioctlsocket(socket, FIONBIO, &nonBlockingMode);
+	}
 
-		if (SOCKET_ERROR == recv)
-		{
-			std::println("(8) Error when receiving game state data at {}. Error code is {}.", socket, WSAGetLastError());
+	for (size_t i = 0; i < dummyCount; ++i)
+	{
+		auto& socket = dummySockets[i];
 
-			Pause();
-			break;
-		}
-		else
+		while (true)
 		{
-			std::println("(8) User {} got game messages ({} bytes)", socket, recv_g_bytes);
+			const auto recv = ::WSARecv(socket
+				, &recv_wbuffer_g, 1, &recv_g_bytes
+				, &recv_g_flags
+				, nullptr, nullptr);
+
+			if (SOCKET_ERROR == recv)
+			{
+				const auto err = WSAGetLastError();
+
+				if (10035 == err)
+				{
+					continue;
+				}
+				else
+				{
+					std::println("(8) Error when receiving game state data at {}. Error code is {}.", socket, WSAGetLastError());
+
+					break;
+				}
+			}
+			else
+			{
+				std::println("(8) User {} got game messages ({} bytes)", socket, recv_g_bytes);
+
+				break;
+			}
 		}
+	}
+
+	for (auto& socket : dummySockets)
+	{
+		//ioctlsocket(socket, FIONBIO, &blockingMode);
+	}
+
+	std::println("----------------------------------------");
+	std::println("(9) Games Phase");
+
+	while (true)
+	{
+		auto& socket = dummySockets[std::rand() % dummyCount];
+
+		std::uint8_t rpc{};
+		std::int64_t pa1{};
+		std::int32_t pa2{};
 	}
 
 	std::println("----------------------------------------");
 	Pause();
-}
-
-namespace
-{
-	void Pause() noexcept
-	{
-		std::system("pause");
-	}
 }
