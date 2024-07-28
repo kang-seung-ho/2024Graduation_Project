@@ -2,7 +2,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
-
+#include "../Public/SagaGameSubsystem.h"
 
 ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
 {
@@ -79,7 +79,6 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
 
     if (health <= 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Obstacle is destroyed, spawning item..."));
         FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
         FActorSpawnParameters SpawnParameters;
@@ -107,6 +106,15 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
         GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASagaDestructibleMapObstacle::DestroyObstacle, 4.0f, false);
 
         GetWorld()->GetTimerManager().SetTimer(LevelChangeTimerHandle, this, &ASagaDestructibleMapObstacle::ChangeLevel, 3.0f, false);
+		if (TeamPinataColor == 0)
+		{
+			USagaGameSubsystem::GetSubSystem(GetWorld())->SetWhoWonByPinata(0);
+		}
+		else
+		{
+			USagaGameSubsystem::GetSubSystem(GetWorld())->SetWhoWonByPinata(1);
+		}
+
     }
     else
     {
