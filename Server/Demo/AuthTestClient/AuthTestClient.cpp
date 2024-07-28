@@ -19,13 +19,33 @@
 #include <string>
 #include <print>
 
-static inline constexpr std::uint16_t serverPort = 40000;
+namespace
+{
+	inline constexpr std::uint16_t serverPort = 40000;
 
-static inline constexpr std::size_t dummyCount = 7000;
-static inline constexpr std::size_t dummyRoomCount = dummyCount / 4;
-constinit std::uintptr_t dummySockets[dummyCount]{};
-constinit std::int32_t dummyClientIds[dummyCount]{};
-constinit std::int32_t dummyRoomIds[dummyRoomCount]{};
+	inline constexpr std::size_t dummyCount = 100;
+	inline constexpr std::size_t dummyRoomCount = dummyCount / 4;
+
+	constinit std::uintptr_t dummySockets[dummyCount]{};
+	constinit std::int32_t dummyClientIds[dummyCount]{};
+	constinit std::int32_t dummyRoomIds[dummyRoomCount]{};
+
+	constinit char recv_buffer_g[513]{};
+
+	constinit ::WSABUF recv_wbuffer_g
+	{
+		.len = sizeof(recv_buffer_g) - 1,
+		.buf = recv_buffer_g
+	};
+
+	constinit DWORD recv_g_bytes{};
+	constinit DWORD recv_g_flags{ 0 };
+
+	u_long nonBlockingMode = 1;
+	u_long blockingMode = 0;
+
+	void Pause() noexcept;
+}
 
 int main()
 {
@@ -51,6 +71,7 @@ int main()
 
 			std::println("Error when creating a socket: {}", error_code);
 
+			Pause();
 			return error_code;
 		}
 	}
@@ -79,11 +100,12 @@ int main()
 
 			std::println("Error when socket {} is connecting to the server: {}", socket, error_code);
 
+			Pause();
 			return error_code;
 		}
 	}
 	std::println("----------------------------------------");
-	std::println("Sending sign-in data...");
+	std::println("(1) Sending sign-in data...");
 
 	std::srand((unsigned int)std::time(NULL));
 
@@ -104,18 +126,8 @@ int main()
 	{
 		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
 	}
-	std::println("Complete sending sign-in data");
+	std::println("(1) Complete sending sign-in data");
 	std::println("----------------------------------------");
-
-	char recv_buffer_g[128]{};
-
-	::WSABUF recv_wbuffer_g
-	{
-		.len = sizeof(recv_buffer_g) - 1,
-		.buf = recv_buffer_g
-	};
-	DWORD recv_g_bytes{};
-	DWORD recv_g_flags{ 0 };
 
 	size_t index = 0;
 	for (auto& socket : dummySockets)
@@ -132,6 +144,7 @@ int main()
 		{
 			std::println("(2) Error when receiving data at {}. Error code is {}.", socket, WSAGetLastError());
 
+			Pause();
 			break;
 		}
 		else
@@ -148,7 +161,7 @@ int main()
 	index = 0;
 
 	std::println("----------------------------------------");
-	std::println("Creating {} rooms...", dummyRoomCount);
+	std::println("(3) Creating {} rooms...", dummyRoomCount);
 
 	char room_creation_pk_buffer[35] =
 	{
@@ -172,6 +185,7 @@ int main()
 		{
 			std::println("(3) Error when receiving room data at {}. Error code is {}.", socket, WSAGetLastError());
 
+			Pause();
 			break;
 		}
 		else
@@ -219,7 +233,7 @@ int main()
 
 		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
 
-		std::println("(4) User {} is entering to room {}", socket, room_id);
+		//std::println("(4) User {} is entering to room {}", socket, room_id);
 
 		const auto recv = ::WSARecv(socket
 			, &recv_wbuffer_g, 1, &recv_g_bytes
@@ -230,6 +244,7 @@ int main()
 		{
 			std::println("(4) Error when receiving join result data at {}. Error code is {}.", socket, WSAGetLastError());
 
+			Pause();
 			break;
 		}
 		else
@@ -238,10 +253,142 @@ int main()
 
 			//curr_id = *reinterpret_cast<const std::int32_t*>(recv_buffer_g + 3);
 
-			//std::println("(4) Room {} created by {}", curr_id, socket);
+			//std::println("(4) User {} joined to room {}", socket, room_id);
+		}
+	}
+
+	index = 0;
+
+	Sleep(1000);
+	std::println("----------------------------------------");
+	std::println("Starting games...");
+
+	char game_start_pk_buffer[3] =
+	{
+		14, 3, 0,
+	};
+
+	send_wbuffer.buf = game_start_pk_buffer;
+	send_wbuffer.len = 3;
+
+	for (size_t i = 0; i < dummyRoomCount;)
+	{
+		auto& socket = dummySockets[index];
+		auto& room_id = dummyRoomIds[i];
+
+		if (index % 4 == 0)
+		{
+			//std::println("(5) User {} is starting game at room {}", socket, room_id);
+
+			WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
+
+			(void)++i;
+			(void)++index;
+			continue;
+		}
+		else
+		{
+			(void)++index;
+		}
+	}
+
+	index = 0;
+
+	std::println("----------------------------------------");
+	std::println("Getting game tickets...");
+
+	for (auto& socket : dummySockets)
+	{
+		ioctlsocket(socket, FIONBIO, &nonBlockingMode);
+	}
+
+	for (auto& socket : dummySockets)
+	{
+		bool done = false;
+
+		//while (true)
+		{
+			const auto recv = ::WSARecv(socket
+				, &recv_wbuffer_g, 1, &recv_g_bytes
+				, &recv_g_flags
+				, nullptr, nullptr);
+
+			if (SOCKET_ERROR == recv)
+			{
+				const auto err = WSAGetLastError();
+
+				if (10035 == err)
+				{
+					//continue;
+				}
+				else
+				{
+					std::println("(6) Error when receiving data at {}. Error code is {}.", socket, err);
+					//break;
+				}
+			}
+			else
+			{
+				std::println("(6) User {} got a ticket ({} bytes)", socket, recv_g_bytes);
+
+				//break;
+			}
+		}
+	}
+
+	for (auto& socket : dummySockets)
+	{
+		ioctlsocket(socket, FIONBIO, &blockingMode);
+	}
+
+	index = 0;
+
+	std::println("----------------------------------------");
+	std::println("(7) Preparing games...");
+
+	char game_load_pk_buffer[3] =
+	{
+		15, 3, 0,
+	};
+
+	send_wbuffer.buf = game_load_pk_buffer;
+
+	for (auto& socket : dummySockets)
+	{
+		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
+	}
+
+	std::println("----------------------------------------");
+	std::println("(8) Launching games...");
+
+	for (auto& socket : dummySockets)
+	{
+		const auto recv = ::WSARecv(socket
+			, &recv_wbuffer_g, 1, &recv_g_bytes
+			, &recv_g_flags
+			, nullptr, nullptr);
+
+		if (SOCKET_ERROR == recv)
+		{
+			std::println("(8) Error when receiving game state data at {}. Error code is {}.", socket, WSAGetLastError());
+
+			Pause();
+			break;
+		}
+		else
+		{
+			std::println("(8) User {} got game messages ({} bytes)", socket, recv_g_bytes);
 		}
 	}
 
 	std::println("----------------------------------------");
-	std::system("pause");
+	Pause();
+}
+
+namespace
+{
+	void Pause() noexcept
+	{
+		std::system("pause");
+	}
 }

@@ -356,7 +356,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} has been notified members in the room\n", user_id);
+			//myLogger.Log(L"\tUser {} has been notified members in the room\n", user_id);
 		}
 	}
 	break;
