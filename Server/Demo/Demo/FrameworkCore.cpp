@@ -55,22 +55,24 @@ demo::Framework::RouteEvent(bool is_succeed
 	// an user is connected
 	case OpAccept:
 	{
-		auto&& user = *std::launder(static_cast<User*>(ctx));
-		const IdType& id = user.GetID();
+		const auto user = static_cast<User*>(ctx);
+		const IdType& id = user->GetID();
 
 		if (not is_succeed)
 		{
 			myLogger.LogError(L"\ttConnection has failed on user {}\n", id);
-			OnFailedUserConnect(user);
+
+			OnFailedUserConnect(*user);
 		}
-		else if (auto result = OnUserConnected(user); not result.has_value())
+		else if (auto result = OnUserConnected(*user); not result.has_value())
 		{
 			myLogger.LogError(L"\tUser {} is connected, but acceptance has failed due to {}\n", id, std::to_wstring(result.error()));
-			OnFailedUserConnect(user);
+
+			OnFailedUserConnect(*user);
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} is connected\n", id);
+			//myLogger.Log(L"\tUser {} is connected\n", id);
 		}
 	}
 	break;
@@ -99,7 +101,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} is signed in\n", id);
+			//myLogger.Log(L"\tUser {} is signed in\n", id);
 		}
 	}
 	break;
@@ -124,7 +126,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} has been notified id, now start receiving\n", id);
+			//myLogger.Log(L"\tUser {} has been notified id, now start receiving\n", id);
 		}
 	}
 	break;
@@ -137,7 +139,7 @@ demo::Framework::RouteEvent(bool is_succeed
 
 		if (not is_succeed)
 		{
-			myLogger.LogError(L"\tReceving has failed on user {}\n", id);
+			//myLogger.LogError(L"\tReceving has failed on user {}\n", id);
 			OnFailedReceive(*user);
 		}
 		else if (0 == io_bytes)
@@ -201,7 +203,7 @@ demo::Framework::RouteEvent(bool is_succeed
 		}
 		else
 		{
-			myLogger.Log(L"\tUser {} has been disconnected\n", id);
+			//myLogger.Log(L"\tUser {} has been disconnected\n", id);
 		}
 	}
 	break;
