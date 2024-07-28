@@ -11,6 +11,8 @@ export namespace iconer::app
 	public:
 		using Super = IContext;
 
+		std::byte* myBlob;
+
 		explicit constexpr BlobSendContext() noexcept
 			: Super(AsyncOperations::OpSend)
 			, myBlob()
@@ -57,9 +59,6 @@ export namespace iconer::app
 		{
 			return myBlob;
 		}
-
-	protected:
-		std::byte* myBlob;
 
 	private:
 		BlobSendContext(const BlobSendContext&) = delete;
