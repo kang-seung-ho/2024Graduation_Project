@@ -16,6 +16,7 @@
 #include "SagaGameSubsystem.h"
 #include "Character/SagaGummyBearPlayer.h"
 #include "Character/SagaPlayerAnimInstance.h"
+#include "Character/SagaGummyBearSmall.h"
 #include "Effect/SagaSwordEffect.h"
 #include "UI/SagaWidgetComponent.h"
 
@@ -49,9 +50,23 @@ ASagaPlayableCharacter::TakeDamage(float dmg, FDamageEvent const& event, AContro
 			if (IsValid(other) and other->HasValidOwnerId())
 			{
 				arg1 = other->GetUserId();
-			}
 
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, arg1);
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, arg1);
+			}
+			else
+			{
+				const auto ai_bear = Cast<ASagaGummyBearSmall>(causer);
+
+				if (IsValid(ai_bear))
+				{
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, -2);
+
+#if WITH_EDITOR
+
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] Attacked by a mini bear."));
+#endif
+				}
+			}
 		}
 
 		return dmg;
