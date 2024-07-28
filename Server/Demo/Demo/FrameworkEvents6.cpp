@@ -461,15 +461,6 @@ demo::Framework::OnRpc(IContext* ctx, const IdType& user_id)
 	}
 	break;
 
-	case RPC_DMG_GUARDIANS_PART:
-	{
-		float dmg{};
-		std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-		myLogger.DebugLog(L"\t[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}\n", room_id, dmg, arg1);
-
-	}
-	break;
-
 	// 일반적인 경우 실행안됨
 	// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
 	case RPC_RESPAWN:
