@@ -216,7 +216,7 @@ ASagaInGameMode::StartPlay()
 #endif
 
 	// Preload effects
-	const auto effect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
+	//const auto effect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
 
 	if (not net->IsOfflineMode())
 	{
