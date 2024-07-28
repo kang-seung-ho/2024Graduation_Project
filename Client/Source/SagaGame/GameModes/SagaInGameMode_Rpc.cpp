@@ -569,6 +569,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 				UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not have a character."), causer_id);
 			}
 		}
+		else if (-2 == causer_id)
+		{
+			///TODO: 된다면 작은 곰에도 ID 부여해야함, 나중에 확인 필요
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_PLYER] User %d is taking damage from the mini bear."), id);
+		}
 		else
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not exist."), causer_id);
