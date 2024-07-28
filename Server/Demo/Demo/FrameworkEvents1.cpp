@@ -29,11 +29,13 @@ demo::Framework::OnFailedReservingAccept()
 demo::Framework::IoResult
 demo::Framework::OnUserConnected(iconer::app::User& user)
 {
-	if (auto fin = user.mySocket.EndAccept(serverListener); fin.has_value())
+	/*if (auto fin = user.mySocket.EndAccept(serverListener); fin.has_value())
 	{
 		return std::unexpected{ fin.value() };
 	}
-	else if (user.TryChangeState(iconer::app::UserStates::Reserved, iconer::app::UserStates::Connected))
+	else*/
+		
+	if (user.TryChangeState(iconer::app::UserStates::Reserved, iconer::app::UserStates::Connected))
 	{
 		user.SetOperation(iconer::app::AsyncOperations::OpSignIn);
 
