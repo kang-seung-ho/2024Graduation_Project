@@ -14,6 +14,8 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+//#include "Engine/World.h"
+
 void
 USagaInventoryWidget::NativeConstruct()
 {
@@ -69,6 +71,8 @@ USagaInventoryWidget::NativeConstruct()
 
 	//	mInventory->AddItem(ItemData);
 	//}
+
+	
 }
 
 void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

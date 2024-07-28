@@ -180,6 +180,12 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 	case ESagaItemTypes::Drink:
 	{
 		SetHealth(GetHealth() + 30);
+
+		FVector Spawnlocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
+
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, HealItemEffect, Spawnlocation, SpawnRotation);
+
 	}
 	break;
 

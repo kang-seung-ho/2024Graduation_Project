@@ -217,4 +217,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UAIPerceptionStimuliSourceComponent* mAISource;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
+	TObjectPtr<class UNiagaraSystem> HealItemEffect;
 };

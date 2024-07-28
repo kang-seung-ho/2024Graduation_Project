@@ -24,6 +24,9 @@ public:
 	UPROPERTY()
 	float health = 150.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 TeamPinataColor = 0; // 0: Red, 1: Blue
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

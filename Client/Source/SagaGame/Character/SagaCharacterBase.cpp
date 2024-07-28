@@ -25,6 +25,10 @@
 #include "UI/SagaHpBarWidget.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 
+#include <NiagaraSystem.h>
+#include <NiagaraComponent.h>
+#include "NiagaraFunctionLibrary.h"
+
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
 
 void
@@ -297,6 +301,18 @@ ASagaCharacterBase::ASagaCharacterBase()
 	mAISource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AISource")); //UAIPerceptionStimuliSourceComponent is derived from UActorComponent
 	mAISource->RegisterForSense(TSubclassOf<UAISense_Sight>());
 	mAISource->RegisterWithPerceptionSystem();
+
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Get/NS_Heal.NS_Heal'"));
+	if (NiagaraEffect.Succeeded())
+	{
+		HealItemEffect = NiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Heal Niagara Effect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Heal Niagara Effect Not Loaded"));
+	}
 }
 
 void
