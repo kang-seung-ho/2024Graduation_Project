@@ -134,7 +134,7 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	if (Collision)
 	{
 		FDamageEvent DamageEvent;
-		Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
+		Result.GetActor()->TakeDamage(50.f, DamageEvent, GetController(), this);
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
