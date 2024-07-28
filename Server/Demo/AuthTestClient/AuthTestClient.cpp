@@ -58,21 +58,6 @@ int main()
 
 	constexpr int reuse_address = true;
 
-	for (auto& socket : dummySockets)
-	{
-		if (0 != ::setsockopt(socket
-			, SOL_SOCKET
-			, SO_REUSEADDR
-			, reinterpret_cast<const char*>(&reuse_address), sizeof(int)))
-		{
-			const auto error_code = ::WSAGetLastError();
-
-			std::println("Error when setting up socket {}: {}", socket, error_code);
-
-			return error_code;
-		}
-	}
-
 	const ::SOCKADDR_IN server_address
 	{
 		.sin_family = AF_INET,
@@ -104,6 +89,14 @@ int main()
 	{
 
 	}
+
+	while (true)
+	{
+
+	}
+
+	/*
+	*/
 
 	for (int i = 0; i < 100; ++i)
 	{
