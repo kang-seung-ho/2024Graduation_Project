@@ -6,6 +6,7 @@
 #define NOMINMAX
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#undef socket
 #pragma warning(pop)
 
 #include <cstdlib>
@@ -21,10 +22,10 @@
 static inline constexpr std::uint16_t serverPort = 40000;
 
 static inline constexpr std::size_t dummyCount = 7000;
+static inline constexpr std::size_t dummyRoomCount = dummyCount / 4;
 constinit std::uintptr_t dummySockets[dummyCount]{};
-constinit std::uintptr_t dummyClientIds[dummyCount]{};
-
-constinit std::uintptr_t mySocket{ INVALID_SOCKET };
+constinit std::int32_t dummyClientIds[dummyCount]{};
+constinit std::int32_t dummyRoomIds[dummyRoomCount]{};
 
 int main()
 {
@@ -42,7 +43,7 @@ int main()
 
 	for (auto& socket : dummySockets)
 	{
-		socket = ::WSASocket(AF_INET, SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		socket = ::WSASocket(AF_INET, SOCK_STREAM, ::IPPROTO::IPPROTO_TCP, nullptr, 0, 0);
 
 		if (INVALID_SOCKET == socket)
 		{
@@ -55,6 +56,7 @@ int main()
 	}
 
 	std::println("{} sockets are created.", dummyCount);
+	std::println("----------------------------------------");
 
 	constexpr int reuse_address = true;
 
@@ -80,101 +82,166 @@ int main()
 			return error_code;
 		}
 	}
-
-	std::println("Sending data...");
+	std::println("----------------------------------------");
+	std::println("Sending sign-in data...");
 
 	std::srand((unsigned int)std::time(NULL));
 
+	char signin_buffer[35] =
+	{
+		1, 35, 0, 'n', 0, 'i', 0, 'c', 0, 'k', 0, 'n', 0, 'a', 0, 'm', 0, 'e', 0
+	};
+
+	::WSABUF send_wbuffer
+	{
+		.len = 35,
+		.buf = signin_buffer
+	};
+
+	DWORD sent_bytes{};
+
 	for (auto& socket : dummySockets)
 	{
-
+		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
 	}
+	std::println("Complete sending sign-in data");
+	std::println("----------------------------------------");
 
-	while (true)
+	char recv_buffer_g[128]{};
+
+	::WSABUF recv_wbuffer_g
 	{
+		.len = sizeof(recv_buffer_g) - 1,
+		.buf = recv_buffer_g
+	};
+	DWORD recv_g_bytes{};
+	DWORD recv_g_flags{ 0 };
 
-	}
-
-	/*
-	*/
-
-	for (int i = 0; i < 100; ++i)
+	size_t index = 0;
+	for (auto& socket : dummySockets)
 	{
-		char send_data[33]{};
-		::DWORD sent_bytes{};
-
-		for (auto& data : send_data)
-		{
-			data = 'A' + std::rand() % 26;
-		}
-		send_data[32] = 0;
-
-		::WSABUF send_wbuffer
-		{
-			.len = 32,
-			.buf = send_data
-		};
-
-		const auto sent = ::WSASendTo(mySocket
-			, &send_wbuffer, 1, &sent_bytes
-			, 0
-			, reinterpret_cast<const SOCKADDR*>(&server_address), sizeof(SOCKADDR_IN)
-			, nullptr, nullptr);
-
-		if (SOCKET_ERROR == sent)
-		{
-			std::println("(1) Error when sending data. Error code is {}.", WSAGetLastError());
-
-			break;
-		}
-		else
-		{
-			std::println("(1) Data sent: {} ({} bytes)", send_data, sent_bytes);
-		}
-
-		char recv_data[512]{};
-		::DWORD recv_bytes{};
-		::DWORD recv_flags{ 0 };
-
-		::WSABUF recv_wbuffer
-		{
-			.len = sizeof(recv_data) - 1,
-			.buf = recv_data
-		};
-
 		::SOCKADDR_IN recv_address{};
 		std::int32_t recv_address_len{ sizeof(SOCKADDR_IN) };
 
-		const auto recv = ::WSARecvFrom(mySocket
-			, &recv_wbuffer, 1, &recv_bytes
-			, &recv_flags
-			, reinterpret_cast<SOCKADDR*>(&recv_address), &recv_address_len
+		const auto recv = ::WSARecv(socket
+			, &recv_wbuffer_g, 1, &recv_g_bytes
+			, &recv_g_flags
 			, nullptr, nullptr);
 
 		if (SOCKET_ERROR == recv)
 		{
-			std::println("(2) Error when receiving data. Error code is {}.", WSAGetLastError());
+			std::println("(2) Error when receiving data at {}. Error code is {}.", socket, WSAGetLastError());
 
 			break;
 		}
 		else
 		{
-			std::println("(2) Data recv: {} ({} bytes)", recv_data, recv_bytes);
+			auto& curr_id = dummyClientIds[index];
+
+			curr_id = *reinterpret_cast<const std::int32_t*>(recv_buffer_g + 3);
+
+			//std::println("(2) Id recv from {}: {}", socket, curr_id);
 		}
 
-		if (0 < recv_bytes and
-			sent_bytes == recv_bytes and
-			0 == std::strcmp(send_data, recv_data))
+		(void)++index;
+	}
+	index = 0;
+
+	std::println("----------------------------------------");
+	std::println("Creating {} rooms...", dummyRoomCount);
+
+	char room_creation_pk_buffer[35] =
+	{
+		7, 35, 0, 't', 0, 'e', 0, 's', 0, 't', 0, 'r', 0, 'o', 0, 'o', 0, 'm', 0
+	};
+
+	send_wbuffer.buf = room_creation_pk_buffer;
+
+	for (size_t i = 0; i < dummyRoomCount; ++i)
+	{
+		auto& socket = dummySockets[index];
+
+		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
+
+		const auto recv = ::WSARecv(socket
+			, &recv_wbuffer_g, 1, &recv_g_bytes
+			, &recv_g_flags
+			, nullptr, nullptr);
+
+		if (SOCKET_ERROR == recv)
 		{
-			std::println("(3) Data validated.");
+			std::println("(3) Error when receiving room data at {}. Error code is {}.", socket, WSAGetLastError());
+
+			break;
 		}
 		else
 		{
-			std::println("(3) Not synchronized data.");
+			auto& curr_id = dummyRoomIds[i];
+
+			curr_id = *reinterpret_cast<const std::int32_t*>(recv_buffer_g + 3);
+
+			//std::println("(3) Room {} created by {}", curr_id, socket);
 		}
 
-		std::println("----------------------------------------");
+		index += 4;
 	}
 
+	index = 0;
+
+	std::println("----------------------------------------");
+	std::println("Entering to the rooms...");
+
+	char room_enter_pk_buffer[7] =
+	{
+		9, 7, 0, 
+	};
+
+	send_wbuffer.buf = room_enter_pk_buffer;
+	send_wbuffer.len = 7;
+
+	for (size_t i = 0; i < dummyRoomCount;)
+	{
+		auto& socket = dummySockets[index];
+		auto& room_id = dummyRoomIds[i];
+
+		if (index % 4 == 0)
+		{
+			memcpy(room_enter_pk_buffer + 3, &room_id, 4);
+
+			(void)++i;
+			(void)++index;
+			continue;
+		}
+		else
+		{
+			(void)++index;
+		}
+
+		WSASend(socket, &send_wbuffer, 1, &sent_bytes, 0, nullptr, nullptr);
+
+		std::println("(4) User {} is entering to room {}", socket, room_id);
+
+		const auto recv = ::WSARecv(socket
+			, &recv_wbuffer_g, 1, &recv_g_bytes
+			, &recv_g_flags
+			, nullptr, nullptr);
+
+		if (SOCKET_ERROR == recv)
+		{
+			std::println("(4) Error when receiving join result data at {}. Error code is {}.", socket, WSAGetLastError());
+
+			break;
+		}
+		else
+		{
+			//auto& curr_id = dummyRoomIds[index];
+
+			//curr_id = *reinterpret_cast<const std::int32_t*>(recv_buffer_g + 3);
+
+			//std::println("(4) Room {} created by {}", curr_id, socket);
+		}
+	}
+
+	std::println("----------------------------------------");
 	std::system("pause");
 }
