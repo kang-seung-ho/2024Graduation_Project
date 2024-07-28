@@ -104,7 +104,10 @@ export namespace iconer::app
 			{
 				if (auto ptr = member.Load(std::memory_order_acquire); nullptr != ptr)
 				{
-					std::invoke(std::forward<Predicate>(predicate), *member);
+					if (ptr != nullptr)
+					{
+						std::invoke(std::forward<Predicate>(predicate), *member);
+					}
 				}
 			}
 		}

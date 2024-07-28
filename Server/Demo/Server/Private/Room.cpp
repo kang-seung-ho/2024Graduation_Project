@@ -25,8 +25,12 @@ namespace iconer::app
 		while (it != end)
 		{
 			auto& [member, is_ready] = *it;
-			if (nullptr != member and user_id == member->GetID())
+			auto mem_ptr = member.Load(std::memory_order_acquire);
+
+			if (nullptr != mem_ptr)
 			{
+				if (user_id != mem_ptr->GetID()) continue;
+
 				is_ready.CompareAndSet(true, false);
 				room.Dirty(true);
 
@@ -44,8 +48,8 @@ namespace iconer::app
 
 				std::invoke(std::forward<Predicate>(predicate), room, capture);
 
-				member = nullptr;
 				room.membersCount.Store(capture, std::memory_order_release);
+				member.Store(nullptr, std::memory_order_release);
 
 				return true;
 			}

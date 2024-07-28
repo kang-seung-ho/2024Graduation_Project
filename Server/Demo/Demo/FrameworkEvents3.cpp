@@ -280,6 +280,8 @@ demo::Framework::OnFailedReceive(iconer::app::User& user)
 
 				room->ForEach([user_id = user.GetID()](iconer::app::User& member)
 					{
+						if (&member == nullptr) return;
+
 						if (member.IsOnline())
 						{
 							if (member.GetID() != user_id) // `user` already have sent a packet
