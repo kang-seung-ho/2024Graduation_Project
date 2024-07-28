@@ -204,6 +204,13 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 
 	case ESagaItemTypes::SmokeBomb:
 	{
+#if WITH_EDITOR
+
+		const auto name = GetName();
+
+		UE_LOG(LogSagaGame, Log, TEXT("Creating a smoke bomb for '%s'."), *name);
+#endif
+
 		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 50.0f;
 		SpawnLocation.Z += 50.0f;
 
@@ -218,6 +225,20 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 			{
 				NiagaraComponent->SetAutoDestroy(true);  // auto destroy after effect is done
 			}
+			else
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Error, TEXT("No niagara component for '%s'."), *name);
+#endif
+			}
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("Smoke effect for '%s' not found."), *name);
+#endif
 		}
 	}
 	break;
