@@ -619,9 +619,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN] Guardian %d is damaged for %f"), guardian_id, dmg);
 
-			FDamageEvent event{};
 			guardian->ExecuteHurt(dmg);
-			//guardian->TakeDamage(dmg, event, character->GetController(), character);
 
 			if (not guardian->IsAlive())
 			{
