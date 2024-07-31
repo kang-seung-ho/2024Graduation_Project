@@ -50,7 +50,7 @@ export namespace iconer::app
 
 		std::atomic<SagaGuardianState::Type> myStatus;
 		std::atomic_int32_t riderId{ -1 };
-		float myHp{ maxHp };
+		std::atomic<float> myHp{ maxHp };
 
 		void Update()
 		{

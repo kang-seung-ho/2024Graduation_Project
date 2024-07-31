@@ -189,12 +189,19 @@ noexcept
 			item.isAvailable = true;
 			item.isBoxDestroyed = false;
 		}
+
 		sagaItemListSize = 0;
 		sagaItemListLock = false;
 
 		for (auto& score : sagaTeamScores)
 		{
 			score = 0;
+		}
+
+		for (auto& guardian : sagaGuardians)
+		{
+			guardian.myHp = guardian.maxHp;
+			guardian.myStatus = SagaGuardianState::Idle;
 		}
 
 		for (auto& member : myMembers)

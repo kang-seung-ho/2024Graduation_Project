@@ -57,6 +57,7 @@ enum class [[nodiscard]] RpcProtocol : std::uint8_t
 	RPC_RESPAWN,
 	RPC_RESPAWN_TIMER,
 
+	RPC_DESTROY_CORE = 200,
 	RPC_CHECK_GAME_VICTORY,
 	RPC_UPDATE_HEALTH,
 	RPC_WEAPON_TIMER, // seconds
@@ -74,9 +75,17 @@ namespace
 {
 	inline constexpr std::chrono::seconds gameAwaitPhasePeriod{ 31 };
 	inline constexpr std::chrono::seconds respawnPeriod{ 5 };
+
+	template<typename Protocol>
+	[[nodiscard]]
+	constexpr auto MakeRpc(Protocol&& proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
+	{
+		return iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, id, proc, arg0, arg1);
+	}
 }
 
-#define MAKE_RPC_PACKET(_proc, _id, _arg0, _arg1) iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, (std::int32_t)(_id), (_proc), (std::int64_t)(_arg0), (std::int32_t)(_arg1))
+#define MAKE_RPC_PACKET(_proc, _id, _arg0, _arg1) \
+iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, (std::int32_t)(_id), (_proc), (std::int64_t)(_arg0), (std::int32_t)(_arg1))
 
 void
 ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
@@ -139,7 +148,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
 
-						auto [pk, size] = MAKE_RPC_PACKET(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
+						auto [pk, size] = MakeRpc(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
 
 						ctx->myBuffer = std::move(pk);
 
@@ -177,7 +186,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 						[&](iconer::app::User& member)
 						{
 							iconer::app::SendContext* const ctx = AcquireSendContext();
-							auto [pk, size] = MAKE_RPC_PACKET(RPC_GRAB_ITEM, user_id, arg0, arg1);
+							auto [pk, size] = MakeRpc(RPC_GRAB_ITEM, user_id, arg0, arg1);
 
 							ctx->myBuffer = std::move(pk);
 
@@ -199,7 +208,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				[&](iconer::app::User& member)
 				{
 					iconer::app::SendContext* const ctx = AcquireSendContext();
-					auto [pk, size] = MAKE_RPC_PACKET(RPC_USE_ITEM_0, user_id, arg0, arg1);
+					auto [pk, size] = MakeRpc(RPC_USE_ITEM_0, user_id, arg0, arg1);
 
 					ctx->myBuffer = std::move(pk);
 
@@ -233,7 +242,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					[&](iconer::app::User& member)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
-						auto [pk, size] = MAKE_RPC_PACKET(RPC_MAIN_WEAPON, user_id, arg0, arg1);
+						auto [pk, size] = MakeRpc(RPC_MAIN_WEAPON, user_id, arg0, arg1);
 
 						// NOTICE: RPC_MAIN_WEAPON(arg0, 0)
 						ctx->myBuffer = std::move(pk);
@@ -289,7 +298,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								[&](iconer::app::User& member)
 								{
 									iconer::app::SendContext* const ctx = AcquireSendContext();
-									auto [pk, size] = MAKE_RPC_PACKET(RPC_BEG_RIDE, user_id, arg0, arg1);
+									auto [pk, size] = MakeRpc(RPC_BEG_RIDE, user_id, arg0, arg1);
 
 									ctx->myBuffer = std::move(pk);
 
@@ -351,7 +360,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 							[&](iconer::app::User& member)
 							{
 								iconer::app::SendContext* const ctx = AcquireSendContext();
-								auto [pk, size] = MAKE_RPC_PACKET(RPC_END_RIDE, user_id, arg0, arg1);
+								auto [pk, size] = MakeRpc(RPC_END_RIDE, user_id, arg0, arg1);
 
 								ctx->myBuffer = std::move(pk);
 
@@ -385,7 +394,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					[&](iconer::app::User& member)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
-						auto [pk, size] = MAKE_RPC_PACKET(RPC_BEG_ATTACK_0, user_id, arg0, arg1);
+						auto [pk, size] = MakeRpc(RPC_BEG_ATTACK_0, user_id, arg0, arg1);
 
 						ctx->myBuffer = std::move(pk);
 
@@ -397,6 +406,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		break;
 
 		case RPC_DMG_PLYER:
+		case RPC_DMG_GUARDIAN:
 		{
 			// arg0: 플레이어가 준 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
 			// arg1: 플레이어에게 피해를 준 개체의 식별자
@@ -417,29 +427,10 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					{
 						if (0 < hp)
 						{
-							hp.fetch_sub(dmg);
-
 							// 사망
-							if (hp <= 0)
+							if (hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 							{
 								// 하차 처리
-								{
-									room->Foreach
-									(
-										[&](iconer::app::User& member)
-										{
-											iconer::app::SendContext* const ctx = AcquireSendContext();
-											auto [pk, size] = MAKE_RPC_PACKET(RPC_END_RIDE, user_id, arg0, rider_id);
-
-											ctx->myBuffer = std::move(pk);
-
-											member.SendGeneralData(*ctx, size);
-										}
-									);
-
-									target.ridingGuardianId = -1;
-								}
-
 								target.respawnTime = std::chrono::system_clock::now() + respawnPeriod;
 
 								room->Foreach
@@ -447,13 +438,28 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 									[&](iconer::app::User& member)
 									{
 										iconer::app::SendContext* const ctx = AcquireSendContext();
-										auto [pk, size] = MAKE_RPC_PACKET(RPC_DEAD, user_id, arg0, 0);
+										auto [pk, size] = MakeRpc(RPC_END_RIDE, user_id, arg0, rider_id);
 
 										ctx->myBuffer = std::move(pk);
 
 										member.SendGeneralData(*ctx, size);
 									}
 								);
+
+								room->Foreach
+								(
+									[&](iconer::app::User& member)
+									{
+										iconer::app::SendContext* const ctx = AcquireSendContext();
+										auto [pk, size] = MakeRpc(RPC_DEAD, user_id, arg0, 0);
+
+										ctx->myBuffer = std::move(pk);
+
+										member.SendGeneralData(*ctx, size);
+									}
+								);
+
+								target.ridingGuardianId = -1;
 							}
 							else
 							{
@@ -463,7 +469,38 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 									[&](iconer::app::User& member)
 									{
 										iconer::app::SendContext* const ctx = AcquireSendContext();
-										auto [pk, size] = MAKE_RPC_PACKET(RPC_DMG_PLYER, user_id, arg0, arg1);
+										auto [pk, size] = MakeRpc(RPC_DMG_PLYER, user_id, arg0, arg1);
+
+										ctx->myBuffer = std::move(pk);
+
+										member.SendGeneralData(*ctx, size);
+									}
+								);
+							}
+						} // IF (0 < hp)
+					}
+					else // IF NOT (rider_id is -1)
+					{
+						auto& guardian = room->sagaGuardians[rider_id];
+
+						auto& guardian_hp = guardian.myHp;
+
+						if (0 < guardian_hp)
+						{
+							// 탑승했던 곰 사망
+							if (guardian_hp.fetch_sub(dmg) - dmg <= 0)
+							{
+								// 하차 처리
+								guardian.TryUnride(user_id);
+								guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+								target.ridingGuardianId = -1;
+
+								room->Foreach
+								(
+									[&](iconer::app::User& member)
+									{
+										iconer::app::SendContext* const ctx = AcquireSendContext();
+										auto [pk, size] = MakeRpc(RPC_END_RIDE, user_id, arg0, rider_id);
 
 										ctx->myBuffer = std::move(pk);
 
@@ -472,35 +509,22 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								);
 							}
 						}
+						else
+						{
+							room->Foreach
+							(
+								[&](iconer::app::User& member)
+								{
+									iconer::app::SendContext* const ctx = AcquireSendContext();
+									auto [pk, size] = MakeRpc(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+
+									ctx->myBuffer = std::move(pk);
+
+									member.SendGeneralData(*ctx, size);
+								}
+							);
+						}
 					}
-					else
-					{
-
-					}
-				}
-			);
-		}
-		break;
-
-		case RPC_DMG_GUARDIAN:
-		{
-			PrintLn("[RPC_DMG_GUARDIAN] at room {}.", room_id);
-
-			float dmg{};
-			std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-			PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
-
-			// 데미지 처리
-			room->Foreach
-			(
-				[&](iconer::app::User& member)
-				{
-					iconer::app::SendContext* const ctx = AcquireSendContext();
-					auto [pk, size] = MAKE_RPC_PACKET(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
-
-					ctx->myBuffer = std::move(pk);
-
-					member.SendGeneralData(*ctx, size);
 				}
 			);
 		}
@@ -520,7 +544,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 						[&](iconer::app::User& member)
 						{
 							iconer::app::SendContext* const ctx = AcquireSendContext();
-							auto [pk, size] = MAKE_RPC_PACKET(RPC_RESPAWN, user_id, arg0, arg1);
+							auto [pk, size] = MakeRpc(RPC_RESPAWN, user_id, arg0, arg1);
 
 							ctx->myBuffer = std::move(pk);
 
@@ -538,19 +562,14 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				{
 					const auto now = std::chrono::system_clock::now();
 
-					if (now <= target.respawnTime)
-					{
-						// 
-					}
-
 					const auto gap = target.respawnTime - now;
-					const size_t cnt = gap.count();
+					const auto cnt = gap.count();
 					PrintLn("User {}'s respawn time: {}.", user_id, cnt);
 
 					if (0 < cnt)
 					{
 						iconer::app::SendContext* const ctx = AcquireSendContext();
-						auto [pk, size] = MAKE_RPC_PACKET(RPC_RESPAWN_TIMER, user_id, cnt, arg1);
+						auto [pk, size] = MakeRpc(RPC_RESPAWN_TIMER, user_id, cnt, arg1);
 
 						ctx->myBuffer = std::move(pk);
 
@@ -558,16 +577,16 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					}
 					else
 					{
-						// RPC_RESPAWN랑 똑같은 처리
+						// RPC_RESPAWN과 같은 처리
 						auto& hp = target.myHp;
-						hp = target.maxHp;
+						hp.store(target.maxHp, std::memory_order_release);
 
 						room->Foreach
 						(
 							[&](iconer::app::User& member)
 							{
 								iconer::app::SendContext* const ctx = AcquireSendContext();
-								auto [pk, size] = MAKE_RPC_PACKET(RPC_RESPAWN_TIMER, user_id, arg0, arg1);
+								auto [pk, size] = MakeRpc(RPC_RESPAWN, user_id, arg0, arg1);
 
 								ctx->myBuffer = std::move(pk);
 
@@ -591,17 +610,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		{
 			const auto now = std::chrono::system_clock::now();
 
-			if (now <= room->selectionPhaseTime)
-			{
-				// 
-			}
-
 			const auto gap = room->selectionPhaseTime - now;
 			const size_t cnt = gap.count();
 			//PrintLn(L"\tRoom {}'s weapon phase: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(RPC_WEAPON_TIMER, user_id, cnt, 0);
+			auto [pk, size] = MakeRpc(RPC_WEAPON_TIMER, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);
@@ -612,16 +626,18 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		{
 			const auto now = std::chrono::system_clock::now();
 
-			if (now <= room->gamePhaseTime)
+			const auto gap = room->gamePhaseTime - now;
+			const auto cnt = gap.count();
+
+			if (0 < cnt)
 			{
-				// 
+			}
+			else
+			{
 			}
 
-			const auto gap = room->gamePhaseTime - now;
-			const size_t cnt = gap.count();
-
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(RPC_GAME_TIMER, user_id, cnt, 0);
+			auto [pk, size] = MakeRpc(RPC_GAME_TIMER, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);
@@ -632,17 +648,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		{
 			const auto now = std::chrono::system_clock::now();
 
-			if (now <= room->gamePhaseTime)
-			{
-				// 
-			}
-
 			const auto gap = room->gamePhaseTime - now;
 			const size_t cnt = gap.count();
 			//PrintLn(L"\tRoom {}'s game time: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MAKE_RPC_PACKET(RPC_NOTIFY_GAME_COUNTDOWN, user_id, cnt, 0);
+			auto [pk, size] = MakeRpc(RPC_NOTIFY_GAME_COUNTDOWN, user_id, cnt, 0);
 			ctx->myBuffer = std::move(pk);
 
 			user.SendGeneralData(*ctx, size);
@@ -659,7 +670,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				{
 					iconer::app::SendContext* const ctx = AcquireSendContext();
 
-					auto [pk, size] = MAKE_RPC_PACKET(protocol, user_id, arg0, arg1);
+					auto [pk, size] = MakeRpc(protocol, user_id, arg0, arg1);
 					ctx->myBuffer = std::move(pk);
 
 					user.SendGeneralData(*ctx, size);

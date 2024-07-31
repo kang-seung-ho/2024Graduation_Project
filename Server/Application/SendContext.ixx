@@ -16,5 +16,6 @@ export namespace iconer::app
 		{}
 
 		std::unique_ptr<std::byte[]> myBuffer{};
+		std::shared_ptr<std::byte[]> mySharedBuffer{};
 	};
 }
