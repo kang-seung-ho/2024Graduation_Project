@@ -87,6 +87,9 @@
     <ClCompile Include="GameSession.ixx">
       <Filter>Public</Filter>
     </ClCompile>
+    <ClCompile Include="RpcProtocols.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Application.natvis" />
