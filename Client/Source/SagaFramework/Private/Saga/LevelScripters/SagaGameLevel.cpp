@@ -110,7 +110,7 @@ ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		GetWorldTimerManager().PauseTimer(countdownTimerHandle);
 
 		const auto rep = arg0 / 1000'0000LL;
-		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaGameLevel][OnRpc] Countdown: %d"), rep);
+		//UE_LOG(LogSagaFramework, Log, TEXT("[ASagaGameLevel][OnRpc] Countdown: %d"), rep);
 
 		if (rep <= 0)
 		{
