@@ -28,10 +28,10 @@ export namespace iconer::app
 
 		std::atomic<pointer_type> userHandle{};
 		char team_id{};
-		std::atomic_uint8_t myWeapon;
-		std::atomic_bool isReady;
-		std::atomic_bool isRidingGuardian;
+		std::atomic_uint8_t myWeapon{};
+		std::atomic_bool isReady{};
 		std::atomic<float> myHp{ maxHp };
+		std::atomic_int32_t ridingGuardianId{ -1 };
 		std::chrono::system_clock::time_point respawnTime;
 
 		Member() noexcept = default;
@@ -153,8 +153,9 @@ export namespace iconer::app
 		std::chrono::system_clock::time_point selectionPhaseTime;
 		std::chrono::system_clock::time_point gamePhaseTime;
 
-		SagaTeamStatus sagaTeams[2]{};
-		SagaSummonPoint sagaSummons[3]{};
+		// equals to team id
+		std::atomic_int8_t sagaWinner{};
+		std::atomic_int32_t sagaTeamScores[2]{};
 		SagaGuardian sagaGuardians[3]{};
 		std::atomic_bool sagaItemListLock{};
 		std::array<SagaItem, 200> sagaItemList{};

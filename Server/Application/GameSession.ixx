@@ -17,26 +17,6 @@ export namespace iconer::app
 		std::atomic_bool isBoxDestroyed{ false };
 	};
 
-	struct SagaSummonPoint
-	{
-		void Cleanup() noexcept
-		{
-			isSummoning = false;
-			isAvailable = true;
-		}
-
-		void Cleanup() volatile noexcept
-		{
-			isSummoning = false;
-			isAvailable = true;
-		}
-
-		int myId{ -1 };
-		float x, y, z;
-		std::atomic_bool isAvailable;
-		std::atomic_bool isSummoning;
-	};
-
 	struct SagaBasePoint
 	{
 		static inline constexpr float maxHp = 8000;
@@ -53,33 +33,6 @@ export namespace iconer::app
 
 		float x, y, z;
 		float myHp;
-	};
-
-	struct SagaTeamStatus
-	{
-		constexpr void Cleanup() noexcept
-		{
-			myScore = 0;
-
-			for (auto& ptr : myMembers)
-			{
-				ptr = nullptr;
-			}
-		}
-
-		constexpr void Cleanup() volatile noexcept
-		{
-			myScore = 0;
-
-			for (auto& ptr : myMembers)
-			{
-				ptr = nullptr;
-			}
-		}
-
-		SagaBasePoint myBase;
-		int myScore;
-		class User* myMembers[3];
 	};
 
 	namespace SagaGuardianState

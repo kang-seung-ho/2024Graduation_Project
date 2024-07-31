@@ -162,8 +162,6 @@ noexcept
 		{
 			//std::scoped_lock lock{ memberRemoverLock };
 
-			memberCount.compare_exchange_strong(cnt, cnt - 1, std::memory_order_release);
-
 			if (notify and onUserLeft.IsBound())
 			{
 				onUserLeft.Broadcast(this, &user, cnt - 1);
@@ -171,6 +169,7 @@ noexcept
 				notify = false; // Notifty only once
 			}
 
+			memberCount.compare_exchange_strong(cnt, cnt - 1, std::memory_order_release);
 			isDirty.store(true, std::memory_order_release);
 			removed = true;
 		}
@@ -178,7 +177,7 @@ noexcept
 		user.myRoom.compare_exchange_strong(self, nullptr);
 	}
 
-	if (removed and 0 == memberCount) LIKELY
+	if (0 == memberCount) LIKELY
 	{
 		if (onDestroyed.IsBound())
 		{
@@ -192,6 +191,22 @@ noexcept
 		}
 		sagaItemListSize = 0;
 		sagaItemListLock = false;
+
+		for (auto& score : sagaTeamScores)
+		{
+			score = 0;
+		}
+
+		for (auto& member : myMembers)
+		{
+			member.team_id = 0;
+			member.myWeapon = 0;
+			member.isReady = 0;
+			member.myHp = Member::maxHp;
+			member.ridingGuardianId = -1;
+		}
+
+		sagaWinner = 0;
 
 		myTitle.clear();
 		myState.store(RoomState::Idle, std::memory_order_release);
