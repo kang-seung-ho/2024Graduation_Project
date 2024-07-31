@@ -222,7 +222,7 @@ ASagaPlayableCharacter::ExecuteAttack()
 		{
 #if WITH_EDITOR
 
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' hits a gummy bear."), *name);
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' destructs a part of the gummy bear."), *name);
 #endif
 
 			Hitlocation = hit_result.ImpactPoint;
