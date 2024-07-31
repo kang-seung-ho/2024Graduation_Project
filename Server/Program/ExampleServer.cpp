@@ -11,16 +11,16 @@ int main()
 {
 	if (auto init = serverSystem.Initialize(); init)
 	{
-		std::println("Server is Initiated.");
+		PrintLn("Server is Initiated.");
 	}
 	else
 	{
-		std::println("Could not initialize this server, due to {}.", std::to_string(init.error()));
+		PrintLn("Could not initialize this server, due to {}.", std::to_string(init.error()));
 	}
 
 	serverSystem.Startup();
 
-	std::println("Closing server...");
+	PrintLn("Closing server...");
 
 	serverSystem.Cleanup();
 

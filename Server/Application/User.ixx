@@ -96,8 +96,13 @@ export namespace iconer::app
 			isConnected.store(flag, std::memory_order_release);
 		}
 
+		void PullReceivedData(const size_t& size)
+		{
+			myReceiver.PullReceivedData(size);
+		}
+
 		[[nodiscard]]
-		std::unique_ptr<std::byte[]> AcquireReceivedData(size_t size)
+		std::unique_ptr<std::byte[]> AcquireReceivedData(const size_t& size)
 		{
 			return myReceiver.AcquireReceivedData(size);
 		}
@@ -106,6 +111,12 @@ export namespace iconer::app
 		constexpr const iconer::net::Socket& GetSocket() const noexcept
 		{
 			return myReceiver.GetSocket();
+		}
+
+		[[nodiscard]]
+		auto GetReceivedData(const size_t& buf_size) noexcept
+		{
+			return myReceiver.GetReceiveBuffer(buf_size);
 		}
 
 		[[nodiscard]]

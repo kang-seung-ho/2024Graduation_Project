@@ -41,5 +41,5 @@ ServerFramework::OnUserLeft(iconer::app::Room* room, iconer::app::User* user, st
 void
 ServerFramework::OnRoomClosed(iconer::app::Room* room)
 {
-	std::println("Room {} is just closed.", room->GetID());
+	PrintLn("Room {} is just closed.", room->GetID());
 }

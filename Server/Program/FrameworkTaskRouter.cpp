@@ -1,5 +1,4 @@
 module;
-#include <print>
 #include <cstring>
 
 #define LIKELY   [[likely]]
@@ -40,7 +39,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown game starter from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown game starter from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -56,7 +55,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -72,7 +71,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed creating a game from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed creating a game from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -88,7 +87,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed notifying team from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed notifying team from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -104,7 +103,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user) UNLIKELY
 		{
-			std::println("Unknown operation of notifying joining of room from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown operation of notifying joining of room from id {}. ({} bytes)", id, bytes);
 
 			delete context;
 			break;
@@ -116,7 +115,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		EventOnNotifyRoomJoin(*user);
 
-		std::println("User {} joined to room {}.", id, user->GetRoom()->GetID());
+		PrintLn("User {} joined to room {}.", id, user->GetRoom()->GetID());
 	}
 	break;
 
@@ -126,7 +125,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user) UNLIKELY
 		{
-			std::println("Unknown operation of notifying creation of room from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown operation of notifying creation of room from id {}. ({} bytes)", id, bytes);
 
 			delete context;
 			break;
@@ -135,7 +134,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 		// task_ctx is the roomContext of user
 		task_ctx->TryChangeOperation(OpCreateRoom, None);
 
-		std::println("User {} created a room {}.", id, user->GetRoom()->GetID());
+		PrintLn("User {} created a room {}.", id, user->GetRoom()->GetID());
 	}
 	break;
 
@@ -145,14 +144,14 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user) UNLIKELY
 		{
-			std::println("Unknown operation of room creation from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown operation of room creation from id {}. ({} bytes)", id, bytes);
 
 			delete context;
 			break;
 		}
 		else LIKELY
 		{
-			//std::println("User {} is attempting to create a room.", id);
+			//PrintLn("User {} is attempting to create a room.", id);
 		};
 
 		// task_ctx is the roomContext of user
@@ -162,7 +161,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (not place.has_value()) UNLIKELY
 		{
-			std::println("Unknown operation of room creation from id {} has no room. ({} bytes)", id, bytes);
+			PrintLn("Unknown operation of room creation from id {} has no room. ({} bytes)", id, bytes);
 
 			break;
 		}
@@ -189,14 +188,14 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown cancel of signing in from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown cancel of signing in from id {} ({} bytes)", id, bytes);
 
 			delete context;
 			break;
 		}
 		else
 		{
-			std::println("User {} has failed to sign in. ({} bytes)", id, bytes);
+			PrintLn("User {} has failed to sign in. ({} bytes)", id, bytes);
 		}
 
 		// task_ctx is the mainContext of user
@@ -211,7 +210,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown signing in from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown signing in from id {} ({} bytes)", id, bytes);
 
 			delete context;
 			break;
@@ -240,11 +239,11 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 			//fputws(user->GetName().data(), stdout);
 
-			//std::println(", {} bytes)", bytes);
+			//PrintLn(", {} bytes)", bytes);
 		}
 		else
 		{
-			std::println("User {} is just signed in, but failed to change state. ({} bytes)", id, bytes);
+			PrintLn("User {} is just signed in, but failed to change state. ({} bytes)", id, bytes);
 
 			task_ctx->SetOperation(OpSignInFailed);
 			user->SendFailedSignInPacket(iconer::app::ConnectionContract::SignInFailed);
@@ -258,14 +257,14 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown packet processor from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown packet processor from id {} ({} bytes)", id, bytes);
 
 			delete context;
 			break;
 		}
 		else
 		{
-			//std::println("Packet processor from id {} ({} bytes)", id, bytes);
+			//PrintLn("Packet processor from id {} ({} bytes)", id, bytes);
 		}
 
 		ProcessPackets(*user, static_cast<iconer::app::PacketContext*>(context), bytes);
@@ -278,7 +277,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown closing from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown closing from id {} ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -286,7 +285,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		user->EndClose();
 
-		std::println("User {} is just closed", id);
+		PrintLn("User {} is just closed", id);
 
 		// restart
 		ReserveUser(*user);
@@ -306,7 +305,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown receive from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown receive from id {} ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -316,26 +315,26 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (0 == bytes)
 		{
-			std::println("User {} is just disconnected.", id);
+			PrintLn("User {} is just disconnected.", id);
 
 			user->BeginClose();
 
 			break;
 		}
 
-		//std::println("User {} received {} bytes.", id, bytes);
+		//PrintLn("User {} received {} bytes.", id, bytes);
 
 		//auto buffer = user->AcquireReceivedData();
-		ProcessPacketsInline(*user);
+		ProcessPacketsInline(*user, bytes);
 
 		if (auto io = user->BeginReceive(); io)
 		{
-			//std::println("User {} restarted receiving.", id);
+			//PrintLn("User {} restarted receiving.", id);
 		}
 		else
 		{
 			// Would trigger OnTaskFailure
-			std::println("User {} has failed to restart receiving, due to {}.", id, std::to_string(io.error()));
+			PrintLn("User {} has failed to restart receiving, due to {}.", id, std::to_string(io.error()));
 
 			user->BeginClose();
 		}
@@ -348,7 +347,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown receive memory optaining from id {} ({} bytes)", id, bytes);
+			PrintLn("Unknown receive memory optaining from id {} ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -356,7 +355,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (not user->EndOptainReceiveMemory(true))
 		{
-			//std::println("User {} optained its memory for receiving, but the task has an invalid state.", id);
+			//PrintLn("User {} optained its memory for receiving, but the task has an invalid state.", id);
 
 			// Atomic errors would not be detected by io completion port
 			user->BeginClose();
@@ -366,12 +365,12 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = StartUser(*user); io)
 		{
-			//std::println("User {} started receiving.", id);
+			//PrintLn("User {} started receiving.", id);
 		}
 		else
 		{
 			// Would trigger OnTaskFailure
-			std::println("User {} has failed to start receiving, due to {}.", id, std::to_string(io.error()));
+			PrintLn("User {} has failed to start receiving, due to {}.", id, std::to_string(io.error()));
 		}
 	}
 	break;
@@ -389,23 +388,23 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = AcceptUser(*user); io)
 		{
-			std::println("User {} is just accepted.", user->GetID());
+			PrintLn("User {} is just accepted.", user->GetID());
 		}
 		else
 		{
-			std::println("Acceptance of user {} is failed, due to {}.", user->GetID(), std::to_string(io.error()));
+			PrintLn("Acceptance of user {} is failed, due to {}.", user->GetID(), std::to_string(io.error()));
 
 			throw "AcceptError!";
 		}
 
 		if (auto io = TriggerUser(*user); io)
 		{
-			//std::println("User {} started optaining its memory for receiving.", user->GetID());
+			//PrintLn("User {} started optaining its memory for receiving.", user->GetID());
 		}
 		else
 		{
 			// Would trigger OnTaskFailure
-			std::println("User {} failed to optain its memory for receiving, due to {}.", user->GetID(), std::to_string(io.error()));
+			PrintLn("User {} failed to optain its memory for receiving, due to {}.", user->GetID(), std::to_string(io.error()));
 		}
 	}
 	break;
@@ -424,11 +423,11 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 		if (auto io = GetListenSocket().BeginAccept(task_ctx, user->GetSocket()); io)
 		{
-			//std::println("User {} is reserved.", id);
+			//PrintLn("User {} is reserved.", id);
 		}
 		else
 		{
-			std::println("Reservation of user {} is failed, due to {}.", id, std::to_string(io.error()));
+			PrintLn("Reservation of user {} is failed, due to {}.", id, std::to_string(io.error()));
 
 			throw "ReserveError!";
 		}
@@ -437,7 +436,7 @@ ServerFramework::OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id
 
 	default:
 	{
-		std::println("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
+		PrintLn("[Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
 	}
 	break;
 	}
@@ -450,7 +449,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	if (nullptr == task_ctx)
 	{
-		std::println("[Null Task]id={} ({} bytes)", id, bytes);
+		PrintLn("[Null Task]id={} ({} bytes)", id, bytes);
 		return;
 	}
 
@@ -467,7 +466,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed game ticket from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -483,7 +482,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed notifying joining of room from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -503,7 +502,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed notifying creation of room from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed notifying creation of room from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -519,13 +518,13 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed receive memory optaining from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed receive memory optaining from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
 		}
 
-		std::println("User {} has failed on optaining its memory for receiving. (task={})", id, user->EndOptainReceiveMemory(false));
+		PrintLn("User {} has failed on optaining its memory for receiving. (task={})", id, user->EndOptainReceiveMemory(false));
 
 		user->BeginClose();
 	}
@@ -537,7 +536,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed receive from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed receive from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -561,7 +560,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed signing in from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed signing in from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -577,7 +576,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 		if (nullptr == user)
 		{
-			std::println("Unknown failed cancel of signing in from id {}. ({} bytes)", id, bytes);
+			PrintLn("Unknown failed cancel of signing in from id {}. ({} bytes)", id, bytes);
 
 			delete task_ctx;
 			break;
@@ -589,7 +588,7 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 
 	default:
 	{
-		std::println("[Failed Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
+		PrintLn("[Failed Task({})] id={} ({} bytes)", static_cast<void*>(context), id, bytes);
 	}
 	break;
 	}

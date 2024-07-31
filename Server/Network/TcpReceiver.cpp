@@ -13,7 +13,7 @@ iconer::net::TcpReceiver::Receive()
 
 	if (io)
 	{
-		recvBytes.fetch_add(static_cast<std::uint32_t>(io.value()), std::memory_order_acq_rel);
+		recvBytes += static_cast<std::uint32_t>(io.value());
 	}
 
 	return std::move(io);
@@ -45,7 +45,9 @@ noexcept
 {
 	context.ClearIoStatus();
 
-	return 0 != recvBytes.fetch_add(bytes, std::memory_order_acq_rel) + bytes;
+	recvBytes += bytes;
+
+	return 0 != recvBytes;
 }
 
 iconer::net::IoResult
@@ -88,11 +90,10 @@ iconer::net::TcpReceiver::PullReceivedData(const size_t& size)
 
 	const auto ptr = recvBuffer.data();
 
-	const std::uint32_t sz = static_cast<std::uint32_t>(size);
-
 	const auto last_off = maxRecvSize - size;
-	std::memcpy(ptr, ptr + size, maxRecvSize - size);
-	//std::memset(ptr + last_off, 0, size);
+
+	std::memmove(ptr, ptr + size, maxRecvSize - size);
+	//std::memset(ptr + size, 0, maxRecvSize - size);
 
 	recvBytes -= static_cast<std::uint32_t>(size);
 }
@@ -115,19 +116,26 @@ iconer::net::TcpReceiver::AcquireReceivedData(const size_t& size)
 }
 
 std::span<std::byte>
+iconer::net::TcpReceiver::GetReceiveBuffer(const size_t& size)
+noexcept
+{
+	assert(0 < size);
+
+	return std::span<std::byte>{ recvBuffer.data(), size };
+}
+
+std::span<std::byte>
 iconer::net::TcpReceiver::GetReceiveBuffer()
 noexcept
 {
-	const auto recvs = recvBytes.load();
-	assert(0 < recvs);
+	assert(0 < recvBytes);
 
-	return std::span<std::byte>{ recvBuffer.data(), static_cast<size_t>(recvs) };
+	return std::span<std::byte>{ recvBuffer.data(), size_t(recvBytes) };
 }
 
 std::span<std::byte>
 iconer::net::TcpReceiver::GetCurrentReceiveBuffer()
 noexcept
 {
-	const auto recvs = recvBytes.load();
-	return std::span<std::byte>{ recvBuffer.data() + recvs, maxRecvSize - static_cast<size_t>(recvs) };
+	return std::span<std::byte>{ recvBuffer.data() + ptrdiff_t(recvBytes), maxRecvSize - uint32_t(recvBytes) };
 }

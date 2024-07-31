@@ -119,12 +119,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				{
 					//items.reserve(new_cap);
 
-					std::println("User {} claims {} item spawners.", user_id, new_cap);
+					PrintLn("User {} claims {} item spawners.", user_id, new_cap);
 				}
 			}
 			else
 			{
-				std::println("Room {}'s item list already has reserved {} items.", room_id, was_cap);
+				PrintLn("Room {}'s item list already has reserved {} items.", room_id, was_cap);
 			}
 		}
 		break;
@@ -274,11 +274,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					}
 				);
 
-				std::println("User {} changed weapon to {}.", user_id, arg0);
+				PrintLn("User {} changed weapon to {}.", user_id, arg0);
 			}
 			else
 			{
-				std::println("User {} could not change weapon to {}.", user_id, arg0);
+				PrintLn("User {} could not change weapon to {}.", user_id, arg0);
 			}
 		}
 		break;
@@ -290,12 +290,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				break;
 			}
 
-			std::println("[RPC_BEG_RIDE] at room {}.", room_id);
+			PrintLn("[RPC_BEG_RIDE] at room {}.", room_id);
 
 			// arg1: index of guardian
 			if (arg1 < 0 or 3 <= arg1)
 			{
-				std::println("User {} tells wrong Guardian {}.", user_id, arg1);
+				PrintLn("User {} tells wrong Guardian {}.", user_id, arg1);
 				break;
 			}
 
@@ -307,7 +307,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					if (0 < target.myHp and guardian.IsAlive() and not is_riding and guardian.TryRide(user_id))
 					{
-						std::println("User {} would ride the Guardian {}.", user_id, arg1);
+						PrintLn("User {} would ride the Guardian {}.", user_id, arg1);
 
 						room->Foreach
 						(
@@ -326,7 +326,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					}
 					else
 					{
-						std::println("User {} cannot ride the Guardian {}.", user_id, arg1);
+						PrintLn("User {} cannot ride the Guardian {}.", user_id, arg1);
 
 						target.isRidingGuardian.store(false, std::memory_order_release);
 					}
@@ -342,12 +342,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				break;
 			}
 
-			std::println("[RPC_END_RIDE] at room {}.", room_id);
+			PrintLn("[RPC_END_RIDE] at room {}.", room_id);
 
 			// arg1: index of guardian
 			if (arg1 < 0 or 3 <= arg1)
 			{
-				std::println("User {} tells wrong guardian {}.", user_id, arg1);
+				PrintLn("User {} tells wrong guardian {}.", user_id, arg1);
 				break;
 			}
 
@@ -359,7 +359,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					if (is_riding and guardian.TryUnride(user_id))
 					{
-						std::println("User {} would unride from guardian {}.", user_id, arg1);
+						PrintLn("User {} would unride from guardian {}.", user_id, arg1);
 
 						room->Foreach
 						(
@@ -378,7 +378,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					}
 					else
 					{
-						std::println("User {} was not riding guardian {}.", user_id, arg1);
+						PrintLn("User {} was not riding guardian {}.", user_id, arg1);
 
 						target.isRidingGuardian.store(is_riding, std::memory_order_release);
 					}
@@ -389,7 +389,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_BEG_ATTACK_0:
 		{
-			std::println("[RPC_BEG_ATTACK_0] at room {}.", room_id);
+			PrintLn("[RPC_BEG_ATTACK_0] at room {}.", room_id);
 
 			//if (0 < user.myHealth)
 			{
@@ -421,7 +421,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					float dmg{};
 					std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-					std::println("[RPC_DMG_PLYER] At room {} - {} dmg to user {}.", room_id, dmg, arg1);
+					PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg to user {}.", room_id, dmg, arg1);
 
 					if (0 < hp)
 					{
@@ -483,11 +483,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_DMG_GUARDIAN:
 		{
-			std::println("[RPC_DMG_GUARDIAN] at room {}.", room_id);
+			PrintLn("[RPC_DMG_GUARDIAN] at room {}.", room_id);
 
 			float dmg{};
 			std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-			std::println("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
 
 			// 데미지 처리
 			room->Foreach
@@ -544,7 +544,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					const auto gap = target.respawnTime - now;
 					const size_t cnt = gap.count();
-					std::println("User {}'s respawn time: {}.", user_id, cnt);
+					PrintLn("User {}'s respawn time: {}.", user_id, cnt);
 
 					if (0 < cnt)
 					{
@@ -581,7 +581,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_DMG_GUARDIANS_PART:
 		{
-			std::println("[RPC_DMG_GUARDIANS_PART] at room {}.", room_id);
+			PrintLn("[RPC_DMG_GUARDIANS_PART] at room {}.", room_id);
 
 		}
 		break;
@@ -597,7 +597,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 			const auto gap = room->selectionPhaseTime - now;
 			const size_t cnt = gap.count();
-			//std::println(L"\tRoom {}'s weapon phase: {}.", room_id, cnt);
+			//PrintLn(L"\tRoom {}'s weapon phase: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
 			auto [pk, size] = MAKE_RPC_PACKET(RPC_WEAPON_TIMER, user_id, cnt, 0);
@@ -638,7 +638,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 			const auto gap = room->gamePhaseTime - now;
 			const size_t cnt = gap.count();
-			//std::println(L"\tRoom {}'s game time: {}.", room_id, cnt);
+			//PrintLn(L"\tRoom {}'s game time: {}.", room_id, cnt);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
 			auto [pk, size] = MAKE_RPC_PACKET(RPC_NOTIFY_GAME_COUNTDOWN, user_id, cnt, 0);
@@ -650,7 +650,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		default:
 		{
-			//std::println(L"\tRPC is proceed at room {}.", room_id);
+			//PrintLn(L"\tRPC is proceed at room {}.", room_id);
 
 			room->Foreach
 			(

@@ -12,66 +12,66 @@ import Iconer.App.SendContext;
 iconer::net::IoResult
 ServerFramework::Initialize()
 {
-	std::println("Starting server...");
+	PrintLn("Starting server...");
 
 	if (auto io = super::Initialize(); not io)
 	{
-		std::println("Could not initialize network system, due to {}.", std::to_string(io.error()));
+		PrintLn("Could not initialize network system, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
 
 	if (auto io = super::GetListenSocket().BindToHost(serverPort); io)
 	{
-		std::println("The listen socket is bound to host:({}).", serverPort);
+		PrintLn("The listen socket is bound to host:({}).", serverPort);
 	}
 	else
 	{
-		std::println("The listen socket could not be bound to host, due to {}.", std::to_string(io.error()));
+		PrintLn("The listen socket could not be bound to host, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
 
 	if (auto io = super::GetListenSocket().ReusableAddress(true); io)
 	{
-		std::println("The listen socket now would recycle its address. ({})", super::GetListenSocket().ReusableAddress());
+		PrintLn("The listen socket now would recycle its address. ({})", super::GetListenSocket().ReusableAddress());
 	}
 	else
 	{
-		std::println("The listen socket could not be set to re-use its address, due to {}.", std::to_string(io.error()));
+		PrintLn("The listen socket could not be set to re-use its address, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
 
 	if (auto io = super::GetListenSocket().SetTcpNoDelay(false); io)
 	{
-		std::println("The listen socket would not use Nagle algorithm. ({})", super::GetListenSocket().IsTcpNoDelay());
+		PrintLn("The listen socket would not use Nagle algorithm. ({})", super::GetListenSocket().IsTcpNoDelay());
 	}
 	else
 	{
-		std::println("The listen socket could not set Nagle algorithm, due to {}.", std::to_string(io.error()));
+		PrintLn("The listen socket could not set Nagle algorithm, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
 
 	if (auto io = myTaskPool.Initialize(); io)
 	{
-		std::println("The task pool is created.");
+		PrintLn("The task pool is created.");
 	}
 	else
 	{
-		std::println("Could not create task pool, due to {}.", std::to_string(io.error()));
+		PrintLn("Could not create task pool, due to {}.", std::to_string(io.error()));
 
 		return std::unexpected{ io.error() };
 	}
 
 	if (auto io = myTaskPool.Register(super::GetListenSocket(), 0); io)
 	{
-		std::println("The listen socket is registered to the task pool.");
+		PrintLn("The listen socket is registered to the task pool.");
 	}
 	else
 	{
-		std::println("The listen socket was not able to be registered to the task pool, due to {}.", std::to_string(io.error()));
+		PrintLn("The listen socket was not able to be registered to the task pool, due to {}.", std::to_string(io.error()));
 
 		return std::move(io);
 	}
@@ -82,7 +82,7 @@ ServerFramework::Initialize()
 	myTaskPool.eventOnTaskSucceed.Add(MakeInvoker(this, &ServerFramework::OnTaskSucceed));
 	myTaskPool.eventOnTaskFailure.Add(MakeInvoker(this, &ServerFramework::OnTaskFailure));
 
-	std::println("Allocating necessary memory...");
+	PrintLn("Allocating necessary memory...");
 
 	for (unsigned i = 0; i < reservedPacketContextCount; ++i)
 	{
@@ -111,11 +111,11 @@ ServerFramework::Initialize()
 
 	AddPacketProcessor(iconer::app::PacketProtocol::CS_RPC, &ServerFramework::EventOnRpc);
 
-	std::println("Generating {} users...", iconer::app::UserManager::maxUserCount);
+	PrintLn("Generating {} users...", iconer::app::UserManager::maxUserCount);
 
 	if (auto io = userManager.Initialize(myTaskPool.ioCompletionPort); not io)
 	{
-		std::println("The user manager has failed to initialize.");
+		PrintLn("The user manager has failed to initialize.");
 
 		return iconer::util::Unexpected{ io.error() };
 	}
@@ -126,7 +126,7 @@ ServerFramework::Initialize()
 		}
 	);
 
-	std::println("Generating {} rooms...", iconer::app::RoomManager::maxRoomCount);
+	PrintLn("Generating {} rooms...", iconer::app::RoomManager::maxRoomCount);
 
 	roomManager.Initialize();
 

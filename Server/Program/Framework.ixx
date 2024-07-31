@@ -1,3 +1,5 @@
+module;
+
 export module Iconer.Framework;
 import Iconer.Net.IFramework;
 import Iconer.Utility.TypeTraits;
@@ -11,7 +13,11 @@ import Iconer.App.PacketProtocol;
 import Iconer.App.Settings;
 import Iconer.ThreadPool;
 import <cstdint>;
+import <cstdio>;
 import <array>;
+import <string_view>;
+import <string>;
+import <format>;
 import <unordered_map>;
 
 export namespace iconer::app
@@ -91,7 +97,7 @@ private:
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult StartUser(iconer::app::User& user) const;
-	void ProcessPacketsInline(iconer::app::User& user);
+	void ProcessPacketsInline(iconer::app::User& user, const size_t& buf_size);
 	void RoutePackets(iconer::app::User& user);
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);
@@ -105,4 +111,35 @@ private:
 	ServerFramework(ServerFramework&&) = delete;
 	ServerFramework& operator=(ServerFramework&&) = delete;
 };
+
+export void PrintLn()
+{
+	std::putchar('\n');
+}
+
+export void PrintLn(std::string_view msg)
+{
+	std::printf("%s\n", msg.data());
+}
+
+export void PrintLn(std::wstring_view msg)
+{
+	std::wprintf(L"%s\n", msg.data());
+}
+
+export template<std::formattable<char>... Args>
+void PrintLn(std::format_string<std::decay_t<Args>...> msg, Args&&... args)
+{
+	const std::string content = std::vformat(msg.get(), std::make_format_args(args...));
+
+	std::printf("%s\n", content.data());
+}
+
+export template<std::formattable<wchar_t>... Args>
+void PrintLn(std::wformat_string<std::decay_t<Args>...> msg, Args&&... args)
+{
+	const std::wstring content = std::vformat(msg.get(), std::make_format_args<std::wformat_context>(args...));
+
+	std::wprintf(L"%s\n", content.data());
+}
 

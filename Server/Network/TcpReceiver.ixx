@@ -21,7 +21,7 @@ export namespace iconer::net
 
 		iconer::net::Socket* mySocket;
 		alignas(std::hardware_constructive_interference_size) std::array<std::byte, maxRecvSize> recvBuffer;
-		std::atomic_int32_t recvBytes;
+		std::int32_t recvBytes;
 
 		constexpr TcpReceiver(iconer::net::Socket& socket, std::uint32_t buffer_size)
 			: mySocket(std::addressof(socket))
@@ -48,6 +48,7 @@ export namespace iconer::net
 		[[nodiscard]]
 		std::unique_ptr<std::byte[]> AcquireReceivedData(const size_t& size);
 
+		[[nodiscard]] std::span<std::byte> GetReceiveBuffer(const size_t& size) noexcept;
 		[[nodiscard]] std::span<std::byte> GetReceiveBuffer() noexcept;
 		[[nodiscard]] std::span<std::byte> GetCurrentReceiveBuffer() noexcept;
 

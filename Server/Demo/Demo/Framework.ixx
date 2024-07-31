@@ -34,9 +34,9 @@ export namespace demo
 
 		static inline constexpr std::uint16_t lobbySidePort{ 40000 };
 		static inline constexpr std::uint16_t gameSidePort{ 40001 };
-		static inline constexpr size_t maxUsersNumber = 8000;
+		static inline constexpr size_t maxUsersNumber = 100;
 		static inline constexpr size_t maxUsersInRoomNumber = 4;
-		static inline constexpr size_t maxRoomsNumber = 8000;
+		static inline constexpr size_t maxRoomsNumber = 40;
 		static inline constexpr IdType lobbyServerID = 0;
 		static inline constexpr IdType gameServerID = 1;
 		static inline constexpr IdType beginUserID = 2;

@@ -16,16 +16,16 @@ ServerFramework::Startup()
 
 	if (auto io = GetListenSocket().Open(); io)
 	{
-		std::println("The listen socket is opened.");
+		PrintLn("The listen socket is opened.");
 	}
 	else
 	{
-		std::println("The listen socket could not be opened, due to {}.", std::to_string(io.error()));
+		PrintLn("The listen socket could not be opened, due to {}.", std::to_string(io.error()));
 
 		return;
 	}
 
-	std::println("Generating {} workers...", myTaskPool.GetMaxWorkerNumber());
+	PrintLn("Generating {} workers...", myTaskPool.GetMaxWorkerNumber());
 
 	try
 	{
@@ -33,17 +33,17 @@ ServerFramework::Startup()
 	}
 	catch (std::exception& e)
 	{
-		std::println("An error occured when generating workers!\nException: {}", e.what());
+		PrintLn("An error occured when generating workers!\nException: {}", e.what());
 
 		throw;
 	}
 
-	std::println("Reserving {} users...", userManager.maxUserCount);
+	PrintLn("Reserving {} users...", userManager.maxUserCount);
 
 	userManager.Startup(GetListenSocket());
 	roomManager.Startup();
 
-	std::println("Server is started.");
+	PrintLn("Server is started.");
 
 	myTaskPool.Schedule((iconer::net::IoContext*)nullptr, 0, 535334434);
 
