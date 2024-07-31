@@ -429,7 +429,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 										[&](iconer::app::User& member)
 										{
 											iconer::app::SendContext* const ctx = AcquireSendContext();
-											auto [pk, size] = MAKE_RPC_PACKET(RPC_DEAD, user_id, arg0, 0);
+											auto [pk, size] = MAKE_RPC_PACKET(RPC_END_RIDE, user_id, arg0, rider_id);
 
 											ctx->myBuffer = std::move(pk);
 
