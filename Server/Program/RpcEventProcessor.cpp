@@ -157,6 +157,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		// arg1 - item type
 		case RPC_USE_ITEM_0:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			auto [pk, size] = MakeSharedRpc(RPC_USE_ITEM_0, user_id, arg0, arg1);
 
 			room->Foreach
@@ -423,7 +428,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								{
 									room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
 								}
-								else
+								else if (target.team_id == 1)
 								{
 									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 								}
@@ -469,7 +474,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								{
 									room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
 								}
-								else
+								else if (target.team_id == 1)
 								{
 									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 								}
@@ -521,6 +526,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
 		case RPC_RESPAWN:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			room->ProcessMember(&user, [&](iconer::app::Member& target)
 				{
 					auto& hp = target.myHp;
@@ -545,6 +555,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_RESPAWN_TIMER:
 		{
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
 			room->ProcessMember(&user, [&](iconer::app::Member& target)
 				{
 					const auto now = std::chrono::system_clock::now();
