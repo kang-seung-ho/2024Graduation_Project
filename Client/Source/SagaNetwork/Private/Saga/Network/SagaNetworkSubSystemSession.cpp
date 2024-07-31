@@ -33,6 +33,7 @@ noexcept
 {
 	if (removed_me_also)
 	{
+		//localUser = {};
 		everyUsers.Reset();
 	}
 	else
@@ -59,7 +60,7 @@ bool
 USagaNetworkSubSystem::FindUser(int32 user_id, FSagaVirtualUser& outpin)
 const noexcept
 {
-	if (user_id == GetLocalUserId())
+	if (IsOfflineMode())
 	{
 		outpin = localUser;
 
@@ -188,7 +189,7 @@ ASagaCharacterBase*
 USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
 const noexcept
 {
-	if (user_id == GetLocalUserId())
+	if (IsOfflineMode())
 	{
 		return localUser.GetCharacterHandle();
 	}
@@ -210,7 +211,7 @@ bool
 USagaNetworkSubSystem::GetTeam(int32 user_id, ESagaPlayerTeam& outpin)
 const noexcept
 {
-	if (user_id == GetLocalUserId())
+	if (IsOfflineMode())
 	{
 		outpin = localUser.myTeam;
 
@@ -235,7 +236,7 @@ bool
 USagaNetworkSubSystem::GetWeapon(int32 user_id, EPlayerWeapon& outpin)
 const noexcept
 {
-	if (user_id == GetLocalUserId())
+	if (IsOfflineMode())
 	{
 		outpin = localUser.myWeapon;
 
@@ -260,7 +261,7 @@ float
 USagaNetworkSubSystem::GetHealth(int32 user_id)
 const noexcept
 {
-	if (user_id == GetLocalUserId())
+	if (IsOfflineMode())
 	{
 		return localUser.myHealth;
 	}
