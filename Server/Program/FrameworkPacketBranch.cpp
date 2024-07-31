@@ -1,8 +1,5 @@
 module;
 #include <utility>
-//#include <bit>
-//#include <format>
-#include <print>
 
 module Iconer.Framework;
 import Iconer.App.User;
@@ -34,7 +31,7 @@ ServerFramework::ProcessPacketsInline(iconer::app::User& user, const size_t& buf
 	while (ptr < end)
 	{
 		auto&& protocol_value = std::to_underlying(ptr[0]);
-		PrintLn("Received packet protocol: {}.", protocol_value);
+		//PrintLn("Received packet protocol: {}.", protocol_value);
 
 		if (256 <= protocol_value)
 		{
@@ -60,11 +57,11 @@ ServerFramework::ProcessPacketsInline(iconer::app::User& user, const size_t& buf
 			break;
 		}
 
-		PrintLn("Received packet size: {}.", pk_size);
+	//	PrintLn("Received packet size: {}.", pk_size);
 
 		if (end - pk_size + 3 < ptr)
 		{
-			PrintLn("[Warning] Packet {} is incompleted. (size: {})", protocol_value, pk_size);
+			//PrintLn("[Warning] Packet {} is incompleted. (size: {})", protocol_value, pk_size);
 
 			break;
 		}
@@ -74,7 +71,7 @@ ServerFramework::ProcessPacketsInline(iconer::app::User& user, const size_t& buf
 
 		if (it != packetProcessors.cend())
 		{
-			PrintLn("Processing a packet {}.", protocol_value);
+			//PrintLn("Processing a packet {}.", protocol_value);
 
 			const auto& method = it->second;
 
