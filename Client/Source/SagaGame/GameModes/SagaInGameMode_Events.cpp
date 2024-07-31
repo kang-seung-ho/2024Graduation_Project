@@ -120,6 +120,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		if (not net->IsConnected())
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Client is not connected."));
+
 			return;
 		}
 
@@ -127,6 +128,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		if (-1 == local_id)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Local user could not create a playable character."));
+
 			return;
 		}
 

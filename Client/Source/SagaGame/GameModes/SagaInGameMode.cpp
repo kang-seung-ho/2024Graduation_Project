@@ -121,6 +121,8 @@ ASagaInGameMode::StartPlay()
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
+#if WITH_EDITOR
+
 	if (not net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
@@ -129,26 +131,39 @@ ASagaInGameMode::StartPlay()
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
 	}
+#endif
 
 	switch (net->GetLocalUserTeam())
 	{
 	case ESagaPlayerTeam::Red:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for red team..."));
+#endif
+
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
 	break;
 
 	case ESagaPlayerTeam::Blue:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("Assigning a player spawner for blue team..."));
+#endif
+
 		sys->AssignLocalPlayerSpawner(GetSpawner(SagaRedTeamName));
 	}
 	break;
 
 	default:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Warning, TEXT("Assigning a player spawner for unknown team..."));
+#endif
+
 		sys->AssignLocalPlayerSpawner(world->GetWorldSettings());
 	}
 	break;
@@ -194,16 +209,6 @@ ASagaInGameMode::StartPlay()
 
 #if WITH_EDITOR
 
-	const auto bear_num = everyBears.Num();
-	if (0 < bear_num)
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d bears are detected."), bear_num);
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no bear."));
-	}
-
 	const auto item_entity_num = everyItemSpawnEntities.Num() + everyItemBoxes.Num();
 	if (0 < item_entity_num)
 	{
@@ -218,17 +223,15 @@ ASagaInGameMode::StartPlay()
 	// Preload effects
 	//const auto effect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
 
-	if (not net->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
-		if (net->IsConnected())
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
-			net->SendGameIsLoadedPacket();
-		}
+		OnCreatingCharacter(net->GetLocalUserId(), net->GetLocalUserTeam(), net->GetLocalUserWeapon());
 	}
 	else
 	{
-		OnCreatingCharacter(net->GetLocalUserId(), net->GetLocalUserTeam(), net->GetLocalUserWeapon());
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] Game mode would send a loaded packet"));
+
+		net->SendGameIsLoadedPacket();
 
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_ASSIGN_ITEM_ID, 0, everyItemSpawnEntities.Num());
 	}
@@ -248,19 +251,31 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 	{
 	case ESagaPlayerTeam::Red:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for red team..."));
+#endif
+
 		return GetSpawner(SagaRedTeamName);
 	}
 
 	case ESagaPlayerTeam::Blue:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("Choosing a player spawner for blue team..."));
+#endif
+
 		return GetSpawner(SagaBluTeamName);
 	}
 
 	default:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Warning, TEXT("Choosing a player spawner for unknown team..."));
+#endif
+
 		return Super::ChoosePlayerStart_Implementation(player);
 	}
 	}
@@ -269,7 +284,10 @@ ASagaInGameMode::ChoosePlayerStart_Implementation(AController* player)
 AActor*
 ASagaInGameMode::FindPlayerStart_Implementation(AController* player, const FString& tag)
 {
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaGame, Log, TEXT("Finding a player spawn by a tag '%s'..."), *tag);
+#endif
 
 	return Super::FindPlayerStart_Implementation(player, tag);
 }
@@ -386,6 +404,19 @@ ASagaInGameMode::ScanGuardians()
 
 		everyBears.Add(bear);
 	}
+
+#if WITH_EDITOR
+
+	const auto bear_num = everyBears.Num();
+	if (0 < bear_num)
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d bears are detected."), bear_num);
+	}
+	else
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no bear."));
+	}
+#endif
 }
 
 void

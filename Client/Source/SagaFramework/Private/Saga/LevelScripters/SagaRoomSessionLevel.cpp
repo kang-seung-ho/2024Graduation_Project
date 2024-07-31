@@ -80,11 +80,6 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 		{
 			const auto& user_id = user.myID;
 
-			if (net->GetLocalUserId() == user_id)
-			{
-				net->SetTeam(user_id, user.myTeam);
-			}
-
 			switch (user.myTeam)
 			{
 			case ESagaPlayerTeam::Unknown:
@@ -372,7 +367,13 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not net->IsOfflineMode())
+	if (net->IsOfflineMode())
+	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
+
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
+	}
+	else
 	{
 		if (net->IsConnected())
 		{
@@ -386,12 +387,6 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 
 			Fallback();
 		}
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
-
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
 	}
 
 	UnPauseTimer();
