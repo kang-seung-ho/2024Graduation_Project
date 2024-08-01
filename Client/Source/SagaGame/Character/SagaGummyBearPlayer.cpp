@@ -213,7 +213,7 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 }
 
-void
+float
 ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {
 	if (IsAlive())
@@ -234,14 +234,21 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 					break;
 				}
 			}
-			UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndex[i]);
+
+			UE_LOG(LogSagaGame, Warning, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
 		}
 
 		if (ActiveIndex[1] <= 0 && ActiveIndex[3] <= 0)
 		{
-			ExecuteHurt(GetHealth());
+			return 9999;
+		}
+		else
+		{
+			return 0;
 		}
 	}
+
+	return 0;
 }
 
 

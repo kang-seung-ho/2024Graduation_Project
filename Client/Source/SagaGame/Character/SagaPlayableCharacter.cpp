@@ -213,9 +213,6 @@ ASagaPlayableCharacter::ExecuteAttack()
 	{
 		const auto hit_actor = hit_result.GetActor();
 
-		hit_actor->TakeDamage(damage, hit_event, GetController(), this);
-
-		// TODO: 이 코드를 구미 베어의 TakeDamage로 옮겨야 함.
 		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
 
 		if (IsValid(bear))
@@ -228,7 +225,13 @@ ASagaPlayableCharacter::ExecuteAttack()
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
 
-			bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+			const auto amp = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+			hit_actor->TakeDamage(damage + amp, hit_event, GetController(), this);
+		}
+		else
+		{
+			hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 		}
 	}
 }

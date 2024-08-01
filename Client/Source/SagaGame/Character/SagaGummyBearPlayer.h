@@ -43,7 +43,7 @@ public:
 	virtual void ExecuteDeath() override;
 
 	UFUNCTION()
-	void OnBodyPartGetDamaged(FVector Location, FVector Normal);
+	float OnBodyPartGetDamaged(FVector Location, FVector Normal);
 
 	UFUNCTION()
 	int32 GetBearId() const noexcept;
