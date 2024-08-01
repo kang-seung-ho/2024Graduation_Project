@@ -41,7 +41,7 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 
 			return Super::TakeDamage(dmg, event, instigator, causer);
 		}
-		else
+	else if (IsAlive())
 		{
 			// 자기 자신의 피해량만 송신함
 			if (GetUserId() == net->GetLocalUserId())
