@@ -307,11 +307,11 @@ ASagaCharacterBase::ASagaCharacterBase()
 	if (NiagaraEffect.Succeeded())
 	{
 		HealItemEffect = NiagaraEffect.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Heal Niagara Effect Loaded"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Heal Niagara Effect Loaded"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Heal Niagara Effect Not Loaded"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Heal Niagara Effect Not Loaded"));
 	}
 }
 
@@ -366,14 +366,15 @@ ASagaCharacterBase::BeginPlay()
 	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
 
-void ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
+void
+ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 {
 	switch (ItemType)
 	{
 		// Add Drink to Player's Inventory
 	case ESagaItemTypes::Drink:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Drink"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : Drink"));
 		AddItemToInventory(ItemType);
 	}
 	break;
@@ -381,7 +382,7 @@ void ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 	// Add Gum to Player's Inventory
 	case ESagaItemTypes::Gum:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item Taken : Gum"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : Gum"));
 		AddItemToInventory(ItemType);
 	}
 	break;
@@ -389,7 +390,7 @@ void ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 	// Add SmokeBomb to Player's Inventory
 	case ESagaItemTypes::SmokeBomb:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item Taken : SmokeBomb"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : SmokeBomb"));
 		AddItemToInventory(ItemType);
 	}
 	break;
@@ -399,12 +400,16 @@ void ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 	}
 }
 
-void ASagaCharacterBase::AddItemToInventory(ESagaItemTypes ItemType)
+void
+ASagaCharacterBase::AddItemToInventory(ESagaItemTypes ItemType)
+const
 {
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController)
+	const auto pc = GetController();
+
+	if (IsValid(pc))
 	{
-		ASagaInGamePlayerController* SagaPlayerController = Cast<ASagaInGamePlayerController>(PlayerController);
+		ASagaInGamePlayerController* SagaPlayerController = Cast<ASagaInGamePlayerController>(pc);
+
 		if (SagaPlayerController)
 		{
 			SagaPlayerController->AddItemToInventory(ItemType);

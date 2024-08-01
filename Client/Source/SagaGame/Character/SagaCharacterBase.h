@@ -3,11 +3,11 @@
 #include "Player/SagaPlayerTeam.h"
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Component/SagaCharacterStatComponent.h"
+#include "AI/SagaAIInfo.h"
+#include "Interface/SagaCharacterItemInterface.h"
 
 #include "Saga/Network/SagaVirtualUser.h"
-#include "../Interface/SagaCharacterItemInterface.h"
 
-#include "../AI/SagaAIInfo.h"
 #include "SagaCharacterBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSagaEventOnCharacterDeath, class ASagaCharacterBase*, character);
@@ -61,6 +61,8 @@ public:
 	virtual void Tick(float delta_time) override;
 
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	virtual void TakeItem(ESagaItemTypes ItemType) override;
 
 	UFUNCTION()
 	void StopMovement();
@@ -168,6 +170,27 @@ public:
 	bool IsAlive() const noexcept;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	UCameraComponent* myCameraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	USpringArmComponent* myCameraSpringArmComponent;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int straightMoveDirection;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	int strafeMoveDirection;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	bool isRunning;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TSubclassOf<UUserWidget> healthbarWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
+	UAIPerceptionStimuliSourceComponent* mAISource;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
+	TObjectPtr<class UNiagaraSystem> HealItemEffect;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintPure)
@@ -194,30 +217,6 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	UCameraComponent* myCameraComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	USpringArmComponent* myCameraSpringArmComponent;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	int straightMoveDirection;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	int strafeMoveDirection;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	bool isRunning;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TSubclassOf<UUserWidget> healthbarWidgetClass;
-
-public:
-	virtual void TakeItem(ESagaItemTypes ItemType) override;
-
-	void AddItemToInventory(ESagaItemTypes ItemType);
-
-protected:
-	UPROPERTY(VisibleAnywhere)
-	UAIPerceptionStimuliSourceComponent* mAISource;
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
-	TObjectPtr<class UNiagaraSystem> HealItemEffect;
+	UFUNCTION()
+	void AddItemToInventory(ESagaItemTypes ItemType) const;
 };
