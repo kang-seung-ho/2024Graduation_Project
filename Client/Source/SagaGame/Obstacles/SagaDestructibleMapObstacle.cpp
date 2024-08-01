@@ -73,11 +73,11 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
 {
     float DamageApplied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-    UE_LOG(LogTemp, Warning, TEXT("Obstacle took %f damage, current health: %f"), DamageAmount, health);
+    UE_LOG(LogTemp, Warning, TEXT("Obstacle took %f damage, current health: %f"), DamageAmount, myHealth);
 
-    health -= DamageApplied;
+    myHealth -= DamageApplied;
 
-    if (health <= 0)
+    if (myHealth <= 0)
     {
         FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
@@ -94,7 +94,7 @@ float ASagaDestructibleMapObstacle::TakeDamage(float DamageAmount, FDamageEvent 
 
         if (NiagaraComponent)
         {
-            // 3ÃÊ ÈÄ¿¡ ³ªÀÌ¾Æ°¡¶ó ÀÌÆåÆ® Á¤Áö
+            // 3ì´ˆ í›„ì— ë‚˜ì´ì•„ê°€ë¼ ì´íŽ™íŠ¸ ì •ì§€
             FTimerHandle NiagaraTimerHandle;
             GetWorldTimerManager().SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
         }
