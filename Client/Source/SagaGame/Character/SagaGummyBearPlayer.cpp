@@ -150,17 +150,14 @@ ASagaGummyBearPlayer::ExecuteAttack()
 float
 ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 {
+	const auto current_hp = Super::ExecuteHurt(dmg);
+
 #if WITH_EDITOR
 
-	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (%f)"), dmg);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] ExecuteHurt (dmg: %f, hp : %f)"), dmg, current_hp);
+#endif
 
-	const auto current_hp = Super::ExecuteHurt(dmg);
-	UE_LOG(LogSagaGame, Log, TEXT("Bear Hp : %f"), current_hp);
-
-	if (0 < current_hp)
-	{
-		// Hit Effect When the hp is greater than 0
-
+	// 
 		if (HitEffect)
 		{
 			FVector SpawnLocation = GetActorLocation();
@@ -169,7 +166,8 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 
 			if (NiagaraComponent)
 			{
-				FTimerHandle NiagaraTimerHandle;
+			FTimerHandle NiagaraTimerHandle{};
+
 				GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
 					{
 						NiagaraComponent->Deactivate();
@@ -178,13 +176,7 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 			}
 		}
 
-	}
-
 	return current_hp;
-#else
-
-	return Super::ExecuteHurt(dmg);
-#endif
 }
 
 void
