@@ -47,19 +47,19 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 	CollisionBox->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ASagaGummyBearSmall::OnOverlapBegin);
 
-
 	// Initialize explosion effect and damage values
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionEffectAsset(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
 	if (ExplosionEffectAsset.Succeeded())
 	{
 		ExplosionEffect = ExplosionEffectAsset.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Small Bear Effect Loaded"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Small Bear Effect Loaded"));
 	}
 	else
 	{
 		ExplosionEffect = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Small Bear Effect NOT Loaded"));
+		UE_LOG(LogSagaGame, Warning, TEXT("Small Bear Effect NOT Loaded"));
 	}
+
 	DamageAmount = 50.0f;
 	DamageType = UDamageType::StaticClass();
 }

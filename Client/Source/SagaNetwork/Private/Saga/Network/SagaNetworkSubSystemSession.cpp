@@ -97,6 +97,8 @@ noexcept
 {
 	if (user_id == GetLocalUserId())
 	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local user '%d's character is set."), user_id);
+
 		localUser.SetCharacterHandle(character);
 	}
 
@@ -104,7 +106,11 @@ noexcept
 	{
 		if (user.myID == user_id)
 		{
+			UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] User %d's character is set."), user_id);
+
 			user.remoteCharacter = character;
+
+			return;
 		}
 	}
 }

@@ -58,11 +58,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (is_remote)
 		{
-			//UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] Begin Walking"));
 		}
 		else
 		{
-			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC] Begin Walking"));
 		}
 
 		const auto xdir = static_cast<int>(arg0);
