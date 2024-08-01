@@ -1,6 +1,7 @@
 #pragma once
-#include "SagaGameInfo.h"
+#include "SagaGame.h"
 #include <GameFramework/Actor.h>
+#include <Engine/TimerHandle.h>
 
 #include "SagaDestructibleMapObstacle.generated.h"
 
@@ -18,7 +19,7 @@ private:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	USkeletalMeshComponent* MeshComponent;
+	class USkeletalMeshComponent* MeshComponent;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	//USkeletalMeshComponent* SKMeshComponent;
@@ -43,7 +44,6 @@ public:
 	UFUNCTION()
 	void ChangeLevel();
 
-public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
