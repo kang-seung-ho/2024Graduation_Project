@@ -109,7 +109,7 @@ ASagaCharacterBase::ExecuteDeath()
 #if WITH_EDITOR
 
 	const auto name = GetName();
-	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath()] '%s' is dead."), *name);
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase::ExecuteDeath] '%s' is dead."), *name);
 #endif
 
 	// Hide the hp bar
