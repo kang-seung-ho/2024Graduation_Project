@@ -1,8 +1,11 @@
 #include "Obstacles/SagaDestructibleMapObstacle.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "../Public/SagaGameSubsystem.h"
+#include <Components/SkeletalMeshComponent.h>
+#include <NiagaraFunctionLibrary.h>
+#include <NiagaraComponent.h>
+
+#include "SagaGameSubsystem.h"
+
+#include "Saga/Network/SagaNetworkSubSystem.h"
 
 ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
 {
@@ -60,7 +63,7 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 	const auto world = GetWorld();
 	auto& timer = GetWorldTimerManager();
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
-	const auto net = USagaGameSubsystem::GetSubSystem(world);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
 	if (myHealth <= 0)
 	{
@@ -92,13 +95,31 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 
 		timer.SetTimer(LevelChangeTimerHandle, this, &ASagaDestructibleMapObstacle::ChangeLevel, 3.0f, false);
 
-		if (TeamPinataColor == 0)
+		if (net->IsOfflineMode())
 		{
-			sys->SetWhoWonByPinata(0);
+			if (TeamPinataColor == 0)
+			{
+				// red win
+				sys->SetWhoWonByPinata(0);
+			}
+			else
+			{
+				// blue win
+				sys->SetWhoWonByPinata(1);
+			}
 		}
 		else
 		{
-			sys->SetWhoWonByPinata(1);
+			if (TeamPinataColor == 0)
+			{
+				// red win
+				sys->SetWhoWonByPinata(0);
+			}
+			else
+			{
+				// blue win
+				sys->SetWhoWonByPinata(1);
+			}
 		}
 	}
 	else
