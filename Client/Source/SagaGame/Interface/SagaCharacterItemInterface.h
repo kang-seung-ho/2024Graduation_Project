@@ -1,7 +1,9 @@
 #pragma once
-#include <CoreMinimal.h>
+#include "SagaGame.h"
 #include <UObject/Interface.h>
-#include "../Item/SagaWeaponData.h"
+
+#include "Item/SagaItemTypes.h"
+
 #include "SagaCharacterItemInterface.generated.h"
 
 UINTERFACE(MinimalAPI)
@@ -15,5 +17,6 @@ class SAGAGAME_API ISagaCharacterItemInterface
 	GENERATED_BODY()
 
 public:
-	virtual void TakeItem(ESagaItemTypes Item) = 0;
+	UFUNCTION()
+	virtual void TakeItem(ESagaItemTypes item) = 0;
 };
