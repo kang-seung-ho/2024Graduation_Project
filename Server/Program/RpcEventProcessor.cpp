@@ -80,6 +80,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		// arg1 - id
 		case RPC_DESTROY_ITEM_BOX:
 		{
+			PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {}.", room_id, arg1);
+
 			auto& items = room->sagaItemList;
 
 			if (not room->IsTaken() or 0 == room->GetMemberCount())
@@ -115,6 +117,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		// arg1 - id
 		case RPC_GRAB_ITEM:
 		{
+			PrintLn("[RPC_GRAB_ITEM] At room {} - {}.", room_id, arg1);
+
 			auto& items = room->sagaItemList;
 
 			if (not room->IsTaken() or 0 == room->GetMemberCount())
@@ -155,6 +159,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		// arg1 - item type
 		case RPC_USE_ITEM_0:
 		{
+			PrintLn("[RPC_USE_ITEM_0] At room {}.", room_id);
+
 			if (not room->IsTaken() or 0 == room->GetMemberCount())
 			{
 				break;
@@ -410,7 +416,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_BEG_ATTACK_0:
 		{
-			PrintLn("[RPC_BEG_ATTACK_0] At room {}.", room_id);
+			//PrintLn("[RPC_BEG_ATTACK_0] At room {}.", room_id);
 
 			//if (0 < user.myHealth)
 			{
