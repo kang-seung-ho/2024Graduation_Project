@@ -214,8 +214,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 		{
 			if (IsPointInsideBox(DismCollisionBox[i], Location))
 			{
-				ActiveIndex[i]--;
-				if (ActiveIndex[i] == 0)
+				if (0 == --ActiveIndex[i])
 				{
 					//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 					DismPartID = i;
