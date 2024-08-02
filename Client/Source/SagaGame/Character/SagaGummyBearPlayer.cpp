@@ -178,23 +178,26 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	// 사망 애니메이션 실행
 	mBearAnimInst->Death();
 
-	Super::ExecuteDeath();
-
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 	if (net->IsOfflineMode())
 	{
+		Super::ExecuteDeath();
+
+		// 상대 팀 점수 증가 실행
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 	}
 	else
 	{
-	}
+		// TODO: 곰의 사망 동기화 작업 중
+		Super::ExecuteDeath();
 
-	// TODO: 점수 동기화 작업 중
-	// 상대 팀 점수 증가 실행
-	sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-	net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+		// TODO: 점수 동기화 작업 중
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+	}
 }
 
 float
