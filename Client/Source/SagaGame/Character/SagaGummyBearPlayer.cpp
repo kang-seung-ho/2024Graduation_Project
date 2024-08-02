@@ -1,5 +1,6 @@
 #include "SagaGummyBearPlayer.h"
 #include <Templates/Casts.h>
+#include <Engine/TimerHandle.h>
 #include <Components/ArrowComponent.h>
 #include <GeometryCollection/ManagedArray.h>
 #include <GeometryCollection/GeometryCollectionComponent.h>
@@ -27,44 +28,33 @@ ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AControll
 
 	if (net->IsOfflineMode())
 	{
-		return Super::TakeDamage(dmg, event, instigator, causer);
-	}
-	else
-	{
-		if (not HasValidOwnerId())
-		{
 #if WITH_EDITOR
 
-			const auto name = GetName();
+		const auto name = GetName();
 		UE_LOG(LogSagaGame, Log, TEXT("[TakeDamage] Guardian '%s' would take %f damages. (Offline Mode)"), *name, dmg);
 #endif
 
-			return Super::TakeDamage(dmg, event, instigator, causer);
-		}
+		return Super::TakeDamage(dmg, event, instigator, causer);
+	}
 	else if (IsAlive())
-		{
-			// 자기 자신의 피해량만 송신함
-			if (GetUserId() == net->GetLocalUserId())
-			{
+	{
 #if WITH_EDITOR
 
 		UE_LOG(LogSagaGame, Log, TEXT("[TakeDamage] Handling gummy bear's damage by %f."), dmg);
 #endif
 
-				// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
-				// arg0: 플레이어가 준 피해량 (4바이트 부동소수점)
-				int64 arg0{};
-				// arg1: 현재 수호자의 식별자
-				int32 arg1{ GetBearId() };
+		// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
+		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점) | 파괴 부위 (4바이트)
+		int64 arg0{};
+		// arg1: 현재 수호자의 식별자
+		int32 arg1{ GetBearId() };
 
-				std::memcpy(&arg0, reinterpret_cast<const char*>(&dmg), 4);
+		std::memcpy(&arg0, reinterpret_cast<const char*>(&dmg), 4);
 
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIAN, arg0, arg1);
-			}
-
-			return dmg;
-		}
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIAN, arg0, arg1);
 	}
+
+	return dmg;
 }
 
 void
@@ -158,23 +148,23 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 #endif
 
 	// 
-		if (HitEffect)
-		{
-			FVector SpawnLocation = GetActorLocation();
-			FRotator SpawnRotation = GetActorRotation();
-			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, HitEffect, SpawnLocation, SpawnRotation);
+	if (HitEffect)
+	{
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, HitEffect, SpawnLocation, SpawnRotation);
 
-			if (NiagaraComponent)
-			{
+		if (NiagaraComponent)
+		{
 			FTimerHandle NiagaraTimerHandle{};
 
-				GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
-					{
-						NiagaraComponent->Deactivate();
-						NiagaraComponent->DestroyComponent();
-					}, 3.0f, false);
-			}
+			GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
+				{
+					NiagaraComponent->Deactivate();
+					NiagaraComponent->DestroyComponent();
+				}, 3.0f, false);
 		}
+	}
 
 	return current_hp;
 }
