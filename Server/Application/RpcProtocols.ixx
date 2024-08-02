@@ -17,24 +17,26 @@ export namespace iconer::app
 		ICONER_RPC_ENUM_ITEM(ATTACK_2), // Normal attack #3
 		ICONER_RPC_ENUM_ITEM(ATTACK_3), // Normal attack #4
 		ICONER_RPC_ENUM_ITEM(RIDE),
-		RPC_POSITION,
+
+		RPC_POSITION = 20,
 		RPC_ROTATION,
-		RPC_SKILL_0 = 100, // Ability #1
+
+		RPC_SKILL_0 = 50, // Ability #1
 		RPC_SKILL_1, // Ability #2
 		RPC_SKILL_2, // Ability #3
 		RPC_SKILL_3, // Ability #4
 
-		RPC_USE_ITEM_0 = 120,
+		RPC_USE_ITEM_0 = 100,
 		RPC_USE_ITEM_1,
 		RPC_USE_ITEM_2,
 		RPC_USE_ITEM_3,
 		RPC_USE_ITEM_4,
 		RPC_ASSIGN_ITEM_ID,
 		RPC_DESTROY_ITEM_BOX,
-		RPC_SPAWN_ITEM = 150,
+		RPC_SPAWN_ITEM,
 		RPC_GRAB_ITEM,
 
-		RPC_MAIN_WEAPON,
+		RPC_MAIN_WEAPON = 140,
 		RPC_CHANGE_HAND_ITEM,
 		/// <summary>
 		/// 클라에서 준비를 하면 서버에서 준비된 플레이어의 수를 보냄
@@ -43,7 +45,8 @@ export namespace iconer::app
 		/// <param name="arg0">- 준비된 플레이어의 수</param>
 		/// <param name="arg1">- 없음</param>
 		RPC_NOTIFY_READY_COUNTER,
-		RPC_DMG_PLYER,
+
+		RPC_DMG_PLYER = 180,
 		RPC_DMG_GUARDIAN,
 		RPC_DMG_GUARDIANS_PART,
 		RPC_DMG_BASE,
@@ -51,7 +54,7 @@ export namespace iconer::app
 		RPC_RESPAWN,
 		RPC_RESPAWN_TIMER,
 
-		RPC_DESTROY_CORE = 200,
+		RPC_DESTROY_CORE = 220,
 		RPC_GET_SCORE,
 		RPC_CHECK_GAME_VICTORY,
 		RPC_UPDATE_HEALTH,

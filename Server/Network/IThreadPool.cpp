@@ -76,7 +76,7 @@ iconer::net::IThreadPool::Worker(std::stop_token&& cancel_token, IThreadPool& se
 				std::println("An issue appeared at worker {}.", index);
 			}
 
-			break;
+			//break;
 		}
 #else
 			if (not ProcessTask(AwaitForTask())) UNLIKELY

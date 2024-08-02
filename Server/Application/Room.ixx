@@ -32,7 +32,7 @@ export namespace iconer::app
 		std::atomic_bool isReady{};
 		std::atomic<float> myHp{ maxHp };
 		std::atomic_int32_t ridingGuardianId{ -1 };
-		std::chrono::system_clock::time_point respawnTime;
+		std::chrono::system_clock::time_point respawnTime{};
 
 		Member() noexcept = default;
 

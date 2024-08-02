@@ -20,18 +20,16 @@ namespace
 	inline constexpr std::chrono::seconds gameAwaitPhasePeriod{ 31 };
 	inline constexpr std::chrono::seconds respawnPeriod{ 5 };
 
-	template<typename Protocol>
 	[[nodiscard]]
 	constexpr std::pair<std::unique_ptr<std::byte[]>, std::int16_t>
-		MakeRpc(Protocol&& proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
+		MakeRpc(iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
 	{
 		return iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, id, proc, arg0, arg1);
 	}
 
-	template<typename Protocol>
 	[[nodiscard]]
 	std::pair<std::shared_ptr<std::byte[]>, std::int16_t>
-		MakeSharedRpc(Protocol&& proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
+		MakeSharedRpc(iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
 	{
 		auto [ptr, size] = iconer::app::Serialize(iconer::app::PacketProtocol::SC_RPC, id, proc, arg0, arg1);
 
@@ -52,7 +50,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		const RpcProtocol protocol = *reinterpret_cast<const RpcProtocol*>(data);
 		data += sizeof(RpcProtocol);
 
-		const std::int64_t arg0 = *reinterpret_cast<const std::int64_t*>(data);
+		std::int64_t arg0 = *reinterpret_cast<const std::int64_t*>(data);
 		data += sizeof(std::int64_t);
 
 		const std::int32_t arg1 = *reinterpret_cast<const std::int32_t*>(data);
@@ -153,7 +151,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		break;
 
 		// 
-		// arg0 - 
+		// arg0 - effect info
 		// arg1 - item type
 		case RPC_USE_ITEM_0:
 		{
@@ -163,6 +161,69 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 			}
 
 			auto [pk, size] = MakeSharedRpc(RPC_USE_ITEM_0, user_id, arg0, arg1);
+
+			switch (arg1)
+			{
+			case 0:
+			{
+				room->ProcessMember(&user, [&](iconer::app::Member& target)
+					{
+						PrintLn("[RPC_USE_ITEM_0] At room {} - Energy drink for user {}.", room_id, user_id);
+
+						auto& rider = target.ridingGuardianId;
+
+						const auto rider_id = rider.load(std::memory_order_acquire);
+
+						if (rider_id == -1)
+						{
+							auto& hp = target.myHp;
+
+							if (const auto hp_value = hp.load(std::memory_order_acquire); hp_value < target.maxHp)
+							{
+								hp.store(std::min(target.maxHp, hp_value + 30.0f), std::memory_order_release);
+								arg0 = 30;
+							}
+							else
+							{
+								arg0 = 0;
+							}
+						}
+						else
+						{
+							auto& guardian = room->sagaGuardians[rider_id];
+							auto& hp = guardian.myHp;
+
+							if (const auto hp_value = hp.load(std::memory_order_acquire); hp_value < guardian.maxHp)
+							{
+								hp.store(std::min(guardian.maxHp, hp_value + 30.0f), std::memory_order_release);
+								arg0 = 30;
+							}
+							else
+							{
+								arg0 = 0;
+							}
+						}
+					}
+				);
+			}
+			break;
+
+			case 1:
+			{
+
+			}
+			break;
+
+			case 2:
+			{
+
+			}
+			break;
+
+			default:
+			{}
+			break;
+			}
 
 			room->Foreach
 			(
@@ -227,7 +288,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				break;
 			}
 
-			PrintLn("[RPC_BEG_RIDE] at room {}.", room_id);
+			PrintLn("[RPC_BEG_RIDE] At room {}.", room_id);
 
 			// arg1: index of guardian
 			if (arg1 < 0 or 3 <= arg1)
@@ -289,6 +350,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		}
 		break;
 
+		// arg0: nothing
+		// arg1: index of guardian
 		case RPC_END_RIDE:
 		{
 			if (not room->IsTaken() or 0 == room->GetMemberCount())
@@ -296,9 +359,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				break;
 			}
 
-			PrintLn("[RPC_END_RIDE] at room {}.", room_id);
+			PrintLn("[RPC_END_RIDE] At room {}.", room_id);
 
-			// arg1: index of guardian
 			if (arg1 < 0 or 3 <= arg1)
 			{
 				PrintLn("User {} tells wrong guardian {}.", user_id, arg1);
@@ -318,16 +380,17 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					{
 						PrintLn("User {} would unride from guardian {}.", user_id, arg1);
 
+						auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, user_id, arg0, arg1);
+
 						room->Foreach
 						(
 							[&](iconer::app::User& member)
 							{
 								iconer::app::SendContext* const ctx = AcquireSendContext();
-								auto [pk, size] = MakeRpc(RPC_END_RIDE, user_id, arg0, arg1);
 
-								ctx->myBuffer = std::move(pk);
+								ctx->mySharedBuffer = pk;
 
-								member.SendGeneralData(*ctx, size);
+								member.SendGeneralData(*ctx, pk.get(), size);
 							}
 						);
 
@@ -347,7 +410,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_BEG_ATTACK_0:
 		{
-			PrintLn("[RPC_BEG_ATTACK_0] at room {}.", room_id);
+			PrintLn("[RPC_BEG_ATTACK_0] At room {}.", room_id);
 
 			//if (0 < user.myHealth)
 			{
@@ -370,10 +433,9 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_DMG_PLYER:
 		{
-			// arg0: 플레이어가 준 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
+			// arg0: 플레이어가 받은 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
 			// arg1: 플레이어에게 피해를 준 개체의 식별자
 			//     예시: 플레이어의 ID, 수호자의 순번
-
 			room->ProcessMember(&user, [&](iconer::app::Member& target)
 				{
 					float dmg{};
@@ -385,6 +447,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					const auto rider_id = rider.load(std::memory_order_acquire);
 
+					target.respawnTime = std::chrono::system_clock::now() + respawnPeriod;
+
 					if (rider_id == -1)
 					{
 						if (0 < hp)
@@ -392,10 +456,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 							// 사망
 							if (hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 							{
-								// 하차 처리
-								target.respawnTime = std::chrono::system_clock::now() + respawnPeriod;
-
-								auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, user_id, arg0, rider_id);
+								auto [pk, size] = MakeSharedRpc(RPC_DEAD, user_id, arg0, 0);
 
 								room->Foreach
 								(
@@ -406,20 +467,6 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 										ctx->mySharedBuffer = pk;
 
 										member.SendGeneralData(*ctx, pk.get(), size);
-									}
-								);
-
-								auto [pk2, size2] = MakeSharedRpc(RPC_DEAD, user_id, arg0, 0);
-
-								room->Foreach
-								(
-									[&](iconer::app::User& member)
-									{
-										iconer::app::SendContext* const ctx = AcquireSendContext();
-
-										ctx->mySharedBuffer = pk2;
-
-										member.SendGeneralData(*ctx, pk2.get(), size2);
 									}
 								);
 
@@ -459,10 +506,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 						auto& guardian = room->sagaGuardians[rider_id];
 						auto& guardian_hp = guardian.myHp;
 
-						if (0 < guardian_hp)
+						auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire);
+
+						if (0 < guardian_hp_value)
 						{
 							// 탑승했던 곰 사망
-							if (guardian_hp.fetch_sub(dmg) - dmg <= 0)
+							if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 							{
 								// 하차 처리
 								guardian.TryUnride(user_id);
@@ -493,32 +542,130 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 									}
 								);
 							}
-						}
-						else
-						{
-							auto [pk, size] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+							else
+							{
+								auto [pk, size] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
 
-							room->Foreach
-							(
-								[&](iconer::app::User& member)
-								{
-									iconer::app::SendContext* const ctx = AcquireSendContext();
+								room->Foreach
+								(
+									[&](iconer::app::User& member)
+									{
+										iconer::app::SendContext* const ctx = AcquireSendContext();
 
-									ctx->mySharedBuffer = pk;
+										ctx->mySharedBuffer = pk;
 
-									member.SendGeneralData(*ctx, pk.get(), size);
-								}
-							);
-						}
-					}
+										member.SendGeneralData(*ctx, pk.get(), size);
+									}
+								);
+							}
+						} // IF (0 < guardian hp)
+					} // IF NOT (rider_id is -1)
 				}
 			);
 		}
 		break;
 
+		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점) | 파괴 부위 (4바이트)
+		// arg1: 현재 수호자의 식별자
 		case RPC_DMG_GUARDIAN:
 		{
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - guardian {}.", room_id, arg1);
 
+			if (not room->IsTaken() or 0 == room->GetMemberCount())
+			{
+				break;
+			}
+
+			// arg1: index of the guardian
+			if (arg1 < 0 or 3 <= arg1)
+			{
+				PrintLn("User {} tells wrong damaged guardian {}.", user_id, arg1);
+				break;
+			}
+
+			// arg0: damages to the guardian
+			float dmg{};
+			std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+
+			auto& guardian = room->sagaGuardians[arg1];
+			auto& guardian_hp = guardian.myHp;
+
+			auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire);
+
+			if (0 < guardian_hp_value)
+			{
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
+
+				// 탑승했던 곰 사망
+				if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
+				{
+					PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
+
+					guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+
+					auto rider_id = guardian.GetRiderId();
+
+					// 하차 처리
+					if (-1 != rider_id)
+					{
+						guardian.TryUnride(rider_id);
+
+						auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
+
+						room->Foreach
+						(
+							[&](iconer::app::Member& member)
+							{
+								const auto user_ptr = member.GetStoredUser();
+								if (nullptr == user_ptr) return;
+
+								iconer::app::SendContext* const ctx = AcquireSendContext();
+								ctx->mySharedBuffer = pk;
+
+								if (rider_id == user_ptr->GetID())
+								{
+									// 점수 증가
+									if (member.team_id == 0)
+									{
+										room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
+									}
+									else if (member.team_id == 1)
+									{
+										room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
+									}
+
+									member.ridingGuardianId.compare_exchange_strong(rider_id, -1, std::memory_order_acq_rel);
+								}
+
+								user_ptr->SendGeneralData(*ctx, pk.get(), size);
+							}
+						);
+					}
+				}
+
+				//std::int64_t hp_arg0{};
+				//float curr_hp = guardian_hp.load(std::memory_order_acquire);
+				//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
+				//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
+
+				auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+
+				room->Foreach
+				(
+					[&](iconer::app::User& member)
+					{
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+
+						ctx->mySharedBuffer = pk2;
+
+						user.SendGeneralData(*ctx, pk2.get(), size2);
+					}
+				);
+			}
+			else // IF (guardian hp <= 0)
+			{
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is already dead.", room_id, arg1);
+			}
 		}
 		break;
 
@@ -604,7 +751,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 		case RPC_DMG_GUARDIANS_PART:
 		{
-			PrintLn("[RPC_DMG_GUARDIANS_PART] at room {}.", room_id);
+			PrintLn("[RPC_DMG_GUARDIANS_PART] At room {}.", room_id);
 
 		}
 		break;
@@ -690,9 +837,9 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 		}
 		break;
 
-		default:
+		case RPC_POSITION:
 		{
-			//PrintLn(L"\tRPC is proceed at room {}.", room_id);
+			auto [pk, size] = MakeSharedRpc(protocol, user_id, arg0, arg1);
 
 			room->Foreach
 			(
@@ -700,14 +847,37 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				{
 					iconer::app::SendContext* const ctx = AcquireSendContext();
 
-					auto [pk, size] = MakeRpc(protocol, user_id, arg0, arg1);
-					ctx->myBuffer = std::move(pk);
+					ctx->mySharedBuffer = pk;
 
-					user.SendGeneralData(*ctx, size);
+					user.SendGeneralData(*ctx, pk.get(), size);
+				}
+			);
+		}
+		break;
+
+		default:
+		{
+			//PrintLn(L"\tRPC is proceed At room {}.", room_id);
+
+			auto [pk, size] = MakeSharedRpc(protocol, user_id, arg0, arg1);
+
+			room->Foreach
+			(
+				[&](iconer::app::User& member)
+				{
+					iconer::app::SendContext* const ctx = AcquireSendContext();
+
+					ctx->mySharedBuffer = pk;
+
+					user.SendGeneralData(*ctx, pk.get(), size);
 				}
 			);
 		}
 		break;
 		}
+	}
+	else
+	{
+		PrintLn(L"\tUser {} has no room!", user.GetID());
 	};
 }
