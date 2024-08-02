@@ -330,6 +330,8 @@ ASagaCharacterBase::BeginPlay()
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
 
+	const auto name = GetName();
+
 	if (IsValid(myHealthIndicatorBarWidget))
 	{
 		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
@@ -337,7 +339,7 @@ ASagaCharacterBase::BeginPlay()
 		if (IsValid(healthbar))
 		{
 #if WITH_EDITOR
-			const auto name = GetName();
+
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][BeginPlay] '%s' is setting up the hp bar widget..."), *name);
 #endif
 
@@ -349,7 +351,7 @@ ASagaCharacterBase::BeginPlay()
 		else
 		{
 #if WITH_EDITOR
-			const auto name = GetName();
+
 			UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar widget."), *name);
 #endif
 		}
@@ -357,7 +359,7 @@ ASagaCharacterBase::BeginPlay()
 	else
 	{
 #if WITH_EDITOR
-		const auto name = GetName();
+
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar ui component."), *name);
 #endif
 	}
