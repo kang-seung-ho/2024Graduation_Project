@@ -191,8 +191,10 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	{
 	}
 
+	// TODO: 점수 동기화 작업 중
 	// 상대 팀 점수 증가 실행
 	sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+	net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 }
 
 float
