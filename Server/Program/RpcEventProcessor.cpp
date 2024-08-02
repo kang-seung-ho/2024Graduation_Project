@@ -783,19 +783,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 			const auto redscore = room->sagaTeamScores[0].load(std::memory_order_relaxed);
 			const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_relaxed);
 
-			auto [pk, size] = MakeSharedRpc(RPC_GET_SCORE, 0, redscore, bluscore);
+			iconer::app::SendContext* const ctx = AcquireSendContext();
+			auto [pk, size] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
 
-			room->Foreach
-			(
-				[&](iconer::app::User& member)
-				{
-					iconer::app::SendContext* const ctx = AcquireSendContext();
+			ctx->myBuffer = std::move(pk);
 
-					ctx->mySharedBuffer = pk;
-
-					user.SendGeneralData(*ctx, pk.get(), size);
-				}
-			);
+			user.SendGeneralData(*ctx, size);
 		}
 		break;
 
