@@ -471,13 +471,16 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								);
 
 								// 점수 증가
-								if (target.team_id == 0)
+								if (arg1 != -2)
 								{
-									room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
-								}
-								else if (target.team_id == 1)
-								{
-									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
+									if (target.team_id == 0)
+									{
+										room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
+									}
+									else if (target.team_id == 1)
+									{
+										room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
+									}
 								}
 
 								target.ridingGuardianId = -1;
