@@ -655,6 +655,34 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 							}
 						);
 					}
+					else // IF (rider id == -1)
+					{
+						auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
+
+						constexpr std::int32_t killIncrement = 1;
+
+						room->Foreach
+						(
+							[&](iconer::app::Member& member) noexcept
+							{
+								const auto user_ptr = member.GetStoredUser();
+								if (nullptr == user_ptr) return;
+
+								if (rider_id == user_ptr->GetID())
+								{
+									// 점수 증가
+									if (member.team_id == 0)
+									{
+										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
+									}
+									else if (member.team_id == 1)
+									{
+										room->sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+									}
+								}
+							}
+						);
+					}
 				}
 
 				//std::int64_t hp_arg0{};
