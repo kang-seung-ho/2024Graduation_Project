@@ -239,12 +239,6 @@ ASagaPlayableCharacter::ExecuteAttack()
 float
 ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 {
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (net->IsOfflineMode() or not HasValidOwnerId())
-	{
-	}
-
 	const auto current_health = Super::ExecuteHurt(dmg);
 
 	FVector NiagaraSpawnLocation = GetActorLocation();
