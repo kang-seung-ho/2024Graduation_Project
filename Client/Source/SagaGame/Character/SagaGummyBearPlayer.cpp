@@ -113,7 +113,35 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
 	param.AddIgnoredActor(this);
 
-	const bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
+#if WITH_EDITOR
+
+	const auto name = GetName();
+#endif
+
+	///NOTICE: ECC_GameTraceChannel2: Enemy
+	///NOTICE: ECC_GameTraceChannel4: red
+	///NOTICE: ECC_GameTraceChannel7: blue
+	ECollisionChannel channel = ECC_GameTraceChannel2;
+
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (net->GetLocalUserTeam() == ESagaPlayerTeam::Red)
+	{
+		channel = ECC_GameTraceChannel4;
+	}
+	else if (net->GetLocalUserTeam() == ESagaPlayerTeam::Blue)
+	{
+		channel = ECC_GameTraceChannel7;
+	}
+	else
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] '%s' has invalid team."), *name);
+#endif
+	}
+
+	const bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), param);
 
 	//#if ENABLE_DRAW_DEBUG
 	//	//충돌시 빨강 아니면 녹색
@@ -121,6 +149,8 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	//
 	//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
 	//#endif
+
+	constexpr float bearDamage = 50.0f;
 
 	if (collide)
 	{
@@ -134,7 +164,7 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 		if (IsValid(character))
 		{
-			hit_actor->TakeDamage(50.0f, event, GetController(), this);
+			hit_actor->TakeDamage(bearDamage, event, GetController(), this);
 
 			const auto hit_effect = GetWorld()->SpawnActor<ASagaSwordEffect>(hit_result.ImpactPoint, hit_result.ImpactNormal.Rotation(), params);
 
@@ -148,13 +178,23 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 			if (IsValid(ai_pawn))
 			{
-				hit_actor->TakeDamage(50.0f, event, GetController(), this);
+				hit_actor->TakeDamage(bearDamage, event, GetController(), this);
 
 				const auto hit_effect = GetWorld()->SpawnActor<ASagaSwordEffect>(hit_result.ImpactPoint, hit_result.ImpactNormal.Rotation(), params);
 
 				// 이곳에 레퍼런스 복사
 				//hit_effect->SetParticle(TEXT(""));
 				//hit_effect->SetSound(TEXT(""));
+			}
+			else
+			{
+				// 아이템 혹은 다른 액터 공격
+				hit_actor->TakeDamage(bearDamage, event, GetController(), this);
+
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] '%s' attacked other actors."), *name);
+#endif
 			}
 		}
 	}
