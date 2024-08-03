@@ -216,10 +216,9 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 
 		FRotator SpawnRotation = GetActorRotation();
 
-		UNiagaraSystem* SmokeEffect = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
-		if (SmokeEffect)
+		if (SmokeItemEffect)
 		{
-			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, SmokeEffect, SpawnLocation, SpawnRotation);
+			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, SmokeItemEffect, SpawnLocation, SpawnRotation);
 
 			if (NiagaraComponent)
 			{

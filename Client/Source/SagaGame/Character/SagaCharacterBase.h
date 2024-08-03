@@ -191,6 +191,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
 	TObjectPtr<class UNiagaraSystem> HealItemEffect;
 
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Item")
+	TObjectPtr<class UNiagaraSystem> SmokeItemEffect;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintPure)
