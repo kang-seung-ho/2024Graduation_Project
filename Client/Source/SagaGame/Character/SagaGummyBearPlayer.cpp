@@ -193,7 +193,7 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] '%s' attacked other actors."), *name);
+				UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] '%s' attacked other actors."), *name);
 #endif
 			}
 		}
