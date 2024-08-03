@@ -12,6 +12,7 @@
 #include "Item/SagaItemTypes.h"
 #include "Item/SagaItemBox.h"
 #include "Interface/SagaCharacterItemInterface.h"
+#include "SagaGameSubSystem.h"
 
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaVirtualUser.h"
@@ -724,6 +725,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		else
 		{
 			ESagaPlayerTeam team{};
+
 			if (net->GetTeam(id, team))
 			{
 				if (is_remote)
@@ -753,7 +755,19 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	case ESagaRpcProtocol::RPC_RESPAWN_TIMER:
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN_TIMER] Time: %d"), arg0);
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN_TIMER] Time: %d"), arg0);
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_GET_SCORE:
+	{
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GET_SCORE] red: %d, blu: %d"), arg0, arg1);
+
+		const auto world = GetWorld();
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
+
+		sys->SetScore(ESagaPlayerTeam::Red, arg0);
+		sys->SetScore(ESagaPlayerTeam::Blue, arg1);
 	}
 	break;
 
