@@ -592,9 +592,12 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				break;
 			}
 
-			// arg0: damages to the guardian
+			// arg0: damages to the guardian (4 bytes)
 			float dmg{};
 			std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+			// arg0: destructed body parts (4 bytes, 1 byte per part)
+			std::int32_t parts{};
+			std::memcpy(&parts, reinterpret_cast<const char*>(&arg0) + 4, 4);
 
 			auto& guardian = room->sagaGuardians[arg1];
 			auto& guardian_hp = guardian.myHp;
@@ -603,7 +606,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 			if (0 < guardian_hp_value)
 			{
-				PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {} in part {}.", room_id, dmg, arg1, parts);
 
 				// 탑승했던 곰 사망
 				if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
