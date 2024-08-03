@@ -9,10 +9,12 @@ import Iconer.App.Room;
 import Iconer.App.SendContext;
 import Iconer.App.PacketSerializer;
 import Iconer.App.RpcProtocols;
+import Iconer.App.GameSession;
 import <cstdint>;
 import <print>;
 
 using iconer::app::RpcProtocol;
+using iconer::app::ESagaPlayerTeam;
 using enum iconer::app::RpcProtocol;
 
 namespace
@@ -479,11 +481,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								// 점수 증가
 								if (arg1 != -2)
 								{
-									if (target.team_id == 0)
+									if (target.team_id == ESagaPlayerTeam::Red)
 									{
 										room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
 									}
-									else if (target.team_id == 1)
+									else if (target.team_id == ESagaPlayerTeam::Blu)
 									{
 										room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 									}
@@ -528,11 +530,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								target.ridingGuardianId = -1;
 
 								// 점수 증가
-								if (target.team_id == 0)
+								if (target.team_id == ESagaPlayerTeam::Red)
 								{
 									room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
 								}
-								else if (target.team_id == 1)
+								else if (target.team_id == ESagaPlayerTeam::Blu)
 								{
 									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 								}
@@ -638,14 +640,14 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 								if (rider_id == user_ptr->GetID())
 								{
-									// 점수 증가
-									if (member.team_id == 0)
-									{
-										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
-									}
-									else if (member.team_id == 1)
+									// NOTICE: 자기 팀의 점수 증가
+									if (member.team_id == ESagaPlayerTeam::Red)
 									{
 										room->sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+									}
+									else if (member.team_id == ESagaPlayerTeam::Blu)
+									{
+										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 									}
 
 									member.ridingGuardianId.compare_exchange_strong(rider_id, -1, std::memory_order_acq_rel);
@@ -669,15 +671,16 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								if (nullptr == user_ptr) return;
 
 								// 반드시 점수 증가
+								// NOTICE: 자기 팀의 점수 증가
 								//if (rider_id == user_ptr->GetID())
 								{
-									if (member.team_id == 0)
-									{
-										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
-									}
-									else if (member.team_id == 1)
+									if (member.team_id == ESagaPlayerTeam::Red)
 									{
 										room->sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+									}
+									else if (member.team_id == ESagaPlayerTeam::Blu)
+									{
+										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 									}
 								}
 							}

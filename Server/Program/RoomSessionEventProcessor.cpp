@@ -35,7 +35,7 @@ ServerFramework::EventOnChangeTeam(iconer::app::User& user, const std::byte* dat
 	{
 		auto & ctx = user.roomContext;
 
-		const auto team_id = static_cast<std::int8_t>(*data);
+		const auto team_id = static_cast<std::uint8_t>(*data);
 
 		if (user.IsConnected() and ctx->TryChangeOperation(None, OpNotifyTeam)) LIKELY
 		{

@@ -27,7 +27,7 @@ export namespace iconer::app
 		static inline constexpr float maxHp = 100;
 
 		std::atomic<pointer_type> userHandle{};
-		char team_id{};
+		ESagaPlayerTeam team_id{};
 		std::atomic_uint8_t myWeapon{};
 		std::atomic_bool isReady{};
 		std::atomic<float> myHp{ maxHp };

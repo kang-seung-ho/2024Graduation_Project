@@ -44,7 +44,7 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 					};
 
 					/// NOTICE: set team here (occupy)
-					first.team_id = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+					first.team_id = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
 					myState = RoomState::Idle;
 
 					isDirty = true;
@@ -104,7 +104,8 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 							};
 
 							/// NOTICE: set team here (join)
-							member.team_id = user.GetID() % 2 == 0 ? (char)1 : (char)2;
+							member.team_id = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
+
 							isDirty.store(true, std::memory_order_release);
 							return true;
 						}
@@ -206,7 +207,7 @@ noexcept
 
 		for (auto& member : myMembers)
 		{
-			member.team_id = 0;
+			member.team_id = ESagaPlayerTeam::Unknown;
 			member.myWeapon = 0;
 			member.isReady = 0;
 			member.myHp = Member::maxHp;
@@ -235,11 +236,11 @@ iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool i
 		{
 			if (is_red_team)
 			{
-				member.team_id = 1;
+				member.team_id = ESagaPlayerTeam::Red;
 			}
 			else
 			{
-				member.team_id = 2;
+				member.team_id = ESagaPlayerTeam::Blu;
 			}
 
 			isDirty.store(true, std::memory_order_release);

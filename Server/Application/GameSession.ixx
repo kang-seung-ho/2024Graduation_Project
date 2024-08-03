@@ -17,6 +17,12 @@ export namespace iconer::app
 		std::atomic_bool isBoxDestroyed{ false };
 	};
 
+	enum class ESagaPlayerTeam : std::uint8_t
+	{
+		Unknown = 0,
+		Red, Blu
+	};
+
 	struct SagaBasePoint
 	{
 		static inline constexpr float maxHp = 8000;
