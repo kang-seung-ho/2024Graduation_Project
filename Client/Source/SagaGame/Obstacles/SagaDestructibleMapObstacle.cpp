@@ -65,26 +65,33 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
+	const auto rot = GetActorRotation();
+	const auto loc = GetActorLocation();
+
 	if (myHealth <= 0)
 	{
-		FVector SpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 40.0f);
+		FVector SpawnLocation = loc + FVector(0.0f, 0.0f, 40.0f);
 		FRotator SpawnRotation = FRotator::ZeroRotator;
-		FActorSpawnParameters SpawnParameters;
+
+		FActorSpawnParameters SpawnParameters{};
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		if (DeathAnimation && MeshComponent)
 		{
 			MeshComponent->PlayAnimation(DeathAnimation, false);
 		}
 
-		FVector NiagaraSpawnLocation = GetActorLocation() + FVector(0.0f, 0.0f, 100.0f);
-		FRotator NiagaraSpawnRotation = GetActorRotation();
+		FVector NiagaraSpawnLocation = loc + FVector(0.0f, 0.0f, 100.0f);
+		FRotator NiagaraSpawnRotation = rot;
+
 		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(HitEffect, RootComponent, NAME_None, NiagaraSpawnLocation, NiagaraSpawnRotation, EAttachLocation::KeepWorldPosition, false);
 
 		if (NiagaraComponent)
 		{
 			// 3초 후에 나이아가라 이펙트 정지
-			FTimerHandle NiagaraTimerHandle;
-			timer.SetTimer(NiagaraTimerHandle, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
+			FTimerHandle temp_timer{};
+
+			timer.SetTimer(temp_timer, NiagaraComponent, &UNiagaraComponent::Deactivate, 3.0f, false);
 		}
 
 		// Uncomment or modify this line as necessary to spawn an item
@@ -107,9 +114,9 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 				// blue win
 				sys->SetWhoWonByPinata(1);
 			}
-			}
-			else
-			{
+		}
+		else
+		{
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE);
 		}
 	}
