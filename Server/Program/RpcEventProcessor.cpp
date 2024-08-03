@@ -668,6 +668,17 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
+		case RPC_DMG_BASE:
+		{
+			//PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
+
+			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+				{
+				}
+			);
+		}
+		break;
+
 		// arg0 : scores
 		// arg1 : winner id
 		case RPC_DESTROY_CORE:
