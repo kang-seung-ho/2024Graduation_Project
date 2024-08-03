@@ -1,7 +1,7 @@
 #pragma once
 #include "SagaGame.h"
-
 #include "Character/SagaCharacterBase.h"
+
 #include "SagaPlayableCharacter.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -33,10 +33,10 @@ public:
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
 	/* 리스폰 RPC는 기본적으로 서버에서 바로 브로드캐스트해줌 */
-	UFUNCTION()
-	void ExecuteRespawnViaRpc();
 	// UFUNCTION()
 	virtual void ExecuteRespawn() override;
+	UFUNCTION()
+	void ExecuteRespawnViaRpc();
 
 	UFUNCTION()
 	class ASagaGummyBearPlayer* GetNeareastCollidedBear() const;
@@ -46,7 +46,7 @@ protected:
 	TSoftClassPtr<class UAnimInstance> humanCharacterAnimation;
 
 	UPROPERTY()
-	TArray<TObjectPtr<class ASagaGummyBearPlayer>> collideBears;
+	TArray<class ASagaGummyBearPlayer*> collideBears;
 
 	UPROPERTY()
 	class UParticleSystem* HitCascadeEffect;
