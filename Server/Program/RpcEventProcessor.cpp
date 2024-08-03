@@ -703,7 +703,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 						ctx->mySharedBuffer = pk2;
 
-						user.SendGeneralData(*ctx, pk2.get(), size2);
+						member.SendGeneralData(*ctx, pk2.get(), size2);
 					}
 				);
 			}
@@ -785,7 +785,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 								ctx->mySharedBuffer = pk;
 
-								user.SendGeneralData(*ctx, pk.get(), size);
+								member.SendGeneralData(*ctx, pk.get(), size);
 							}
 						);
 					}
@@ -887,7 +887,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					ctx->mySharedBuffer = pk;
 
-					user.SendGeneralData(*ctx, pk.get(), size);
+					member.SendGeneralData(*ctx, pk.get(), size);
 				}
 			);
 		}
@@ -907,7 +907,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 					ctx->mySharedBuffer = pk;
 
-					user.SendGeneralData(*ctx, pk.get(), size);
+					member.SendGeneralData(*ctx, pk.get(), size);
 				}
 			);
 		}
