@@ -26,12 +26,6 @@ public:
 	void AssignLocalPlayerSpawner(class AActor* spawner) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
-	void SetCurrentMode(int32 Mode) noexcept
-	{
-		CurrentMode = Mode;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
 	void SetScore(ESagaPlayerTeam team, int32 score) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
@@ -42,12 +36,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
 	const AActor* GetLocalPlayerSpawner() const noexcept;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
-	int32 GetCurrentMode() const noexcept
-	{
-		return CurrentMode;
-	}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
 	int32 GetRedTeamScore() const noexcept;
@@ -62,8 +50,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<class AActor> localPlayerSpawner;
 
-	UPROPERTY()
-	int32 CurrentMode = 1;
 	UPROPERTY()
 	int32 RedTeamScore;
 	UPROPERTY()
