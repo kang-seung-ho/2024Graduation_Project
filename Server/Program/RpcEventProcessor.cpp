@@ -446,7 +446,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 				{
 					float dmg{};
 					std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-					PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg to user {}.", room_id, dmg, arg1);
+					PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg from {}.", room_id, dmg, arg1);
 
 					auto& hp = target.myHp;
 					auto& rider = target.ridingGuardianId;
