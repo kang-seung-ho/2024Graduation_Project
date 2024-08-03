@@ -668,9 +668,9 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 								const auto user_ptr = member.GetStoredUser();
 								if (nullptr == user_ptr) return;
 
-								if (rider_id == user_ptr->GetID())
+								// 반드시 점수 증가
+								//if (rider_id == user_ptr->GetID())
 								{
-									// 점수 증가
 									if (member.team_id == 0)
 									{
 										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
