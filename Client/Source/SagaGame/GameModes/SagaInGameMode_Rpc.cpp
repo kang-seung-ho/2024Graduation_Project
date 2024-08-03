@@ -784,7 +784,39 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red score: %d, Blue score: %d, Winner: %d"), red_score, blu_score, winner);
 
+		const auto world = GetWorld();
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
+		if (net->GetLocalUserTeam() == ESagaPlayerTeam::Red)
+		{
+		}
+		else if (net->GetLocalUserTeam() == ESagaPlayerTeam::Blue)
+		{
+
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d is in the unknown team!"), id);
+		}
+
+		if (winner == 1)
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red team has won the game!"));
+
+			sys->SetWhoWonByPinata(0);
+			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
+		}
+		else if (winner == 2)
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Blue team has won the game!"));
+
+			sys->SetWhoWonByPinata(1);
+			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d received unknown winner!"), id);
+		}
 	}
 	break;
 
