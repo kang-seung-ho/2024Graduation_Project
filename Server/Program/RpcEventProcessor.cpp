@@ -115,8 +115,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
 			{
 				Broadcast(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
-					}
 			}
+		}
 		break;
 
 		// 
@@ -144,9 +144,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				if (item.isAvailable.compare_exchange_strong(grabbed, false))
 				{
 					Broadcast(RPC_GRAB_ITEM, user_id, arg0, arg1);
-						}
 				}
 			}
+		}
 		break;
 
 		// 
@@ -226,7 +226,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			}
 
 			Broadcast(RPC_USE_ITEM_0, user_id, arg0, arg1);
-				}
+		}
 		break;
 
 		case RPC_MAIN_WEAPON:
@@ -293,7 +293,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							Broadcast(RPC_BEG_RIDE, user_id, arg0, arg1);
 
 							PrintLn("User {} would ride the Guardian {}.", user_id, arg1);
-								}
+						}
 						else
 						{
 							// rollback
@@ -349,7 +349,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 						rider.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
 
 						PrintLn("User {} would unride from guardian {}.", user_id, arg1);
-							}
+					}
 					else
 					{
 						std::int32_t pre_guardian_id = arg1;
@@ -369,8 +369,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			//if (0 < current_user.myHealth)
 			{
 				Broadcast(RPC_BEG_ATTACK_0, user_id, arg0, arg1);
-					}
 			}
+		}
 		break;
 
 		case RPC_DMG_PLYER:
@@ -419,7 +419,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							{
 								// 데미지 처리
 								Broadcast(RPC_DMG_PLYER, user_id, arg0, arg1);
-									}
+							}
 						} // IF (0 < hp)
 					}
 					else // IF NOT (rider_id is -1)
@@ -450,11 +450,11 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								}
 
 								Broadcast(RPC_END_RIDE, user_id, arg0, rider_id);
-									}
+							}
 							else
 							{
 								Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
-									}
+							}
 						} // IF (0 < guardian hp)
 					} // IF NOT (rider_id is -1)
 				}
@@ -580,7 +580,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
 
 				Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
-					}
+			}
 			else // IF (guardian hp <= 0)
 			{
 				PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is already dead.", room_id, arg1);
@@ -603,9 +603,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					hp = iconer::app::Member::maxHp;
 
 					Broadcast(RPC_RESPAWN, user_id, arg0, arg1);
-						}
-					);
 				}
+			);
+		}
 		break;
 
 		case RPC_RESPAWN_TIMER:
@@ -668,16 +668,50 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
+		// arg0 : scores
+		// arg1 : winner id
 		case RPC_DESTROY_CORE:
 		{
+			auto& winner = room->sagaWinner;
 
+			const std::int32_t redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
+			const std::int32_t bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
+			PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
+
+			std::memcpy(reinterpret_cast<char*>(&arg0), &redscore, 4);
+			std::memcpy(reinterpret_cast<char*>(&arg0) + 4, &bluscore, 4);
+
+			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+				{
+					std::int8_t prev_winner = 0;
+
+					if (target.team_id == ESagaPlayerTeam::Red)
+					{
+						if (winner.compare_exchange_strong(prev_winner, 1))
+						{
+							Broadcast(RPC_DESTROY_CORE, user_id, arg0, 1);
+
+							PrintLn("[RPC_DESTROY_CORE] Red team wins at room {} - through user {}.", room_id, user_id);
+						}
+					}
+					else if (target.team_id == ESagaPlayerTeam::Blu)
+					{
+						if (winner.compare_exchange_strong(prev_winner, 2))
+						{
+							Broadcast(RPC_DESTROY_CORE, user_id, arg0, 2);
+
+							PrintLn("[RPC_DESTROY_CORE] Blue team wins at room {} - through user {}.", room_id, user_id);
+						}
+					}
+				}
+			);
 		}
 		break;
 
 		case RPC_GET_SCORE:
 		{
-			const auto redscore = room->sagaTeamScores[0].load(std::memory_order_relaxed);
-			const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_relaxed);
+			const auto redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
+			const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
 			auto [pk, size] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
