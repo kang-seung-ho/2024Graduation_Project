@@ -52,6 +52,7 @@ ASagaSelectCharacter::PostInitializeComponents()
 	//mMesh->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 }
 
+//Check needed after packaging
 #if WITH_EDITOR
 void ASagaSelectCharacter::PostEditChangeChainProperty(FPropertyChangedChainEvent& PropertyChangedEvent)
 {
