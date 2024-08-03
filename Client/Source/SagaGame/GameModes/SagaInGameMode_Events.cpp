@@ -136,8 +136,6 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 
 		if (local_id == user_id)
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
-
 			// NOTICE: 여기서 로컬 캐릭터 할당
 			character = controller->GetPawn<ASagaCharacterBase>();
 			net->SetCharacterHandle(local_id, character);
@@ -158,20 +156,12 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			// store the initial spawn point (local)
 			net->StorePosition(user_id, pos.X, pos.Y, pos.Z);
 
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character."), user_id);
+			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d`'s spawner is '%s'."), user_id, *spawner->GetName());
 			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` created a spawn point at (%f,%f,%f)"), user_id, pos.X, pos.Y, pos.Z);
-
-			int64 arg0{};
-			int32 arg1{};
-			const auto x = static_cast<float>(pos.X);
-			const auto y = static_cast<float>(pos.Y);
-			const auto z = static_cast<float>(pos.Z);
-
-			memcpy(reinterpret_cast<char*>(&arg0), &x, 4);
-			memcpy(reinterpret_cast<char*>(&arg0) + 4, &y, 4);
-			memcpy(reinterpret_cast<char*>(&arg1), &z, 4);
-
-			// let others know this
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_POSITION, arg0, arg1);
+#endif
 		}
 		else
 		{
