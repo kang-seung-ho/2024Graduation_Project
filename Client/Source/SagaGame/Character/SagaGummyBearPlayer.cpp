@@ -63,6 +63,19 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	Super::ExecuteGuardianAction(target);
 
+	if (target->GetTeam() == ESagaPlayerTeam::Red)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+	}
+	else if (target->GetTeam() == ESagaPlayerTeam::Blue)
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+	}
+	else
+	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
+	}
+
 	ownerData.SetCharacterHandle(target);
 }
 
@@ -70,6 +83,8 @@ void
 ASagaGummyBearPlayer::TerminateGuardianAction()
 {
 	Super::TerminateGuardianAction();
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 
 	if (IsValid(ownerData.GetCharacterHandle()))
 	{
@@ -83,7 +98,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 	{
 #if WITH_EDITOR
 
-		UE_LOG(LogSagaGame, Error, TEXT("[BeginGuardianAction] Has no character handle! (Offline Mode)"));
+		UE_LOG(LogSagaGame, Error, TEXT("[BeginGuardianAction] Has no character handle!"));
 #endif
 	}
 }
