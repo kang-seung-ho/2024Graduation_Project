@@ -114,6 +114,8 @@ ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (rep <= 0)
 		{
+			// TODO: 승패 동기화
+
 			GotoNextLevel();
 		}
 		else
