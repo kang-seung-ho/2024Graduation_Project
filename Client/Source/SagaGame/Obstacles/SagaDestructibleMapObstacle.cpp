@@ -107,19 +107,10 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 				// blue win
 				sys->SetWhoWonByPinata(1);
 			}
-		}
-		else
-		{
-			if (TeamPinataColor == 0)
-			{
-				// red win
-				sys->SetWhoWonByPinata(0);
 			}
 			else
 			{
-				// blue win
-				sys->SetWhoWonByPinata(1);
-			}
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE);
 		}
 	}
 	else
