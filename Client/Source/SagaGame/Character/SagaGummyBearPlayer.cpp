@@ -14,6 +14,7 @@
 #include "Player/SagaPlayerTeam.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearAnimInstance.h"
+#include "Character/SagaGummyBearSmall.h"
 #include "Effect/SagaSwordEffect.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
@@ -104,7 +105,7 @@ void
 ASagaGummyBearPlayer::ExecuteAttack()
 {
 	//공격과 충돌되는 물체 여부 판단
-	FHitResult Result{};
+	FHitResult hit_result{};
 
 	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 	FVector End = Start + GetActorForwardVector() * 150.f;
@@ -112,28 +113,50 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
 	param.AddIgnoredActor(this);
 
-	bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
+	const bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
 
 //#if ENABLE_DRAW_DEBUG
 //	//충돌시 빨강 아니면 녹색
-//	FColor Color = Collision ? FColor::Red : FColor::Green;
+//	FColor Color = collide ? FColor::Red : FColor::Green;
 //
 //	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
 //#endif
 
-	if (Collision)
+	if (collide)
 	{
-		FDamageEvent DamageEvent;
-		Result.GetActor()->TakeDamage(50.f, DamageEvent, GetController(), this);
+		const auto hit_actor = hit_result.GetActor();
 
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FDamageEvent event{};
+		FActorSpawnParameters params{};
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+		const auto character = Cast<ASagaCharacterBase>(hit_actor);
 
-		ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
+		if (IsValid(character))
+		{
+			hit_actor->TakeDamage(50.0f, event, GetController(), this);
 
-		Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-		Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
+			const auto hit_effect = GetWorld()->SpawnActor<ASagaSwordEffect>(hit_result.ImpactPoint, hit_result.ImpactNormal.Rotation(), params);
+
+			// 이곳에 레퍼런스 복사
+			//hit_effect->SetParticle(TEXT(""));
+			//hit_effect->SetSound(TEXT(""));
+		}
+		else
+		{
+			const auto ai_pawn = Cast<ASagaGummyBearSmall>(hit_actor);
+
+			if (IsValid(ai_pawn))
+			{
+				hit_actor->TakeDamage(50.0f, event, GetController(), this);
+
+				const auto hit_effect = GetWorld()->SpawnActor<ASagaSwordEffect>(hit_result.ImpactPoint, hit_result.ImpactNormal.Rotation(), params);
+
+				// 이곳에 레퍼런스 복사
+				//hit_effect->SetParticle(TEXT(""));
+				//hit_effect->SetSound(TEXT(""));
+			}
+		}
 	}
 }
 
