@@ -173,7 +173,13 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			const AActor* spawner = GetSpawnerBy(team);
 			if (nullptr == spawner)
 			{
+				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` in team %d has no team spawner."), user_id, static_cast<int32>(team));
+
 				spawner = world->GetWorldSettings();
+			}
+			else
+			{
+				UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` in team %d has a team spawner '%s'."), user_id, static_cast<int32>(team), *spawner->GetName());
 			}
 
 			const FTransform& spawn_transform = spawner->GetTransform();
