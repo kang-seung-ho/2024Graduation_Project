@@ -54,7 +54,7 @@ void USagaInventoryListWidget::SetItem(UObject* Item)
 		mData = ItemData;
 
 		mIconImage->SetBrushFromTexture(ItemData->GetIconTexture());
-		mNameText->SetText(FText::FromString(ItemData->GetItemName()));
+		//mNameText->SetText(FText::FromString(ItemData->GetItemName()));
 		mCountText->SetText(FText::FromString(FString::FromInt(ItemData->GetCount())));
 
 		if (mData->IsSelect())
