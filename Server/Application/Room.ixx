@@ -24,7 +24,7 @@ export namespace iconer::app
 		using reference = class User&;
 		using const_reference = class User const&;
 
-		static inline constexpr float maxHp = 500;
+		static inline constexpr float maxHp = 100;
 
 		std::atomic<pointer_type> userHandle{};
 		char team_id{};

@@ -186,7 +186,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 							if (const auto hp_value = hp.load(std::memory_order_acquire); hp_value < target.maxHp)
 							{
-								hp.store(std::min(target.maxHp, hp_value + 30.0f), std::memory_order_release);
+								hp.store(std::min(iconer::app::Member::maxHp, hp_value + 30.0f), std::memory_order_release);
 								arg0 = 30;
 							}
 							else
@@ -197,11 +197,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 						else
 						{
 							auto& guardian = room->sagaGuardians[rider_id];
-							auto& hp = guardian.myHp;
+							auto& guardian_hp = guardian.myHp;
 
-							if (const auto hp_value = hp.load(std::memory_order_acquire); hp_value < guardian.maxHp)
+							if (const auto hp_value = guardian_hp.load(std::memory_order_acquire); hp_value < guardian.maxHp)
 							{
-								hp.store(std::min(guardian.maxHp, hp_value + 30.0f), std::memory_order_release);
+								guardian_hp.store(std::min(iconer::app::SagaGuardian::maxHp, hp_value + 30.0f), std::memory_order_release);
 								arg0 = 30;
 							}
 							else
@@ -737,7 +737,7 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 					{
 						// RPC_RESPAWN과 같은 처리
 						auto& hp = target.myHp;
-						hp.store(target.maxHp, std::memory_order_release);
+						hp.store(iconer::app::Member::maxHp, std::memory_order_release);
 
 						auto [pk, size] = MakeSharedRpc(RPC_RESPAWN, user_id, arg0, arg1);
 
