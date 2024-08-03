@@ -624,6 +624,8 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 
 						auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
 
+						constexpr std::int32_t killIncrement = 3;
+
 						room->Foreach
 						(
 							[&](iconer::app::Member& member)
@@ -639,11 +641,11 @@ ServerFramework::EventOnRpc(iconer::app::User& user, const std::byte* data)
 									// 점수 증가
 									if (member.team_id == 0)
 									{
-										room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
+										room->sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 									}
 									else if (member.team_id == 1)
 									{
-										room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
+										room->sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
 									}
 
 									member.ridingGuardianId.compare_exchange_strong(rider_id, -1, std::memory_order_acq_rel);
