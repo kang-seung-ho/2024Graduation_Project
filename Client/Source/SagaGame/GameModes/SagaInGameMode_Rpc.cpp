@@ -371,6 +371,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_ITEM_BOX] target item id: %d"), arg1);
 #endif
 
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+
 		for (auto& item_spawner : everyItemSpawnEntities)
 		{
 			if (IsValid(item_spawner.Get()) and item_spawner->GetID() == arg1)
@@ -571,6 +574,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_PLYER] Causer %d does not exist."), causer_id);
 		}
 
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+
 		character->ExecuteHurt(dmg);
 	}
 	break;
@@ -657,6 +663,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] There is no guardian with id %d."), guardian_id);
 		}
+
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 	break;
 
@@ -701,12 +710,18 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+
 		character->ExecuteDeath();
 	}
 	break;
 
 	case ESagaRpcProtocol::RPC_RESPAWN:
 	{
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+
 		if (IsValid(character))
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN] User %d is respawning..."), id);
@@ -747,6 +762,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	case ESagaRpcProtocol::RPC_RESPAWN_TIMER:
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN_TIMER] Time: %d"), arg0);
+
+		/// **
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 	break;
 
@@ -789,6 +807,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d is in the unknown team!"), id);
 		}
+
+		sys->SetScore(ESagaPlayerTeam::Red, red_score);
+		sys->SetScore(ESagaPlayerTeam::Blue, blu_score);
 
 		if (winner == 1)
 		{
