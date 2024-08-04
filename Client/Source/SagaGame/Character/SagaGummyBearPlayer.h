@@ -64,11 +64,16 @@ protected:
 	class UNiagaraSystem* NiagaraSystemTemplate;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UBoxComponent*> DismCollisionBox;
+
 	UPROPERTY()
 	int32 DismPartID;
+	UPROPERTY()
 	class UBoxComponent* Dbox_Rarm;
+	UPROPERTY()
 	class UBoxComponent* Dbox_Larm;
+	UPROPERTY()
 	class UBoxComponent* Dbox_Rleg;
+	UPROPERTY()
 	class UBoxComponent* Dbox_Lleg;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
@@ -77,9 +82,13 @@ protected:
 	TArray<int32> ActiveIndex;
 	UPROPERTY()
 	TArray<class UGeometryCollectionComponent*> GeometryCollections;
+	UPROPERTY()
 	class UGeometryCollectionComponent* r_arm;
+	UPROPERTY()
 	class UGeometryCollectionComponent* l_arm;
+	UPROPERTY()
 	class UGeometryCollectionComponent* r_leg;
+	UPROPERTY()
 	class UGeometryCollectionComponent* l_leg;
 
 	void InitTargetMeshes();
