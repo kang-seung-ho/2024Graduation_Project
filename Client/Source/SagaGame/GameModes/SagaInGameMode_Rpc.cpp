@@ -327,7 +327,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (IsValid(character))
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_BEG_ATTACK_0] by user %d."), id);
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC_BEG_ATTACK_0] by user %d."), id);
 		}
 		else
 		{
@@ -344,7 +344,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (IsValid(character))
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_ATTACK_0] by user %d."), id);
+			//UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_ATTACK_0] by user %d."), id);
 		}
 		else
 		{
@@ -815,14 +815,14 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red team has won the game!"));
 
-			sys->SetWhoWonByPinata(0);
+			sys->SetWhoWonByPinata(1);
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
 		}
 		else if (winner == 2)
 		{
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Blue team has won the game!"));
 
-			sys->SetWhoWonByPinata(1);
+			sys->SetWhoWonByPinata(0);
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
 		}
 		else
