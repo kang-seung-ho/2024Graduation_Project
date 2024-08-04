@@ -12,6 +12,7 @@ import Iconer.App.RpcProtocols;
 import Iconer.App.GameSession;
 import <cstdint>;
 import <print>;
+//import <coroutine>;
 
 using iconer::app::RpcProtocol;
 using iconer::app::ESagaPlayerTeam;
@@ -47,7 +48,15 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 {
 	iconer::app::Room* const room = current_user.GetRoom();
 
-	const auto Broadcast = [this, room](iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
+	if (nullptr != room) LIKELY
+	{
+		if (not room->IsTaken() or 0 == room->GetMemberCount()) UNLIKELY
+		{
+			return;
+		};
+
+		const auto Broadcast = [this, room]
+		(iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
 		{
 			auto [pk, size] = MakeSharedRpc(proc, id, arg0, arg1);
 
@@ -64,8 +73,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			);
 		};
 
-	if (nullptr != room) LIKELY
-	{
 		const RpcProtocol protocol = *reinterpret_cast<const RpcProtocol*>(data);
 		data += sizeof(RpcProtocol);
 
@@ -103,11 +110,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			auto& items = room->sagaItemList;
 
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			const auto index = static_cast<size_t>(arg1);
 			auto& item = items[index];
 
@@ -127,11 +129,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			PrintLn("[RPC_GRAB_ITEM] At room {} - {}.", room_id, arg1);
 
 			auto& items = room->sagaItemList;
-
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
 
 			if (arg1 < 0 or 200 <= arg1) break;
 
@@ -155,11 +152,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		case RPC_USE_ITEM_0:
 		{
 			PrintLn("[RPC_USE_ITEM_0] At room {}.", room_id);
-
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
 
 			switch (arg1)
 			{
@@ -231,11 +223,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 		case RPC_MAIN_WEAPON:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			// Change the weapon first
 			// arg0: kind of weapon
 			// 0: lightsaber
@@ -261,11 +248,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 		case RPC_BEG_RIDE:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			PrintLn("[RPC_BEG_RIDE] At room {}.", room_id);
 
 			// arg1: index of guardian
@@ -320,11 +302,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		// arg1: index of guardian
 		case RPC_END_RIDE:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			PrintLn("[RPC_END_RIDE] At room {}.", room_id);
 
 			if (arg1 < 0 or 3 <= arg1)
@@ -462,17 +439,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점) | 파괴 부위 (4바이트)
+		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점)
 		// arg1: 현재 수호자의 식별자
 		case RPC_DMG_GUARDIAN:
 		{
-			PrintLn("[RPC_DMG_GUARDIAN] At room {} - guardian {}.", room_id, arg1);
-
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			// arg1: index of the guardian
 			if (arg1 < 0 or 3 <= arg1)
 			{
@@ -494,7 +464,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			if (0 < guardian_hp_value)
 			{
-				PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {} in part {}.", room_id, dmg, arg1, parts);
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
 
 				// 탑승했던 곰 사망
 				if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
@@ -502,6 +472,13 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
 
 					guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+
+					//std::int64_t hp_arg0{};
+					//float curr_hp = guardian_hp.load(std::memory_order_acquire);
+					//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
+					//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
+
+					Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
 
 					auto rider_id = guardian.GetRiderId();
 
@@ -545,8 +522,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					}
 					else // IF (rider id == -1)
 					{
-						auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
-
 						constexpr std::int32_t killIncrement = 1;
 
 						room->Foreach
@@ -573,13 +548,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 						);
 					}
 				}
-
-				//std::int64_t hp_arg0{};
-				//float curr_hp = guardian_hp.load(std::memory_order_acquire);
-				//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
-				//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
-
-				Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
 			}
 			else // IF (guardian hp <= 0)
 			{
@@ -588,15 +556,29 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
+		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점) | 파괴 부위 (4바이트)
+		// arg1: 현재 수호자의 식별자
+		case RPC_DMG_GUARDIANS_PART:
+		{
+			// arg1: index of the guardian
+			if (arg1 < 0 or 3 <= arg1)
+			{
+				PrintLn("User {} tells wrong damaged guardian {}.", user_id, arg1);
+				break;
+			}
+
+			PrintLn("[RPC_DMG_GUARDIANS_PART] At room {}.", room_id);
+
+			auto& guardian = room->sagaGuardians[arg1];
+			auto& guardian_hp = guardian.myHp;
+			auto rider_id = guardian.GetRiderId();
+
+		}
+
 		// 일반적인 경우 실행안됨
 		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
 		case RPC_RESPAWN:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
 				{
 					auto& hp = target.myHp;
@@ -610,11 +592,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 		case RPC_RESPAWN_TIMER:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
 			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
 				{
 					const auto now = std::chrono::system_clock::now();
@@ -642,13 +619,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					}
 				}
 			);
-		}
-		break;
-
-		case RPC_DMG_GUARDIANS_PART:
-		{
-			PrintLn("[RPC_DMG_GUARDIANS_PART] At room {}.", room_id);
-
 		}
 		break;
 
@@ -713,6 +683,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 							PrintLn("[RPC_DESTROY_CORE] Blue team wins at room {} - through user {}.", room_id, user_id);
 						}
+					}
+					else
+					{
+						PrintLn("[RPC_DESTROY_CORE] User {} has an invalid team id in room {}.", room_id, user_id);
 					}
 				}
 			);
