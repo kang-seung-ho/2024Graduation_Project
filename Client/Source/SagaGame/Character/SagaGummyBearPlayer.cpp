@@ -241,11 +241,13 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		{
 			FTimerHandle NiagaraTimerHandle{};
 
-			GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
+			GetWorldTimerManager().SetTimer(NiagaraTimerHandle
+				, [NiagaraComponent]()
 				{
 					NiagaraComponent->Deactivate();
 					NiagaraComponent->DestroyComponent();
-				}, 3.0f, false);
+				}, 3.0f, false
+			);
 		}
 	}
 
@@ -274,11 +276,9 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 	else
 	{
-		// TODO: 곰의 사망 동기화 작업 중
 		Super::ExecuteDeath();
 
 		// TODO: 점수 동기화 작업 중
-		//sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 }
