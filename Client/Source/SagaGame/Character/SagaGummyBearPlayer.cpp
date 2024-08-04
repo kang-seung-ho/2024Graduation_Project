@@ -86,11 +86,13 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 
-	if (IsValid(ownerData.GetCharacterHandle()))
+	const auto character = ownerData.GetCharacterHandle();
+
+	if (IsValid(character))
 	{
 		const auto loc = playerUnridePosition->GetComponentLocation();
 		const auto rot = playerUnridePosition->GetComponentRotation();
-		ownerData.GetCharacterHandle()->SetActorLocationAndRotation(loc, rot);
+		character->SetActorLocationAndRotation(loc, rot);
 
 		ownerData = {};
 	}
@@ -98,7 +100,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 	{
 #if WITH_EDITOR
 
-		UE_LOG(LogSagaGame, Error, TEXT("[BeginGuardianAction] Has no character handle!"));
+		UE_LOG(LogSagaGame, Error, TEXT("[TerminateGuardianAction] Has no character handle!"));
 #endif
 	}
 }
@@ -112,13 +114,19 @@ ASagaGummyBearPlayer::ExecuteAttackAnimation()
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaGummyBearPlayer] mBearAnimInst is null."));
+#endif
 	}
 }
 
 void
 ASagaGummyBearPlayer::ExecuteAttack()
 {
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId()) return;
+
 	//공격과 충돌되는 물체 여부 판단
 	FHitResult hit_result{};
 
@@ -138,13 +146,11 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	///NOTICE: ECC_GameTraceChannel7: blue
 	ECollisionChannel channel = ECC_GameTraceChannel2;
 
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (net->GetLocalUserTeam() == ESagaPlayerTeam::Red)
+	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
 	}
-	else if (net->GetLocalUserTeam() == ESagaPlayerTeam::Blue)
+	else if (GetTeam() == ESagaPlayerTeam::Blue)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
@@ -236,11 +242,13 @@ ASagaGummyBearPlayer::ExecuteHurt(const float dmg)
 		{
 			FTimerHandle NiagaraTimerHandle{};
 
-			GetWorldTimerManager().SetTimer(NiagaraTimerHandle, [NiagaraComponent]()
+			GetWorldTimerManager().SetTimer(NiagaraTimerHandle
+				, [NiagaraComponent]()
 				{
 					NiagaraComponent->Deactivate();
 					NiagaraComponent->DestroyComponent();
-				}, 3.0f, false);
+				}, 3.0f, false
+			);
 		}
 	}
 
@@ -269,11 +277,9 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 	else
 	{
-		// TODO: 곰의 사망 동기화 작업 중
 		Super::ExecuteDeath();
 
 		// TODO: 점수 동기화 작업 중
-		//sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 }
@@ -649,15 +655,15 @@ ASagaGummyBearPlayer::BeginPlay()
 }
 
 void
-ASagaGummyBearPlayer::InitializeTransform(USceneComponent* component, FVector Location, FRotator Rotation, FVector Scale)
+ASagaGummyBearPlayer::InitializeTransform(USceneComponent* const component, const FVector& loc, const FRotator& rot, const FVector& scale)
 {
-	component->SetRelativeLocation(Location);
-	component->SetRelativeRotation(Rotation);
-	component->SetRelativeScale3D(Scale);
+	component->SetRelativeLocation(loc);
+	component->SetRelativeRotation(rot);
+	component->SetRelativeScale3D(scale);
 }
 
 bool
-ASagaGummyBearPlayer::IsPointInsideBox(UBoxComponent* Box, const FVector& Point)
+ASagaGummyBearPlayer::IsPointInsideBox(const UBoxComponent* const Box, const FVector& Point)
 {
 	if (!Box) return false;
 
@@ -674,13 +680,13 @@ ASagaGummyBearPlayer::IsPointInsideBox(UBoxComponent* Box, const FVector& Point)
 }
 
 void
-ASagaGummyBearPlayer::HideBodyPartPiece(UGeometryCollectionComponent* TargetGC, int32 PieceIndex)
+ASagaGummyBearPlayer::HideBodyPartPiece(UGeometryCollectionComponent* const TargetGC, int32 PieceIndex)
 {
 	TargetGC->SetVisibility(false, true);
 }
 
 UGeometryCollectionComponent*
-ASagaGummyBearPlayer::FindGeometryCollectionByName(class AActor* actor, const FString& name)
+ASagaGummyBearPlayer::FindGeometryCollectionByName(const AActor* const actor, const FString& name)
 {
 	auto& owner = actor->Owner;
 
@@ -704,7 +710,7 @@ ASagaGummyBearPlayer::FindGeometryCollectionByName(class AActor* actor, const FS
 }
 
 FVector
-ASagaGummyBearPlayer::GetPieceWorldLocation(UGeometryCollectionComponent* target, int32 index)
+ASagaGummyBearPlayer::GetPieceWorldLocation(const UGeometryCollectionComponent* const target, int32 index)
 {
 	if (target)
 	{
@@ -722,7 +728,7 @@ ASagaGummyBearPlayer::GetPieceWorldLocation(UGeometryCollectionComponent* target
 }
 
 FQuat
-ASagaGummyBearPlayer::GetPieceWorldRotation(UGeometryCollectionComponent* target, int32 index)
+ASagaGummyBearPlayer::GetPieceWorldRotation(const UGeometryCollectionComponent* const target, int32 index)
 {
 	if (target)
 	{

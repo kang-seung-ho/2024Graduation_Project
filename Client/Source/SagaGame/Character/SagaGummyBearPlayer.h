@@ -112,11 +112,11 @@ protected:
 	//UFUNCTION()
 	//void OnOverlapEnd(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	static void InitializeTransform(class USceneComponent* component, FVector Location, FRotator Rotation, FVector Scale);
-	static bool IsPointInsideBox(class UBoxComponent* box, const FVector& point);
-	static void HideBodyPartPiece(class UGeometryCollectionComponent* target, int32 PieceIndex);
+	static void InitializeTransform(class USceneComponent* const component, const FVector& loc, const FRotator& rot, const FVector& scale);
+	static bool IsPointInsideBox(const class UBoxComponent* const box, const FVector& point);
+	static void HideBodyPartPiece(class UGeometryCollectionComponent* const target, int32 PieceIndex);
 
-	static class UGeometryCollectionComponent* FindGeometryCollectionByName(class AActor* actor, const FString& name);
-	static FVector GetPieceWorldLocation(class UGeometryCollectionComponent* target, int32 index);
-	static FQuat GetPieceWorldRotation(class UGeometryCollectionComponent* target, int32 index);
+	static class UGeometryCollectionComponent* FindGeometryCollectionByName(const class AActor* const actor, const FString& name);
+	static FVector GetPieceWorldLocation(const class UGeometryCollectionComponent* const target, int32 index);
+	static FQuat GetPieceWorldRotation(const class UGeometryCollectionComponent* const target, int32 index);
 };
