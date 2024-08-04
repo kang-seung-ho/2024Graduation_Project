@@ -119,14 +119,15 @@ ASagaPlayableCharacter::ExecuteAttackAnimation()
 void
 ASagaPlayableCharacter::ExecuteAttack()
 {
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId()) return;
+
 #if WITH_EDITOR
 
 	const auto name = GetName();
 #endif
 
 	const auto weapon = GetWeapon();
-
-	float damage{};
 
 	FCollisionQueryParams query{};
 	query.AddIgnoredActor(this);
@@ -135,6 +136,7 @@ ASagaPlayableCharacter::ExecuteAttack()
 	FHitResult hit_result{};
 	FDamageEvent hit_event{};
 	FVector Hitlocation, HitNormal;
+	float damage{};
 
 	ECollisionChannel channel;
 	if (GetTeam() == ESagaPlayerTeam::Red)

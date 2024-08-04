@@ -124,6 +124,9 @@ ASagaGummyBearPlayer::ExecuteAttackAnimation()
 void
 ASagaGummyBearPlayer::ExecuteAttack()
 {
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId()) return;
+
 	//공격과 충돌되는 물체 여부 판단
 	FHitResult hit_result{};
 
