@@ -100,7 +100,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 	{
 #if WITH_EDITOR
 
-		UE_LOG(LogSagaGame, Error, TEXT("[BeginGuardianAction] Has no character handle!"));
+		UE_LOG(LogSagaGame, Error, TEXT("[TerminateGuardianAction] Has no character handle!"));
 #endif
 	}
 }
