@@ -49,9 +49,6 @@ public:
 	int32 GetBearId() const noexcept;
 
 protected:
-	static inline constexpr int32 defaultChaosPartDestructiveHealthPoint = 2;
-	static inline constexpr int32 chaosPartsNumber = 4;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
 
@@ -60,42 +57,30 @@ protected:
 	class UBoxComponent* myInteractionBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<TObjectPtr<class UStaticMesh>> myChaosPartMeshes;
+	int32 DismThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UStaticMesh*> TargetMeshes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* NiagaraSystemTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	TArray<class UBoxComponent*> DismCollisionBox;
+	UPROPERTY()
+	int32 DismPartID;
+	class UBoxComponent* Dbox_Rarm;
+	class UBoxComponent* Dbox_Larm;
+	class UBoxComponent* Dbox_Rleg;
+	class UBoxComponent* Dbox_Lleg;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class UBoxComponent*> chaosParts;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraComponent* NiagaraComponentTemplate;
 	UPROPERTY()
-	TObjectPtr<class UBoxComponent> chaosPartRightArm;
+	TArray<int32> ActiveIndex;
 	UPROPERTY()
-	TObjectPtr<class UBoxComponent> chaosPartLeftArm;
-	UPROPERTY()
-	TObjectPtr<class UBoxComponent> chaosPartRightLeg;
-	UPROPERTY()
-	TObjectPtr<class UBoxComponent> chaosPartLeftLeg;
-	UPROPERTY()
-	TArray<int32> chaosPartHealthPoints;
-	UPROPERTY()
-	int8 cachedDestructedPartData[4];
-
-	UPROPERTY()
-	TArray<class UGeometryCollectionComponent*> geometryCollections;
-	UPROPERTY()
-	TObjectPtr<class UGeometryCollectionComponent> geometryRightArm;
-	UPROPERTY()
-	TObjectPtr<class UGeometryCollectionComponent> geometryLeftArm;
-	UPROPERTY()
-	TObjectPtr<class UGeometryCollectionComponent> geometryRightLeg;
-	UPROPERTY()
-	TObjectPtr<class UGeometryCollectionComponent> geometryLeftLeg;
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class UNiagaraSystem> NiagaraSystemTemplate;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class UNiagaraComponent> NiagaraComponentTemplate;
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class UNiagaraSystem> HitEffect;
-
-	virtual void BeginPlay() override;
+	TArray<class UGeometryCollectionComponent*> GeometryCollections;
+	class UGeometryCollectionComponent* r_arm;
+	class UGeometryCollectionComponent* l_arm;
+	class UGeometryCollectionComponent* r_leg;
+	class UGeometryCollectionComponent* l_leg;
 
 	void InitTargetMeshes();
 	void CheckValidBone(const FVector& Impulse, int32 Index);
@@ -105,7 +90,12 @@ protected:
 	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
-	class UStaticMesh* GetTargetMesh(int32 Index) const;
+	class UStaticMesh* GetTargetMesh(int32 Index);
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* HitEffect;
+
+	virtual void BeginPlay() override;
 
 	//UFUNCTION()
 	//void OnOverlapBegin(class UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
