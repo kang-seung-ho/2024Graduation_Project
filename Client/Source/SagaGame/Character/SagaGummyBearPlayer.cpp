@@ -143,13 +143,11 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	///NOTICE: ECC_GameTraceChannel7: blue
 	ECollisionChannel channel = ECC_GameTraceChannel2;
 
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (net->GetLocalUserTeam() == ESagaPlayerTeam::Red)
+	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
 	}
-	else if (net->GetLocalUserTeam() == ESagaPlayerTeam::Blue)
+	else if (GetTeam() == ESagaPlayerTeam::Blue)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
