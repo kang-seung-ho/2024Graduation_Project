@@ -129,11 +129,11 @@ ASagaPlayableCharacter::ExecuteAttack()
 	{
 #if WITH_EDITOR
 
-		// NOTICE: 이거 하면 데미지 처리 안됨
 		//UE_LOG(LogSagaGame, Warning, TEXT("[ASagaPlayableCharacter] '%s' is not local character. (net id: %d, entity id: %d)"), *name, net->GetLocalUserId(), GetUserId());
 #endif
 
-		return;
+		// NOTICE: 이거 하면 데미지 처리 안됨
+		//return;
 	}
 
 	const auto weapon = GetWeapon();

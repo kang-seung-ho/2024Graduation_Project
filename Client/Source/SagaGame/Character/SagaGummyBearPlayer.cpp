@@ -134,11 +134,11 @@ ASagaGummyBearPlayer::ExecuteAttack()
 	{
 #if WITH_EDITOR
 
-		// NOTICE: 이거 하면 데미지 처리 안됨
 		//UE_LOG(LogSagaGame, Warning, TEXT("[ASagaGummyBearPlayer] '%s' is not local character. (net id: %d, entity id: %d)"), *name, net->GetLocalUserId(), GetUserId());
 #endif
 
-		return;
+		// NOTICE: 이거 하면 데미지 처리 안됨
+		//return;
 	}
 
 	//공격과 충돌되는 물체 여부 판단
@@ -319,7 +319,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 				break;
 			}
 
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
+			//UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
 		}
 
 		const auto& right_leg_hp = ActiveIndex[1];
