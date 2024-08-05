@@ -688,7 +688,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			}
 			else
 			{
-				guardian->ExecutePartDestruction(guardian_info);
+				if (guardian->GiveDamageToPart(guardian_info))
+				{
+					guardian->ExecutePartDestruction(guardian_info);
+				}
 			}
 		}
 		else
