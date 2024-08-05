@@ -57,6 +57,7 @@ export namespace iconer::app
 		std::atomic<SagaGuardianState::Type> myStatus;
 		std::atomic_int32_t riderId{ -1 };
 		std::atomic<float> myHp{ maxHp };
+		std::int32_t myParts[4]{};
 
 		void Update()
 		{
@@ -68,6 +69,11 @@ export namespace iconer::app
 			myStatus = SagaGuardianState::Statue;
 			myHp = maxHp;
 			riderId = -1;
+
+			for (auto& part : myParts)
+			{
+				part = 1;
+			}
 		}
 
 		void Cleanup() volatile noexcept
@@ -75,6 +81,11 @@ export namespace iconer::app
 			myStatus = SagaGuardianState::Statue;
 			myHp = maxHp;
 			riderId = -1;
+
+			for (auto& part : myParts)
+			{
+				part = 1;
+			}
 		}
 
 		// Trying to Ride

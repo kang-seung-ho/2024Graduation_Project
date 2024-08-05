@@ -585,25 +585,36 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			// arg1: index of the guardian
 			if (arg1 < 0 or 3 <= arg1)
 			{
-				PrintLn("User {} tells wrong damaged guardian {}.", user_id, arg1);
+				PrintLn("[RPC_DMG_GUARDIANS_PART] User {} tells wrong damaged guardian {}.", user_id, arg1);
 				break;
 			}
 
-			PrintLn("[RPC_DMG_GUARDIANS_PART] At room {}.", room_id);
+			PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} At room {}.", room_id, arg0, arg1);
 
 			auto& guardian = room->sagaGuardians[arg1];
 			auto& guardian_hp = guardian.myHp;
+			auto& guardian_pt = guardian.myParts;
 			auto rider_id = guardian.GetRiderId();
 
 			// 곰 신체부위
 			// 0: 파괴 X. 일반적인 경우 송수신 안함. 디버그 용으로 남김
-			// 1: 오른쪽 팔
-			// 2: 왼쪽 팔
-			// 3: 오른쪽 다리
-			// 4: 왼쪽 다리
+			// 1(0): 오른쪽 팔
+			// 2(1): 오른쪽 다리
+			// 3(2): 왼쪽 팔
+			// 4(3): 왼쪽 다리
+			guardian_pt[arg0 - 1] = 0;
 
-			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0, arg1);
+			if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
+			{
+				//guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+
+				//auto rider_id = guardian.GetRiderId();
+				//guardian.TryUnride(rider_id);
+			}
+
+			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0 - 1, arg1);
 		}
+		break;
 
 		// 일반적인 경우 실행안됨
 		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨

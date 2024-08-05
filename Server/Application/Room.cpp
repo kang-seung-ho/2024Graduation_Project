@@ -161,6 +161,18 @@ noexcept
 
 		if (member.ChangedToEmpty(&user))
 		{
+			const auto user_id = user.GetID();
+			auto& rider = member.ridingGuardianId;
+			const auto rider_id = rider.load(std::memory_order_acquire);
+
+			if (rider_id != -1)
+			{
+				auto& guardian = sagaGuardians[rider_id];
+
+				guardian.TryUnride(user_id);
+				rider.store(-1, std::memory_order_release);
+			}
+
 			//std::scoped_lock lock{ memberRemoverLock };
 
 			if (notify and onUserLeft.IsBound())
