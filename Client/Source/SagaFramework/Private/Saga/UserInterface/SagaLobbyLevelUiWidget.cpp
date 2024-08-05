@@ -118,14 +118,14 @@ USagaLobbyLevelUiWidget::NativeConstruct()
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget] '%s' found the creating a room button in children."), *my_name);
 	}
 
-	if (nullptr == myJoinButton)
+	/*if (nullptr == myJoinButton) //JOIN BUTTON DELETED
 	{
 		UE_LOG(LogSagaFramework, Fatal, TEXT("[USagaLobbyLevelUiWidget] '%s' could not found the joining to room button in children."), *my_name);
 	}
 	else
 	{
 		UE_LOG(LogSagaFramework, Log, TEXT("[USagaLobbyLevelUiWidget] '%s' found the joining to room button in children."), *my_name);
-	}
+	}*/
 
 	if (nullptr == myRefreshButton)
 	{
@@ -147,7 +147,7 @@ USagaLobbyLevelUiWidget::NativeConstruct()
 
 	myCreateButton->OnClicked.AddDynamic(this, &USagaLobbyLevelUiWidget::HandleCreatingRoomClick);
 
-	myJoinButton->OnClicked.AddDynamic(this, &USagaLobbyLevelUiWidget::HandleTryJoinRoom);
+	//myJoinButton->OnClicked.AddDynamic(this, &USagaLobbyLevelUiWidget::HandleTryJoinRoom);
 
 	myRefreshButton->OnClicked.AddDynamic(this, &USagaLobbyLevelUiWidget::HandleRefreshRoomList);
 
