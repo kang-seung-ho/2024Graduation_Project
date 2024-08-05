@@ -119,13 +119,22 @@ ASagaPlayableCharacter::ExecuteAttackAnimation()
 void
 ASagaPlayableCharacter::ExecuteAttack()
 {
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (net->GetLocalUserId() != GetUserId()) return;
-
 #if WITH_EDITOR
 
 	const auto name = GetName();
 #endif
+
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId())
+	{
+#if WITH_EDITOR
+
+		//UE_LOG(LogSagaGame, Warning, TEXT("[ASagaPlayableCharacter] '%s' is not local character. (net id: %d, entity id: %d)"), *name, net->GetLocalUserId(), GetUserId());
+#endif
+
+		// NOTICE: 이거 하면 데미지 처리 안됨
+		//return;
+	}
 
 	const auto weapon = GetWeapon();
 
@@ -139,6 +148,7 @@ ASagaPlayableCharacter::ExecuteAttack()
 	float damage{};
 
 	ECollisionChannel channel;
+
 	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
@@ -219,11 +229,6 @@ ASagaPlayableCharacter::ExecuteAttack()
 
 		if (IsValid(bear))
 		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' destructs a part of the gummy bear."), *name);
-#endif
-
 			Hitlocation = hit_result.ImpactPoint;
 			HitNormal = hit_result.Normal;
 

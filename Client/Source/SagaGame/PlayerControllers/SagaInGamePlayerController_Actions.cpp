@@ -228,7 +228,7 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Attack"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Attack"));
 
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	const auto pawn = GetPawn<ASagaCharacterBase>();
@@ -249,7 +249,7 @@ ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::EndAttack()
 {
-	UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Attack"));
+	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Attack"));
 
 	auto character = GetPawn<ASagaCharacterBase>();
 

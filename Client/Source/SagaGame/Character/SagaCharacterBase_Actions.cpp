@@ -181,11 +181,10 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 	{
 		SetHealth(GetHealth() + 30);
 
-		FVector Spawnlocation = GetActorLocation();
-		FRotator SpawnRotation = GetActorRotation();
+		const FVector loc = GetActorLocation();
+		const FRotator rot = GetActorRotation();
 
-		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, HealItemEffect, Spawnlocation, SpawnRotation);
-
+		(void)UNiagaraFunctionLibrary::SpawnSystemAtLocation(world, HealItemEffect, loc, rot);
 	}
 	break;
 
@@ -198,7 +197,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 		FActorSpawnParameters SpawnParams{};
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		world->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		(void)world->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
 	}
 	break;
 
