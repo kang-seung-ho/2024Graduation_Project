@@ -43,6 +43,11 @@ AMapObstacle1::OnDestroy()
 	if (net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %d is destroyed (Offline Mode)."), myItemId);
+
+		(void)SpawnItemBox();
+
+		// Destroy this obstacle
+		Destroy();
 	}
 	else
 	{
@@ -51,19 +56,19 @@ AMapObstacle1::OnDestroy()
 			UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %d is destroyed."), myItemId);
 
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX, 0, myItemId);
+
+			(void)SpawnItemBox();
+
+			// Destroy this obstacle
+			Destroy();
 		}
 		else
 		{
 			const auto name = GetName();
 
-			UE_LOG(LogSagaGame, Log, TEXT("[AMapObstacle1] Item Spawner %s has an invalid id."), *name);
+			UE_LOG(LogSagaGame, Warning, TEXT("[AMapObstacle1] Item Spawner %s has an invalid id."), *name);
 		}
 	}
-
-	(void)SpawnItemBox();
-
-	// Destroy this obstacle
-	Destroy();
 }
 
 ASagaItemBox*
