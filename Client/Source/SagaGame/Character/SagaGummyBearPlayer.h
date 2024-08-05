@@ -41,13 +41,15 @@ public:
 	virtual float ExecuteHurt(const float dmg) override;
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
+	UFUNCTION()
+	void ExecutePartDestruction(const int32 index);
 
 	UFUNCTION()
-	float OnBodyPartGetDamaged(FVector Location, FVector Normal);
+	int32 OnBodyPartGetDamaged(FVector Location, FVector Normal);
 	UFUNCTION()
 	bool GiveDamageToPart(const int32 index, const int32 part_dmg = 1);
 	UFUNCTION()
-	bool IsPartDestructed(const int32 index) const noexcept;
+	bool IsPartDestructed(const int32 index) const;
 
 	UFUNCTION()
 	int32 GetBearId() const noexcept;
@@ -99,7 +101,7 @@ protected:
 	class UNiagaraSystem* HitEffect;
 
 	void InitTargetMeshes();
-	void CheckValidBone(const FVector& Impulse, int32 Index);
+	void CheckValidBone(const FVector& Impulse, int32 Index) {};
 	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")

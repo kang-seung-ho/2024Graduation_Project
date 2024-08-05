@@ -275,10 +275,10 @@ ASagaGummyBearPlayer::ExecuteDeath()
 
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
-	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 	if (net->IsOfflineMode())
 	{
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
 		Super::ExecuteDeath();
 
 		// 상대 팀 점수 증가 실행
@@ -292,9 +292,52 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 }
 
-float
+void
+ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
+{
+	const auto rot = GetActorRotation() + FRotator{ 0, 0, 180 };
+	const FVector Impulse = rot.Vector();
+
+	//CheckValidBone(Impulse, i);
+
+	USkinnedMeshComponent* const SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
+	const auto& boxes = DismCollisionBox[index];
+
+	const FName BoneName = boxes->GetAttachSocketName();
+
+	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
+	{
+		UE_LOG(LogSagaGame, Warning, TEXT("[ExecutePartDestruction] TriggerExplosion: %d"), index);
+
+		ExplodeBodyParts(BoneName, Impulse, index);
+	}
+
+	//if (net->IsOfflineMode())
+	{
+		const auto& right_leg_hp = ActiveIndex[1];
+		const auto& left_leg_hp = ActiveIndex[3];
+
+		if (right_leg_hp <= 0 && left_leg_hp <= 0)
+		{
+#if WITH_EDITOR
+
+			const auto name = GetName();
+
+			//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
+#endif
+
+			ExecuteHurt(GetHealth());
+		}
+	}
+}
+
+int32
 ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
 	if (IsAlive())
 	{
 		for (int32 i = 0; i < DismCollisionBox.Num(); i++)
@@ -303,39 +346,34 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 			{
 				DismPartID = i;
 
-				if (GiveDamageToPart(i))
+				if (net->IsOfflineMode())
 				{
+					if (GiveDamageToPart(i))
+					{
 #if WITH_EDITOR
 
-					const auto name = GetName();
-					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' is destructed."), *name, i);
+						const auto name = GetName();
+
+						UE_LOG(LogSagaGame, Log, TEXT("[OnBodyPartGetDamaged] A part %d of '%s' is destructed. (Offline Mode)"), i, *name);
 #endif
 
-					const FVector Impulse = -Normal * 250.0f;
+						ExecutePartDestruction(i);
 
-					CheckValidBone(Impulse, i);
+						return i;
+					}
 				}
-
-				break;
+				else
+				{
+					// RPC 송신
+					return i;
+				}
 			}
 
 			//UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
 		}
-
-		const auto& right_leg_hp = ActiveIndex[1];
-		const auto& left_leg_hp = ActiveIndex[3];
-
-		if (right_leg_hp <= 0 && left_leg_hp <= 0)
-		{
-			return 9999;
-		}
-		else
-		{
-			return 0;
-		}
 	}
 
-	return 0;
+	return -1;
 }
 
 bool
@@ -343,7 +381,7 @@ ASagaGummyBearPlayer::GiveDamageToPart(const int32 index, const int32 part_dmg)
 {
 	auto& part_hp = ActiveIndex[index];
 
-	if (--part_hp <= 0)
+	if (--part_hp == 0)
 	{
 		//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
 		return true;
@@ -356,24 +394,9 @@ ASagaGummyBearPlayer::GiveDamageToPart(const int32 index, const int32 part_dmg)
 
 bool
 ASagaGummyBearPlayer::IsPartDestructed(const int32 index)
-const noexcept
+const
 {
-	return false;
-}
-
-void
-ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
-{
-	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
-	UBoxComponent* boxes = DismCollisionBox[Index];
-
-	FName BoneName = boxes->GetAttachSocketName();
-
-	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("TriggerExplosion: %d"), Index);
-		ExplodeBodyParts(BoneName, Impulse, Index);
-	}
+	return ActiveIndex[index] <= 0;
 }
 
 void

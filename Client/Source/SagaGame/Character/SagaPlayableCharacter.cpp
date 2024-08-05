@@ -144,7 +144,6 @@ ASagaPlayableCharacter::ExecuteAttack()
 	bool collide = false;
 	FHitResult hit_result{};
 	FDamageEvent hit_event{};
-	FVector Hitlocation, HitNormal;
 	float damage{};
 
 	ECollisionChannel channel;
@@ -229,12 +228,27 @@ ASagaPlayableCharacter::ExecuteAttack()
 
 		if (IsValid(bear))
 		{
-			Hitlocation = hit_result.ImpactPoint;
-			HitNormal = hit_result.Normal;
+			if (bear->IsAlive())
+			{
+				const auto Hitlocation = hit_result.ImpactPoint;
+				const auto HitNormal = hit_result.Normal;
 
-			const auto amp = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+				const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
 
-			hit_actor->TakeDamage(damage + amp, hit_event, GetController(), this);
+				if (-1 != index and not net->IsOfflineMode())
+				{
+#if WITH_EDITOR
+
+					const auto bear_name = bear->GetName();
+
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+				}
+
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+			}
 		}
 		else
 		{

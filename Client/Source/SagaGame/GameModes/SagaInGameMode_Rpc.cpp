@@ -452,7 +452,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 		case 0:
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] Using Energy Drink"));
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] Energy Drink"));
 
 			character->ExecuteUseItem(ESagaItemTypes::Drink);
 		}
@@ -565,6 +565,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
+	// arg0: 수호자에 준 피해량 (4 바이트) | 파괴된 부위 (4 바이트)
+	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_DMG_GUARDIAN:
 	{
 		if (IsValid(character))
@@ -581,7 +583,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		const auto guardian_info = arg0;
 		const auto guardian_id = arg1;
 
-		// 현재 id는 수호자(guardian)를 타고 있다가 데미지를 받은 플레이어임.
 		const auto guardian = FindBear(guardian_id);
 
 		if (IsValid(guardian))
@@ -653,26 +654,50 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
-	// arg0: 수호자에 준 피해량 (4 바이트) | 파괴된 부위 (4 바이트)
+	// arg0: 파괴된 부위
 	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART:
 	{
-		if (IsValid(character))
+		const auto guardian_info = static_cast<int32>(arg0);
+		const auto guardian_id = arg1;
+
+		const auto guardian = FindBear(guardian_id);
+
+		if (IsValid(guardian))
 		{
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] by user %d."), id);
+#if WITH_EDITOR
+
+			const auto guardian_name = guardian->GetName();
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] By user %d to part %d of guardian %d."), id, guardian_info, guardian_id);
+#endif
+
+			if (not guardian->IsAlive())
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] The guardian with id %d is already dead."), guardian_id);
+#endif
+			}
+
+			if (guardian->IsPartDestructed(guardian_info))
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIANS_PART] '%s''s part %d is already destructed."), *guardian_name, guardian_info);
+#endif
+			}
+			else
+			{
+				guardian->ExecutePartDestruction(guardian_info);
+			}
 		}
 		else
 		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIANS_PART] by user %d, no character."), id);
-			break;
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_GUARDIANS_PART] Cannot found the guardian '%d'. (User: %d, Part: %d)"), guardian_id, id, guardian_info);
+#endif
 		}
-
-		if (is_remote)
-		{
-
-		}
-
-
 	}
 	break;
 
