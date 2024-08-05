@@ -653,6 +653,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
+	// arg0: 수호자에 준 피해량 (4 바이트) | 파괴된 부위 (4 바이트)
+	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART:
 	{
 		if (IsValid(character))
