@@ -26,6 +26,7 @@ export namespace iconer::app
 		static inline constexpr size_t roomJoinedPacketSize = 3 + sizeof(std::int32_t) * 2 + 32;
 		static inline constexpr size_t roomJoinFailedPacketSize = 3 + sizeof(iconer::app::RoomContract);
 		static inline constexpr size_t gameReadyPacketSize = 3;
+		static inline constexpr size_t roomLeftPacketSize = 3 + sizeof(std::int32_t);
 
 		iconer::util::ReadOnly<id_type> ownerId;
 		iconer::util::ReadOnly<class User*> ownerHandle;
@@ -47,6 +48,8 @@ export namespace iconer::app
 			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
 
 			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
+
+			(void)SerializeAt(roomLeftPacketData, PacketProtocol::SC_ROOM_LEFT, static_cast<std::int32_t>(static_cast<std::int64_t>(id)));
 		}
 
 		[[nodiscard]]
@@ -94,6 +97,12 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
+		constexpr auto& GetRoomLeftPacketData() noexcept
+		{
+			return roomLeftPacketData;
+		}
+
+		[[nodiscard]]
 		static constexpr auto& GetGameReadyPacketData() noexcept
 		{
 			return gameReadyPacketData;
@@ -104,7 +113,7 @@ export namespace iconer::app
 		{
 			return gameStartPacketData;
 		}
-		
+
 		[[nodiscard]]
 		static constexpr auto& GetCreatCharactersPacketData() noexcept
 		{
@@ -118,6 +127,7 @@ export namespace iconer::app
 		std::array<std::byte, roomCreateFailedPacketSize> roomCreateFailedPacketData{};
 		std::array<std::byte, roomJoinedPacketSize> roomJoinedPacketData{};
 		std::array<std::byte, roomJoinFailedPacketSize> roomJoinFailedPacketData{};
+		std::array<std::byte, roomLeftPacketSize> roomLeftPacketData{};
 
 		// 139 => SC_GAME_GETTING_READY
 		// 3 => size

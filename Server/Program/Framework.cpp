@@ -14,7 +14,10 @@ ServerFramework::OnUserDisconnected(iconer::app::User* user)
 
 	if (nullptr != room)
 	{
-		room->Leave(*user);
+		if (room->Leave(*user))
+		{
+
+		}
 	}
 }
 
@@ -31,8 +34,13 @@ ServerFramework::OnUserLeft(iconer::app::Room* room, iconer::app::User* user, st
 {
 	if (0 < member_cnt)
 	{
-		room->Foreach([](iconer::app::User& user) {
+		auto&& pk_data = user->mainContext->GetRoomLeftPacketData();
 
+		room->Foreach([&](iconer::app::User& member)
+			{
+				iconer::app::SendContext* const ctx = AcquireSendContext();
+
+				member.SendGeneralData(*ctx, pk_data.data(), pk_data.size());
 			}
 		);
 	}

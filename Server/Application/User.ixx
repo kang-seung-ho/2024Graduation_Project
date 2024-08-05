@@ -73,6 +73,7 @@ export namespace iconer::app
 		iconer::net::IoResult SendFailedCreateRoomPacket(iconer::app::TaskContext& ctx, iconer::app::RoomContract reason);
 		iconer::net::IoResult SendJoinedRoomPacket(id_type room_id);
 		iconer::net::IoResult SendRoomJoinFailedPacket(iconer::app::RoomContract reason);
+		iconer::net::IoResult SendRoomLeftPacket(std::span<const std::byte> data);
 
 		[[nodiscard]] iconer::net::IoResult BeginOptainReceiveMemory();
 		bool EndOptainReceiveMemory(bool flag) noexcept;

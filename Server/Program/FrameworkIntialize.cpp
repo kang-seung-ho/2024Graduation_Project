@@ -132,6 +132,7 @@ ServerFramework::Initialize()
 
 	roomManager.Foreach([this](iconer::app::Room& room)
 		{
+			room.onUserLeft.Add(MakeInvoker(this, &ServerFramework::OnUserLeft));
 			room.onDestroyed.Add(MakeInvoker(this, &ServerFramework::OnRoomClosed));
 		}
 	);

@@ -158,6 +158,12 @@ iconer::app::User::SendRoomJoinFailedPacket(iconer::app::RoomContract reason)
 }
 
 iconer::net::IoResult
+iconer::app::User::SendRoomLeftPacket(std::span<const std::byte> data)
+{
+	return iconer::net::IoResult();
+}
+
+iconer::net::IoResult
 iconer::app::User::BeginOptainReceiveMemory()
 {
 	recvContext->SetOperation(TaskCategory::OpOptainRecvMemory);
