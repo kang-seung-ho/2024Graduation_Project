@@ -124,8 +124,21 @@ ASagaGummyBearPlayer::ExecuteAttackAnimation()
 void
 ASagaGummyBearPlayer::ExecuteAttack()
 {
+#if WITH_EDITOR
+
+	const auto name = GetName();
+#endif
+
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-	if (net->GetLocalUserId() != GetUserId()) return;
+	if (net->GetLocalUserId() != GetUserId())
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaGummyBearPlayer] '%s' is not local character. (net id: %d, entity id: %d)"), *name, net->GetLocalUserId(), GetUserId());
+#endif
+
+		return;
+	}
 
 	//공격과 충돌되는 물체 여부 판단
 	FHitResult hit_result{};
@@ -135,11 +148,6 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 	FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
 	param.AddIgnoredActor(this);
-
-#if WITH_EDITOR
-
-	const auto name = GetName();
-#endif
 
 	///NOTICE: ECC_GameTraceChannel2: Enemy
 	///NOTICE: ECC_GameTraceChannel4: red
@@ -305,7 +313,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 				}
 			}
 
-			UE_LOG(LogSagaGame, Warning, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
 		}
 
 		if (ActiveIndex[1] <= 0 && ActiveIndex[3] <= 0)
