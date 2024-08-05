@@ -28,8 +28,8 @@ public:
 	*/
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
 
-	// UFUNCTION()
 	/* 반드시 ASagaPlayableCharacter의 ExecuteGuardianAction보다 나중에 실행해야 함. */
+	// UFUNCTION()
 	virtual void ExecuteGuardianAction(ASagaCharacterBase* target) override;
 	// UFUNCTION()
 	virtual void TerminateGuardianAction() override;
@@ -44,6 +44,10 @@ public:
 
 	UFUNCTION()
 	float OnBodyPartGetDamaged(FVector Location, FVector Normal);
+	UFUNCTION()
+	bool GiveDamageToPart(const int32 index, const int32 part_dmg = 1);
+	UFUNCTION()
+	bool IsPartDestructed(const int32 index) const noexcept;
 
 	UFUNCTION()
 	int32 GetBearId() const noexcept;
@@ -57,16 +61,9 @@ protected:
 	class UBoxComponent* myInteractionBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	int32 DismThreshold;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UStaticMesh*> TargetMeshes;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraSystem* NiagaraSystemTemplate;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UBoxComponent*> DismCollisionBox;
-
-	UPROPERTY()
-	int32 DismPartID;
 	UPROPERTY()
 	class UBoxComponent* Dbox_Rarm;
 	UPROPERTY()
@@ -76,10 +73,6 @@ protected:
 	UPROPERTY()
 	class UBoxComponent* Dbox_Lleg;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraComponent* NiagaraComponentTemplate;
-	UPROPERTY()
-	TArray<int32> ActiveIndex;
 	UPROPERTY()
 	TArray<class UGeometryCollectionComponent*> GeometryCollections;
 	UPROPERTY()
@@ -90,6 +83,20 @@ protected:
 	class UGeometryCollectionComponent* r_leg;
 	UPROPERTY()
 	class UGeometryCollectionComponent* l_leg;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	int32 DismThreshold;
+	UPROPERTY()
+	int32 DismPartID;
+	UPROPERTY()
+	TArray<int32> ActiveIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* NiagaraSystemTemplate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraComponent* NiagaraComponentTemplate;
+
+	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
+	class UNiagaraSystem* HitEffect;
 
 	void InitTargetMeshes();
 	void CheckValidBone(const FVector& Impulse, int32 Index);
@@ -100,9 +107,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
 	class UStaticMesh* GetTargetMesh(int32 Index);
-
-	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character|Bear")
-	class UNiagaraSystem* HitEffect;
 
 	virtual void BeginPlay() override;
 
