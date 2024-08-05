@@ -287,7 +287,6 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	{
 		Super::ExecuteDeath();
 
-		// TODO: 점수 동기화 작업 중
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 }
@@ -301,22 +300,31 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 		{
 			if (IsPointInsideBox(DismCollisionBox[i], Location))
 			{
-				if (0 == --ActiveIndex[i])
+				DismPartID = i;
+
+				if (GiveDamageToPart(i))
 				{
-					//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
-					DismPartID = i;
+#if WITH_EDITOR
 
-					FVector Impulse = -Normal * 250.0f; // Example impulse calculation
-					CheckValidBone(Impulse, DismPartID);
+					const auto name = GetName();
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' is destructed."), *name, i);
+#endif
 
-					break;
+					const FVector Impulse = -Normal * 250.0f;
+
+					CheckValidBone(Impulse, i);
 				}
+
+				break;
 			}
 
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaGummyBearPlayer] HitBox: %d, hp: %d"), i, ActiveIndex[i]);
 		}
 
-		if (ActiveIndex[1] <= 0 && ActiveIndex[3] <= 0)
+		const auto& right_leg_hp = ActiveIndex[1];
+		const auto& left_leg_hp = ActiveIndex[3];
+
+		if (right_leg_hp <= 0 && left_leg_hp <= 0)
 		{
 			return 9999;
 		}
@@ -329,12 +337,35 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 	return 0;
 }
 
+bool
+ASagaGummyBearPlayer::GiveDamageToPart(const int32 index, const int32 part_dmg)
+{
+	auto& part_hp = ActiveIndex[index];
+
+	if (--part_hp <= 0)
+	{
+		//UE_LOG(LogSagaGame, Warning, TEXT("HitBox: %d, boxHP: %d"), i, ActiveIndx[i]);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool
+ASagaGummyBearPlayer::IsPartDestructed(const int32 index)
+const noexcept
+{
+	return false;
+}
 
 void
 ASagaGummyBearPlayer::CheckValidBone(const FVector& Impulse, int32 Index)
 {
 	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
 	UBoxComponent* boxes = DismCollisionBox[Index];
+
 	FName BoneName = boxes->GetAttachSocketName();
 
 	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
@@ -349,6 +380,7 @@ ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impulse, i
 {
 	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
 	SkinnedMesh->HideBoneByName(BoneName, PBO_None);
+
 	UGeometryCollectionComponent* TargetGC = GeometryCollections[Index];
 
 	TargetGC->SetVisibility(true);

@@ -119,11 +119,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		if (is_remote)
-		{
-
-		}
-
 		character->ExecuteRun();
 	}
 	break;
@@ -343,10 +338,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_ATTACK_0] by user %d, has no character."), id);
 			break;
-		}
-
-		if (is_remote)
-		{
 		}
 
 		character->TerminateAttack();
@@ -678,6 +669,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 
 		}
+
+
 	}
 	break;
 
