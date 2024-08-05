@@ -763,6 +763,15 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			}
 			else
 			{
+				const auto redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
+				const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
+
+				iconer::app::SendContext* const ctx = AcquireSendContext();
+				auto [pk2, size2] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
+
+				ctx->myBuffer = std::move(pk2);
+
+				current_user.SendGeneralData(*ctx, size2);
 			}
 
 			iconer::app::SendContext* const ctx = AcquireSendContext();
