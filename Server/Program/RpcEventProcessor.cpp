@@ -106,8 +106,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		// arg1 - id
 		case RPC_DESTROY_ITEM_BOX:
 		{
-			PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {}.", room_id, arg1);
-
 			auto& items = room->sagaItemList;
 
 			const auto index = static_cast<size_t>(arg1);
@@ -116,7 +114,13 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			bool destroyed = false;
 			if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
 			{
+				PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {}.", room_id, arg1);
+
 				Broadcast(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
+			}
+			else
+			{
+				PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {} is already destroyed.", room_id, arg1);
 			}
 		}
 		break;
@@ -126,8 +130,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		// arg1 - id
 		case RPC_GRAB_ITEM:
 		{
-			PrintLn("[RPC_GRAB_ITEM] At room {} - {}.", room_id, arg1);
-
 			auto& items = room->sagaItemList;
 
 			if (arg1 < 0 or 200 <= arg1) break;
@@ -140,8 +142,18 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				bool grabbed = true;
 				if (item.isAvailable.compare_exchange_strong(grabbed, false))
 				{
+					PrintLn("[RPC_GRAB_ITEM] At room {} - {}.", room_id, arg1);
+
 					Broadcast(RPC_GRAB_ITEM, user_id, arg0, arg1);
 				}
+				else
+				{
+					PrintLn("[RPC_GRAB_ITEM] At room {} - {} is already attained.", room_id, arg1);
+				}
+			}
+			else
+			{
+				PrintLn("[RPC_GRAB_ITEM] At room {} - {} is not destroyed yet.", room_id, arg1);
 			}
 		}
 		break;
@@ -350,11 +362,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
+		// arg0: 플레이어가 받은 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
+		// arg1: 플레이어에게 피해를 준 개체의 식별자 - 플레이어의 ID, 수호자의 순번
 		case RPC_DMG_PLYER:
 		{
-			// arg0: 플레이어가 받은 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
-			// arg1: 플레이어에게 피해를 준 개체의 식별자
-			//     예시: 플레이어의 ID, 수호자의 순번
 			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
 				{
 					float dmg{};
@@ -370,7 +381,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 					if (rider_id == -1)
 					{
-						if (0 < hp)
+						// 최초로 체력이 0 이하일 때만 실행
+						if (0 < hp.load(std::memory_order_acquire))
 						{
 							// 사망
 							if (hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
@@ -390,7 +402,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 									}
 								}
 
-								target.ridingGuardianId = -1;
+								rider.store(-1, std::memory_order_release);
 							}
 							else
 							{
@@ -414,7 +426,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								// 하차 처리
 								guardian.TryUnride(user_id);
 								guardian.myStatus = iconer::app::SagaGuardianState::Dead;
-								target.ridingGuardianId = -1;
+								target.ridingGuardianId.store(-1, std::memory_order_release);
 
 								// 점수 증가
 								if (target.team_id == ESagaPlayerTeam::Red)
@@ -426,7 +438,11 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 								}
 
+								// 하차 처리
 								Broadcast(RPC_END_RIDE, user_id, arg0, rider_id);
+
+								// 사망 피해량 브로드캐스트
+								Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
 							}
 							else
 							{
@@ -434,7 +450,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							}
 						} // IF (0 < guardian hp)
 					} // IF NOT (rider_id is -1)
-				}
+				} // ProcessMember
 			);
 		}
 		break;
@@ -478,8 +494,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
 					//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
 
-					Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
-
 					auto rider_id = guardian.GetRiderId();
 
 					// 하차 처리
@@ -519,9 +533,13 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								user_ptr->SendGeneralData(*ctx, pk.get(), size);
 							}
 						);
+
+						Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
 					}
-					else // IF (rider id == -1)
+					else // IF (rider id is -1)
 					{
+						Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+
 						constexpr std::int32_t killIncrement = 1;
 
 						room->Foreach
@@ -548,6 +566,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 						);
 					}
 				}
+				else
+				{
+					Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+				}
 			}
 			else // IF (guardian hp <= 0)
 			{
@@ -573,6 +595,14 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			auto& guardian_hp = guardian.myHp;
 			auto rider_id = guardian.GetRiderId();
 
+			// 곰 신체부위
+			// 0: 파괴 X. 일반적인 경우 송수신 안함. 디버그 용으로 남김
+			// 1: 오른쪽 팔
+			// 2: 왼쪽 팔
+			// 3: 오른쪽 다리
+			// 4: 왼쪽 다리
+
+			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0, arg1);
 		}
 
 		// 일반적인 경우 실행안됨
@@ -638,6 +668,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
+		// TODO: 박 체력 동기화
+		// arg0: 박에 준 피해량
+		// arg1: 박의 팀 식별자 (0: 팀 X, 1: 빨강, 2: 파랑)
 		case RPC_DMG_BASE:
 		{
 			//PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
@@ -649,8 +682,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0 : scores
-		// arg1 : winner id
+		// arg0 : 점수
+		// arg1 : 박을 부순 팀의 식별자
 		case RPC_DESTROY_CORE:
 		{
 			auto& winner = room->sagaWinner;
