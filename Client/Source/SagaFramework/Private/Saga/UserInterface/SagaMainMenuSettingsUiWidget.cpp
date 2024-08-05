@@ -116,31 +116,31 @@ USagaMainMenuSettingsUiWidget::NativeConstruct()
 					myPortInputBox = input;
 				}
 			}
-			else if (auto btn = Cast<USagaUiButton>(element))
+			else if (auto btn = Cast<UButton>(element))
 			{
 				const auto btn_name = btn->GetName();
 
-				if (btn_name == TEXT("ResetButton"))
+				if (btn_name == TEXT("ResetButton"))//
 				{
 					myResetButton = btn;
 				}
-				else if (btn_name == TEXT("CloseButton"))
+				else if (btn_name == TEXT("CloseButton"))//
 				{
 					myOkButton = btn;
 				}
-				else if (btn_name == TEXT("ResetOfflineModeButton"))
+				else if (btn_name == TEXT("ResetOfflineModeButton"))//
 				{
 					myOfflineModeResetButton = btn;
 				}
-				else if (btn_name == TEXT("ResetConnectionOptionButton"))
+				else if (btn_name == TEXT("ResetConnectionOptionButton"))//
 				{
 					myConnectOptionResetButton = btn;
 				}
-				else if (btn_name == TEXT("ResetIpAddressButton"))
+				else if (btn_name == TEXT("ResetIpAddressButton"))//
 				{
 					myIpAddressResetButton = btn;
 				}
-				else if (btn_name == TEXT("ResetPortButton"))
+				else if (btn_name == TEXT("ResetPortButton"))//
 				{
 					mPortResetButton = btn;
 				}

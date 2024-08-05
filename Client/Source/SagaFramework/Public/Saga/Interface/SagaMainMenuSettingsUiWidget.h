@@ -10,10 +10,10 @@ class SAGAFRAMEWORK_API USagaMainMenuSettingsUiWidget final : public USagaLiveUs
 
 public:
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> myResetButton;
+	TObjectPtr<class UButton> myResetButton;
 
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> myOkButton;
+	TObjectPtr<class UButton> myOkButton;
 
 	UPROPERTY()
 	TObjectPtr<class UCheckBox> myCheckBox;
@@ -28,16 +28,16 @@ public:
 	TObjectPtr<class USagaUiEditableTextBox> myPortInputBox;
 
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> myOfflineModeResetButton;
+	TObjectPtr<class UButton> myOfflineModeResetButton;
 
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> myConnectOptionResetButton;
+	TObjectPtr<class UButton> myConnectOptionResetButton;
 
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> myIpAddressResetButton;
+	TObjectPtr<class UButton> myIpAddressResetButton;
 
 	UPROPERTY()
-	TObjectPtr<class USagaUiButton> mPortResetButton;
+	TObjectPtr<class UButton> mPortResetButton;
 
 	USagaMainMenuSettingsUiWidget(const FObjectInitializer& initializer) noexcept;
 
