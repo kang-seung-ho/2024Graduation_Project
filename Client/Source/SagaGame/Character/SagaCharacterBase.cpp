@@ -315,7 +315,7 @@ ASagaCharacterBase::ASagaCharacterBase()
 	}
 
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
-	if (NiagaraEffect.Succeeded())
+	if (SmokeNiagaraEffect.Succeeded())
 	{
 		SmokeItemEffect = SmokeNiagaraEffect.Object;
 		UE_LOG(LogSagaGame, Warning, TEXT("Smoke Niagara Effect Loaded"));
