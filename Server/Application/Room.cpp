@@ -45,7 +45,7 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 
 					/// NOTICE: set team here (occupy)
 					first.team_id = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
-					myState = RoomState::Idle;
+					myState.store(RoomState::Idle, std::memory_order_release);
 
 					isDirty = true;
 					return true;
@@ -161,7 +161,7 @@ noexcept
 
 		if (member.ChangedToEmpty(&user))
 		{
-			const auto user_id = user.GetID();
+			const auto user_id = static_cast<std::int32_t>(user.GetID());
 			auto& rider = member.ridingGuardianId;
 			const auto rider_id = rider.load(std::memory_order_acquire);
 
