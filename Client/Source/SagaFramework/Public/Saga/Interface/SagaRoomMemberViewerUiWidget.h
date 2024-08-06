@@ -18,6 +18,5 @@ public:
 	USagaRoomMemberViewerUiWidget(const FObjectInitializer& initializer) noexcept;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 };

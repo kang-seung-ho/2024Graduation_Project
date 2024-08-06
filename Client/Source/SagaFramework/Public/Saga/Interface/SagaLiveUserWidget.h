@@ -155,8 +155,9 @@ protected:
 	UPROPERTY()
 	FTimerHandle myTicker;
 
-	virtual void NativePreConstruct() override;
 	virtual void NativeOnInitialized() override;
+	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 
 	// Default is linear

@@ -14,15 +14,22 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Timer UI Widget")
 	TObjectPtr<class UTextBlock> mySecondsLabel;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Timer UI Widget")
+	int32 myMinutes;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Timer UI Widget")
+	int32 mySeconds;
 
 	USagaTimerUiWidget(const FObjectInitializer& initializer) noexcept;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|UI|Timer UI Widget")
 	void SetMinutes(const int32 minutes) noexcept;
-	UFUNCTION()
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "CandyLandSaga|UI|Timer UI Widget")
 	void SetSeconds(const int32 seconds) noexcept;
 
 protected:
 	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 };

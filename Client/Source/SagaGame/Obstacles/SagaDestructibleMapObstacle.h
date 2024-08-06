@@ -1,56 +1,59 @@
 #pragma once
-#include "SagaGameInfo.h"
+#include "SagaGame.h"
 #include <GameFramework/Actor.h>
+#include <Engine/TimerHandle.h>
 
 #include "SagaDestructibleMapObstacle.generated.h"
 
-UENUM(BlueprintType)
-enum class EObstacleTeam : uint8
-{
-	Red,
-	Blue
-};
-
-UCLASS()
+UCLASS(Category = "CandyLandSaga|Game")
 class SAGAGAME_API ASagaDestructibleMapObstacle : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ASagaDestructibleMapObstacle();
-	float health = 100.0f;
 
-	FTimerHandle ChangeLevelTimerHandle;
+private:
+	UPROPERTY()
+	FTimerHandle TimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Obstacle")
-	int32 WhichTeam; // 0: Red, 1: Blue
+	UPROPERTY()
+	FTimerHandle LevelChangeTimerHandle;
 
-	void OpenEndLevel();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	TSoftClassPtr<UAnimInstance> ObjectAnimation;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
 public:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	USkeletalMeshComponent* MeshComponent;
+	class USkeletalMeshComponent* MeshComponent;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	//USkeletalMeshComponent* SKMeshComponent;
 
 	UPROPERTY()
+	float myHealth = 150.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 TeamPinataColor = 0; // 0: Red, 1: Blue
+
+	UPROPERTY()
 	UAnimSequence* DeathAnimation;
+
+	UPROPERTY()
 	UAnimSequence* HitAnimation;
+
+	ASagaDestructibleMapObstacle();
+
+	UFUNCTION()
+	void DestroyObstacle();
+
+	UFUNCTION()
+	void ChangeLevel();
+
+	virtual void Tick(float DeltaTime) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+protected:
+	UPROPERTY()
+	TSoftClassPtr<UAnimInstance> ObjectAnimation;
 
+	UPROPERTY()
+	class UNiagaraSystem* HitEffect;
+
+	virtual void BeginPlay() override;
 };

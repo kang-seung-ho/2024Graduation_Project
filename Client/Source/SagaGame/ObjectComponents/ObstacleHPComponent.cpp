@@ -1,79 +1,97 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ObjectComponents/ObstacleHPComponent.h"
+#include <UObject/Object.h>
+#include <Templates/Casts.h>
 
-// Sets default values for this component's properties
+#include "Obstacles/MapObstacle1.h"
+
 UObstacleHPComponent::UObstacleHPComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
-
-
-// Called when the game starts
-void UObstacleHPComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
 
 // Called every frame
 void UObstacleHPComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
-void UObstacleHPComponent::TakeDamage(float DamageAmount)
+void
+UObstacleHPComponent::TakeDamage(float DamageAmount)
 {
 	Health -= DamageAmount;
 	CheckDeath();
 }
 
-float UObstacleHPComponent::GetCurrentHealth()
+float
+UObstacleHPComponent::GetCurrentHealth()
+const
 {
 	return Health;
 }
 
-void UObstacleHPComponent::SetObjectHealth(float hp)
+void
+UObstacleHPComponent::SetObjectHealth(float hp)
 {
 	Health = hp;
 }
+
+//void UObstacleHPComponent::CheckDeath()
+//{
+//	if (Health <= 0)
+//	{
+//		AActor* ThisObstacleActor = GetOwner();
+//		if (ThisObstacleActor)
+//		{
+//			ThisObstacleActor->SetActorEnableCollision(false);
+//			ThisObstacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+//
+//			// TimerSet
+//			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
+//		}
+//	}
+//}
 
 void UObstacleHPComponent::CheckDeath()
 {
 	if (Health <= 0)
 	{
-		AActor* ThisObestacleActor = GetOwner();
-		if (ThisObestacleActor)
-		{
-			ThisObestacleActor->SetActorEnableCollision(false);
-			//ThisObestacleActor->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+		AActor* const owner = GetOwner();
 
-			//// 타이머 설정
-			//GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
+		if (IsValid(owner))
+		{
+			owner->SetActorEnableCollision(false);
+			owner->FindComponentByClass<UPrimitiveComponent>()->SetSimulatePhysics(true);
+
+			/*
+			Offline Mode:
+			* Create a item box now.
+
+			Online  Mode:
+			* Defer the creation of an item box to send rpc.
+			*/
+			if (AMapObstacle1* Obstacle = Cast<AMapObstacle1>(owner))
+			{
+				Obstacle->OnDestroy();
+			}
+
+			GetWorld()->GetTimerManager().SetTimer(DestructionTimerHandle, this, &UObstacleHPComponent::HandleDestruction, DestructionDelay);
 		}
 	}
 }
 
-void UObstacleHPComponent::HandleDestruction()
+void
+UObstacleHPComponent::HandleDestruction()
 {
-	// 카오스 디스트럭션 조각 제거 로직 함수 호출
+	// Call the function to remove the chaos destruction pieces
 	RemoveDestructionPieces();
 }
 
-void UObstacleHPComponent::RemoveDestructionPieces()
+void
+UObstacleHPComponent::RemoveDestructionPieces()
 {
-	AActor* ThisObestacleActor = GetOwner();
-	if (ThisObestacleActor)
+	AActor* const ThisObestacleActor = GetOwner();
+
+	if (IsValid(ThisObestacleActor))
 	{
 		ThisObestacleActor->Destroy();
 	}

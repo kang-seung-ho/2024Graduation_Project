@@ -1,10 +1,490 @@
 #include "SagaPlayableCharacter.h"
-#include "SagaPlayerAnimInstance.h"
-#include "../Effect/SagaSwordEffect.h"
+#include <DrawDebugHelpers.h>
+#include <Containers/Array.h>
+#include <Misc/OutputDeviceNull.h>
+#include <UObject/Object.h>
+#include <Templates/Casts.h>
+#include <Kismet/KismetSystemLibrary.h>
+#include <Camera/CameraComponent.h>
+#include <GameFramework/PlayerController.h>
+#include <Animation/AnimInstance.h>
+#include <NiagaraFunctionLibrary.h>
+#include <NiagaraComponent.h>
+#include <Particles/ParticleSystem.h>
+#include <Particles/ParticleSystemComponent.h>
+
+#include "SagaGameSubsystem.h"
+#include "Character/SagaGummyBearPlayer.h"
+#include "Character/SagaPlayerAnimInstance.h"
+#include "Character/SagaGummyBearSmall.h"
+#include "Effect/SagaSwordEffect.h"
+#include "UI/SagaWidgetComponent.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+float
+ASagaPlayableCharacter::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
+{
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (net->IsOfflineMode() or not HasValidOwnerId())
+	{
+		return Super::TakeDamage(dmg, event, instigator, causer);
+	}
+	else
+	{
+		// 자기 자신의 피해량만 송신함
+		if (GetUserId() == net->GetLocalUserId())
+		{
+			// 서버의 RPC_DMG_PLYER 처리 부분의 주석 참조
+			// arg0: 플레이어가 준 피해량 (4바이트 부동소수점)
+			int64 arg0{};
+			// arg1: 플레이어에게 피해를 준 개체의 식별자
+			//     예시: 플레이어의 ID, 수호자의 순번
+			int32 arg1{ -1 };
+
+			std::memcpy(&arg0, reinterpret_cast<const char*>(&dmg), 4);
+
+			const auto other = Cast<ASagaCharacterBase>(causer);
+
+			if (IsValid(other) and other->HasValidOwnerId())
+			{
+				arg1 = other->GetUserId();
+
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, arg1);
+			}
+			else
+			{
+				const auto ai_bear = Cast<ASagaGummyBearSmall>(causer);
+
+				if (IsValid(ai_bear))
+				{
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, arg0, -2);
+
+#if WITH_EDITOR
+
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] Attacked by a mini bear."));
+#endif
+				}
+			}
+		}
+
+		return dmg;
+	}
+}
+
+void
+ASagaPlayableCharacter::ExecuteGuardianAction(ASagaCharacterBase* target)
+{
+	Super::ExecuteGuardianAction(target);
+
+	TranslateProperties(target);
+
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+
+	myHealthIndicatorBarWidget->SetHiddenInGame(true);
+}
+
+void
+ASagaPlayableCharacter::TerminateGuardianAction()
+{
+	Super::TerminateGuardianAction();
+
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
+	if (IsAlive())
+	{
+		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+	}
+}
+
+void
+ASagaPlayableCharacter::ExecuteAttackAnimation()
+{
+	if (IsValid(mAnimInst))
+	{
+		mAnimInst->PlayAttackMontage();
+	}
+	else
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter] mAnimInst is null."));
+#endif
+	}
+}
+
+void
+ASagaPlayableCharacter::ExecuteAttack()
+{
+#if WITH_EDITOR
+
+	const auto name = GetName();
+#endif
+
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId())
+	{
+#if WITH_EDITOR
+
+		//UE_LOG(LogSagaGame, Warning, TEXT("[ASagaPlayableCharacter] '%s' is not local character. (net id: %d, entity id: %d)"), *name, net->GetLocalUserId(), GetUserId());
+#endif
+
+		// NOTICE: 이거 하면 데미지 처리 안됨
+		//return;
+	}
+
+	const auto weapon = GetWeapon();
+
+	FCollisionQueryParams query{};
+	query.AddIgnoredActor(this);
+
+	bool collide = false;
+	FHitResult hit_result{};
+	FDamageEvent hit_event{};
+	float damage{};
+
+	ECollisionChannel channel;
+
+	if (GetTeam() == ESagaPlayerTeam::Red)
+	{
+		channel = ECC_GameTraceChannel4;
+	}
+	else // blue team
+	{
+		channel = ECC_GameTraceChannel7;
+	}
+
+	switch (weapon)
+	{
+	case EPlayerWeapon::LightSabor:
+	{
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+
+		collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
+
+		damage = 30.f;
+	}
+	break;
+
+	case EPlayerWeapon::WaterGun:
+	{
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector TraceStart = GetActorLocation();
+		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1500.0f;
+		collide = GetWorld()->LineTraceSingleByChannel(hit_result, TraceStart, TraceEnd, channel, query);
+
+		if (hit_result.bBlockingHit && IsValid(hit_result.GetActor()))
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] Trace hit actor: %s"), *hit_result.GetActor()->GetName());
+#endif
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s': No Actors were hit"), *name);
+#endif
+		}
+
+		damage = 20.f;
+	}
+	break;
+
+	case EPlayerWeapon::Hammer:
+	{
+		// 캐릭터의 앞 방향을 기준으로 공격 시작 및 종료 위치 계산
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+		collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
+
+		damage = 30.f;
+	}
+	break;
+
+	default:
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][Attack] '%s' has no Weapon."), *name);
+#endif
+
+		return;
+	}
+	break;
+	}
+
+	if (collide)
+	{
+		const auto hit_actor = hit_result.GetActor();
+
+		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+		if (IsValid(bear))
+		{
+			if (bear->IsAlive())
+			{
+				const auto Hitlocation = hit_result.ImpactPoint;
+				const auto HitNormal = hit_result.Normal;
+
+				const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+				if (-1 != index and not net->IsOfflineMode())
+				{
+#if WITH_EDITOR
+
+					const auto bear_name = bear->GetName();
+
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+				}
+
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+			}
+		}
+		else
+		{
+			hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+		}
+	}
+}
+
+float
+ASagaPlayableCharacter::ExecuteHurt(const float dmg)
+{
+	const auto current_health = Super::ExecuteHurt(dmg);
+
+	FVector NiagaraSpawnLocation = GetActorLocation();
+	FRotator NiagaraSpawnRotation = GetActorRotation();
+
+	FVector EffectSpawnLocation = GetActorLocation();
+	FRotator EffectSpawnRotation = GetActorRotation();
+
+	// TODO: 데미지 마다 효과를 달리하지 말고 맞은 무기 종류따라 처리를 해줘야 함 --> change each weapon's damage amount different by 20 30 40
+	if (dmg == 30.f)
+	{
+		if (HitCascadeEffect)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				HitCascadeEffect,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				CascadeComponent->bAutoDestroy = true;
+			}
+		}
+	}
+	else if (dmg == 20.f)
+	{
+		if (GunHitCascadeEffect)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				GunHitCascadeEffect,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				CascadeComponent->bAutoDestroy = true;
+			}
+		}
+	}
+
+	if (0 < current_health)
+	{
+		// NOTICE: 여기서 RPC 또 보내면 안됨
+		// 중복되서 데미지 여러번 처리됨
+
+		mAnimInst->Hit();
+
+		if (HitSoundEffect)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, HitSoundEffect, GetActorLocation());
+		}
+	}
+
+	return current_health;
+}
+
+void
+ASagaPlayableCharacter::ExecuteDeath()
+{
+	// 사망 처리
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] ExecuteDeath"));
+
+	Super::ExecuteDeath();
+
+	// 사망 애니메이션 실행
+	mAnimInst->Death();
+
+	if (DeadSoundEffect)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeadSoundEffect, GetActorLocation());
+	}
+
+	if (HasValidOwnerId())
+	{
+		const auto world = GetWorld();
+		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
+
+		if (net->IsOfflineMode())
+		{
+			// 리스폰 함수 실행
+			// ExecuteRespawn 함수 3초 뒤	실행
+			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
+
+			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		}
+		else if (GetUserId() == net->GetLocalUserId())
+		{
+			// NOTICE: 서버에서 RPC_DEAD 전송해주므로 하면 안됨
+			//net->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
+
+			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
+
+			// TODO: 점수 동기화 작업 중
+			// 상대 팀 점수 증가
+			//sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
+		}
+	}
+}
+
+void
+ASagaPlayableCharacter::ExecuteRespawnViaRpc()
+{
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not net->IsOfflineMode())
+	{
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN, 0, GetUserId());
+	}
+}
+
+void
+ASagaPlayableCharacter::ExecuteRespawn()
+{
+	// 리스폰 타이머 해제
+	GetWorldTimerManager().ClearTimer(respawnTimerHandle);
+
+	Super::ExecuteRespawn();
+
+	// Animate
+	mAnimInst->Revive();
+
+	// Retrive collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+ASagaGummyBearPlayer*
+ASagaPlayableCharacter::GetNeareastCollidedBear()
+const
+{
+	if (0 == collideBears.Num())
+	{
+		return nullptr;
+	}
+
+	if (1 == collideBears.Num())
+	{
+		if (collideBears[0]->IsAlive())
+		{
+			return collideBears[0];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+	const auto pos = GetActorLocation();
+	double mindist{ INFINITY };
+	ASagaGummyBearPlayer* result{};
+
+	for (auto& bear : collideBears)
+	{
+		double dist = FVector::Distance(pos, bear->GetActorLocation());
+		if (dist < mindist and bear->IsAlive())
+		{
+			result = bear;
+			mindist = dist;
+		}
+	}
+
+	return result;
+}
+
+void
+ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
+{
+	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
+
+	if (IsValid(bear) and bear->IsAlive())
+	{
+#if WITH_EDITOR
+
+		const auto name = GetName();
+		const auto other_name = other_actor->GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[HandleBeginCollision] '%s' is collide with bear '%s'."), *name, *other_name);
+#endif
+
+		collideBears.Add(bear);
+	}
+}
+
+void
+ASagaPlayableCharacter::HandleEndCollision(AActor* self, AActor* other_actor)
+{
+	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
+
+	if (IsValid(bear))
+	{
+#if WITH_EDITOR
+
+		const auto name = GetName();
+		const auto other_name = other_actor->GetName();
+		UE_LOG(LogSagaGame, Log, TEXT("[HandleBeginCollision] '%s' would not be collide with bear '%s' anymore."), *name, *other_name);
+#endif
+
+		collideBears.RemoveSwap(bear);
+	}
+}
+
+void
+ASagaPlayableCharacter::HandleRespawnCountdown()
+{
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not net->IsOfflineMode() and net->IsConnected())
+	{
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_RESPAWN_TIMER);
+	}
+}
+
 ASagaPlayableCharacter::ASagaPlayableCharacter()
+	: Super()
+	, humanCharacterAnimation()
+	, collideBears()
+	, HitCascadeEffect(), GunHitCascadeEffect()
+	, HitSoundEffect(), DeadSoundEffect()
+	, respawnTimerHandle()
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player.Player'"));
 	if (MeshAsset.Succeeded())
@@ -21,329 +501,94 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		humanCharacterAnimation = AnimAsset.Class;
 	}
 
-	/*mArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Arm"));
-	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> CascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_5.P_Hit_5'"));
+	if (CascadeEffect.Succeeded())
+	{
+		HitCascadeEffect = CascadeEffect.Object;
+	}
 
-	mArm->SetupAttachment(GetMesh());
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> GunCascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_3.P_Hit_3'"));
+	if (GunCascadeEffect.Succeeded())
+	{
+		GunHitCascadeEffect = GunCascadeEffect.Object;
+	}
 
-	mCamera->SetupAttachment(mArm);
+	static ConstructorHelpers::FObjectFinder<USoundBase> HitSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Damage.Damage'"));
+	if (HitSoundEffectObject.Succeeded())
+	{
+		HitSoundEffect = HitSoundEffectObject.Object;
+	}
 
-	mArm->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
-	mArm->SetRelativeRotation(FRotator(-15.0, 90.0, 0.0));
+	static ConstructorHelpers::FObjectFinder<USoundBase> DeadSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Death.Death'"));
+	if (DeadSoundEffectObject.Succeeded())
+	{
+		DeadSoundEffect = DeadSoundEffectObject.Object;
+	}
 
-	mArm->TargetArmLength = 150.f;*/
+	collideBears.Reserve(3);
 
-	//Item get Action
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Drink)));
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_Gum)));
-	TakeItemAction.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &ASagaPlayableCharacter::Acquire_smokebomb)));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> RedHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BlueHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/BlueHat.BlueHat'"));
+
+
+
 }
 
 void
-ASagaPlayableCharacter::RideNPC()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("RideNPC Called"))
-		FOutputDeviceNull Ar;
-
-	bool ret = CallFunctionByNameWithArguments(TEXT("RidingFunction"), Ar, nullptr, true);
-	if (ret == true)
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Called"))
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("RidingFunction Not Found"))
-	}
-}
-
-void
-ASagaPlayableCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	//myWeaponType = EPlayerWeapon::LightSabor;
-	UE_LOG(LogSagaGame, Warning, TEXT("Playable Character BeginPlay"));
-}
-
-void
-ASagaPlayableCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-float
-ASagaPlayableCharacter::ExecuteHurt(const float dmg)
-{
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteHurt (%f)"), dmg);
-
-	Stat->ApplyDamage(dmg);
-	myHealth -= dmg;
-
-	auto system = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (myHealth <= 0.0f)
-	{
-		// 사망 애니메이션 실행
-		mAnimInst->Death();
-
-		// 사망 처리 (이동 정리, 충돌 해제)
-		ExecuteDeath();
-
-		// 리스폰 함수 실행
-		// RespawnCharacter 함수 3초 뒤	실행
-		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASagaPlayableCharacter::RespawnCharacter, 3.0f, false);
-
-		// 상대 팀 점수 증가 실행
-		system->AddScore(myTeam == EUserTeam::Red ? EUserTeam::Blue : EUserTeam::Red, 1);
-
-		// arg1이 0이면 사람 캐릭터
-		system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-	}
-	else
-	{
-		//mAnimInst->Hit();
-
-		if (not system->IsOfflineMode())
-		{
-			// arg1이 0이면 사람 캐릭터
-			system->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_PLYER, myHealth, 0);
-		}
-		else
-		{
-
-		}
-	}
-
-	return dmg;
-}
-
-void
-ASagaPlayableCharacter::ExecuteDeath()
-{
-	UE_LOG(LogSagaGame, Log, TEXT("[Character] ExecuteDeath"));
-
-	Super::ExecuteDeath();
-}
-
-float
-ASagaPlayableCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-}
-
-void
-ASagaPlayableCharacter::RespawnCharacter()
-{
-	//
-	Super::RespawnCharacter();
-
-	// Animate
-	mAnimInst->Revive();
-
-	// Retrive collision
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-}
-
-void
-ASagaPlayableCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void
-ASagaPlayableCharacter::Attack()
-{
-	Super::Attack();
-
-	// TODO: ASagaPlayableCharacter::Attack()
-	//myTeam = EUserTeam::Red; //Code For Client Test
-
-	if (myWeaponType == EPlayerWeapon::LightSabor)
-	{
-		FHitResult Result;
-
-		// 카메라의 회전을 가져옴
-		FRotator CameraRotation = GetControlRotation();
-		FVector ForwardVector = CameraRotation.Vector();
-
-		// 카메라의 Pitch를 고려하여 공격 시작 및 종료 위치 계산
-		FVector Start = GetActorLocation() + ForwardVector * 50.f;
-		FVector End = Start + ForwardVector * 150.f;
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		bool Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), Params);
-
-#if ENABLE_DRAW_DEBUG
-		FColor Color = Collision ? FColor::Red : FColor::Green;
-		DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 75.f, 25.f, FRotationMatrix::MakeFromZ(ForwardVector).ToQuat(), Color, false, 3.f);
-#endif
-
-		if (Collision)
-		{
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
-		}
-	}
-	else if (myWeaponType == EPlayerWeapon::WaterGun)
-	{
-		FHitResult Result;
-
-		FVector TraceStart = GetActorLocation();
-		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 1500.0f;
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		bool Collision{};
-
-		if (myTeam == EUserTeam::Red)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - WaterGun"));
-
-			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel4, QueryParams);
-		}
-		else if (myTeam == EUserTeam::Blue)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - WaterGun"));
-
-			Collision = GetWorld()->LineTraceSingleByChannel(Result, TraceStart, TraceEnd, ECC_GameTraceChannel7, QueryParams);
-		}
-
-
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Result.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-		UE_LOG(LogSagaGame, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-		if (Result.bBlockingHit && IsValid(Result.GetActor()))
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("Trace hit actor: %s"), *Result.GetActor()->GetName());
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Log, TEXT("No Actors were hit"));
-		}
-
-		if (Collision)
-		{
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(20.f, DamageEvent, GetController(), this);
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-			ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
-			if (Effect)
-			{
-				Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-				Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
-			}
-
-		}
-
-	}
-	else if (myWeaponType == EPlayerWeapon::Hammer)
-	{
-		FHitResult Result;
-
-		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		FVector End = Start + GetActorForwardVector() * 150.f;
-
-		FCollisionQueryParams param = FCollisionQueryParams::DefaultQueryParam;
-		param.AddIgnoredActor(this);
-
-		bool Collision;
-		if (myTeam == EUserTeam::Red)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Red Team Collision - Hammer"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else if (myTeam == EUserTeam::Blue)
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Using Blue Team Collision - Hammer"))
-				Collision = GetWorld()->SweepSingleByChannel(Result, Start, End, FQuat::Identity, ECC_GameTraceChannel7, FCollisionShape::MakeSphere(50.f), param);
-		}
-		else
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("Not Found Team"));
-			return;
-		}
-
-		if (Collision)
-		{
-			// TODO: RPC
-			FDamageEvent DamageEvent;
-			Result.GetActor()->TakeDamage(30.f, DamageEvent, GetController(), this);
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-			//ASagaSwordEffect* Effect = GetWorld()->SpawnActor<ASagaSwordEffect>(Result.ImpactPoint, Result.ImpactNormal.Rotation());
-
-			//Effect->SetParticle(TEXT("")); //이곳에 레퍼런스 복사
-			//Effect->SetSound(TEXT("")); //이곳에 레퍼런스 복사
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Not Found Weapon"));
-	}
-
-}
-
-void ASagaPlayableCharacter::PostInitializeComponents()
+ASagaPlayableCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
 	GetMesh()->SetAnimInstanceClass(humanCharacterAnimation.LoadSynchronous());
 
-	MyWeapon->SetCollisionProfileName(TEXT("Weapon"));
-}
-
-void
-ASagaPlayableCharacter::Acquire_Drink(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
+	if (IsValid(myWeapon))
 	{
-		//Send HP adding code or Item Acquiring code to server
-		//And Save to Local Inventory
+		myWeapon->SetCollisionProfileName(TEXT("Weapon"));
 	}
 
-	mItemType = AcquiredItemData->ItemType;
-}
+	UStaticMesh* RedHatMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
+	UStaticMesh* BlueHatMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/BlueHat.BlueHat'"));
 
-void
-ASagaPlayableCharacter::Acquire_Gum(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
+	UStaticMeshComponent* HatComponent = NewObject<UStaticMeshComponent>(this);
+
+	if (ownerData.myTeam == ESagaPlayerTeam::Red)
 	{
-		//Item Acquiring code to server
-		//And Save to Local Inventory
+		if (RedHatMesh)
+		{
+			HatComponent->SetStaticMesh(RedHatMesh);
+		}
+	}
+	else
+	{
+		if (BlueHatMesh)
+		{
+			HatComponent->SetStaticMesh(BlueHatMesh);
+		}
 	}
 
-	mItemType = AcquiredItemData->ItemType;
+	HatComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); 
+	HatComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+
+	// Head 소켓에 부착
+	HatComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("head_x_PartyHat_Socket"));
+
+	HatComponent->RegisterComponent();
 }
 
-void
-ASagaPlayableCharacter::Acquire_smokebomb(USagaWeaponData* ItemData)
-{
-	USagaWeaponData* AcquiredItemData = Cast<USagaWeaponData>(ItemData);
-	if (AcquiredItemData)
-	{
-		//Item Acquiring code to server
-		//And Save to Local Inventory
-	}
-	mItemType = AcquiredItemData->ItemType;
-}
 
 void
-ASagaPlayableCharacter::TakeItem(USagaWeaponData* WeaponData)
+ASagaPlayableCharacter::BeginPlay()
 {
-	if (WeaponData)
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	if (not net->IsOfflineMode())
 	{
-		TakeItemAction[(uint8)WeaponData->ItemType].ItemDelegate.ExecuteIfBound(WeaponData);
+		// NOTICE: 오프라인 모드일 때만 체력이 닳았을 때 ExecuteDeath를 실행함
+		myGameStat->OnHpZero.AddDynamic(this, &ASagaPlayableCharacter::ExecuteDeath);
 	}
+
+	OnActorBeginOverlap.AddDynamic(this, &ASagaPlayableCharacter::HandleBeginCollision);
+	OnActorEndOverlap.AddDynamic(this, &ASagaPlayableCharacter::HandleEndCollision);
+
+	Super::BeginPlay();
 }

@@ -9,5 +9,5 @@ class SAGAFRAMEWORK_API ASagaSessionMode : public ASagaInterfaceOnlyModeBase
 	GENERATED_BODY()
 
 public:
-	ASagaSessionMode();
+	ASagaSessionMode(const FObjectInitializer& initializer) noexcept;
 };

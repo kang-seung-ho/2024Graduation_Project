@@ -12,26 +12,31 @@ class SAGAFRAMEWORK_API USagaMainMenuUiWidget final : public USagaLiveUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Main Menu Level", meta = (AllowPrivateAccess = true))
-	TObjectPtr<USagaUiEditableTextBox> myInputBox;
+	UPROPERTY()
+	TObjectPtr<class USagaUiEditableTextBox> myInputBox;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Main Menu Level", meta = (AllowPrivateAccess = true))
-	TObjectPtr<USagaUiButton> mySigninButton;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Main Menu Level", meta = (AllowPrivateAccess = true))
-	TObjectPtr<USagaLiveUserWidget> myPopup;
+	UPROPERTY()
+	TObjectPtr<class USagaUiButton> mySigninButton;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Main Menu Level", meta = (DisplayName = "Nickname"))
+	UPROPERTY()
+	TObjectPtr<class UButton> mySettingButton;
+
+	UPROPERTY()
+	TObjectPtr<USagaLiveUserWidget> myConnectionPopup;
+
+	UPROPERTY()
 	FText transientNickname;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Main Menu Level")
+	UPROPERTY()
 	bool isConnecting;
+
+	UPROPERTY()
+	bool isSettingOpened;
 
 	USagaMainMenuUiWidget(const FObjectInitializer& initializer) noexcept;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void OnConnected();
@@ -43,7 +48,16 @@ protected:
 	UFUNCTION()
 	void HandleButtonPressed();
 	UFUNCTION()
+	void HandleOpenSetting();
+	UFUNCTION()
+	void HandleCloseSetting();
+	UFUNCTION()
 	void HandleInputTextChanged(const FText& nickname);
 	UFUNCTION()
 	void HandleInputCommitted(const FText& nickname, ETextCommit::Type method);
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USagaUserWidget> settingUiClass;
+	UPROPERTY()
+	TObjectPtr<class USagaMainMenuSettingsUiWidget> settingUiInstance;
 };

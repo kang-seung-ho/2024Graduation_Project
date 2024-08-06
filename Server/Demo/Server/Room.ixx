@@ -3,7 +3,6 @@ module;
 #include <initializer_list>
 #include <memory>
 #include <chrono>
-#include <array>
 #include <span>
 
 export module Iconer.Application.Room;
@@ -45,17 +44,8 @@ export namespace iconer::app
 		using const_iterator = const RoomMember*;
 		using const_volatile_iterator = const volatile RoomMember*;
 
-		/* These have 1 more second */
-
-		static inline constexpr std::chrono::seconds weaponPhasePeriod{ 31 };
-		static inline constexpr std::chrono::seconds gameAwaitPhasePeriod{ 31 };
-		static inline constexpr std::chrono::seconds gamePhasePeriod{ 301 };
-
 		static inline constexpr size_t maxUsersNumberInRoom = 4;
 		static inline constexpr size_t minUsersNumberForGame = 2;
-
-		//std::array<game::SagaItem, 200> sagaItemList{};
-		game::SagaItem sagaItemList[200];
 
 		template<typename ForwardedId>
 		explicit constexpr Room(ForwardedId&& id)
@@ -68,7 +58,7 @@ export namespace iconer::app
 			, selectionPhaseTime(), gamePhaseTime()
 			, sagaTeams()
 			, sagaSummons{ game::SagaSummonPoint{ 0 }, game::SagaSummonPoint{ 1 }, game::SagaSummonPoint{ 2 } }
-			, sagaGuardians(), sagaItemList()
+			, sagaGuardians()
 			, preRespondMembersPacket()
 		{}
 
@@ -104,10 +94,7 @@ export namespace iconer::app
 			{
 				if (auto ptr = member.Load(std::memory_order_acquire); nullptr != ptr)
 				{
-					if (ptr != nullptr)
-					{
-						std::invoke(std::forward<Predicate>(predicate), *member);
-					}
+					std::invoke(std::forward<Predicate>(predicate), *member);
 				}
 			}
 		}

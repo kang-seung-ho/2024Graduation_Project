@@ -1,7 +1,5 @@
 #pragma once
 #include "Saga/Interface/SagaLiveUserWidget.h"
-#include <Components/Widget.h>
-#include <Components/TextBlock.h>
 
 #include "SagaUiPopup.generated.h"
 
@@ -11,14 +9,14 @@ class SAGAFRAMEWORK_API USagaUiPopup : public USagaLiveUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY()
 	TObjectPtr<class USagaUiPanelWidget> myBody;
-	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
-	TObjectPtr<UTextBlock> myTitle;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
-	TObjectPtr<UTextBlock> myText;
+	UPROPERTY()
+	TObjectPtr<class UTextBlock> myTitle;
+
+	UPROPERTY()
+	TObjectPtr<class UTextBlock> myText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetTitle, BlueprintGetter = GetTitle, Category = "CandyLandSaga|UI|Content", meta = (ExposeOnSpawn = "true"))
 	FText popupTitle;
@@ -78,7 +76,7 @@ public:
 
 protected:
 	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 
 	UFUNCTION()

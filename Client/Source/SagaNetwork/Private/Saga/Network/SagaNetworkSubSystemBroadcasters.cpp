@@ -8,11 +8,7 @@ const
 
 	if (OnNetworkInitialized.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnNetworkInitialized.Broadcast(true);
-			}
-		);
+		OnNetworkInitialized.Broadcast(true);
 	}
 	else
 	{
@@ -28,11 +24,7 @@ const
 
 	if (OnNetworkInitialized.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnNetworkInitialized.Broadcast(false);
-			}
-		);
+		OnNetworkInitialized.Broadcast(false);
 	}
 	else
 	{
@@ -48,11 +40,7 @@ const
 
 	if (OnConnected.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnConnected.Broadcast();
-			}
-		);
+		OnConnected.Broadcast();
 	}
 	else
 	{
@@ -68,11 +56,7 @@ const
 
 	if (OnFailedToConnect.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, reason]()
-			{
-				OnFailedToConnect.Broadcast(reason);
-			}
-		);
+		OnFailedToConnect.Broadcast(reason);
 	}
 	else
 	{
@@ -88,11 +72,7 @@ const
 
 	if (OnDisconnected.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnDisconnected.Broadcast();
-			}
-		);
+		OnDisconnected.Broadcast();
 	}
 	else
 	{
@@ -101,18 +81,14 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnSignedIn(int32 my_id, const FName& nickname)
+USagaNetworkSubSystem::BroadcastOnSignedIn(int32 my_id, const FText& nickname)
 const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnSignedIn`"));
 
 	if (OnSignedIn.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, my_id, nickname]()
-			{
-				OnSignedIn.Broadcast(my_id, nickname);
-			}
-		);
+		OnSignedIn.Broadcast(my_id, nickname);
 	}
 	else
 	{
@@ -128,11 +104,7 @@ const
 
 	if (OnRoomCreated.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, room_id]()
-			{
-				OnRoomCreated.Broadcast(room_id);
-			}
-		);
+		OnRoomCreated.Broadcast(room_id);
 	}
 	else
 	{
@@ -244,11 +216,7 @@ const
 
 	if (OnTeamChanged.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, is_red_team]()
-			{
-				OnTeamChanged.Broadcast(user_id, is_red_team);
-			}
-		);
+		OnTeamChanged.Broadcast(user_id, is_red_team);
 	}
 	else
 	{
@@ -264,11 +232,8 @@ const
 
 	if (OnGetPreparedGame.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnGetPreparedGame.Broadcast();
-			}
-		);
+		OnGetPreparedGame.Broadcast();
+
 	}
 	else
 	{
@@ -284,11 +249,7 @@ const
 
 	if (OnFailedToStartGame.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, reason]()
-			{
-				OnFailedToStartGame.Broadcast(reason);
-			}
-		);
+		OnFailedToStartGame.Broadcast(reason);
 	}
 	else
 	{
@@ -300,19 +261,15 @@ void
 USagaNetworkSubSystem::BroadcastOnStartGame()
 const
 {
-	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnStartGame`"));
+	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnGameStarted`"));
 
-	if (OnStartGame.IsBound())
+	if (OnGameStarted.IsBound())
 	{
-		CallPureFunctionOnGameThread([this]()
-			{
-				OnStartGame.Broadcast();
-			}
-		);
+		OnGameStarted.Broadcast();
 	}
 	else
 	{
-		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnStartGame` was not bound"));
+		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnGameStarted` was not bound"));
 	}
 }
 
@@ -324,11 +281,7 @@ const
 
 	if (OnUpdatePosition.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, x, y, z]()
-			{
-				OnUpdatePosition.Broadcast(user_id, x, y, z);
-			}
-		);
+		OnUpdatePosition.Broadcast(user_id, x, y, z);
 	}
 	else
 	{
@@ -344,11 +297,7 @@ const
 
 	if (OnUpdateRotation.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, r, y, p]()
-			{
-				OnUpdateRotation.Broadcast(user_id, r, y, p);
-			}
-		);
+		OnUpdateRotation.Broadcast(user_id, r, y, p);
 	}
 	else
 	{
@@ -357,18 +306,14 @@ const
 }
 
 void
-USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon)
+USagaNetworkSubSystem::BroadcastOnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon)
 const
 {
 	UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnCreatingCharacter`"));
 
 	if (OnCreatingCharacter.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, user_id, team, weapon]()
-			{
-				OnCreatingCharacter.Broadcast(user_id, team, weapon);
-			}
-		);
+		OnCreatingCharacter.Broadcast(user_id, team, weapon);
 	}
 	else
 	{
@@ -384,11 +329,7 @@ const
 
 	if (OnRpc.IsBound())
 	{
-		CallPureFunctionOnGameThread([this, cat, user_id, arg0, arg1]()
-			{
-				OnRpc.Broadcast(cat, user_id, arg0, arg1);
-			}
-		);
+		OnRpc.Broadcast(cat, user_id, arg0, arg1);
 	}
 	else
 	{

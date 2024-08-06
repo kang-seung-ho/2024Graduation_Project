@@ -20,7 +20,7 @@ class SAGAFRAMEWORK_API USagaUiEditableTextBox : public USagaUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, NoClear, Category = "CandyLandSaga|UI|Content")
+	UPROPERTY()
 	TObjectPtr<UEditableTextBox> myEditableTextBlock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, BlueprintSetter = SetHintText, BlueprintGetter = GetHintText, Category = "CandyLandSaga|UI|Content")
@@ -69,7 +69,7 @@ public:
 
 protected:
 	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleOnTextChanged(const FText& text);

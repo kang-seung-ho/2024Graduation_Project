@@ -1,9 +1,8 @@
 #pragma once
-#include <CoreMinimal.h>
-#include "Animation/AnimInstance.h"
+#include "SagaGame.h"
+#include <Animation/AnimInstance.h>
 
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
-#include "CharacterSelect/SagaSelectCharacter.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")
@@ -30,16 +29,21 @@ public:
 	virtual void NativeBeginPlay();
 
 public:
-	void PlayAttackMontage();
-	void Death();
-	void Hit();
-	void Revive();
-
-public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EPlayerWeapon mWeaponTypes;
 
-public:
+	UFUNCTION()
+	void PlayAttackMontage();
+
+	UFUNCTION()
+	void Death();
+
+	UFUNCTION()
+	void Hit();
+
+	UFUNCTION()
+	void Revive();
+
 	UFUNCTION()
 	void AnimNotify_Attack();
 
@@ -80,6 +84,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mGunAttackMontageArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<UAnimMontage*> mHammerAttackMontageArray;
+
+	UPROPERTY()
 	int32 mAttackIndex = 0;
+
+	UPROPERTY()
 	bool mAttackEnable = true;
+
+	UFUNCTION()
+	class ASagaPlayableCharacter* GetPawnOwner() const;
 };

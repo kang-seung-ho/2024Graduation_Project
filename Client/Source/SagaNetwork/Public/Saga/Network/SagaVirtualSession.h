@@ -10,9 +10,9 @@ struct SAGANETWORK_API FSagaVirtualSession
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network|Session", meta = (NoResetToDefault, NoSpinbox = true, ClampMin = 0, UIMin = 0, ClampMax = 21, UIMax = 21))
-	int32 MyID = -1;
+	int32 myID = -1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Network|Session")
-	FString MyName = TEXT("Empty Client");
+	FText myName = FText::GetEmpty();
 };
 
 struct SAGANETWORK_API FSagaSessionComparator final
@@ -22,7 +22,7 @@ struct SAGANETWORK_API FSagaSessionComparator final
 		operator()(const FSagaVirtualSession& lhs, const FSagaVirtualSession& rhs)
 		const noexcept
 	{
-		return lhs.MyID == rhs.MyID;
+		return lhs.myID == rhs.myID;
 	}
 
 	[[nodiscard]]
@@ -30,7 +30,7 @@ struct SAGANETWORK_API FSagaSessionComparator final
 		operator()(const FSagaVirtualSession& lhs, const int32& id)
 		const noexcept
 	{
-		return lhs.MyID == id;
+		return lhs.myID == id;
 	}
 };
 
@@ -45,7 +45,7 @@ struct SAGANETWORK_API FSagaSessionIdComparator final
 		operator()(const FSagaVirtualSession& lhs)
 		const noexcept
 	{
-		return lhs.MyID == cmpId;
+		return lhs.myID == cmpId;
 	}
 
 	int32 cmpId;

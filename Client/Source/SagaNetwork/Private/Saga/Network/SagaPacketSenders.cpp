@@ -398,35 +398,6 @@ saga::SendRpcPacket(FSocket* socket, ESagaRpcProtocol cat, int32 user_id, int64 
 	return std::nullopt;
 }
 
-std::optional<int32>
-saga::SendRoomUpdaterPacket(FSocket* socket)
-{
-	if (socket)
-	{
-		if (::IsConnected(socket))
-		{
-			const saga::CS_UpdateRoomPacket pk{};
-			auto ptr = pk.Serialize();
-
-			const int32 sent_bytes = saga::RawSend(socket, ptr.get(), pk.WannabeSize());
-			if (0 < sent_bytes)
-			{
-				return sent_bytes;
-			}
-		}
-		else
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("The socket is not connected. (SendRoomUpdaterPacket)"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("The socket is null. (SendRoomUpdaterPacket)"));
-	}
-
-	return std::nullopt;
-}
-
 bool
 IsConnected(FSocket* socket)
 noexcept
