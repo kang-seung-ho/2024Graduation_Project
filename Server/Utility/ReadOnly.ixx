@@ -1,8 +1,9 @@
+module;
+#include <type_traits>
+#include <utility>
+
 export module Iconer.Utility.ReadOnly;
-import Iconer.Utility.TypeTraits;
-import <new>;
-import <type_traits>;
-import <utility>;
+export import <new>;
 
 export namespace iconer::util
 {
@@ -11,19 +12,19 @@ export namespace iconer::util
 	{
 		alignas(std::hardware_constructive_interference_size) T myValue;
 
-		constexpr ReadOnly() noexcept(nothrow_default_constructibles<T>)
+		constexpr ReadOnly() noexcept(std::is_nothrow_default_constructible_v<T>)
 			: myValue()
 		{}
 
 		template<typename U>
-			requires (constructible_from<T, U>)
-		constexpr ReadOnly(U&& value) noexcept(nothrow_constructible<T, U>)
+			requires (std::constructible_from<T, U>)
+		constexpr ReadOnly(U&& value) noexcept(std::is_nothrow_constructible_v<T, U>)
 			: myValue(std::forward<U>(value))
 		{}
 
 		template<typename... Args>
-			requires (constructible_from<T, Args...>)
-		constexpr ReadOnly(std::in_place_t, Args&&... args) noexcept(nothrow_constructible<T, Args...>)
+			requires (std::constructible_from<T, Args...>)
+		constexpr ReadOnly(std::in_place_t, Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>)
 			: myValue(std::forward<Args>(args)...)
 		{}
 

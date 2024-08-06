@@ -1,13 +1,10 @@
-module;
-#include <utility>
-#include <memory>
-
 export module Iconer.App.PacketSerializer;
-import Iconer.Utility.TypeTraits;
 import iconer.Utility.Serializer;
 import Iconer.App.PacketProtocol;
 import <cstddef>;
+import <utility>;
 import <array>;
+import <memory>;
 
 export namespace iconer::app
 {

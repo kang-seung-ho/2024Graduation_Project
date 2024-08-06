@@ -1,5 +1,7 @@
+module;
+#include <concepts>
+
 export module Iconer.App.TaskContext;
-import Iconer.Utility.TypeTraits;
 import Iconer.Net.IoContext;
 export import Iconer.App.TaskCategory;
 import <atomic>;
@@ -43,8 +45,8 @@ export namespace iconer::app
 			return myCategory.compare_exchange_strong(from, to, order);
 		}
 
-		template<invocable Fn>
-		TaskContext& and_then(TaskCategory op, Fn&& fun, std::memory_order order = std::memory_order_acquire) noexcept(nothrow_invocable<Fn>)
+		template<std::invocable Fn>
+		TaskContext& and_then(TaskCategory op, Fn&& fun, std::memory_order order = std::memory_order_acquire) noexcept(std::is_nothrow_invocable_v<Fn>)
 		{
 			auto prior = myCategory.load(order);
 
@@ -67,8 +69,8 @@ export namespace iconer::app
 			}
 		}
 
-		template<invocable Fn>
-		TaskContext& or_else(TaskCategory op, Fn&& fun, std::memory_order order = std::memory_order_acquire) noexcept(nothrow_invocable<Fn>)
+		template<std::invocable Fn>
+		TaskContext& or_else(TaskCategory op, Fn&& fun, std::memory_order order = std::memory_order_acquire) noexcept(std::is_nothrow_invocable_v<Fn>)
 		{
 			auto prior = myCategory.load(order);
 
