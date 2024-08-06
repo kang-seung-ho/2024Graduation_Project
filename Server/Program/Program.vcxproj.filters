@@ -60,5 +60,8 @@
     <ClCompile Include="RpcEventProcessor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="RpcEventDelegates.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

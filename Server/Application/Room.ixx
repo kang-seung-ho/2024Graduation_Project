@@ -17,7 +17,7 @@ import <atomic>;
 
 export namespace iconer::app
 {
-	class [[nodiscard]] Member
+	class [[nodiscard]] SagaPlayer
 	{
 	public:
 		using pointer_type = class User*;
@@ -34,7 +34,7 @@ export namespace iconer::app
 		std::atomic_int32_t ridingGuardianId{ -1 };
 		std::chrono::system_clock::time_point respawnTime{};
 
-		Member() noexcept = default;
+		SagaPlayer() noexcept = default;
 
 		[[nodiscard]]
 		bool TryJoin(pointer_type user) noexcept
@@ -136,7 +136,7 @@ export namespace iconer::app
 		using super = ISession;
 		using this_class = Room;
 		using id_type = super::id_type;
-		using session_type = Member;
+		using session_type = SagaPlayer;
 		using pointer_type = session_type::pointer_type;
 		using reference = session_type::reference;
 		using const_reference = session_type::const_reference;

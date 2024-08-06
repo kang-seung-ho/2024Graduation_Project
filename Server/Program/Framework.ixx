@@ -10,6 +10,7 @@ import Iconer.App.RoomManager;
 import Iconer.App.User;
 import Iconer.App.Room;
 import Iconer.App.PacketProtocol;
+import Iconer.App.RpcProtocols;
 import Iconer.App.Settings;
 import Iconer.ThreadPool;
 import <cstdint>;
@@ -26,12 +27,12 @@ export namespace iconer::app
 	class [[nodiscard]] SendContext;
 }
 
-export using EventDelegate = iconer::method_t<class ServerFramework, void, iconer::app::User&, const std::byte*>;
-
 export class ServerFramework final : public iconer::net::IFramework
 {
 public:
 	using super = iconer::net::IFramework;
+	using EventDelegate = iconer::method_t<ServerFramework, void, iconer::app::User&, const std::byte*>;
+	using RpcDelegate = iconer::method_t<ServerFramework, void, iconer::app::Room&, iconer::app::User&, iconer::app::RpcProtocol, const std::int64_t&, const std::int32_t&>;
 
 	static inline constexpr std::uint16_t serverPort = iconer::app::Settings::serverPort;
 	static inline constexpr std::uint16_t reservedSendContextCount = 10000;
@@ -49,8 +50,8 @@ private:
 	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
 	alignas(std::hardware_constructive_interference_size) iconer::app::RoomManager roomManager{};
 
-
 	alignas(std::hardware_constructive_interference_size) std::unordered_map<iconer::app::PacketProtocol, EventDelegate> packetProcessors{};
+	alignas(std::hardware_constructive_interference_size) std::array<RpcDelegate, 512> rpcProcessors{};
 
 	void OnTaskSucceed(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
 	void OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id, std::uint32_t bytes);
@@ -93,6 +94,20 @@ private:
 	void EventOnGameStarted(iconer::app::User& user);
 	void EventOnRpc(iconer::app::User& user, const std::byte* data);
 
+	/// <param name="proc">- RPC_DESTROY_ITEM_BOX</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- item id</param>
+	void RpcEventOnItemBoxDestroyed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_GRAB_ITEM</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- item id</param>
+	void RpcEventOnItemGrabbed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_USE_ITEM_0</param>
+	/// <param name="arg0">- effect info</param>
+	/// <param name="arg1">- item type</param>
+	void RpcEventOnItemUsed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	void RpcEventDefault(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;
 	iconer::net::IoResult TriggerUser(iconer::app::User& user) const noexcept;
@@ -101,6 +116,7 @@ private:
 	void RoutePackets(iconer::app::User& user);
 	void ProcessPackets(iconer::app::User& user, iconer::app::PacketContext* context, std::uint32_t recv_bytes);
 	void AddPacketProcessor(iconer::app::PacketProtocol protocol, const EventDelegate& processor);
+	void AddRpcProcessor(iconer::app::RpcProtocol protocol, const RpcDelegate& processor);
 
 	void AddPacketContext(iconer::app::PacketContext* context) noexcept;
 	void AddSendContext(iconer::app::SendContext* context) noexcept;

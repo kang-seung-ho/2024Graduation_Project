@@ -76,3 +76,9 @@ ServerFramework::AddPacketProcessor(iconer::app::PacketProtocol protocol, const 
 {
 	packetProcessors.insert(std::make_pair(protocol, processor));
 }
+
+void
+ServerFramework::AddRpcProcessor(iconer::app::RpcProtocol protocol, const RpcDelegate& processor)
+{
+	rpcProcessors[static_cast<size_t>(protocol)] = processor;
+}

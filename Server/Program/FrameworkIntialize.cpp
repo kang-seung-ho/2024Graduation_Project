@@ -96,20 +96,31 @@ ServerFramework::Initialize()
 
 	packetProcessors.reserve(100);
 
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_SIGNIN, &ServerFramework::EventOnSignIn);
+	using enum iconer::app::PacketProtocol;
+	AddPacketProcessor(CS_SIGNIN, &ServerFramework::EventOnSignIn);
 
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList);
+	AddPacketProcessor(CS_ROOM_CREATE, &ServerFramework::EventOnMakeRoom);
+	AddPacketProcessor(CS_ROOM_JOIN, &ServerFramework::EventOnJoinRoom);
+	AddPacketProcessor(CS_ROOM_LEAVE, &ServerFramework::EventOnExitRoom);
+	AddPacketProcessor(CS_ROOM_MATCH, &ServerFramework::EventOnSeekRoom);
+	AddPacketProcessor(CS_REQUEST_ROOMS, &ServerFramework::EventOnRoomList);
 
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_REQUEST_USERS, &ServerFramework::EventOnUserList);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_SET_TEAM, &ServerFramework::EventOnChangeTeam);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_START, &ServerFramework::EventOnGameStartSignal);
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_GAME_LOADED, &ServerFramework::EventOnGameReadySignal);
+	AddPacketProcessor(CS_REQUEST_USERS, &ServerFramework::EventOnUserList);
+	AddPacketProcessor(CS_SET_TEAM, &ServerFramework::EventOnChangeTeam);
+	AddPacketProcessor(CS_GAME_START, &ServerFramework::EventOnGameStartSignal);
+	AddPacketProcessor(CS_GAME_LOADED, &ServerFramework::EventOnGameReadySignal);
 
-	AddPacketProcessor(iconer::app::PacketProtocol::CS_RPC, &ServerFramework::EventOnRpc);
+	AddPacketProcessor(CS_RPC, &ServerFramework::EventOnRpc);
+
+	for (auto& rpc_processor : rpcProcessors)
+	{
+		rpc_processor = &ServerFramework::RpcEventDefault;
+	}
+
+	using enum iconer::app::RpcProtocol;
+	AddRpcProcessor(RPC_DESTROY_ITEM_BOX, &ServerFramework::RpcEventOnItemBoxDestroyed);
+	AddRpcProcessor(RPC_GRAB_ITEM, &ServerFramework::RpcEventOnItemGrabbed);
+	AddRpcProcessor(RPC_USE_ITEM_0, &ServerFramework::RpcEventOnItemUsed);
 
 	PrintLn("Generating {} users...", iconer::app::UserManager::maxUserCount);
 

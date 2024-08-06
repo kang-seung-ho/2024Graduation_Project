@@ -222,7 +222,7 @@ noexcept
 			member.team_id = ESagaPlayerTeam::Unknown;
 			member.myWeapon = 0;
 			member.isReady = 0;
-			member.myHp = Member::maxHp;
+			member.myHp = SagaPlayer::maxHp;
 			member.ridingGuardianId = -1;
 		}
 

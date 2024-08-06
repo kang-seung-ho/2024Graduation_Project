@@ -55,24 +55,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			return;
 		};
 
-		const auto Broadcast = [this, room]
-		(iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
-		{
-			auto [pk, size] = MakeSharedRpc(proc, id, arg0, arg1);
-
-			room->Foreach
-			(
-				[&](iconer::app::User& member)
-				{
-					iconer::app::SendContext* const ctx = AcquireSendContext();
-
-					ctx->mySharedBuffer = pk;
-
-					member.SendGeneralData(*ctx, pk.get(), size);
-				}
-			);
-		};
-
 		const RpcProtocol protocol = *reinterpret_cast<const RpcProtocol*>(data);
 		data += sizeof(RpcProtocol);
 
@@ -84,152 +66,29 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		const auto user_id = static_cast<std::int32_t>(current_user.GetID());
 		const auto room_id = room->GetID();
 
+		const auto Broadcast = [this, room]
+		(iconer::app::RpcProtocol proc, const std::int32_t& id, const std::int64_t& arg0, const std::int32_t& arg1)
+			{
+				auto [pk, size] = MakeSharedRpc(proc, id, arg0, arg1);
+
+				room->Foreach
+				(
+					[&](iconer::app::User& member)
+					{
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+
+						ctx->mySharedBuffer = pk;
+
+						member.SendGeneralData(*ctx, pk.get(), size);
+					}
+				);
+			};
+
 		switch (protocol)
 		{
 		case RPC_ASSIGN_ITEM_ID:
 		{
-			if (not room->IsTaken() or 0 == room->GetMemberCount())
-			{
-				break;
-			}
-
-			auto& items = room->sagaItemList;
-			auto& cap = room->sagaItemListSize;
-
-			auto new_cap = static_cast<size_t>(arg1);
-
-			PrintLn("User {} claims {} item spawners.", user_id, new_cap);
-		}
-		break;
-
-		// arg0 - nothing
-		// arg1 - id
-		case RPC_DESTROY_ITEM_BOX:
-		{
-			auto& items = room->sagaItemList;
-
-			const auto index = static_cast<size_t>(arg1);
-			auto& item = items[index];
-
-			bool destroyed = false;
-			if (item.isBoxDestroyed.compare_exchange_strong(destroyed, true))
-			{
-				PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {}.", room_id, arg1);
-
-				Broadcast(RPC_DESTROY_ITEM_BOX, user_id, arg0, arg1);
-			}
-			else
-			{
-				PrintLn("[RPC_DESTROY_ITEM_BOX] At room {} - {} is already destroyed.", room_id, arg1);
-			}
-		}
-		break;
-
-		// 
-		// arg0 - nothing
-		// arg1 - id
-		case RPC_GRAB_ITEM:
-		{
-			auto& items = room->sagaItemList;
-
-			if (arg1 < 0 or 200 <= arg1) break;
-
-			const auto index = static_cast<size_t>(arg1);
-			auto&& item = items[index];
-
-			if (item.isBoxDestroyed)
-			{
-				bool grabbed = true;
-				if (item.isAvailable.compare_exchange_strong(grabbed, false))
-				{
-					PrintLn("[RPC_GRAB_ITEM] At room {} - {}.", room_id, arg1);
-
-					Broadcast(RPC_GRAB_ITEM, user_id, arg0, arg1);
-				}
-				else
-				{
-					PrintLn("[RPC_GRAB_ITEM] At room {} - {} is already attained.", room_id, arg1);
-				}
-			}
-			else
-			{
-				PrintLn("[RPC_GRAB_ITEM] At room {} - {} is not destroyed yet.", room_id, arg1);
-			}
-		}
-		break;
-
-		// 
-		// arg0 - effect info
-		// arg1 - item type
-		case RPC_USE_ITEM_0:
-		{
-			PrintLn("[RPC_USE_ITEM_0] At room {}.", room_id);
-
-			switch (arg1)
-			{
-				// Energy Drink
-			case 0:
-			{
-				room->ProcessMember(&current_user, [&](iconer::app::Member& target)
-					{
-						PrintLn("[RPC_USE_ITEM_0] At room {} - Energy drink for user {}.", room_id, user_id);
-
-						auto& rider = target.ridingGuardianId;
-
-						const auto rider_id = rider.load(std::memory_order_acquire);
-
-						if (rider_id == -1)
-						{
-							auto& hp = target.myHp;
-
-							if (const auto hp_value = hp.load(std::memory_order_acquire); hp_value < target.maxHp)
-							{
-								hp.store(std::min(iconer::app::Member::maxHp, hp_value + 30.0f), std::memory_order_release);
-								arg0 = 30;
-							}
-							else
-							{
-								arg0 = 0;
-							}
-						}
-						else
-						{
-							auto& guardian = room->sagaGuardians[rider_id];
-							auto& guardian_hp = guardian.myHp;
-
-							if (const auto hp_value = guardian_hp.load(std::memory_order_acquire); hp_value < guardian.maxHp)
-							{
-								guardian_hp.store(std::min(iconer::app::SagaGuardian::maxHp, hp_value + 30.0f), std::memory_order_release);
-								arg0 = 30;
-							}
-							else
-							{
-								arg0 = 0;
-							}
-						}
-					}
-				);
-			}
-			break;
-
-			case 1:
-			{
-
-			}
-			break;
-
-			case 2:
-			{
-
-			}
-			break;
-
-			default:
-			{}
-			break;
-			}
-
-			Broadcast(RPC_USE_ITEM_0, user_id, arg0, arg1);
+			PrintLn("User {} claims {} item spawners.", user_id, arg1);
 		}
 		break;
 
@@ -240,7 +99,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			// 0: lightsaber
 			// 1: watergun
 			// 2: hammer
-			if (room->ProcessMember(&current_user, [&](iconer::app::Member& member)
+			if (room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& member)
 				{
 					member.myWeapon = static_cast<std::uint8_t>(arg0);
 				}
@@ -271,7 +130,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			auto& guardian = room->sagaGuardians[arg1];
 
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					auto& rider = target.ridingGuardianId;
 
@@ -324,7 +183,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			auto& guardian = room->sagaGuardians[arg1];
 
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					auto& rider = target.ridingGuardianId;
 
@@ -351,22 +210,11 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		case RPC_BEG_ATTACK_0:
-		{
-			//PrintLn("[RPC_BEG_ATTACK_0] At room {}.", room_id);
-
-			//if (0 < current_user.myHealth)
-			{
-				Broadcast(RPC_BEG_ATTACK_0, user_id, arg0, arg1);
-			}
-		}
-		break;
-
 		// arg0: 플레이어가 받은 피해량(4바이트 부동소수점) | 플레이어 상태 (곰/인간) (4바이트 정수)
 		// arg1: 플레이어에게 피해를 준 개체의 식별자 - 플레이어의 ID, 수호자의 순번
 		case RPC_DMG_PLYER:
 		{
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					float dmg{};
 					std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
@@ -507,7 +355,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 						room->Foreach
 						(
-							[&](iconer::app::Member& member)
+							[&](iconer::app::SagaPlayer& member)
 							{
 								const auto user_ptr = member.GetStoredUser();
 								if (nullptr == user_ptr) return;
@@ -544,7 +392,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 						room->Foreach
 						(
-							[&](iconer::app::Member& member) noexcept
+							[&](iconer::app::SagaPlayer& member) noexcept
 							{
 								const auto user_ptr = member.GetStoredUser();
 								if (nullptr == user_ptr) return;
@@ -620,10 +468,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
 		case RPC_RESPAWN:
 		{
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					auto& hp = target.myHp;
-					hp = iconer::app::Member::maxHp;
+					hp = iconer::app::SagaPlayer::maxHp;
 
 					Broadcast(RPC_RESPAWN, user_id, arg0, arg1);
 				}
@@ -633,7 +481,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 		case RPC_RESPAWN_TIMER:
 		{
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					const auto now = std::chrono::system_clock::now();
 
@@ -654,7 +502,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					{
 						// RPC_RESPAWN과 같은 처리
 						auto& hp = target.myHp;
-						hp.store(iconer::app::Member::maxHp, std::memory_order_release);
+						hp.store(iconer::app::SagaPlayer::maxHp, std::memory_order_release);
 
 						Broadcast(RPC_RESPAWN, user_id, arg0, arg1);
 					}
@@ -686,7 +534,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		{
 			//PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
 
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 				}
 			);
@@ -706,7 +554,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			std::memcpy(reinterpret_cast<char*>(&arg0), &redscore, 4);
 			std::memcpy(reinterpret_cast<char*>(&arg0) + 4, &bluscore, 4);
 
-			room->ProcessMember(&current_user, [&](iconer::app::Member& target)
+			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
 					std::int8_t prev_winner = 0;
 
@@ -800,8 +648,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 		default:
 		{
-			//PrintLn(L"\tRPC is proceed At room {}.", room_id);
-			Broadcast(protocol, user_id, arg0, arg1);
+			const size_t protocol_index = static_cast<size_t>(protocol);
+			auto& processor = rpcProcessors[protocol_index];
+
+			std::invoke(processor, this, *room, current_user, protocol, arg0, arg1);
 		}
 		break;
 		}
