@@ -1,9 +1,7 @@
 module;
-#include <type_traits>
 #include <concepts>
 #include <memory>
 #include <vector>
-#include <set>
 #include <algorithm>
 
 export module Iconer.Utility.Delegate;

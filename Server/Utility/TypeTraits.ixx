@@ -1,5 +1,7 @@
+module;
+#include <type_traits>
+
 export module Iconer.Utility.TypeTraits;
-export import <type_traits>;
 export import <concepts>;
 
 export namespace iconer
