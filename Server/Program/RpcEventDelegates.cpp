@@ -37,6 +37,26 @@ namespace
 }
 
 void
+ServerFramework::RpcEventOnWeaponChanged(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	// arg0: kind of weapon
+	// 0: lightsaber
+	// 1: watergun
+	// 2: hammer
+	if (room.ProcessMember(&user, [&](iconer::app::SagaPlayer& member)
+		{
+			member.myWeapon = static_cast<std::uint8_t>(arg0);
+		}
+	))
+	{
+		RpcEventDefault(room, user, proc, arg0, arg1);
+	}
+}
+
+void
 ServerFramework::RpcEventOnItemBoxDestroyed(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc

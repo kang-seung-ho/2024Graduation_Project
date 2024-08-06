@@ -118,6 +118,7 @@ ServerFramework::Initialize()
 	}
 
 	using enum iconer::app::RpcProtocol;
+	AddRpcProcessor(RPC_MAIN_WEAPON, &ServerFramework::RpcEventOnWeaponChanged);
 	AddRpcProcessor(RPC_DESTROY_ITEM_BOX, &ServerFramework::RpcEventOnItemBoxDestroyed);
 	AddRpcProcessor(RPC_GRAB_ITEM, &ServerFramework::RpcEventOnItemGrabbed);
 	AddRpcProcessor(RPC_USE_ITEM_0, &ServerFramework::RpcEventOnItemUsed);

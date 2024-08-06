@@ -94,6 +94,10 @@ private:
 	void EventOnGameStarted(iconer::app::User& user);
 	void EventOnRpc(iconer::app::User& user, const std::byte* data);
 
+	/// <param name="proc">- RPC_MAIN_WEAPON</param>
+	/// <param name="arg0">- weapon type</param>
+	/// <param name="arg1">- nothing</param>
+	void RpcEventOnWeaponChanged(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 	/// <param name="proc">- RPC_DESTROY_ITEM_BOX</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- item id</param>

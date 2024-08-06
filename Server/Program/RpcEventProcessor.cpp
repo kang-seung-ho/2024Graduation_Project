@@ -92,31 +92,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		case RPC_MAIN_WEAPON:
-		{
-			// Change the weapon first
-			// arg0: kind of weapon
-			// 0: lightsaber
-			// 1: watergun
-			// 2: hammer
-			if (room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& member)
-				{
-					member.myWeapon = static_cast<std::uint8_t>(arg0);
-				}
-			))
-			{
-				// Broadcast his weapon
-				Broadcast(RPC_MAIN_WEAPON, user_id, arg0, arg1);
-
-				PrintLn("User {} changed weapon to {}.", user_id, arg0);
-			}
-			else
-			{
-				PrintLn("User {} could not change weapon to {}.", user_id, arg0);
-			}
-		}
-		break;
-
 		case RPC_BEG_RIDE:
 		{
 			PrintLn("[RPC_BEG_RIDE] At room {}.", room_id);
