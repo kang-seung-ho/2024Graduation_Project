@@ -1,6 +1,4 @@
 export module Iconer.Net.Socket;
-import Iconer.Utility.TypeTraits;
-//import Iconer.Utility.Property;
 export import :SocketOption;
 export import :SocketCategory;
 export import Iconer.Net.ErrorCode;
@@ -455,9 +453,9 @@ export namespace iconer::net
 		iconer::net::InternetProtocol myProtocol;
 		iconer::net::IpAddressFamily myFamily;
 
-		using AsyncAcceptFunction = std_function_t<int, std::uintptr_t, std::uintptr_t, void*, unsigned long, unsigned long, unsigned long, unsigned long*, struct _OVERLAPPED*>;
+		using AsyncAcceptFunction = int(__cdecl*)(std::uintptr_t, std::uintptr_t, void*, unsigned long, unsigned long, unsigned long, unsigned long*, struct _OVERLAPPED*);
 
-		using AsyncCloseFunction = std_function_t<int, std::uintptr_t, void*, unsigned long, unsigned long, struct _OVERLAPPED*, struct _TRANSMIT_FILE_BUFFERS*, unsigned long>;
+		using AsyncCloseFunction = int(__cdecl*)(std::uintptr_t, void*, unsigned long, unsigned long, struct _OVERLAPPED*, struct _TRANSMIT_FILE_BUFFERS*, unsigned long);
 
 		struct ErrorTransfer
 		{
