@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Public">
+      <UniqueIdentifier>{0a6b229a-3189-4680-967a-179820d2968e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{6bbea465-bc73-4cfd-b6fc-c626db32ba71}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SocketOptions.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IpAddress.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IpAddressFamily.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="EndPoint.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorCodes.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="InternetProtocol.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IoContext.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IoCompletionPort.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IoCompletionPort.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketCategories.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketTcpSenders.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketTcpReceivers.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUdpSenders.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUdpReceivers.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUtilities.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SerializedSocketAddress.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="EndPoint.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketProperties.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="IThreadPool.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IFramework.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IFramework.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="IThreadPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketWrapper.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpReceiver.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpReceiver.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="IoResult.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="IoEvent.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketPool.ixx">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketPool.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Network.natvis" />
+  </ItemGroup>
+</Project>

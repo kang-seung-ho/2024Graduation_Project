@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::util::ReadOnly&lt;*&gt;">
+		<DisplayString>{myValue}</DisplayString>
+
+		<Expand HideRawView="true">
+			<Synthetic Name="[설명]">
+				<DisplayString>읽기 전용 {&quot;$T1&quot;}</DisplayString>
+			</Synthetic>
+			<Item Name="[값]">myValue</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::Delegate&lt;*&gt;">
+		<Intrinsic Category="Method" Name="__InvokerNumber"  Expression="invocationList.size()"/>
+		
+		<DisplayString>대리자[{__InvokerNumber()}] ⇒ {&quot;$T1&quot;}</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[기원 목록]">invocationList</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::Delegate&lt;*, *&gt;">
+		<Intrinsic Category="Method" Name="__InvokerNumber"  Expression="invocationList.size()"/>
+		<Intrinsic Category="Method" Name="__Has1Parameter"  Expression="argumentNumber == 1"/>
+		<Intrinsic Category="Method" Name="__Has2Parameters" Expression="argumentNumber == 2"/>
+		<Intrinsic Category="Method" Name="__Has3Parameters" Expression="argumentNumber == 3"/>
+		<Intrinsic Category="Method" Name="__Has4Parameters" Expression="argumentNumber == 4"/>
+		<Intrinsic Category="Method" Name="__Has5Parameters" Expression="argumentNumber == 5"/>
+		<Intrinsic Category="Method" Name="__Has6Parameters" Expression="argumentNumber == 6"/>
+		<Intrinsic Category="Method" Name="__Has7Parameters" Expression="argumentNumber == 7"/>
+		<Intrinsic Category="Method" Name="__Has8Parameters" Expression="argumentNumber == 8"/>
+		<Intrinsic Category="Property" Name="__ReturnType" Expression="&quot;$T1&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter1" Expression="&quot;$T2&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter2" Expression="&quot;$T3&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter3" Expression="&quot;$T4&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter4" Expression="&quot;$T5&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter5" Expression="&quot;$T6&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter6" Expression="&quot;$T7&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter7" Expression="&quot;$T8&quot;" Optional="true"/>
+		<Intrinsic Category="Property" Name="__Parameter8" Expression="&quot;$T9&quot;" Optional="true"/>
+
+		<DisplayString Condition="__Has1Parameter()">
+			대리자[{__InvokerNumber()}] ({__Parameter1()}) ⇒ {__ReturnType()}
+		</DisplayString>
+		<DisplayString Condition="__Has2Parameters()">
+			대리자[{__InvokerNumber()}] ({__Parameter1()}, {__Parameter2()}) ⇒ {__ReturnType()}
+		</DisplayString>
+		<DisplayString Condition="__Has3Parameters()">
+			대리자[{__InvokerNumber()}] ({__Parameter1()}, {__Parameter2()}, {__Parameter3()}) ⇒ {__ReturnType()}
+		</DisplayString>
+		<DisplayString Condition="__Has4Parameters()">
+			대리자[{__InvokerNumber()}] ({__Parameter1()}, {__Parameter2()}, {__Parameter3()}, {__Parameter4()}) ⇒ {__ReturnType()}
+		</DisplayString>
+		<DisplayString Condition="3 &lt; argumentNumber">
+			대리자[{__InvokerNumber()}] ({__Parameter1()}, {__Parameter2()}, {__Parameter3()}, {__Parameter4()}, ...) ⇒ {__ReturnType()}
+		</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[기원 목록]">invocationList</Item>
+			<Synthetic Name="[매개변수 개수]" Optional="true">
+				<DisplayString>{argumentNumber}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[첫 번째 매개변수]" Optional="true">
+				<DisplayString>{__Parameter1()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[두 번째 매개변수]" Optional="true" Condition="1 &lt; argumentNumber">
+				<DisplayString>{__Parameter2()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[세 번째 매개변수]" Optional="true" Condition="2 &lt; argumentNumber">
+				<DisplayString>{__Parameter3()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[네 번째 매개변수]" Optional="true" Condition="3 &lt; argumentNumber">
+				<DisplayString>{__Parameter4()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[다섯 번째 매개변수]" Optional="true" Condition="4 &lt; argumentNumber">
+				<DisplayString>{__Parameter5()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[여섯 번째 매개변수]" Optional="true" Condition="5 &lt; argumentNumber">
+				<DisplayString>{__Parameter6()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[일곱 번째 매개변수]" Optional="true" Condition="6 &lt; argumentNumber">
+				<DisplayString>{__Parameter7()}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[여덟 번째 매개변수]" Optional="true" Condition="7 &lt; argumentNumber">
+				<DisplayString>{__Parameter8()}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::detail::IProperty&lt;*, void&gt;">
+		<Intrinsic Category="Property" Name="__GetDel1" Expression="myDelegates._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel2" Expression="myDelegates._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel3" Expression="myDelegates._Tail._Tail._Tail"/>
+
+		<DisplayString>{&quot;$T1&quot;} 속성 ⇒ {&quot;$T2&quot;}</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[값]">myValue</Item>
+
+			<Synthetic Name="[함수]">
+				<DisplayString Condition="myDelegates._Which==0">할당된 함수 없음</DisplayString>
+				<DisplayString Condition="myDelegates._Which==1">{__GetDel1()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==2">{__GetDel2()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==3">{__GetDel3()._Head}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::util::detail::IProperty&lt;*, *&gt;">
+		<Intrinsic Category="Property" Name="__GetDel1" Expression="myDelegates._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel2" Expression="myDelegates._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel3" Expression="myDelegates._Tail._Tail._Tail"/>
+		<Intrinsic Category="Property" Name="__GetDel4" Expression="myDelegates._Tail._Tail._Tail._Tail"/>
+
+		<DisplayString>{&quot;$T2&quot;}의 {&quot;$T1&quot;} 속성 ({myValue})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[값]">myValue</Item>
+			<Item Name="[인스턴스]">myContext</Item>
+
+			<Synthetic Name="[메서드]">
+				<DisplayString Condition="myDelegates._Which==0">할당된 메서드 없음</DisplayString>
+				<DisplayString Condition="myDelegates._Which==1">&quot;{__GetDel1()._Head}&quot;</DisplayString>
+				<DisplayString Condition="myDelegates._Which==2">{__GetDel2()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==3">{__GetDel3()._Head}</DisplayString>
+				<DisplayString Condition="myDelegates._Which==4">{__GetDel4()._Head}</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+</AutoVisualizer>

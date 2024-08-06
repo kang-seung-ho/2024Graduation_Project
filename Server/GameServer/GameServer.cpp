@@ -1,0 +1,6 @@
+﻿#include <print>
+
+int main()
+{
+
+}

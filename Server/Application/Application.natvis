@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="iconer::app::UserManager">
+		<DisplayString>사용자 세션 관리자</DisplayString>
+	</Type>
+
+	<Type Name="iconer::app::RoomManager">
+		<DisplayString>방 세션 관리자</DisplayString>
+	</Type>
+
+	<Type Name="iconer::app::User" Priority="High">
+		<DisplayString>사용자 세션 객체 ({myId})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myId</Item>
+			<Item Name="[연결 여부]">isConnected</Item>
+			<Synthetic Name="[이름]">
+				<DisplayString>{myName}</DisplayString>
+			</Synthetic>
+			<Item Name="[현재 상태]">mainContext</Item>
+			<Item Name="[수신 상태]">recvContext</Item>
+			<Item Name="[방 상태]">roomContext</Item>
+			<Item Name="[수신 소켓]">myReceiver</Item>
+			<Item Name="[방]">myRoom</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::Room" Priority="High">
+		<DisplayString>방 세션 객체 ({myId}) [{memberCount}/4]</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[핸들]">myId</Item>
+			<Item Name="[점유 여부]">isTaken</Item>
+			<Synthetic Name="[제목]">
+				<DisplayString>{myTitle}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[현재 멤버]">
+				<DisplayString>{memberCount}명</DisplayString>
+
+				<Expand>
+					<ArrayItems>
+						<Rank>1</Rank>
+						<Size>4</Size>
+						<ValuePointer>myMembers._Elems</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="[멤버 목록 패킷의 캐시]">precachedMemberListData</Item>
+			<Item Name="[멤버 목록 패킷 캐시의 크기]">precachedMemberListDataSize</Item>
+			<Item Name="[멤버 목록 패킷의 더티 여부]">isDirty</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::ISession" Priority="Low">
+		<DisplayString>기본 세션 객체 ({myId})</DisplayString>
+
+		<Expand HideRawView="true"/>
+	</Type>
+
+	<Type Name="iconer::app::TaskContext" Priority="Medium">
+		<DisplayString>비동기 명령 문맥 객체 ({myCategory})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[명령]">myCategory</Item>
+			<Item Name="[점유 여부]">isOccupied</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="iconer::app::UserContext" Priority="High">
+		<Intrinsic Category="Method" Name="__HasOwner" Expression="ownerHandle.myValue != nullptr"/>
+
+		<DisplayString>사용자 문맥 객체 ({ownerId})</DisplayString>
+
+		<Expand HideRawView="false">
+			<Item Name="[명령]">myCategory</Item>
+			<Item Name="[사용자 ID]">ownerId</Item>
+			<Item Name="[사용자 핸들]" Condition="__HasOwner()">*ownerHandle.myValue</Item>
+			<Synthetic Name="[이름]" Condition="!__HasOwner()">
+				<DisplayString>없음</DisplayString>
+			</Synthetic>
+			<Item Name="[점유 여부]">isOccupied</Item>
+			<Item Name="[로그인 패킷 데이터]">signInPacketData</Item>
+			<Item Name="[로그인 실패 알림 패킷 데이터]">signInFailedPacketData</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>
