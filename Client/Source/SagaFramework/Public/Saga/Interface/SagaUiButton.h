@@ -48,8 +48,8 @@ public:
 	FText GetText() const noexcept;
 
 protected:
-	virtual void NativeOnInitialized() override;
 	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void HandleClicked();

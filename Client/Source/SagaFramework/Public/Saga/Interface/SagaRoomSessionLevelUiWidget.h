@@ -25,5 +25,37 @@ public:
 
 protected:
 	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
+private:
+	UFUNCTION()
+	void OnUpdateMembers(const TArray<struct FSagaVirtualUser>& list);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Session Level")
+	FText GetRoomTitleLabelText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Session Level")
+	FText GetRoomMemberCountLabelText() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Session Level")
+	FText GetRedTeamMemberCountLabelText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Room Session Level")
+	FText GetBluTeamMemberCountLabelText() const;
+
+	UFUNCTION()
+	FText AcquireRoomTitle() const;
+	UFUNCTION()
+	int32 AcquireRoomMemberCount() const;
+	UFUNCTION()
+	int32 AcquireRedTeamMemberCount() const;
+	UFUNCTION()
+	int32 AcquireBluTeamMemberCount() const;
+
+	UPROPERTY()
+	int32 redTeamCount;
+
+	UPROPERTY()
+	int32 bluTeamCount;
 };

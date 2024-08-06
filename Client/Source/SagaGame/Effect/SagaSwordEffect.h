@@ -1,9 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include "SagaGameInfo.h"
 #include <GameFramework/Actor.h>
+
 #include "SagaSwordEffect.generated.h"
 
 UCLASS()
@@ -15,6 +13,14 @@ public:
 	// Sets default values for this actor's properties
 	ASagaSwordEffect();
 
+	virtual void Tick(float DeltaTime) override;
+
+	void SetParticle(const FString& Path);
+	void SetParticle(UParticleSystem* particle);
+
+	void SetSound(const FString& Path);
+	void SetSound(USoundBase* sound);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UParticleSystemComponent* mParticle;
@@ -22,19 +28,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UAudioComponent* mAudio;
 
-protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-public:
-	void SetParticle(const FString& Path);
-	void SetParticle(UParticleSystem* particle);
-	void SetSound(const FString& Path);
-	void SetSound(USoundBase* sound);
 
 public:
 	UFUNCTION()

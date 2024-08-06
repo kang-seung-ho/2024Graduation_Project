@@ -1,6 +1,6 @@
 #pragma once
-#include <CoreMinimal.h>
-#include "Animation/AnimInstance.h"
+#include "SagaGame.h"
+#include <Animation/AnimInstance.h>
 
 #include "SagaGummyBearAnimInstance.generated.h"
 
@@ -8,7 +8,7 @@ UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
 class SAGAGAME_API USagaGummyBearAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
 public:
 	// the below functions are the native overrides for each phase
 	// Native initialization override point
@@ -31,7 +31,7 @@ public:
 public:
 	void PlayAttackMontage();
 	void Death();
-public:
+
 	UFUNCTION()
 	void AnimNotify_Attack();
 
@@ -40,7 +40,7 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mMoveSpeed;
@@ -60,6 +60,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mAttackMontageArray;
 
+	UPROPERTY()
 	int32 mAttackIndex = 0;
+
+	UPROPERTY()
 	bool mAttackEnable = true;
+
+	UFUNCTION()
+	class ASagaGummyBearPlayer* GetPawnOwner() const;
 };

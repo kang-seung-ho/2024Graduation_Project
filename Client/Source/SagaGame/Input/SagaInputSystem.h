@@ -30,6 +30,8 @@ public:
 	UInputAction* Rotate = nullptr;
 	UInputAction* Sprint = nullptr;
 	UInputAction* Interact = nullptr;
+	UInputAction* Activate = nullptr;
+	UInputAction* Inventory = nullptr;
 };
 
 

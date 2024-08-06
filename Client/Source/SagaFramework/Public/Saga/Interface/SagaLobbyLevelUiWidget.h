@@ -9,27 +9,64 @@ class SAGAFRAMEWORK_API USagaLobbyLevelUiWidget : public USagaLiveUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI|Lobby Level UI")
+	UPROPERTY()
 	TObjectPtr<class UListView> myListView;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|UI|Lobby Level UI")
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<class USagaUiInstancedRoomData> selectedRoom;
 
 	USagaLobbyLevelUiWidget(const FObjectInitializer& initializer) noexcept;
 
 protected:
 	virtual void NativePreConstruct() override;
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& geometry, float delta_time) override;
 
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
+private:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	FText GetQuitButtonLabelText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	FText GetUserNicknameLabelText() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	FText GetUserIdLabelText() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	bool IsRoomButtonEnabled() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	bool IsJoinButtonEnabled() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	FText GetNotConnectedAlertLabelText() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI|Lobby Level")
+	ESlateVisibility IsNotConnectedAlertLabelVisibility() const;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level")
 	void HandleQuitButtonClick();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level")
 	void HandleCreatingRoomClick();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level")
 	void HandleTryJoinRoom();
-	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level UI")
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level")
 	void HandleRefreshRoomList();
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|UI|Lobby Level")
+	void HandleCreateRoom(FText title);
+
+	UFUNCTION()
+	FText AcquireUserNickname() const;
+	UFUNCTION()
+	int32 AcquireUserId() const;
+	UFUNCTION()
+	bool AcquireButtonsInteractableFlag() const;
+	UFUNCTION()
+	FText AcquireQuitButtonLabel() const;
+	UFUNCTION()
+	FText AcquireNotConnectedAlertLabelText() const;
+	UFUNCTION()
+	ESlateVisibility AcquireNotConnectedAlertLabelVisibility() const;
 
 	UPROPERTY()
 	TObjectPtr<class USagaUiButton> myCreateButton;

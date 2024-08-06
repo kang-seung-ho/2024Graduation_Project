@@ -22,6 +22,6 @@ public:
 	void StartButtonEnable(const bool flag);
 
 protected:
-	virtual void NativePreConstruct();
+	virtual void NativeConstruct();
 	virtual void NativeTick(const FGeometry& geometry, float delta_time);
 };

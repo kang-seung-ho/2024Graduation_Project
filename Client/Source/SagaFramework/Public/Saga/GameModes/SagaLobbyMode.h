@@ -9,5 +9,5 @@ class SAGAFRAMEWORK_API ASagaLobbyMode : public ASagaInterfaceOnlyModeBase
 	GENERATED_BODY()
 
 public:
-	ASagaLobbyMode();
+	ASagaLobbyMode(const FObjectInitializer& initializer) noexcept;
 };

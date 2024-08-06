@@ -2,13 +2,13 @@
 #include "Saga/Network/SagaPacketSenders.h"
 
 int32
-USagaNetworkSubSystem::SendSignInPacket(const FName& nickname)
+USagaNetworkSubSystem::SendSignInPacket(const FText& nickname)
 {
 	return saga::SendSignInPacket(clientSocket, nickname.ToString()).value_or(0);
 }
 
 int32
-USagaNetworkSubSystem::SendCreateRoomPacket(const FName& title)
+USagaNetworkSubSystem::SendCreateRoomPacket(const FText& title)
 {
 	return saga::SendCreateRoomPacket(clientSocket, title.ToString()).value_or(0);
 }
@@ -77,10 +77,4 @@ int32
 USagaNetworkSubSystem::SendRpcPacket(ESagaRpcProtocol category, int64 argument0, int32 argument1)
 {
 	return saga::SendRpcPacket(clientSocket, MoveTemp(category), GetLocalUserId(), MoveTemp(argument0), MoveTemp(argument1)).value_or(0);
-}
-
-int32
-USagaNetworkSubSystem::SendRoomUpdaterPacket()
-{
-	return saga::SendRoomUpdaterPacket(clientSocket).value_or(0);
 }

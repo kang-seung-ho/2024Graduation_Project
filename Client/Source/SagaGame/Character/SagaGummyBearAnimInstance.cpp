@@ -1,52 +1,10 @@
 #include "SagaGummyBearAnimInstance.h"
+#include <HAL/Platform.h>
+#include <Templates/Casts.h>
+#include <Logging/LogMacros.h>
+#include <UObject/Object.h>
+
 #include "SagaGummyBearPlayer.h"
-
-void
-USagaGummyBearAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-
-	mMoveSpeed = 0.f;
-	mMoveDir = 0.f;
-}
-
-void
-USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	ASagaGummyBearPlayer* character = Cast<ASagaGummyBearPlayer>(TryGetPawnOwner());
-
-	if (IsValid(character))
-	{
-		mMoveSpeed = character->GetMoveAnimationSpeed();
-		mMoveDir = character->GetMoveAnimationAngle();
-	}
-}
-
-void
-USagaGummyBearAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-}
-
-void
-USagaGummyBearAnimInstance::NativePostEvaluateAnimation()
-{
-	Super::NativePostEvaluateAnimation();
-}
-
-void
-USagaGummyBearAnimInstance::NativeUninitializeAnimation()
-{
-	Super::NativeUninitializeAnimation();
-}
-
-void
-USagaGummyBearAnimInstance::NativeBeginPlay()
-{
-	Super::NativeBeginPlay();
-}
 
 void
 USagaGummyBearAnimInstance::PlayAttackMontage()
@@ -77,7 +35,12 @@ void USagaGummyBearAnimInstance::Death()
 void
 USagaGummyBearAnimInstance::AnimNotify_Attack()
 {
+	const auto character = GetPawnOwner();
 
+	if (IsValid(character))
+	{
+		character->ExecuteAttack();
+	}
 }
 
 void
@@ -90,4 +53,58 @@ void
 USagaGummyBearAnimInstance::AnimNotify_AttackEnd()
 {
 	mAttackIndex = 0;
+}
+
+ASagaGummyBearPlayer*
+USagaGummyBearAnimInstance::GetPawnOwner()
+const
+{
+	return Cast<ASagaGummyBearPlayer>(TryGetPawnOwner());
+}
+
+void
+USagaGummyBearAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+	mMoveSpeed = 0.f;
+	mMoveDir = 0.f;
+}
+
+void
+USagaGummyBearAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	const auto character = GetPawnOwner();
+
+	if (IsValid(character))
+	{
+		mMoveSpeed = character->GetMoveAnimationSpeed();
+		mMoveDir = character->GetMoveAnimationAngle();
+	}
+}
+
+void
+USagaGummyBearAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+}
+
+void
+USagaGummyBearAnimInstance::NativePostEvaluateAnimation()
+{
+	Super::NativePostEvaluateAnimation();
+}
+
+void
+USagaGummyBearAnimInstance::NativeUninitializeAnimation()
+{
+	Super::NativeUninitializeAnimation();
+}
+
+void
+USagaGummyBearAnimInstance::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
 }

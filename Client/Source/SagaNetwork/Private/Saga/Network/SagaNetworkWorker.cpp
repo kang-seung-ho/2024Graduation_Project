@@ -1,4 +1,7 @@
 #include "Saga/Network/SagaNetworkWorker.h"
+#include <Logging/LogMacros.h>
+#include <UObject/Object.h>
+
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 FSagaNetworkWorker::FSagaNetworkWorker(TObjectPtr<USagaNetworkSubSystem> instance)
@@ -25,16 +28,6 @@ FSagaNetworkWorker::~FSagaNetworkWorker()
 bool
 FSagaNetworkWorker::Init()
 {
-	if (MyThread != nullptr)
-	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("[Worker] Network worker is created."));
-
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Error, TEXT("[Worker] Network worker was not created."));
-	}
-
 	return true;
 }
 
@@ -43,6 +36,12 @@ FSagaNetworkWorker::Run()
 {
 	while (true)
 	{
+		if (not IsValid(SubSystemInstance))
+		{
+			UE_LOG(LogSagaNetwork, Error, TEXT("[Worker] The network subsystem is broken."));
+			return 1;
+		}
+
 		if (not SubSystemInstance->Receive())
 		{
 			break;
@@ -56,8 +55,7 @@ FSagaNetworkWorker::Run()
 
 void
 FSagaNetworkWorker::Exit()
-{
-}
+{}
 
 void
 FSagaNetworkWorker::Stop()

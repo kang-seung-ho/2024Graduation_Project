@@ -10,4 +10,20 @@ class SAGAFRAMEWORK_API USagaVirtualRoomUiWidget final : public USagaLiveUserWid
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|UI")
+	TObjectPtr<class USagaUiInstancedRoomData> myDataHolder;
+
+	USagaVirtualRoomUiWidget(const FObjectInitializer& initializer) noexcept;
+
+protected:
+	virtual void NativeOnListItemObjectSet(UObject* data) override;
+	virtual void NativeOnItemSelectionChanged(bool is_selected) override;
+	virtual void NativeOnEntryReleased() override;
+
+private:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI")
+	FText GetTitleLabelText() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|UI")
+	FText GetMemberCountLabelText() const;
 };

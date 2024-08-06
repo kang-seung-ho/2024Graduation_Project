@@ -22,9 +22,9 @@ USagaCharacterSelectWidget::StartButtonEnable(bool flag)
 }
 
 void
-USagaCharacterSelectWidget::NativePreConstruct()
+USagaCharacterSelectWidget::NativeConstruct()
 {
-	Super::NativePreConstruct();
+	Super::NativeConstruct();
 
 	WidgetTree->ForEachWidget([this](UWidget* const element) -> void
 		{
@@ -59,6 +59,8 @@ USagaCharacterSelectWidget::NativePreConstruct()
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaCharacterSelectWidget] '%s' found the start button in children."), *my_name);
 	}
+
+	myTimer->SetSeconds(30);
 }
 
 void

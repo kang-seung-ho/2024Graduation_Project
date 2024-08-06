@@ -7,7 +7,7 @@
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "SagaNetworkView.generated.h"
 
-enum class [[nodiscard]] EUserTeam : uint8;
+enum class [[nodiscard]] ESagaPlayerTeam : uint8;
 enum class [[nodiscard]] EPlayerWeapon : uint8;
 
 UINTERFACE(BlueprintType, Blueprintable, MinimalAPI)
@@ -16,21 +16,11 @@ class USagaNetworkView : public UInterface
 	GENERATED_BODY()
 };
 
-#define SagaRegisterView(system, class_name, target)
-
-#define SagaDeregisterView(system, class_name, target)
-
 class SAGANETWORK_API ISagaNetworkView
 {
 	GENERATED_BODY()
 
 public:
-	static void RegisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
-	//static void RegisterView(class USagaNetworkSubSystem* system, const FName& class_name, TScriptInterface<ISagaNetworkView> target);
-	static void DeregisterView(class USagaNetworkSubSystem* system, TScriptInterface<ISagaNetworkView> target);
-	static bool TryRegisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
-	static bool TryDeregisterView(const UWorld* world, TScriptInterface<ISagaNetworkView> target);
-
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "CandyLandSaga|Network|Event")
 	void OnNetworkInitialized(bool succeed);
 
@@ -80,7 +70,7 @@ public:
 	void OnGameStarted();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
-	void OnCreatePlayerCharacter(int32 user_id, EUserTeam team, EPlayerWeapon weapon);
+	void OnCreatePlayerCharacter(int32 user_id, ESagaPlayerTeam team, EPlayerWeapon weapon);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "CandyLandSaga|Network|Event")
 	void OnUpdatePosition(int32 id, float x, float y, float z);

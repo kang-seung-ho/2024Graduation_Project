@@ -9,5 +9,5 @@ class SAGAFRAMEWORK_API ASagaCharacterChoiceMode final : public ASagaInterfaceOn
 	GENERATED_BODY()
 
 public:
-	ASagaCharacterChoiceMode();
+	ASagaCharacterChoiceMode(const FObjectInitializer& initializer) noexcept;
 };

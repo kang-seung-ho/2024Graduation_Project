@@ -1,33 +1,55 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
-#include <cstddef>
+#include <Engine/World.h>
+#include <UObject/UObjectGlobals.h>
+#include <Containers/Array.h>
+#include <SocketTypes.h>
 #include <Sockets.h>
+#include <SocketSubsystem.h>
+#include <Interfaces/IPv4/IPv4Address.h>
+#include <Templates/SharedPointer.h>
 
-#include "Saga/Network/SagaNetworkSettings.h"
-#include "Saga/Network/SagaBasicPacket.h"
+#include "Saga/Network/SagaNetworkUtility.h"
 
 USagaNetworkSubSystem::USagaNetworkSubSystem()
 	: UGameInstanceSubsystem()
-	, localUserId(-1), localUserName(), currentRoomId(), currentRoomTitle(), currentHandledWeapon()
+	, netIsOfflineMode()
+	, netConnectionCategory(ESagaNetworkConnectionCategory::Remote)
+	, netRemoteAddress(), netRemotePort(), netLocalPort()
+	, localUser()
+	, currentRoom()
 	, OnNetworkInitialized(), OnConnected(), OnFailedToConnect(), OnDisconnected(), OnSignedIn()
 	, OnRoomCreated(), OnJoinedRoom(), OnOtherJoinedRoom(), OnLeftRoomBySelf(), OnLeftRoom()
 	, OnRespondVersion(), OnUpdateRoomList(), OnUpdateMembers()
 	, OnTeamChanged()
-	, OnGetPreparedGame(), OnStartGame(), OnCreatingCharacter()
+	, OnGetPreparedGame(), OnGameStarted(), OnCreatingCharacter()
 	, OnUpdatePosition(), OnUpdateRotation(), OnRpc()
 	, clientSocket(), netWorker(), taskWorker()
-	, recvBuffer(), recvBytes(), transitBuffer(), transitOffset()
-	, receivedDataLock()
+	, recvBuffer(), recvBytes()
+	, taskBarrier()
 	, everyUsers(), everyRooms(), wasUsersUpdated(true), wasRoomsUpdated(true)
 {}
 
 ESagaConnectionContract
-USagaNetworkSubSystem::ConnectToServer(const FName& nickname)
+USagaNetworkSubSystem::ConnectToServer(const FText& nickname)
 {
-	if (not IsOfflineMode())
+	if (IsOfflineMode())
+	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("The network subsystem is getting started. (Offline Mode)"));
+
+		CallFunctionOnGameThread([this, nickname]()
+			{
+				SetLocalUserId(0);
+				SetLocalUserName(nickname);
+			}
+		);
+
+		return ESagaConnectionContract::Success;
+	}
+	else
 	{
 		if (IsConnected())
 		{
-			UE_LOG(LogSagaNetwork, Warning, TEXT("The network subsystem is getting started."));
+			UE_LOG(LogSagaNetwork, Warning, TEXT("The network subsystem was started."));
 
 			return ESagaConnectionContract::Success;
 		}
@@ -35,42 +57,90 @@ USagaNetworkSubSystem::ConnectToServer(const FName& nickname)
 		{
 			if (not IsSocketAvailable())
 			{
-				UE_LOG(LogSagaNetwork, Warning, TEXT("The socket was not initialized."));
+				UE_LOG(LogSagaNetwork, Error, TEXT("[ConnectToServer] The socket was not initialized."));
+
+				CallPureFunctionOnGameThread([this]()
+					{
+						BroadcastOnFailedToConnect(ESagaConnectionContract::NoSocket);
+					}
+				);
 
 				return ESagaConnectionContract::SubSystemError;
 			}
 
-			USagaNetworkSubSystem::SetLocalUserName(nickname);
+			auto remote_endpoint = CreateRemoteEndPoint(netConnectionCategory);
+			if (not remote_endpoint->IsValid())
+			{
+				const FString err_msg = saga::GetLastErrorContents();
+				UE_LOG(LogSagaNetwork, Error, TEXT("[ConnectToServer] The endpoint has fault, due to '%s'"), *err_msg);
+
+				CallPureFunctionOnGameThread([this]()
+					{
+						BroadcastOnFailedToConnect(ESagaConnectionContract::WrongAddress);
+					}
+				);
+
+				return ESagaConnectionContract::WrongAddress;
+			}
 
 			UE_LOG(LogSagaNetwork, Log, TEXT("Connecting..."));
 
-			auto connect_r = ConnectToServer_Implementation();
-			if (connect_r == ESagaConnectionContract::Success)
+			if (not clientSocket->Connect(*remote_endpoint))
 			{
-				// 서버가 닉네임 패킷을 받으면 서버는 ID 부여 패킷을 보낸다.
-				// 클라는 ID 부여 패킷을 받아서 갱신하고, 게임 or 메뉴 레벨로 넘어가야 한다.
-				BroadcastOnConnected();
+				// 연결 실패 처리
+				const FString err_msg = saga::GetLastErrorContents();
+				UE_LOG(LogSagaNetwork, Error, TEXT("[ConnectToServer] Cannot connect to the server, due to '%s'"), *err_msg);
 
-				return connect_r;
+				CallPureFunctionOnGameThread([this]()
+					{
+						BroadcastOnFailedToConnect(ESagaConnectionContract::ConnectError);
+					}
+				);
+
+				return ESagaConnectionContract::ConnectError;
+			}
+
+			// 클라는 접속 이후에 닉네임 패킷을 보내야 한다.
+			const auto sent_r = SendSignInPacket(nickname);
+			if (sent_r <= 0)
+			{
+				const FString err_msg = saga::GetLastErrorContents();
+				UE_LOG(LogSagaNetwork, Error, TEXT("[ConnectToServer] First try of sending signin packet has been failed, due to '%s'"), *err_msg);
+
+				CallPureFunctionOnGameThread([this]()
+					{
+						BroadcastOnFailedToConnect(ESagaConnectionContract::SignInFailed);
+					}
+				);
+
+				return ESagaConnectionContract::SignInFailed;
 			}
 			else
 			{
-				auto str = UEnum::GetValueAsString(connect_r);
-
-				UE_LOG(LogSagaNetwork, Error, TEXT("Cannot start the network subsystem!"));
-
-				BroadcastOnFailedToConnect(connect_r);
-
-				return connect_r;
+				UE_LOG(LogSagaNetwork, Log, TEXT("Local client has sent a signing in packet."));
 			}
+
+			UE_LOG(LogSagaNetwork, Log, TEXT("The network subsystem is getting started."));
+
+			CallFunctionOnGameThread([this, nickname]()
+				{
+					SetLocalUserName(nickname);
+
+					BroadcastOnConnected();
+				}
+			);
+
+			// 서버가 닉네임 패킷을 받으면 서버는 ID 부여 패킷을 보낸다.
+			// 클라는 ID 부여 패킷을 받아서 갱신하고, 게임 or 메뉴 레벨로 넘어가야 한다.
+			return ESagaConnectionContract::Success;
 		}
 	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Log, TEXT("The network subsystem is getting started. (Offline Mode)"));
+}
 
-		return ESagaConnectionContract::Success;
-	}
+bool
+USagaNetworkSubSystem::CloseNetwork_Implementation()
+{
+	return std::exchange(clientSocket, CreateSocket())->Close();
 }
 
 bool
@@ -81,6 +151,7 @@ USagaNetworkSubSystem::Close()
 		if (not IsSocketAvailable())
 		{
 			UE_LOG(LogSagaNetwork, Warning, TEXT("The socket of client is null."));
+
 			return true;
 		}
 		else if (not IsConnected())
@@ -93,204 +164,150 @@ USagaNetworkSubSystem::Close()
 		{
 			UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem..."));
 
+			clientSocket->Shutdown(ESocketShutdownMode::ReadWrite);
+
 			return CloseNetwork_Implementation();
 		}
 	}
 	else
 	{
 		UE_LOG(LogSagaNetwork, Warning, TEXT("Closing the network subsystem... (Offline Mode)"));
-		return true;
-	}
-}
-
-bool
-USagaNetworkSubSystem::Receive()
-{
-	if (IsOfflineMode())
-	{
-		//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving... (Offline Mode)"));
 
 		return true;
 	}
-	else // IF (IsOfflineMode)
-	{
-		//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Receiving..."));
-
-		auto recv_buffer = recvBuffer.GetData();
-		int32 read_bytes{};
-
-		// Checks
-		if (not clientSocket->Recv(recv_buffer + recvBytes
-			, recvLimit - recvBytes
-			, read_bytes))
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Receiving has been failed!"));
-			BroadcastOnDisconnected();
-
-			// Return #1
-			return false;
-		}
-		else if (read_bytes <= 0)
-		{
-			UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Received %d byte!"), read_bytes);
-			BroadcastOnDisconnected();
-
-			// Return #2
-			return false;
-		}
-
-		// Increases the bytes
-		recvBytes += read_bytes;
-
-		int32 read_offset{};
-
-		// Peeks packets as many as possible
-		while (FSagaBasicPacket::MinSize() <= recvBytes)
-		{
-			// The current state buffer
-			const auto read_buffer = recv_buffer + read_offset;
-
-			// Reads the protocol and size
-			FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
-			basic_pk.Read(reinterpret_cast<std::byte*>(read_buffer));
-
-			// Validates
-			if (basic_pk.mySize <= 0)
-			{
-				UE_LOG(LogSagaNetwork, Error, TEXT("[Packet] Packet's size was %d!"), basic_pk.mySize);
-
-				// Return #3
-				return false;
-			}
-			else if (basic_pk.mySize <= recvBytes)
-			{
-#if WITH_EDITOR
-				const auto ename = UEnum::GetValueAsString(basic_pk.myProtocol);
-				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Received a packet (%s, %d)."), *ename, basic_pk.mySize);
-#endif
-
-				// Peeks a packet
-				{
-					FScopeLock locker{ &receivedDataLock };
-
-					const auto dst = transitBuffer.GetData() + transitOffset;
-					std::memcpy(dst, read_buffer, static_cast<size_t>(basic_pk.mySize));
-					transitOffset += basic_pk.mySize;
-				}
-
-				recvBytes -= basic_pk.mySize;
-				read_offset += basic_pk.mySize;
-			}
-			else
-			{
-				UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] A receive phase is done."));
-
-				break;
-			}
-		} // WHILE (true)
-
-		if (0 < read_offset)
-		{
-			const auto adv_buffer = recv_buffer + read_offset;
-			const auto remained_size = static_cast<size_t>(recvLimit - read_offset);
-			std::memcpy(recv_buffer, recv_buffer + read_offset, remained_size);
-			std::memset(adv_buffer, 0, remained_size);
-			//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Buffer is pulled by %d bytes"), read_offset);
-		}
-	} // IF NOT (IsOfflineMode)
-
-	return true;
 }
 
-bool
-USagaNetworkSubSystem::ProcessPackets()
+void
+USagaNetworkSubSystem::SetOfflineMode(bool flag)
+noexcept
 {
-	int32 process_offset{};
-
-	while (0 < transitOffset)
-	{
-		// Process a packet
-		{
-			FScopeLock locker{ &receivedDataLock };
-
-			auto process_buffer = transitBuffer.GetData() + process_offset;
-
-			FSagaBasicPacket basic_pk{ EPacketProtocol::UNKNOWN };
-			basic_pk.Read(reinterpret_cast<std::byte*>(process_buffer));
-
-			if (basic_pk.mySize <= 0 or transitOffset < basic_pk.SignedMinSize())
-			{
-				break;
-			}
-
-			// Routes stacked events
-			//UE_LOG(LogSagaNetwork, Log, TEXT("[Packet] Routing packet events..."));
-
-			RouteEvents(transitBuffer, process_offset, basic_pk.myProtocol, basic_pk.mySize);
-
-			process_offset += basic_pk.mySize;
-			transitOffset -= basic_pk.mySize;
-		}
-	}
-
-	return IsConnected();
+	netIsOfflineMode = flag;
 }
 
-const TArray<FSagaVirtualUser>&
-USagaNetworkSubSystem::UpdatePlayerList()
+void
+USagaNetworkSubSystem::SetConnectionOption(ESagaNetworkConnectionCategory category)
+noexcept
 {
-	// TODO: UpdatePlayerList
-	return everyUsers;
+	netConnectionCategory = category;
 }
 
-const TArray<FSagaVirtualRoom>&
-USagaNetworkSubSystem::UpdateRoomList()
+void
+USagaNetworkSubSystem::SetRemoteAddress(const FString& address)
 {
-	// TODO: UpdateRoomList
-	return everyRooms;
+	netRemoteAddress = address;
+}
+
+void
+USagaNetworkSubSystem::SetRemotePort(int32 port)
+noexcept
+{
+	netRemotePort = port;
+}
+
+void
+USagaNetworkSubSystem::SetLocalPort(int32 port)
+noexcept
+{
+	netLocalPort = port;
 }
 
 ESagaNetworkConnectionCategory
 USagaNetworkSubSystem::GetConnectionOption()
 const noexcept
 {
-	const auto settings = GetDefault<USagaNetworkSettings>();
-
-	return settings->ConnectionCategory;
+	return netConnectionCategory;
 }
 
 FString
 USagaNetworkSubSystem::GetRemoteAddress()
 const
 {
-	const auto settings = GetDefault<USagaNetworkSettings>();
-
-	return settings->RemoteAddress;
+	return netRemoteAddress;
 }
 
 int32
 USagaNetworkSubSystem::GetRemotePort()
 const noexcept
 {
-	const auto settings = GetDefault<USagaNetworkSettings>();
-
-	return settings->RemotePort;
+	return netRemotePort;
 }
 
 int32
 USagaNetworkSubSystem::GetLocalPort()
 const noexcept
 {
-	const auto settings = GetDefault<USagaNetworkSettings>();
-
-	return settings->LocalPort;
+	return netLocalPort;
 }
 
 bool
 USagaNetworkSubSystem::IsOfflineMode()
 const noexcept
 {
-	const auto settings = GetDefault<USagaNetworkSettings>();
+	return netIsOfflineMode;
+}
 
-	return settings->IsOfflineMode;
+bool
+USagaNetworkSubSystem::IsSocketAvailable()
+const noexcept
+{
+	return nullptr != clientSocket;
+}
+
+bool
+USagaNetworkSubSystem::IsConnected()
+const noexcept
+{
+	if (IsOfflineMode())
+	{
+		return true;
+	}
+	else if (clientSocket != nullptr and clientSocket->GetConnectionState() == ESocketConnectionState::SCS_Connected)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+USagaNetworkSubSystem*
+USagaNetworkSubSystem::GetSubSystem(const UWorld* world)
+noexcept
+{
+	const auto singleton = world->GetGameInstance();
+
+	return singleton->GetSubsystem<USagaNetworkSubSystem>();
+}
+
+FSocket*
+USagaNetworkSubSystem::CreateSocket()
+{
+	FSocket* socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(NAME_Stream, TEXT("default"), false);
+
+	socket->SetReuseAddr();
+
+	return socket;
+}
+
+TSharedRef<FInternetAddr>
+USagaNetworkSubSystem::CreateRemoteEndPoint(ESagaNetworkConnectionCategory category)
+const
+{
+	if (category == ESagaNetworkConnectionCategory::Local)
+	{
+		return saga::MakeEndPoint(FIPv4Address::Any, netRemotePort);
+	}
+	else if (category == ESagaNetworkConnectionCategory::Host)
+	{
+		return saga::MakeEndPoint(FIPv4Address::InternalLoopback, netRemotePort);
+	}
+	else if (category == ESagaNetworkConnectionCategory::Remote)
+	{
+		return saga::MakeEndPointFrom(netRemoteAddress, netRemotePort);
+	}
+	else
+	{
+		throw "error!";
+	}
 }

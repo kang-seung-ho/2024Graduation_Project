@@ -1,59 +1,7 @@
-#include "SagaPlayerAnimInstance.h"
-#include "SagaPlayableCharacter.h"
+#include "Character/SagaPlayerAnimInstance.h"
+#include <UObject/Object.h>
 
-void
-USagaPlayerAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-
-	mMoveSpeed = 0.f;
-	mMoveDir = 0.f;
-}
-
-void
-USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	auto character = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
-
-	if (IsValid(character))
-	{
-		auto WeaponHoldingCharacter = Cast<ASagaPlayableCharacter>(character);
-
-		if (IsValid(WeaponHoldingCharacter))
-		{
-			mWeaponTypes = WeaponHoldingCharacter->GetWeaponType();
-		}
-
-		mMoveSpeed = character->GetMoveAnimationSpeed();
-		mMoveDir = character->GetMoveAnimationAngle();
-	}
-}
-
-void
-USagaPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-}
-
-void
-USagaPlayerAnimInstance::NativePostEvaluateAnimation()
-{
-	Super::NativePostEvaluateAnimation();
-}
-
-void
-USagaPlayerAnimInstance::NativeUninitializeAnimation()
-{
-	Super::NativeUninitializeAnimation();
-}
-
-void
-USagaPlayerAnimInstance::NativeBeginPlay()
-{
-	Super::NativeBeginPlay();
-}
+#include "Character/SagaPlayableCharacter.h"
 
 void
 USagaPlayerAnimInstance::PlayAttackMontage()
@@ -83,11 +31,11 @@ USagaPlayerAnimInstance::PlayAttackMontage()
 		}
 		else if (mWeaponTypes == EPlayerWeapon::Hammer)
 		{
-			Montage_SetPosition(mAttackMontageArray[mAttackIndex], 0.f);
+			Montage_SetPosition(mHammerAttackMontageArray[mAttackIndex], 0.f);
 
-			Montage_Play(mAttackMontageArray[mAttackIndex]);
+			Montage_Play(mHammerAttackMontageArray[mAttackIndex]);
 
-			mAttackIndex = (mAttackIndex + 1) % mAttackMontageArray.Num();
+			mAttackIndex = (mAttackIndex + 1) % mHammerAttackMontageArray.Num();
 		}
 	}
 }
@@ -120,10 +68,11 @@ void USagaPlayerAnimInstance::Revive()
 void
 USagaPlayerAnimInstance::AnimNotify_Attack()
 {
-	ASagaCharacterPlayer* PlayerCharacter = Cast<ASagaCharacterPlayer>(TryGetPawnOwner());
+	const auto PlayerCharacter = GetPawnOwner();
+
 	if (IsValid(PlayerCharacter))
 	{
-		PlayerCharacter->Attack();
+		PlayerCharacter->ExecuteAttack();
 	}
 }
 
@@ -142,4 +91,60 @@ USagaPlayerAnimInstance::AnimNotify_AttackEnd()
 void USagaPlayerAnimInstance::AnimNotify_HitRecovery()
 {
 	mHitRecovery = 0.f;
+}
+
+ASagaPlayableCharacter*
+USagaPlayerAnimInstance::GetPawnOwner()
+const
+{
+	return Cast<ASagaPlayableCharacter>(TryGetPawnOwner());
+}
+
+void
+USagaPlayerAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+	mMoveSpeed = 0.f;
+	mMoveDir = 0.f;
+}
+
+void
+USagaPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	const auto character = GetPawnOwner();
+
+	if (IsValid(character))
+	{
+		mWeaponTypes = character->GetWeapon();
+
+		mMoveSpeed = character->GetMoveAnimationSpeed();
+		mMoveDir = character->GetMoveAnimationAngle();
+	}
+}
+
+void
+USagaPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+}
+
+void
+USagaPlayerAnimInstance::NativePostEvaluateAnimation()
+{
+	Super::NativePostEvaluateAnimation();
+}
+
+void
+USagaPlayerAnimInstance::NativeUninitializeAnimation()
+{
+	Super::NativeUninitializeAnimation();
+}
+
+void
+USagaPlayerAnimInstance::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
 }

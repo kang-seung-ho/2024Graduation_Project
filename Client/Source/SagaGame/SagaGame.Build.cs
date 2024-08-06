@@ -10,12 +10,12 @@ public class SagaGame : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { "SagaGame" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Niagara", "GeometryCollectionEngine", "Chaos" });
 
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "Networking", "Sockets" });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "AIModule", "GameplayDebugger" });
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
