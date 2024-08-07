@@ -290,7 +290,7 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 }
 
-void
+UGeometryCollectionComponent*
 ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 {
 	const auto rot = GetActorRotation() + FRotator{ 0, 0, 180 };
@@ -301,14 +301,17 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] There is no USkinnedMeshComponent."));
 
-		return;
+		return nullptr;
 	}
 
 	if (!DismCollisionBox.IsValidIndex(index))
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] %d is an invalid index for colliders."), index);
+#if WITH_EDITOR
 
-		return;
+		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] %d is an invalid index for colliders."), index);
+#endif
+
+		return nullptr;
 	}
 
 	const auto& body_collider = DismCollisionBox[index];
@@ -316,7 +319,10 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 	const FName bone_name = body_collider->GetAttachSocketName();
 	if (!SkinnedMesh->IsBoneHiddenByName(bone_name))
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Warning, TEXT("[ExecutePartDestruction] TriggerExplosion: %d"), index);
+#endif
 
 		SkinnedMesh->HideBoneByName(bone_name, PBO_None);
 
@@ -328,47 +334,63 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 		gc->AddRadialImpulse(gc->GetComponentLocation(), 100, 150, RIF_Constant, true);
 		gc->AddImpulse(Impulse, NAME_None, true);
 
-		//DismCollisionBox[Index]->DestroyComponent();
-		//SpawnMorphSystem(TargetGC, Index);
-		//*/
-
+		// 사망 처리
 		//if (net->IsOfflineMode())
 		{
-			if (UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent")))
+			const auto& right_leg_hp = ActiveIndex[1];
+			const auto& left_leg_hp = ActiveIndex[3];
+
+			if (right_leg_hp <= 0 && left_leg_hp <= 0)
 			{
-				struct Params
-				{
-					UGeometryCollectionComponent* Target;
-					int32 Ind;
-				};
-
-				Params parameters{};
-				parameters.Target = gc;
-				parameters.Ind = index;
-				ProcessEvent(morph_fun, &parameters);
-			}
-		}
-	}
-
-	// 사망 처리
-	//if (net->IsOfflineMode())
-	{
-		const auto& right_leg_hp = ActiveIndex[1];
-		const auto& left_leg_hp = ActiveIndex[3];
-
-		if (right_leg_hp <= 0 && left_leg_hp <= 0)
-		{
 #if WITH_EDITOR
 
-			const auto name = GetName();
+				const auto name = GetName();
 
-			//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
+				//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
+				UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
 #endif
 
-			ExecuteHurt(GetHealth());
+				ExecuteHurt(GetHealth());
+			}
 		}
+
+		return gc;
 	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+void
+ASagaGummyBearPlayer::ExecuteMorphingPart(UGeometryCollectionComponent* const& gc, const int32 index)
+{
+	//DismCollisionBox[Index]->DestroyComponent();
+	//SpawnMorphSystem(TargetGC, Index);
+	//*/
+	static UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent"));
+
+	if (IsValid(morph_fun))
+	{
+		struct Params
+		{
+			UGeometryCollectionComponent* Target;
+			int32 Ind;
+		};
+
+		Params parameters{};
+		parameters.Target = gc;
+		parameters.Ind = index;
+		ProcessEvent(morph_fun, &parameters);
+	}
+}
+
+void
+ASagaGummyBearPlayer::ExecuteMorphingPartAt(const int32 index)
+{
+	const auto& gc = GeometryCollections[index];
+
+	ExecuteMorphingPart(gc, index);
 }
 
 int32
@@ -396,7 +418,12 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 						UE_LOG(LogSagaGame, Log, TEXT("[OnBodyPartGetDamaged] A part %d of '%s' is destructed. (Offline Mode)"), i, *name);
 #endif
 
-						ExecutePartDestruction(i);
+						const auto part_actor = ExecutePartDestruction(i);
+
+						if (part_actor)
+						{
+							ExecuteMorphingPart(part_actor, i);
+						}
 
 						return i;
 					}

@@ -42,7 +42,11 @@ public:
 	// UFUNCTION()
 	virtual void ExecuteDeath() override;
 	UFUNCTION()
-	void ExecutePartDestruction(const int32 index);
+	class UGeometryCollectionComponent* ExecutePartDestruction(const int32 index);
+	UFUNCTION()
+	void ExecuteMorphingPart(class UGeometryCollectionComponent* const& gc, const int32 index);
+	UFUNCTION()
+	void ExecuteMorphingPartAt(const int32 index);
 
 	UFUNCTION()
 	int32 OnBodyPartGetDamaged(FVector Location, FVector Normal);
