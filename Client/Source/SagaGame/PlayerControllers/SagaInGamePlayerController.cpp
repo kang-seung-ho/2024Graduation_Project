@@ -92,6 +92,8 @@ ASagaInGamePlayerController::SetupInputComponent()
 
 	Input->BindAction(InputSystem->Inventory, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ToggleInventory);
 	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginGuardianAction);
+
+	Input->BindAction(InputSystem->Skill1, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnSkill1);
 }
 
 void

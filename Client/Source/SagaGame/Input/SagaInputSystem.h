@@ -32,6 +32,7 @@ public:
 	UInputAction* Interact = nullptr;
 	UInputAction* Activate = nullptr;
 	UInputAction* Inventory = nullptr;
+	UInputAction* Skill1 = nullptr;
 };
 
 

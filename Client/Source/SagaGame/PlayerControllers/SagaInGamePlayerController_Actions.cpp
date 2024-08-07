@@ -361,3 +361,13 @@ ASagaInGamePlayerController::BeginGuardianAction()
 		}
 	} // IF NOT (Offline Mode)
 }
+
+void ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
+{
+	const auto character = GetPawn<ASagaPlayableCharacter>();
+	if (character)
+	{
+		character->UseSkill(0);
+	}
+
+}

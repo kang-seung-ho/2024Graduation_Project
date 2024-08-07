@@ -431,6 +431,11 @@ const
 	return result;
 }
 
+void ASagaPlayableCharacter::UseSkill(int32 SlotNumber)
+{
+	mAnimInst->UseSkill(SlotNumber);
+}
+
 void
 ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
 {

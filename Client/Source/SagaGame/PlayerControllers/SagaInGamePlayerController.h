@@ -66,6 +66,10 @@ public:
 	/* 수호자 탑승 혹은 하차 */
 	UFUNCTION()
 	void BeginGuardianAction();
+
+	UFUNCTION()
+	void OnSkill1(const FInputActionValue& Value);
+
 #pragma endregion
 
 protected:

@@ -5,6 +5,27 @@
 #include "SagaGame/Player/SagaPlayerWeaponTypes.h"
 #include "SagaPlayerAnimInstance.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSkillAnim
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FSkillAnim()
+		: SlotNumber(0), Anim(nullptr)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SlotNumber;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* Anim;
+};
+
 UCLASS(Blueprintable, Category = "CandyLandSaga|Game|Character|Animation")
 class SAGAGAME_API USagaPlayerAnimInstance : public UAnimInstance
 {
@@ -45,6 +66,9 @@ public:
 	void Revive();
 
 	UFUNCTION()
+	void UseSkill(int32 SlotNumber);
+
+	UFUNCTION()
 	void AnimNotify_Attack();
 
 	UFUNCTION()
@@ -55,6 +79,9 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_HitRecovery();
+
+	UFUNCTION()
+	void AnimNotify_Skill_Q();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -86,6 +113,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<UAnimMontage*> mHammerAttackMontageArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FSkillAnim> mSkillAnimArray;
 
 	UPROPERTY()
 	int32 mAttackIndex = 0;

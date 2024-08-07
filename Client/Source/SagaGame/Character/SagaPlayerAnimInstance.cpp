@@ -2,6 +2,7 @@
 #include <UObject/Object.h>
 
 #include "Character/SagaPlayableCharacter.h"
+#include "Character/SkillSphereActor.h"
 
 void
 USagaPlayerAnimInstance::PlayAttackMontage()
@@ -65,6 +66,26 @@ void USagaPlayerAnimInstance::Revive()
 	mHitRecovery = 0.f;
 }
 
+void USagaPlayerAnimInstance::UseSkill(int32 SlotNumber)
+{
+	for (auto SkillAnim : mSkillAnimArray)
+	{
+		if (SkillAnim.SlotNumber == SlotNumber)
+		{
+			if (!Montage_IsPlaying(SkillAnim.Anim))
+			{
+				Montage_SetPosition(SkillAnim.Anim, 0.f);
+
+				Montage_Play(SkillAnim.Anim);
+			}
+		}
+	}
+	/*for (int32 i = 0; i < mSkillAnimArray.Num(); ++i)
+	{
+
+	}*/
+}
+
 void
 USagaPlayerAnimInstance::AnimNotify_Attack()
 {
@@ -91,6 +112,26 @@ USagaPlayerAnimInstance::AnimNotify_AttackEnd()
 void USagaPlayerAnimInstance::AnimNotify_HitRecovery()
 {
 	mHitRecovery = 0.f;
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_Q Implemented"));
+	FActorSpawnParameters SpawnParam;
+	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ASkillSphereActor* Skill = GetWorld()->SpawnActor<ASkillSphereActor>(TryGetPawnOwner()->GetActorLocation(), TryGetPawnOwner()->GetActorRotation(), SpawnParam);
+
+	if(Skill)
+	{
+		Skill->SetSkillDistance(200.f);
+		//Skill->SetParticle(TEXT(""));
+		//Skill->SetSound(TEXT(""));
+		Skill->SetOwner(TryGetPawnOwner()->GetController(), TryGetPawnOwner());
+
+		FTimerHandle SphereActorHandle;
+		GetWorld()->GetTimerManager().SetTimer(SphereActorHandle, Skill, &ASkillSphereActor::DestroySkill, 0.3f, false); // Destroy after 0.3 seconds
+	}
 }
 
 ASagaPlayableCharacter*
