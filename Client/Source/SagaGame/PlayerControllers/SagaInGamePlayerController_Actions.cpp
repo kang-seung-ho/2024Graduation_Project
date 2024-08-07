@@ -362,12 +362,22 @@ ASagaInGamePlayerController::BeginGuardianAction()
 	} // IF NOT (Offline Mode)
 }
 
-void ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
+void
+ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
 {
 	const auto character = GetPawn<ASagaPlayableCharacter>();
-	if (character)
-	{
-		character->UseSkill(0);
-	}
 
+	if (character and character->IsAlive())
+	{
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (net->IsOfflineMode())
+		{
+			character->UseSkill(0);
+		}
+		else
+		{
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+		}
+	}
 }
