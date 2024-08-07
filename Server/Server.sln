@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utility", "Utility\Utility.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Application", "Application\Application.vcxproj", "{148FEC5C-A9BB-4D65-859D-F8095C5430A6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CandyLandSaga", "Program\Program.vcxproj", "{9EF7740F-D5F1-4C03-B4E3-628259646F65}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Program\Program.vcxproj", "{9EF7740F-D5F1-4C03-B4E3-628259646F65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +58,7 @@ Global
 		SolutionGuid = {5441C021-A51F-4E07-99EB-776000EF3E99}
 	EndGlobalSection
 EndGlobal
+dGlobal
 FC424}.Release|x64.Build.0 = Release|x64
 		{DE9EFC78-7399-4132-AE78-1BD61B5FC424}.Release|x86.ActiveCfg = Release|Win32
 		{DE9EFC78-7399-4132-AE78-1BD61B5FC424}.Release|x86.Build.0 = Release|Win32

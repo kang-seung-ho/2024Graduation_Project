@@ -7,6 +7,8 @@ import Iconer.Net.ErrorCode;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
 import Iconer.App.GameSession;
+import Iconer.App.PacketSerializer;
+import Iconer.App.RpcProtocols;
 import Iconer.App.Settings;
 import <chrono>;
 import <span>;
@@ -167,10 +169,18 @@ export namespace iconer::app
 		iconer::util::Delegate<void, this_class*, pointer_type, size_type> onUserLeft{};
 		iconer::util::Delegate<void, this_class*, pointer_type> onFailedToJoinUser{};
 
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id
+		// 225[1] => RPC_GAME_TIMER
+		std::array<std::byte, 20> gameTimerPacketData{};
+
 		explicit constexpr Room(id_type id) noexcept
 			: super(id)
 		{
 			myTitle.resize(titleLength * 2);
+
+			iconer::app::SerializeAt(gameTimerPacketData.data(), PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GAME_TIMER, 0LL, 0);
 		}
 
 		~Room() = default;
@@ -276,16 +286,21 @@ export namespace iconer::app
 
 		void SetMemberTeam(const_reference user, bool is_red_team);
 
-		constexpr void SetTitle(std::wstring_view title) noexcept
+		constexpr void SetTitle(std::wstring_view title)
 		{
-			if (0 < title.length())
-			{
-				myTitle = title;
-			}
+			myTitle = title;
 		}
 
 		[[nodiscard]] std::span<const std::byte> MakeMemberListPacket();
 		[[nodiscard]] std::pair<std::unique_ptr<std::byte[]>, std::int16_t> MakeMemberJoinedPacket(const_reference user) const;
+
+		[[nodiscard]]
+		auto& MakeGameTimerPacket(const std::int64_t& time) noexcept
+		{
+			std::memcpy(gameTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
+
+			return gameTimerPacketData;
+		}
 
 		[[nodiscard]]
 		constexpr std::wstring_view GetTitle() const noexcept

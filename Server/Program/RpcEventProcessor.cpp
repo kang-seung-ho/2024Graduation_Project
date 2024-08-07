@@ -431,8 +431,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
 			{
-				guardian.myStatus = iconer::app::SagaGuardianState::Dead;
-				guardian_hp.store(0, std::memory_order_release);
+				//guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+				//guardian_hp.store(0, std::memory_order_release);
 
 				//auto rider_id = guardian.GetRiderId();
 				//guardian.TryUnride(rider_id);
@@ -446,11 +446,11 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					{
 						room->ProcessMember(rider, [&](iconer::app::SagaPlayer& target)
 							{
-								target.ridingGuardianId.compare_exchange_strong(rider_id, -1);
+								//target.ridingGuardianId.compare_exchange_strong(rider_id, -1);
 							}
 						);
 
-						guardian.TryUnride(rider_id);
+						//guardian.TryUnride(rider_id);
 					}
 					else
 					{
@@ -458,7 +458,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					}
 				}
 
-				Broadcast(RPC_DMG_GUARDIAN, user_id, 9999, arg1);
+				//Broadcast(RPC_DMG_GUARDIAN, user_id, 9999, arg1);
 			}
 		}
 		break;

@@ -226,12 +226,7 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 		RpcEventOnGettingScores(room, user, proc, 0, 0);
 	}
 
-	iconer::app::SendContext* const ctx = AcquireSendContext();
-	auto [pk, size] = MakeRpc(RPC_GAME_TIMER, user.GetID(), cnt, 0);
-
-	ctx->myBuffer = std::move(pk);
-
-	user.SendGeneralData(*ctx, size);
+	user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 }
 
 void
