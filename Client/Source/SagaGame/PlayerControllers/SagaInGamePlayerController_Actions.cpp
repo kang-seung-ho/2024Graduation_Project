@@ -276,12 +276,12 @@ ASagaInGamePlayerController::BeginGuardianAction()
 		// 사람 캐릭터
 		const auto human = GetPawn<ASagaPlayableCharacter>();
 
-		if (IsValid(human))
+		if (IsValid(human) and human->IsAlive())
 		{
 			const auto guardian = human->GetNeareastCollidedBear();
 
 			// 승차
-			if (IsValid(guardian))
+			if (IsValid(guardian) and guardian->IsAlive())
 			{
 #if WITH_EDITOR
 
@@ -325,16 +325,16 @@ ASagaInGamePlayerController::BeginGuardianAction()
 			}
 		}
 	}
-	else // IF (Offline Mode)
+	else // IF NOT (Offline Mode)
 	{
 		const auto human = GetPawn<ASagaPlayableCharacter>();
 
-		if (IsValid(human))
+		if (IsValid(human) and human->IsAlive())
 		{
 			const auto guardian = human->GetNeareastCollidedBear();
 
 			// 승차
-			if (IsValid(guardian))
+			if (IsValid(guardian) and guardian->IsAlive())
 			{
 #if WITH_EDITOR
 

@@ -327,6 +327,12 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 			break;
 		}
+		else if (not character->IsAlive())
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_ATTACK_0] by user %d - The character is dead."), id);
+
+			break;
+		}
 
 		character->ExecuteAttackAnimation();
 	}
