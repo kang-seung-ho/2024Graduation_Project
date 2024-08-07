@@ -67,5 +67,11 @@ export namespace iconer::app
 		/// <param name="arg0">- 준비된 플레이어의 수</param>
 		/// <param name="arg1">- 없음</param>
 		RPC_NOTIFY_GAME_COUNTDOWN,
+		// 부서진 조각의 변이를 시작함
+		RPC_MORPH_GUARDIANS_PART,
+		// 변이한 조각을 옮김
+		RPC_MOVE_GUARDIANS_PART,
+		// 조각을 곰으로 활성화함
+		RPC_ACTIVE_GUARDIANS_PART,
 	};
 }
