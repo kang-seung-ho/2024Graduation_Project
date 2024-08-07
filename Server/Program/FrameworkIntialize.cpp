@@ -21,7 +21,7 @@ ServerFramework::Initialize()
 		return std::move(io);
 	}
 
-	if (auto io = super::GetListenSocket().BindToHost(serverPort); io)
+	if (auto io = super::GetListenSocket().BindToAny(serverPort); io)
 	{
 		PrintLn("The listen socket is bound to host:({}).", serverPort);
 	}

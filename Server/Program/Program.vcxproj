@@ -24,7 +24,7 @@
     <ProjectGuid>{9ef7740f-d5f1-4c03-b4e3-628259646f65}</ProjectGuid>
     <RootNamespace>Program</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>CandyLandSaga</ProjectName>
+    <ProjectName>Demo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
