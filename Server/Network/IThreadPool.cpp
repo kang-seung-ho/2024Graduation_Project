@@ -79,7 +79,7 @@ iconer::net::IThreadPool::Worker(std::stop_token&& cancel_token, IThreadPool& se
 			//break;
 		}
 #else
-			if (not ProcessTask(AwaitForTask())) UNLIKELY
+			if (not self.ProcessTask(self.AwaitForTask())) UNLIKELY
 			{
 				break;
 			}

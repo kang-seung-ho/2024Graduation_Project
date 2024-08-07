@@ -44,7 +44,7 @@ const noexcept
 
 	const auto port = ::CreateIoCompletionPort(target, myHandle, id, 0);
 #else
-	auto port = ::CreateIoCompletionPort(reinterpret_cast<::HANDLE>(socket.myHandle), myHandle, id, 0);
+	auto port = ::CreateIoCompletionPort(reinterpret_cast<::HANDLE>(socket.GetNativeHandle()), myHandle, id, 0);
 #endif
 
 	if (nullptr == port)
