@@ -401,7 +401,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0: 플레이어가 준 피해량 (4바이트 부동소수점) | 파괴 부위 (4바이트)
+		// arg0: 파괴 부위
 		// arg1: 현재 수호자의 식별자
 		case RPC_DMG_GUARDIANS_PART:
 		{
@@ -412,7 +412,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				break;
 			}
 
-			PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} At room {}.", room_id, arg0, arg1);
+			PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room_id);
 
 			auto& guardian = room->sagaGuardians[arg1];
 			auto& guardian_hp = guardian.myHp;
@@ -427,15 +427,39 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			// 4(3): 왼쪽 다리
 			guardian_pt[arg0 - 1] = 0;
 
+			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0 - 1, arg1);
+
 			if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
 			{
-				//guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+				guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+				guardian_hp.store(0, std::memory_order_release);
 
 				//auto rider_id = guardian.GetRiderId();
 				//guardian.TryUnride(rider_id);
-			}
+				PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
 
-			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0 - 1, arg1);
+				if (-1 != rider_id)
+				{
+					const auto rider = userManager.FindUser(static_cast<size_t>(rider_id));
+
+					if (nullptr != rider)
+					{
+						room->ProcessMember(rider, [&](iconer::app::SagaPlayer& target)
+							{
+								target.ridingGuardianId.compare_exchange_strong(rider_id, -1);
+							}
+						);
+
+						guardian.TryUnride(rider_id);
+					}
+					else
+					{
+						guardian.TryUnride(rider_id);
+					}
+				}
+
+				Broadcast(RPC_DMG_GUARDIAN, user_id, 9999, arg1);
+			}
 		}
 		break;
 
@@ -557,67 +581,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					}
 				}
 			);
-		}
-		break;
-
-		case RPC_GET_SCORE:
-		{
-			const auto redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
-			const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
-
-			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
-
-			ctx->myBuffer = std::move(pk);
-
-			current_user.SendGeneralData(*ctx, size);
-		}
-		break;
-
-		case RPC_GAME_TIMER:
-		{
-			const auto now = std::chrono::system_clock::now();
-
-			const auto gap = room->gamePhaseTime - now;
-			const auto cnt = gap.count();
-
-			if (0 < cnt)
-			{
-			}
-			else
-			{
-				const auto redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
-				const auto bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
-
-				iconer::app::SendContext* const ctx = AcquireSendContext();
-				auto [pk2, size2] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
-
-				ctx->myBuffer = std::move(pk2);
-
-				current_user.SendGeneralData(*ctx, size2);
-			}
-
-			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MakeRpc(RPC_GAME_TIMER, user_id, cnt, 0);
-			ctx->myBuffer = std::move(pk);
-
-			current_user.SendGeneralData(*ctx, size);
-		}
-		break;
-
-		case RPC_NOTIFY_GAME_COUNTDOWN:
-		{
-			const auto now = std::chrono::system_clock::now();
-
-			const auto gap = room->gamePhaseTime - now;
-			const size_t cnt = gap.count();
-			//PrintLn(L"\tRoom {}'s game time: {}.", room_id, cnt);
-
-			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MakeRpc(RPC_NOTIFY_GAME_COUNTDOWN, user_id, cnt, 0);
-			ctx->myBuffer = std::move(pk);
-
-			current_user.SendGeneralData(*ctx, size);
 		}
 		break;
 

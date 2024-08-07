@@ -110,6 +110,14 @@ private:
 	/// <param name="arg0">- effect info</param>
 	/// <param name="arg1">- item type</param>
 	void RpcEventOnItemUsed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_GET_SCORE</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	void RpcEventOnGettingScores(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_GAME_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	void RpcEventOnGettingGameTime(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 	void RpcEventDefault(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);

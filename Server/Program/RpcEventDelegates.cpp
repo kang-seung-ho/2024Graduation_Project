@@ -191,6 +191,50 @@ ServerFramework::RpcEventOnItemUsed(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnGettingScores(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
+	const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
+
+	iconer::app::SendContext* const ctx = AcquireSendContext();
+	auto [pk, size] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
+
+	ctx->myBuffer = std::move(pk);
+
+	user.SendGeneralData(*ctx, size);
+}
+
+void
+ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto now = std::chrono::system_clock::now();
+
+	const auto gap = room.gamePhaseTime - now;
+	const auto cnt = gap.count();
+
+	if (0 < cnt)
+	{
+	}
+	else
+	{
+		RpcEventOnGettingScores(room, user, proc, 0, 0);
+	}
+
+	iconer::app::SendContext* const ctx = AcquireSendContext();
+	auto [pk, size] = MakeRpc(RPC_GAME_TIMER, user.GetID(), cnt, 0);
+
+	ctx->myBuffer = std::move(pk);
+
+	user.SendGeneralData(*ctx, size);
+}
+
+void
 ServerFramework::RpcEventDefault(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
