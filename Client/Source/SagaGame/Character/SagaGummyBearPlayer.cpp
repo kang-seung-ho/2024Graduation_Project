@@ -2,6 +2,7 @@
 #include <Templates/Casts.h>
 #include <Engine/TimerHandle.h>
 #include <Components/ArrowComponent.h>
+#include <Components/SkinnedMeshComponent.h>
 #include <GeometryCollection/ManagedArray.h>
 #include <GeometryCollection/GeometryCollectionComponent.h>
 #include <GeometryCollection/GeometryCollectionObject.h>
@@ -18,9 +19,6 @@
 #include "Effect/SagaSwordEffect.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
-
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
@@ -173,12 +171,12 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 	const bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), param);
 
-//#if ENABLE_DRAW_DEBUG
-//	//충돌시 빨강 아니면 녹색
-//	FColor Color = collide ? FColor::Red : FColor::Green;
-//
-//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
-//#endif
+	//#if ENABLE_DRAW_DEBUG
+	//	//충돌시 빨강 아니면 녹색
+	//	FColor Color = collide ? FColor::Red : FColor::Green;
+	//
+	//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
+	//#endif
 
 	constexpr float bearDamage = 50.0f;
 
@@ -296,20 +294,62 @@ void
 ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 {
 	const auto rot = GetActorRotation() + FRotator{ 0, 0, 180 };
-	const FVector Impulse = rot.Vector();
+	const FVector Impulse = rot.Vector() * 200;
 
 	//CheckValidBone(Impulse, i);
 
 	USkinnedMeshComponent* const SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
-	const auto& boxes = DismCollisionBox[index];
+	if (!IsValid(SkinnedMesh))
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] There is no USkinnedMeshComponent."));
 
-	const FName BoneName = boxes->GetAttachSocketName();
+		return;
+	}
 
-	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
+	if (!DismCollisionBox.IsValidIndex(index))
+	{
+		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] %d is an invalid index for colliders."), index);
+
+		return;
+	}
+
+	const auto& body_collider = DismCollisionBox[index];
+
+	const FName bone_name = body_collider->GetAttachSocketName();
+	if (!SkinnedMesh->IsBoneHiddenByName(bone_name))
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("[ExecutePartDestruction] TriggerExplosion: %d"), index);
 
-		ExplodeBodyParts(BoneName, Impulse, index);
+		SkinnedMesh->HideBoneByName(bone_name, PBO_None);
+
+		UGeometryCollectionComponent* gc = GeometryCollections[index];
+		gc->SetVisibility(true);
+		gc->SetSimulatePhysics(true);
+		gc->CrumbleActiveClusters();
+
+		gc->AddRadialImpulse(gc->GetComponentLocation(), 100, 150, RIF_Constant, true);
+		gc->AddImpulse(Impulse, NAME_None, true);
+
+		//DismCollisionBox[Index]->DestroyComponent();
+		//SpawnMorphSystem(TargetGC, Index);
+		//*/
+
+		//if (net->IsOfflineMode())
+		{
+			if (UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent")))
+			{
+				struct Params
+				{
+					UGeometryCollectionComponent* Target;
+					int32 Ind;
+				};
+
+				Params parameters{};
+				parameters.Target = gc;
+				parameters.Ind = index;
+				ProcessEvent(morph_fun, &parameters);
+			}
+		}
 	}
 
 	//if (net->IsOfflineMode())
