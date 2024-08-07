@@ -174,6 +174,11 @@ export namespace iconer::app
 		// 0[4] => id
 		// 225[1] => RPC_GAME_TIMER
 		std::array<std::byte, 20> gameTimerPacketData{};
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id
+		// 221[1] => RPC_GET_SCORE
+		std::array<std::byte, 20> gameScorePacketData{};
 
 		explicit constexpr Room(id_type id) noexcept
 			: super(id)
@@ -181,6 +186,7 @@ export namespace iconer::app
 			myTitle.resize(titleLength * 2);
 
 			iconer::app::SerializeAt(gameTimerPacketData.data(), PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GAME_TIMER, 0LL, 0);
+			iconer::app::SerializeAt(gameScorePacketData.data(), PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GET_SCORE, 0LL, 0);
 		}
 
 		~Room() = default;

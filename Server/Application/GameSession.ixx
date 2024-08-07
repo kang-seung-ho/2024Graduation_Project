@@ -1,4 +1,5 @@
 export module Iconer.App.GameSession;
+import <chrono>;
 import <array>;
 import <atomic>;
 
@@ -51,15 +52,46 @@ export namespace iconer::app
 		};
 	}
 
+	struct SagaSmallGummyBear
+	{
+		static inline constexpr float maxHp = 100;
+
+		std::atomic_bool isActivated{};
+		std::atomic<float> myHp{ maxHp };
+		float x{}, y{}, z{}, yaw{};
+		std::chrono::system_clock::time_point activeTime;
+
+		bool TryActivate() noexcept
+		{
+			bool active = false;
+
+			return isActivated.compare_exchange_strong(active, true);
+		}
+
+		bool TryDeactivate() noexcept
+		{
+			bool active = true;
+
+			return isActivated.compare_exchange_strong(active, false);
+		}
+	};
+
 	struct SagaGuardian
 	{
 		static inline constexpr float maxHp = 500;
 
 		std::atomic<SagaGuardianState::Type> myStatus;
-		std::atomic_int32_t riderId{ -1 };
 		std::atomic<float> myHp{ maxHp };
-		std::int32_t myParts[4]{ 1, 1, 1, 1 };
-		
+		std::atomic_int32_t riderId{ -1 };
+
+		SagaSmallGummyBear myPartEntity[4]{};
+		std::int32_t myPartHealthPoints[4]{ 1, 1, 1, 1 };
+
+		SagaSmallGummyBear& GetPartedEntity(int index)
+		{
+			return myPartEntity[index];
+		}
+
 		void Update()
 		{
 
@@ -71,7 +103,13 @@ export namespace iconer::app
 			myHp = maxHp;
 			riderId = -1;
 
-			for (auto& part : myParts)
+			for (auto& entity : myPartEntity)
+			{
+				entity.isActivated = false;
+				entity.myHp = entity.maxHp;
+			}
+
+			for (auto& part : myPartHealthPoints)
 			{
 				part = 1;
 			}
@@ -83,7 +121,13 @@ export namespace iconer::app
 			myHp = maxHp;
 			riderId = -1;
 
-			for (auto& part : myParts)
+			for (auto& entity : myPartEntity)
+			{
+				entity.isActivated = false;
+				entity.myHp = entity.maxHp;
+			}
+
+			for (auto& part : myPartHealthPoints)
 			{
 				part = 1;
 			}

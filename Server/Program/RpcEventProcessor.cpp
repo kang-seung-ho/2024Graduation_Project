@@ -416,7 +416,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			auto& guardian = room->sagaGuardians[arg1];
 			auto& guardian_hp = guardian.myHp;
-			auto& guardian_pt = guardian.myParts;
+			auto& guardian_pt = guardian.myPartHealthPoints;
 			auto rider_id = guardian.GetRiderId();
 
 			// 곰 신체부위
