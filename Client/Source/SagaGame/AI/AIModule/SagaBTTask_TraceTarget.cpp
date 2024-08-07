@@ -4,6 +4,7 @@
 #include "AI/AIModule/SagaBTTask_TraceTarget.h"
 #include "../SagaMonsterAIPawn.h"
 #include "../SagaMonsterAIController.h"
+#include "Character/SagaPlayableCharacter.h"
 
 USagaBTTask_TraceTarget::USagaBTTask_TraceTarget()
 {
@@ -29,7 +30,7 @@ EBTNodeResult::Type USagaBTTask_TraceTarget::ExecuteTask(UBehaviorTreeComponent&
 
 	//Get the Target which is saved in the Blackboard
 	AActor* Target = Cast<AActor>(Controller->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
-	if (!IsValid(Target))
+	if (!IsValid(Target) || !Target->IsA(ASagaPlayableCharacter::StaticClass()))
 	{
 		//Stop the AI's movement
 		Controller->StopMovement();
