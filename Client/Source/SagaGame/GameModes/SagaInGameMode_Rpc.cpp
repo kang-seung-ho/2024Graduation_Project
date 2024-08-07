@@ -658,7 +658,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART:
 	{
-		const auto guardian_info = static_cast<int32>(arg0);
+		const auto guardian_part_id = static_cast<int32>(arg0);
 		const auto guardian_id = arg1;
 
 		const auto guardian = FindBear(guardian_id);
@@ -668,7 +668,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 #if WITH_EDITOR
 
 			const auto guardian_name = guardian->GetName();
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] By user %d to part %d of guardian %d."), id, guardian_info, guardian_id);
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] By user %d to part %d of guardian %d."), id, guardian_part_id, guardian_id);
 #endif
 
 			if (not guardian->IsAlive())
@@ -679,18 +679,29 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 #endif
 			}
 
-			if (guardian->IsPartDestructed(guardian_info))
+			if (guardian->IsPartDestructed(guardian_part_id))
 			{
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIANS_PART] '%s''s part %d is already destructed."), *guardian_name, guardian_info);
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIANS_PART] '%s''s part %d is already destructed."), *guardian_name, guardian_part_id);
 #endif
 			}
 			else
 			{
-				if (guardian->GiveDamageToPart(guardian_info))
+				if (guardian->GiveDamageToPart(guardian_part_id))
 				{
-					guardian->ExecutePartDestruction(guardian_info);
+#if WITH_EDITOR
+
+					UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] Destructing '%s''s part %d."), *guardian_name, guardian_part_id);
+#endif
+
+					const auto part_actor = guardian->ExecutePartDestruction(guardian_part_id);
+
+					if (part_actor)
+					{
+						net->SendRpcPacket(ESagaRpcProtocol::RPC_MORPH_GUARDIANS_PART, guardian_part_id, guardian_id);
+						//guardian->ExecuteMorphingPart(part_actor, guardian_part_id);
+					}
 				}
 			}
 		}
@@ -698,7 +709,47 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		{
 #if WITH_EDITOR
 
-			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_GUARDIANS_PART] Cannot found the guardian '%d'. (User: %d, Part: %d)"), guardian_id, id, guardian_info);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DMG_GUARDIANS_PART] Cannot found the guardian '%d'. (User: %d, Part: %d)"), guardian_id, id, guardian_part_id);
+#endif
+		}
+	}
+	break;
+
+	case ESagaRpcProtocol::RPC_MORPH_GUARDIANS_PART:
+	{
+		const auto guardian_part_id = static_cast<int32>(arg0);
+		const auto guardian_id = arg1;
+
+		const auto guardian = FindBear(guardian_id);
+
+		if (IsValid(guardian))
+		{
+#if WITH_EDITOR
+
+			const auto guardian_name = guardian->GetName();
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_MORPH_GUARDIANS_PART] Guardian '%s'(%d)'s part %d is morphing."), *guardian_name, guardian_id, guardian_part_id);
+#endif
+
+			if (not guardian->IsPartDestructed(guardian_part_id))
+			{
+				guardian->GiveDamageToPart(guardian_part_id);
+				const auto part_actor = guardian->ExecutePartDestruction(guardian_part_id);
+
+				if (part_actor)
+				{
+					guardian->ExecuteMorphingPart(part_actor, guardian_part_id);
+				}
+			}
+			else
+			{
+				guardian->ExecuteMorphingPartAt(guardian_part_id);
+			}
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_MORPH_GUARDIANS_PART] There is no guardian with ab id '%d'."), guardian_id);
 #endif
 		}
 	}

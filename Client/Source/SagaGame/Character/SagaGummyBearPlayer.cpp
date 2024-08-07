@@ -2,6 +2,7 @@
 #include <Templates/Casts.h>
 #include <Engine/TimerHandle.h>
 #include <Components/ArrowComponent.h>
+#include <Components/SkinnedMeshComponent.h>
 #include <GeometryCollection/ManagedArray.h>
 #include <GeometryCollection/GeometryCollectionComponent.h>
 #include <GeometryCollection/GeometryCollectionObject.h>
@@ -18,9 +19,6 @@
 #include "Effect/SagaSwordEffect.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
-
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
@@ -173,12 +171,12 @@ ASagaGummyBearPlayer::ExecuteAttack()
 
 	const bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), param);
 
-//#if ENABLE_DRAW_DEBUG
-//	//충돌시 빨강 아니면 녹색
-//	FColor Color = collide ? FColor::Red : FColor::Green;
-//
-//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
-//#endif
+	//#if ENABLE_DRAW_DEBUG
+	//	//충돌시 빨강 아니면 녹색
+	//	FColor Color = collide ? FColor::Red : FColor::Green;
+	//
+	//	DrawDebugCapsule(GetWorld(), (Start + End) / 2.f, 150.f / 2.f + 50.f / 2.f, 50.f, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 3.f);
+	//#endif
 
 	constexpr float bearDamage = 50.0f;
 
@@ -292,44 +290,107 @@ ASagaGummyBearPlayer::ExecuteDeath()
 	}
 }
 
-void
+UGeometryCollectionComponent*
 ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 {
 	const auto rot = GetActorRotation() + FRotator{ 0, 0, 180 };
-	const FVector Impulse = rot.Vector();
-
-	//CheckValidBone(Impulse, i);
+	const FVector Impulse = rot.Vector() * 200;
 
 	USkinnedMeshComponent* const SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
-	const auto& boxes = DismCollisionBox[index];
-
-	const FName BoneName = boxes->GetAttachSocketName();
-
-	if (!SkinnedMesh->IsBoneHiddenByName(BoneName))
+	if (!IsValid(SkinnedMesh))
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[ExecutePartDestruction] TriggerExplosion: %d"), index);
+		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] There is no USkinnedMeshComponent."));
 
-		ExplodeBodyParts(BoneName, Impulse, index);
+		return nullptr;
 	}
 
-	//if (net->IsOfflineMode())
+	if (!DismCollisionBox.IsValidIndex(index))
 	{
-		const auto& right_leg_hp = ActiveIndex[1];
-		const auto& left_leg_hp = ActiveIndex[3];
-
-		if (right_leg_hp <= 0 && left_leg_hp <= 0)
-		{
 #if WITH_EDITOR
 
-			const auto name = GetName();
-
-			//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
-			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
+		UE_LOG(LogSagaGame, Error, TEXT("[ExecutePartDestruction] %d is an invalid index for colliders."), index);
 #endif
 
-			ExecuteHurt(GetHealth());
-		}
+		return nullptr;
 	}
+
+	const auto& body_collider = DismCollisionBox[index];
+
+	const FName bone_name = body_collider->GetAttachSocketName();
+	if (!SkinnedMesh->IsBoneHiddenByName(bone_name))
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[ExecutePartDestruction] TriggerExplosion: %d"), index);
+#endif
+
+		SkinnedMesh->HideBoneByName(bone_name, PBO_None);
+
+		const auto& gc = GeometryCollections[index];
+		gc->SetVisibility(true);
+		gc->SetSimulatePhysics(true);
+		gc->CrumbleActiveClusters();
+
+		gc->AddRadialImpulse(gc->GetComponentLocation(), 100, 150, RIF_Constant, true);
+		gc->AddImpulse(Impulse, NAME_None, true);
+
+		// 사망 처리
+		//if (net->IsOfflineMode())
+		{
+			const auto& right_leg_hp = ActiveIndex[1];
+			const auto& left_leg_hp = ActiveIndex[3];
+
+			if (right_leg_hp <= 0 && left_leg_hp <= 0)
+			{
+#if WITH_EDITOR
+
+				const auto name = GetName();
+
+				//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
+				UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
+#endif
+
+				ExecuteHurt(GetHealth());
+			}
+		}
+
+		return gc;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+void
+ASagaGummyBearPlayer::ExecuteMorphingPart(UGeometryCollectionComponent* const& gc, const int32 index)
+{
+	//DismCollisionBox[Index]->DestroyComponent();
+	//SpawnMorphSystem(TargetGC, Index);
+	//*/
+	static UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent"));
+
+	if (IsValid(morph_fun))
+	{
+		struct Params
+		{
+			UGeometryCollectionComponent* Target;
+			int32 Ind;
+		};
+
+		Params parameters{};
+		parameters.Target = gc;
+		parameters.Ind = index;
+		ProcessEvent(morph_fun, &parameters);
+	}
+}
+
+void
+ASagaGummyBearPlayer::ExecuteMorphingPartAt(const int32 index)
+{
+	const auto& gc = GeometryCollections[index];
+
+	ExecuteMorphingPart(gc, index);
 }
 
 int32
@@ -357,7 +418,12 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 						UE_LOG(LogSagaGame, Log, TEXT("[OnBodyPartGetDamaged] A part %d of '%s' is destructed. (Offline Mode)"), i, *name);
 #endif
 
-						ExecutePartDestruction(i);
+						const auto part_actor = ExecutePartDestruction(i);
+
+						if (part_actor)
+						{
+							ExecuteMorphingPart(part_actor, i);
+						}
 
 						return i;
 					}
