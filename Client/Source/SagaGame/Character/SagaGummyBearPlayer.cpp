@@ -296,8 +296,6 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 	const auto rot = GetActorRotation() + FRotator{ 0, 0, 180 };
 	const FVector Impulse = rot.Vector() * 200;
 
-	//CheckValidBone(Impulse, i);
-
 	USkinnedMeshComponent* const SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
 	if (!IsValid(SkinnedMesh))
 	{
@@ -322,7 +320,7 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 
 		SkinnedMesh->HideBoneByName(bone_name, PBO_None);
 
-		UGeometryCollectionComponent* gc = GeometryCollections[index];
+		const auto& gc = GeometryCollections[index];
 		gc->SetVisibility(true);
 		gc->SetSimulatePhysics(true);
 		gc->CrumbleActiveClusters();
@@ -352,6 +350,7 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 		}
 	}
 
+	// 사망 처리
 	//if (net->IsOfflineMode())
 	{
 		const auto& right_leg_hp = ActiveIndex[1];
