@@ -191,6 +191,143 @@ ServerFramework::RpcEventOnItemUsed(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto room_id = room.GetID();
+	const auto user_id = user.GetID();
+
+	// arg1: index of the guardian
+	if (arg1 < 0 or 3 <= arg1)
+	{
+		PrintLn("User {} tells wrong damaged guardian {}.", user_id, arg1);
+		return;
+	}
+
+	// arg0: damages to the guardian (4 bytes)
+	float dmg{};
+	std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
+	// arg0: destructed body parts (4 bytes, 1 byte per part)
+	std::int32_t parts{};
+	std::memcpy(&parts, reinterpret_cast<const char*>(&arg0) + 4, 4);
+
+	auto& guardian = room.sagaGuardians[arg1];
+	auto& guardian_hp = guardian.myHp;
+
+	auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire);
+
+	if (0 < guardian_hp_value)
+	{
+		PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
+
+		// 탑승했던 곰 사망
+		if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
+		{
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
+
+			guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+
+			//std::int64_t hp_arg0{};
+			//float curr_hp = guardian_hp.load(std::memory_order_acquire);
+			//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
+			//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
+
+			auto rider_id = guardian.GetRiderId();
+
+			// 하차 처리
+			if (-1 != rider_id)
+			{
+				guardian.TryUnride(rider_id);
+
+				auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
+
+				constexpr std::int32_t killIncrement = 3;
+
+				room.Foreach
+				(
+					[&](iconer::app::SagaPlayer& member)
+					{
+						const auto user_ptr = member.GetStoredUser();
+						if (nullptr == user_ptr) return;
+
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+						ctx->mySharedBuffer = pk;
+
+						if (rider_id == user_ptr->GetID())
+						{
+							// NOTICE: 자기 팀의 점수 증가
+							if (member.team_id == ESagaPlayerTeam::Red)
+							{
+								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+							else if (member.team_id == ESagaPlayerTeam::Blu)
+							{
+								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+
+							member.ridingGuardianId.compare_exchange_strong(rider_id, -1, std::memory_order_acq_rel);
+						}
+
+						user_ptr->SendGeneralData(*ctx, pk.get(), size);
+					}
+				);
+
+				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
+			}
+			else // IF (rider id is -1)
+			{
+				// Send damage first
+				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
+
+				constexpr std::int32_t killIncrement = 1;
+
+				room.Foreach
+				(
+					[&](iconer::app::SagaPlayer& member) noexcept
+					{
+						const auto user_ptr = member.GetStoredUser();
+						if (nullptr == user_ptr) return;
+
+						// 반드시 점수 증가
+						// NOTICE: 자기 팀의 점수 증가
+						//if (rider_id == user_ptr->GetID())
+						{
+							if (member.team_id == ESagaPlayerTeam::Red)
+							{
+								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+							else if (member.team_id == ESagaPlayerTeam::Blu)
+							{
+								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+						}
+					}
+				);
+			}
+		}
+		else
+		{
+			RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
+		}
+	}
+	else // IF (guardian hp <= 0)
+	{
+		PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is already dead.", room_id, arg1);
+	}
+}
+
+void
+ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+
+}
+
+void
 ServerFramework::RpcEventOnGettingScores(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
@@ -199,12 +336,7 @@ ServerFramework::RpcEventOnGettingScores(iconer::app::Room& room
 	const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
 	const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
 
-	iconer::app::SendContext* const ctx = AcquireSendContext();
-	auto [pk, size] = MakeRpc(RPC_GET_SCORE, 0, redscore, bluscore);
-
-	ctx->myBuffer = std::move(pk);
-
-	user.SendGeneralData(*ctx, size);
+	user.SendGeneralData(*AcquireSendContext(), room.MakeGameScorePacket(redscore, bluscore));
 }
 
 void

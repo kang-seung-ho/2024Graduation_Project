@@ -110,6 +110,14 @@ private:
 	/// <param name="arg0">- effect info</param>
 	/// <param name="arg1">- item type</param>
 	void RpcEventOnItemUsed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_DMG_GUARDIAN</param>
+	/// <param name="arg0">- damage to guardian (4 bytes)</param>
+	/// <param name="arg1">- guardian id</param>
+	void RpcEventOnDamageToGuardian(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	/// <param name="proc">- RPC_DMG_GUARDIANS_PART</param>
+	/// <param name="arg0">- destructed part id</param>
+	/// <param name="arg1">- guardian id</param>
+	void RpcEventOnGuardianPartDestructed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 	/// <param name="proc">- RPC_GET_SCORE</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>

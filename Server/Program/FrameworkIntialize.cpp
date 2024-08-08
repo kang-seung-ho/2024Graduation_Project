@@ -122,6 +122,7 @@ ServerFramework::Initialize()
 	AddRpcProcessor(RPC_DESTROY_ITEM_BOX, &ServerFramework::RpcEventOnItemBoxDestroyed);
 	AddRpcProcessor(RPC_GRAB_ITEM, &ServerFramework::RpcEventOnItemGrabbed);
 	AddRpcProcessor(RPC_USE_ITEM_0, &ServerFramework::RpcEventOnItemUsed);
+	AddRpcProcessor(RPC_DMG_GUARDIAN, &ServerFramework::RpcEventOnDamageToGuardian);
 	AddRpcProcessor(RPC_GET_SCORE, &ServerFramework::RpcEventOnGettingScores);
 	AddRpcProcessor(RPC_GAME_TIMER, &ServerFramework::RpcEventOnGettingGameTime);
 

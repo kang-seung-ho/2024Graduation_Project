@@ -307,6 +307,15 @@ export namespace iconer::app
 
 			return gameTimerPacketData;
 		}
+		
+		[[nodiscard]]
+		auto& MakeGameScorePacket(const std::int64_t& red_score, const std::int32_t& blu_score) noexcept
+		{
+			std::memcpy(gameScorePacketData.data() + 8, &red_score, sizeof(std::int64_t));
+			std::memcpy(gameScorePacketData.data() + 16, &blu_score, sizeof(std::int32_t));
+
+			return gameScorePacketData;
+		}
 
 		[[nodiscard]]
 		constexpr std::wstring_view GetTitle() const noexcept
