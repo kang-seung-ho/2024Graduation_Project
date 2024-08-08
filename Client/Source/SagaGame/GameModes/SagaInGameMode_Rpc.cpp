@@ -351,7 +351,25 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	break;
 
 	case ESagaRpcProtocol::RPC_SKILL_0:
-	{}
+	{
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_SKILL_0] by user %d, has no character."), id);
+
+			break;
+		}
+		else if (not character->IsAlive())
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_SKILL_0] by user %d - The character is dead."), id);
+
+			break;
+		}
+
+		if (const auto human = Cast<ASagaPlayableCharacter>(character))
+		{
+			human->UseSkill(0);
+		}
+	}
 	break;
 
 	case ESagaRpcProtocol::RPC_DESTROY_ITEM_BOX:
