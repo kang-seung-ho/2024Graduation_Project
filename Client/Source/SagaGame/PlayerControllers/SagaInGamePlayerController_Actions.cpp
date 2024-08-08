@@ -381,3 +381,18 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
 		}
 	}
 }
+
+void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 1"));
+}
+
+void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 2"));
+}
+
+void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 3"));
+}

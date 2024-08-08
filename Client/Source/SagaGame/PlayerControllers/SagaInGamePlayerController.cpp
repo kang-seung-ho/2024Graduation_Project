@@ -41,8 +41,8 @@ ASagaInGamePlayerController::BeginPlay()
 
 		if (IsValid(InventoryWidget))
 		{
-			InventoryWidget->AddToViewport(5);
-			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+			InventoryWidget->AddToViewport(5); //this means that zorder is 5
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 	else

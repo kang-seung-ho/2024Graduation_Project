@@ -70,6 +70,15 @@ public:
 	UFUNCTION()
 	void OnSkill1(const FInputActionValue& Value);
 
+	UFUNCTION()
+	void OnItem1(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnItem2(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnItem3(const FInputActionValue& Value);
+
 #pragma endregion
 
 protected:
