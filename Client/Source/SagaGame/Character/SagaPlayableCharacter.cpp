@@ -305,6 +305,24 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 			}
 		}
 	}
+	else if (dmg == 45.f) //if the player is attacked by skill(Q)
+	{
+		if (SkillQHitCascadeEffect)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				SkillQHitCascadeEffect,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				CascadeComponent->bAutoDestroy = true;
+			}
+		}
+	}
 
 	if (0 < current_health)
 	{
@@ -556,7 +574,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	: Super()
 	, humanCharacterAnimation()
 	, collideBears()
-	, HitCascadeEffect(), GunHitCascadeEffect()
+	, HitCascadeEffect(), GunHitCascadeEffect(), SkillQHitCascadeEffect()
 	, HitSoundEffect(), DeadSoundEffect()
 	, respawnTimerHandle()
 {
@@ -585,6 +603,12 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	if (GunCascadeEffect.Succeeded())
 	{
 		GunHitCascadeEffect = GunCascadeEffect.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> SkillCascadeEffectRef(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Plasma_Hit/P_Hit_Plasma_4.P_Hit_Plasma_4'"));
+	if (SkillCascadeEffectRef.Succeeded())
+	{
+		SkillQHitCascadeEffect = SkillCascadeEffectRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> HitSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Damage.Damage'"));

@@ -56,6 +56,9 @@ protected:
 	UPROPERTY()
 	class UParticleSystem* GunHitCascadeEffect;
 
+	UPROPERTY()
+	class UParticleSystem* SkillQHitCascadeEffect;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	class USoundBase* HitSoundEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
