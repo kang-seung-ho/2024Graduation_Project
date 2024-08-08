@@ -127,7 +127,7 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
 		Skill->SetSkillDistance(200.f);
 		//Skill->SetParticle(TEXT(""));
 		//Skill->SetSound(TEXT(""));
-		Skill->SetOwner(TryGetPawnOwner()->GetController(), TryGetPawnOwner());
+		Skill->SetSkillOwner(TryGetPawnOwner()->GetController(), TryGetPawnOwner());
 
 		FTimerHandle SphereActorHandle;
 		GetWorld()->GetTimerManager().SetTimer(SphereActorHandle, Skill, &ASkillSphereActor::DestroySkill, 0.3f, false); // Destroy after 0.3 seconds

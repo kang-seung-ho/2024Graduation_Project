@@ -1,9 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include "SagaGameInfo.h"
+#include <GameFramework/Actor.h>
 
-#include "SagaGame/Public/SagaGameInfo.h"
-#include "GameFramework/Actor.h"
 #include "SkillActor.generated.h"
 
 UCLASS()
@@ -11,10 +9,6 @@ class SAGAGAME_API ASkillActor : public AActor
 {
 	GENERATED_BODY()
 	
-public:
-	// Sets default values for this actor's properties
-	ASkillActor();
-
 protected:
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* mRoot;
@@ -27,12 +21,18 @@ protected:
 	APawn* mOwnerPawn;
 
 public:
-	void SetOwner(AController* Controller, APawn* Pawn)
+	ASkillActor();
+
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	void SetSkillOwner(AController* Controller, APawn* Pawn)
 	{
 		mOwnerController = Controller;
 		mOwnerPawn = Pawn;
 	}
 
+	UFUNCTION()
 	virtual void SetSkillDistance(float Distance)
 	{
 		mDistance = Distance;
@@ -44,20 +44,18 @@ public:
 	void SetSound(const FString& Path);
 	void SetSound(USoundBase* Sound);
 
-protected:
-	virtual void BeginPlay() override;
-
-public:
-	virtual void Tick(float DeltaTime) override;
-
-public:
+	UFUNCTION()
 	virtual void SkillHit(AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION()
 	virtual void SkillOverlap(AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, const FHitResult& SweepResult);
+	UFUNCTION()
 	virtual void SkillOverlapEnd(AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+protected:
+	virtual void BeginPlay() override;
 
 private:
 	UFUNCTION()

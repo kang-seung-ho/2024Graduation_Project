@@ -7,7 +7,10 @@ ASkillSphereActor::ASkillSphereActor()
 {
 	mRoot = CreateDefaultSubobject<USphereComponent>(TEXT("Root"));
 
+#if WITH_EDITOR
+
 	mRoot->bVisualizeComponent = true;
+#endif
 
 	RootComponent = mRoot;
 
