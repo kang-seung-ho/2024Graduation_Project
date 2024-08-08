@@ -2,7 +2,6 @@
 #include <UObject/Object.h>
 
 #include "Character/SagaPlayableCharacter.h"
-#include "Character/SkillSphereActor.h"
 
 void
 USagaPlayerAnimInstance::PlayAttackMontage()
