@@ -1,8 +1,6 @@
 #pragma once
-#include "SagaGame.h"
-#include <Animation/AnimInstance.h>
-#include "../SagaGame/Public/SagaGameInfo.h"
 #include "SagaAIInfo.h"
+#include <Animation/AnimInstance.h>
 
 #include "AIMonsterAnimInstance.generated.h"
 

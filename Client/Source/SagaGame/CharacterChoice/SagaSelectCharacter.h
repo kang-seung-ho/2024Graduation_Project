@@ -2,6 +2,7 @@
 #include "SagaGame.h"
 #include <UObject/ObjectPtr.h>
 #include <GameFramework/Actor.h>
+
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "SagaSelectCharacter.generated.h"
 
