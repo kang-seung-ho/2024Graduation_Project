@@ -117,20 +117,12 @@ void USagaPlayerAnimInstance::AnimNotify_HitRecovery()
 void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
 {
 	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_Q Implemented"));
-	FActorSpawnParameters SpawnParam;
-	SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	ASkillSphereActor* Skill = GetWorld()->SpawnActor<ASkillSphereActor>(TryGetPawnOwner()->GetActorLocation(), TryGetPawnOwner()->GetActorRotation(), SpawnParam);
+	const auto PlayerCharacter = GetPawnOwner();
 
-	if(Skill)
+	if (IsValid(PlayerCharacter))
 	{
-		Skill->SetSkillDistance(200.f);
-		//Skill->SetParticle(TEXT(""));
-		//Skill->SetSound(TEXT(""));
-		Skill->SetSkillOwner(TryGetPawnOwner()->GetController(), TryGetPawnOwner());
-
-		FTimerHandle SphereActorHandle;
-		GetWorld()->GetTimerManager().SetTimer(SphereActorHandle, Skill, &ASkillSphereActor::DestroySkill, 0.3f, false); // Destroy after 0.3 seconds
+		PlayerCharacter->ExecuteSkill(0);
 	}
 }
 

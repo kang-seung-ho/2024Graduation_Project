@@ -393,8 +393,7 @@ ASagaPlayableCharacter::ExecuteRespawn()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
-ASagaGummyBearPlayer*
-ASagaPlayableCharacter::GetNeareastCollidedBear()
+ASagaGummyBearPlayer* ASagaPlayableCharacter::GetNeareastCollidedBear()
 const
 {
 	if (0 == collideBears.Num())
@@ -433,11 +432,83 @@ const
 
 void ASagaPlayableCharacter::UseSkill(int32 SlotNumber)
 {
-	mAnimInst->UseSkill(SlotNumber);
+	mAnimInst->UseSkill(SlotNumber); //play animation first
+
+	
+
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] UseSkill: %d"), SlotNumber);
 }
 
-void
-ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
+void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
+{
+	UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] ExecuteSkill: %d"), SlotNumber);
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+	if (net->GetLocalUserId() != GetUserId())
+	{
+	}
+	//if (SlotNumber == 0) {}
+	FHitResult hit_result{};
+	float damage{};
+	FCollisionQueryParams query{};
+	query.AddIgnoredActor(this);
+
+	ECollisionChannel channel;
+
+	if (GetTeam() == ESagaPlayerTeam::Red)
+	{
+		channel = ECC_GameTraceChannel4;
+	}
+	else // blue team
+	{
+		channel = ECC_GameTraceChannel7;
+	}
+
+	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+	FVector End = Start + GetActorForwardVector() * 150.f;
+	FDamageEvent hit_event{};
+	bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
+
+
+	damage = 45.f;
+
+	if (collide)
+	{
+		const auto hit_actor = hit_result.GetActor();
+
+		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+		if (IsValid(bear))
+		{
+			if (bear->IsAlive())
+			{
+				const auto Hitlocation = hit_result.ImpactPoint;
+				const auto HitNormal = hit_result.Normal;
+
+				const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+				if (-1 != index and not net->IsOfflineMode())
+				{
+#if WITH_EDITOR
+
+					const auto bear_name = bear->GetName();
+
+					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+				}
+
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+			}
+		}
+		else
+		{
+			hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+		}
+	}
+}
+
+void ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
 {
 	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
 
@@ -454,8 +525,7 @@ ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)
 	}
 }
 
-void
-ASagaPlayableCharacter::HandleEndCollision(AActor* self, AActor* other_actor)
+void ASagaPlayableCharacter::HandleEndCollision(AActor* self, AActor* other_actor)
 {
 	const auto bear = Cast<ASagaGummyBearPlayer>(other_actor);
 
@@ -472,8 +542,7 @@ ASagaPlayableCharacter::HandleEndCollision(AActor* self, AActor* other_actor)
 	}
 }
 
-void
-ASagaPlayableCharacter::HandleRespawnCountdown()
+void ASagaPlayableCharacter::HandleRespawnCountdown()
 {
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
@@ -539,8 +608,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 
 }
 
-void
-ASagaPlayableCharacter::PostInitializeComponents()
+void ASagaPlayableCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 

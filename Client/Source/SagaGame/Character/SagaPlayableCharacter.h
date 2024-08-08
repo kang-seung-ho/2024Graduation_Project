@@ -42,6 +42,7 @@ public:
 	class ASagaGummyBearPlayer* GetNeareastCollidedBear() const;
 
 	virtual void UseSkill(int32 SlotNumber);
+	void ExecuteSkill(int32 SlotNumber);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Animation")
