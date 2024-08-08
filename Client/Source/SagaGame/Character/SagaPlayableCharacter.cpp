@@ -368,6 +368,7 @@ ASagaPlayableCharacter::ExecuteDeath()
 			// ExecuteRespawn 함수 3초 뒤	실행
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 
+			// 상대 팀 점수 증가
 			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 		}
 		else if (GetUserId() == net->GetLocalUserId())
@@ -377,9 +378,6 @@ ASagaPlayableCharacter::ExecuteDeath()
 
 			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::HandleRespawnCountdown, 0.5f, true);
 
-			// TODO: 점수 동기화 작업 중
-			// 상대 팀 점수 증가
-			//sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 		}
 	}
