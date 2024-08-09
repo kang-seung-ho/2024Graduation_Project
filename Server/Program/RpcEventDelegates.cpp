@@ -236,41 +236,46 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 
 			auto rider_id = guardian.GetRiderId();
 
-			// 하차 처리
 			if (-1 != rider_id)
 			{
+				// 하차 처리
 				guardian.TryUnride(rider_id);
-
-				auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
 
 				constexpr std::int32_t killIncrement = 3;
 
-				room.Foreach
-				(
-					[&](iconer::app::SagaPlayer& member)
+				room.Foreach([&](iconer::app::SagaPlayer& member)
 					{
-						const auto user_ptr = member.GetStoredUser();
-						if (nullptr == user_ptr) return;
+						const auto mem_ptr = member.GetStoredUser();
+						if (nullptr == mem_ptr) return;
+						
+						const auto mem_id = mem_ptr->GetID();
+						const auto rider_id_ext = static_cast<std::uint64_t>(rider_id);
 
-						iconer::app::SendContext* const ctx = AcquireSendContext();
-						ctx->mySharedBuffer = pk;
-
-						if (rider_id == user_ptr->GetID())
+						if (mem_id == rider_id_ext)
 						{
-							// NOTICE: 자기 팀의 점수 증가
 							if (member.team_id == ESagaPlayerTeam::Red)
-							{
-								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
-							}
-							else if (member.team_id == ESagaPlayerTeam::Blu)
 							{
 								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 							}
-
-							member.ridingGuardianId.compare_exchange_strong(rider_id, -1, std::memory_order_acq_rel);
+							else if (member.team_id == ESagaPlayerTeam::Blu)
+							{
+								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
 						}
+					}
+				);
 
-						user_ptr->SendGeneralData(*ctx, pk.get(), size);
+				auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
+
+				room.Foreach
+				(
+					[&](iconer::app::User& member)
+					{
+						iconer::app::SendContext* const ctx = AcquireSendContext();
+
+						ctx->mySharedBuffer = pk;
+
+						member.SendGeneralData(*ctx, pk.get(), size);
 					}
 				);
 
@@ -283,25 +288,17 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 
 				constexpr std::int32_t killIncrement = 1;
 
-				room.Foreach
-				(
-					[&](iconer::app::SagaPlayer& member) noexcept
+				room.ProcessMember(&user
+					, [&](iconer::app::SagaPlayer& member) noexcept
 					{
-						const auto user_ptr = member.GetStoredUser();
-						if (nullptr == user_ptr) return;
-
-						// 반드시 점수 증가
 						// NOTICE: 자기 팀의 점수 증가
-						//if (rider_id == user_ptr->GetID())
+						if (member.team_id == ESagaPlayerTeam::Red)
 						{
-							if (member.team_id == ESagaPlayerTeam::Red)
-							{
-								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
-							}
-							else if (member.team_id == ESagaPlayerTeam::Blu)
-							{
-								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
-							}
+							room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+						}
+						else if (member.team_id == ESagaPlayerTeam::Blu)
+						{
+							room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 						}
 					}
 				);
@@ -324,7 +321,39 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	// arg1: index of the guardian
+	if (arg1 < 0 or 3 <= arg1)
+	{
+		PrintLn("[RPC_DMG_GUARDIANS_PART] User {} tells wrong damaged guardian {}.", user.GetID(), arg1);
 
+		return;
+	}
+
+	const auto room_id = room.GetID();
+	const auto user_id = user.GetID();
+
+	PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room_id);
+
+	auto& guardian = room.sagaGuardians[arg1];
+	auto& guardian_hp = guardian.myHp;
+	auto& guardian_pt = guardian.myPartHealthPoints;
+	auto rider_id = guardian.GetRiderId();
+
+	// 곰 신체부위
+	// 0: 파괴 X. 일반적인 경우 송수신 안함. 디버그 용으로 남김
+	// 1(0): 오른쪽 팔
+	// 2(1): 오른쪽 다리
+	// 3(2): 왼쪽 팔
+	// 4(3): 왼쪽 다리
+	guardian_pt[arg0 - 1] = 0;
+	RpcEventDefault(room, user, RPC_DMG_GUARDIANS_PART, arg0 - 1, arg1);
+
+	if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
+	{
+		PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
+
+		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIANS_PART, 9999, arg1);
+	}
 }
 
 void

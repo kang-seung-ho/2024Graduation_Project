@@ -278,68 +278,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0: 파괴 부위
-		// arg1: 현재 수호자의 식별자
-		case RPC_DMG_GUARDIANS_PART:
-		{
-			// arg1: index of the guardian
-			if (arg1 < 0 or 3 <= arg1)
-			{
-				PrintLn("[RPC_DMG_GUARDIANS_PART] User {} tells wrong damaged guardian {}.", user_id, arg1);
-				break;
-			}
-
-			PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room_id);
-
-			auto& guardian = room->sagaGuardians[arg1];
-			auto& guardian_hp = guardian.myHp;
-			auto& guardian_pt = guardian.myPartHealthPoints;
-			auto rider_id = guardian.GetRiderId();
-
-			// 곰 신체부위
-			// 0: 파괴 X. 일반적인 경우 송수신 안함. 디버그 용으로 남김
-			// 1(0): 오른쪽 팔
-			// 2(1): 오른쪽 다리
-			// 3(2): 왼쪽 팔
-			// 4(3): 왼쪽 다리
-			guardian_pt[arg0 - 1] = 0;
-
-			Broadcast(RPC_DMG_GUARDIANS_PART, user_id, arg0 - 1, arg1);
-
-			if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
-			{
-				//guardian.myStatus = iconer::app::SagaGuardianState::Dead;
-				//guardian_hp.store(0, std::memory_order_release);
-
-				//auto rider_id = guardian.GetRiderId();
-				//guardian.TryUnride(rider_id);
-				PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
-
-				if (-1 != rider_id)
-				{
-					const auto rider = userManager.FindUser(static_cast<size_t>(rider_id));
-
-					if (nullptr != rider)
-					{
-						room->ProcessMember(rider, [&](iconer::app::SagaPlayer& target)
-							{
-								//target.ridingGuardianId.compare_exchange_strong(rider_id, -1);
-							}
-						);
-
-						//guardian.TryUnride(rider_id);
-					}
-					else
-					{
-						guardian.TryUnride(rider_id);
-					}
-				}
-
-				//Broadcast(RPC_DMG_GUARDIAN, user_id, 9999, arg1);
-			}
-		}
-		break;
-
 		// 일반적인 경우 실행안됨
 		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
 		case RPC_RESPAWN:

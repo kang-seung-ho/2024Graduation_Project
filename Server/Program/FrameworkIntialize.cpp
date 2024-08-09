@@ -123,6 +123,7 @@ ServerFramework::Initialize()
 	AddRpcProcessor(RPC_GRAB_ITEM, &ServerFramework::RpcEventOnItemGrabbed);
 	AddRpcProcessor(RPC_USE_ITEM_0, &ServerFramework::RpcEventOnItemUsed);
 	AddRpcProcessor(RPC_DMG_GUARDIAN, &ServerFramework::RpcEventOnDamageToGuardian);
+	AddRpcProcessor(RPC_DMG_GUARDIANS_PART, &ServerFramework::RpcEventOnGuardianPartDestructed);
 	AddRpcProcessor(RPC_GET_SCORE, &ServerFramework::RpcEventOnGettingScores);
 	AddRpcProcessor(RPC_GAME_TIMER, &ServerFramework::RpcEventOnGettingGameTime);
 

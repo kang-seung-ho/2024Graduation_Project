@@ -221,7 +221,7 @@ noexcept
 		{
 			member.team_id = ESagaPlayerTeam::Unknown;
 			member.myWeapon = 0;
-			member.isReady = 0;
+			member.isReady = false;
 			member.myHp = SagaPlayer::maxHp;
 			member.ridingGuardianId = -1;
 		}
@@ -294,7 +294,7 @@ iconer::app::Room::MakeMemberListPacket()
 		auto post = iconer::util::Serialize(precachedMemberListData.data() + 1, static_cast<std::int16_t>(precachedMemberListDataSize));
 		iconer::util::Serialize(post, count);
 
-		isDirty.compare_exchange_strong(is_dirty, false, std::memory_order_acq_rel);
+		isDirty.compare_exchange_strong(is_dirty, false, std::memory_order_release);
 	}
 
 	return std::span<const std::byte>{ precachedMemberListData.data(), precachedMemberListDataSize };
