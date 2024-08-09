@@ -208,7 +208,7 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		}
 	}
 	else
-	{\
+	{
 		const auto character = controller->GetPawn<ASagaCharacterBase>();
 
 		if (IsValid(character))
