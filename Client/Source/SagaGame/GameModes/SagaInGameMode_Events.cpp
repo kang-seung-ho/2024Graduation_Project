@@ -208,14 +208,22 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 		}
 	}
 	else
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character. (Offline Mode)"), user_id);
-
+	{\
 		const auto character = controller->GetPawn<ASagaCharacterBase>();
-		net->SetCharacterHandle(user_id, character);
 
-		character->SetUserId(user_id);
-		character->SetTeam(team);
-		character->SetWeapon(weapon);
+		if (IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Log, TEXT("[OnCreatingCharacter] Local user `%d` doesn't need to create a character. (Offline Mode)"), user_id);
+
+			net->SetCharacterHandle(user_id, character);
+
+			character->SetUserId(user_id);
+			character->SetTeam(team);
+			character->SetWeapon(weapon);
+		}
+		else
+		{
+			UE_LOG(LogSagaGame, Error, TEXT("[OnCreatingCharacter] Local user `%d` doesn't have a character! (Offline Mode)"), user_id);
+		}
 	}
 }
