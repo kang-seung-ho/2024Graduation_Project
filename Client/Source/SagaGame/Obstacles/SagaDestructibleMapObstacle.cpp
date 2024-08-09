@@ -106,12 +106,12 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 		{
 			if (TeamPinataColor == 0)
 			{
-				// red win
+				// blue win
 				sys->SetWhoWonByPinata(0);
 			}
 			else
 			{
-				// blue win
+				// red win
 				sys->SetWhoWonByPinata(1);
 			}
 		}
