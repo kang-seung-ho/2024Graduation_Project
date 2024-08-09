@@ -248,11 +248,6 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 							EPlayerWeapon::LightSabor
 						}
 					);
-
-					if (user.id == GetLocalUserId())
-					{
-						SetTeam(user.id, team_id);
-					}
 				}
 
 				currentRoom.MembersCount = everyUsers.Num();
