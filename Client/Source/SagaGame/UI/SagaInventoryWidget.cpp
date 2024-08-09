@@ -21,16 +21,7 @@ USagaInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	mCloseButton = Cast<UButton>(GetWidgetFromName(TEXT("CloseButton")));
 
-	if (mCloseButton)
-	{
-		mCloseButton->OnClicked.AddDynamic(this, &USagaInventoryWidget::CloseButtonClick);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CloseButton not found!"));
-	}
 
 	mInventory = Cast<UListView>(GetWidgetFromName(TEXT("InventoryList")));
 	if (mInventory)
@@ -78,22 +69,6 @@ USagaInventoryWidget::NativeConstruct()
 void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-}
-
-void USagaInventoryWidget::CloseButtonClick()
-{
-	UE_LOG(LogTemp, Warning, TEXT("CloseButton clicked"));
-	SetVisibility(ESlateVisibility::Collapsed);
-
-	APlayerController* Controller = GetOwningPlayer();
-	if (Controller)
-	{
-		ASagaInGamePlayerController* Character = Cast<ASagaInGamePlayerController>(Controller);
-		if (Character)
-		{
-			Character->SetInventoryVisibility(false);
-		}
-	}
 }
 
 void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)

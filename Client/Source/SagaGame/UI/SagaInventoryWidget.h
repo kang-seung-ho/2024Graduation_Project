@@ -13,8 +13,6 @@ class SAGAGAME_API USagaInventoryWidget : public USagaUserWidget
 
 public:
 	UPROPERTY()
-	TObjectPtr<class UButton> mCloseButton;
-	UPROPERTY()
 	TObjectPtr<class UListView> mInventory;
 	UPROPERTY()
 	TObjectPtr<class UInventoryItemData> mSelectionItem;
