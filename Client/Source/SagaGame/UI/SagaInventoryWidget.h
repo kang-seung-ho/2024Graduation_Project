@@ -4,6 +4,7 @@
 #include <Blueprint/UserWidget.h>
 
 #include "Saga/Interface/SagaUserWidget.h"
+#include "Item/SagaItemTypes.h"
 #include "SagaInventoryWidget.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|System")
@@ -13,6 +14,15 @@ class SAGAGAME_API USagaInventoryWidget : public USagaUserWidget
 
 public:
 	UPROPERTY()
+	int32 mEnergyDrinkCount{ 0 };
+
+	UPROPERTY()
+	int32 mGumballCount{ 0 };
+
+	UPROPERTY()
+	int32 mSmokeBombCount{ 0 };
+
+	UPROPERTY()
 	TObjectPtr<class UListView> mInventory;
 	UPROPERTY()
 	TObjectPtr<class UInventoryItemData> mSelectionItem;
@@ -21,7 +31,7 @@ public:
 	bool awaitingItemRpc{ false };
 
 	UFUNCTION()
-	void AddItemToInventory(class UInventoryItemData* ItemData);
+	void AddItemToInventory(ESagaItemTypes ItemType);
 
 	UFUNCTION()
 	void OnListItemHover(UObject* Item, bool IsHovered);
@@ -39,17 +49,17 @@ public:
 
 	int32 GetEnergyDrinkItemCount()
 	{
-		return 0;
+		return mEnergyDrinkCount;
 	}
 
 	int32 GetSmokeBombItemCount()
 	{
-		return 0;
+		return mGumballCount;
 	}
 
 	int32 GetGumballItemCount()
 	{
-		return 0;
+		return mSmokeBombCount;
 	}
 
 protected:

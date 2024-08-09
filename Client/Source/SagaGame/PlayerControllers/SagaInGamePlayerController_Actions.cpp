@@ -385,22 +385,32 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
 
 void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //EnergyDrink
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("EnergyDrink Used"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("EnergyDrink Used"));
 	//Get each Item's amount before using the item
-
-	InventoryWidget->UseEnergyDrink();
+	if(InventoryWidget->GetEnergyDrinkItemCount() > 0)
+	{
+		InventoryWidget->UseEnergyDrink();
+		InventoryWidget->mEnergyDrinkCount--;
+	}	
 }
 
 void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumball
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Gumball Used"));
-
-	InventoryWidget->UseGumball();
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Gumball Used"));
+	if (InventoryWidget->GetGumballItemCount() > 0)
+	{
+		InventoryWidget->UseGumball();
+		InventoryWidget->mGumballCount--;
+	}
 }
 
 void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value) //SmokeBomb
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SmokeBomb Used"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SmokeBomb Used"));
 
-	InventoryWidget->UseSmokeBomb();
+	if (InventoryWidget->GetSmokeBombItemCount() > 0)
+	{
+		InventoryWidget->UseSmokeBomb();
+		InventoryWidget->mSmokeBombCount--;
+	}
 }

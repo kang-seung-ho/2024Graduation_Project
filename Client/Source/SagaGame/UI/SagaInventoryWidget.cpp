@@ -269,10 +269,22 @@ USagaInventoryWidget::UseSmokeBomb()
 }
 
 void
-USagaInventoryWidget::AddItemToInventory(UInventoryItemData* ItemData)
+USagaInventoryWidget::AddItemToInventory(ESagaItemTypes ItemType)
 {
-	if (mInventory)
+	if(ItemType == ESagaItemTypes::Drink)
+	{
+		mEnergyDrinkCount++;
+	}
+	else if(ItemType == ESagaItemTypes::Gum)
+	{
+		mGumballCount++;
+	}
+	else if(ItemType == ESagaItemTypes::SmokeBomb)
+	{
+		mSmokeBombCount++;
+	}
+	/*if (mInventory)
 	{
 		mInventory->AddItem(ItemData);
-	}
+	}*/
 }

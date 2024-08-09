@@ -202,7 +202,7 @@ ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)
 		UTexture2D* IconTexture = LoadObject<UTexture2D>(nullptr, *IconPath);
 		ItemData->SetInfo(IconTexture, ItemName, 1);
 
-		InventoryWidget->AddItemToInventory(ItemData);
+		InventoryWidget->AddItemToInventory(ItemType);
 	}
 }
 
