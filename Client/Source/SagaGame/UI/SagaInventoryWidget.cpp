@@ -62,7 +62,16 @@ USagaInventoryWidget::NativeConstruct()
 
 	//	mInventory->AddItem(ItemData);
 	//}
+	//for (int32 i = 0; i < 3; ++i) //Temporary Test Item AddCode
+	//{
+	//	UInventoryItemData* ItemData = NewObject<UInventoryItemData>();
 
+	//	int32	IconIndex = FMath::RandRange(0, 2);
+
+	//	ItemData->SetInfoFrom(IconPath[IconIndex], ItemName[IconIndex], 1);
+
+	//	mInventory->AddItem(ItemData);
+	//}
 	
 }
 
@@ -73,7 +82,7 @@ void USagaInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 {
-	UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
+	/*UInventoryItemData* ItemData = Cast<UInventoryItemData>(Item);
 
 	if (IsValid(ItemData) && mSelectionItem != ItemData)
 	{
@@ -92,12 +101,12 @@ void USagaInventoryWidget::OnListItemHover(UObject* Item, bool IsHovered)
 				EntryWidget->SetMouseState(EEntryWidgetMouseState::None);
 			}
 		}
-	}
+	}*/
 }
 
 void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 {
-	if (IsValid(mSelectionItem))
+	/*if (IsValid(mSelectionItem))
 	{
 		mSelectionItem->SetSelect(false);
 		USagaInventoryListWidget* EntryWidget = mInventory->GetEntryWidgetFromItem<USagaInventoryListWidget>(mSelectionItem);
@@ -117,49 +126,31 @@ void USagaInventoryWidget::OnListItemSelection(UObject* Item)
 		{
 			EntryWidget->SetMouseState(EEntryWidgetMouseState::Select);
 		}
-	}
+	}*/
 }
 
 void
 USagaInventoryWidget::OnListItemClick(UObject* Item)
 {
-	UInventoryItemData* entry = Cast<UInventoryItemData>(Item);
+	/*UInventoryItemData* entry = Cast<UInventoryItemData>(Item);*/
 
-	if (IsValid(entry))
-	{
-		FString ItemName = entry->GetItemName();
-
-#if WITH_EDITOR
-
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Item clicked: %s"), *ItemName);
-#endif
-
-		if (ItemName == "EnergyDrink")
-		{
-			UseEnergyDrink(entry);
-		}
-		else if (ItemName == "Gumball")
-		{
-			UseGumball(entry);
-		}
-		else if (ItemName == "SmokeBomb")
-		{
-			UseSmokeBomb(entry);
-		}
-		else
-		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Warning, TEXT("[USagaInventoryWidget] There is no item '%s'."), *ItemName);
-#endif
-		}
-	}
+//	if (IsValid(entry))
+//	{
+//		//FString ItemName = entry->GetItemName();
+//
+//#if WITH_EDITOR
+//
+//		//UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Item clicked: %s"), *ItemName);
+//#endif
+//		/*UseGumball(entry);
+//		UseEnergyDrink(entry);
+//		UseSmokeBomb(entry);*/
+//	}
 }
 
 void
-USagaInventoryWidget::UseEnergyDrink(UInventoryItemData* item_entry)
+USagaInventoryWidget::UseEnergyDrink()
 {
-	const auto index = mInventory->GetIndexForItem(item_entry);
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
@@ -191,16 +182,15 @@ USagaInventoryWidget::UseEnergyDrink(UInventoryItemData* item_entry)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Energy Drink RPC"));
 
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 0);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, 0, 0);
 	}
 
-	mInventory->RemoveItem(item_entry);
+	//mInventory->RemoveItem(item_entry);
 }
 
 void
-USagaInventoryWidget::UseGumball(UInventoryItemData* item_entry)
+USagaInventoryWidget::UseGumball()
 {
-	const auto index = mInventory->GetIndexForItem(item_entry);
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
@@ -232,16 +222,15 @@ USagaInventoryWidget::UseGumball(UInventoryItemData* item_entry)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Gumball RPC"));
 
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 1);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, 0, 1);
 	}
 
-	mInventory->RemoveItem(item_entry);
+	//mInventory->RemoveItem(item_entry);
 }
 
 void
-USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
+USagaInventoryWidget::UseSmokeBomb()
 {
-	const auto index = mInventory->GetIndexForItem(item_entry);
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
@@ -273,10 +262,10 @@ USagaInventoryWidget::UseSmokeBomb(UInventoryItemData* item_entry)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaInventoryWidget] Smoke Bomb RPC"));
 
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, index, 2);
+		net->SendRpcPacket(ESagaRpcProtocol::RPC_USE_ITEM_0, 0, 2);
 	}
 
-	mInventory->RemoveItem(item_entry);
+	//mInventory->RemoveItem(item_entry);
 }
 
 void

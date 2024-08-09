@@ -31,7 +31,6 @@ public:
 	UInputAction* Sprint = nullptr;
 	UInputAction* Interact = nullptr;
 	UInputAction* Activate = nullptr;
-	UInputAction* Inventory = nullptr;
 	UInputAction* Skill1 = nullptr;
 	UInputAction* Item1 = nullptr;
 	UInputAction* Item2 = nullptr;

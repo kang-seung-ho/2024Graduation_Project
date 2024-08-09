@@ -90,7 +90,6 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginAttack);
 	Input->BindAction(InputSystem->Attack, ETriggerEvent::Completed, this, &ASagaInGamePlayerController::EndAttack);
 
-	Input->BindAction(InputSystem->Inventory, ETriggerEvent::Started, this, &ASagaInGamePlayerController::ToggleInventory);
 	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginGuardianAction);
 
 	Input->BindAction(InputSystem->Skill1, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnSkill1);
@@ -101,17 +100,9 @@ ASagaInGamePlayerController::SetupInputComponent()
 }
 
 void
-ASagaInGamePlayerController::ToggleInventory()
-{
-	UE_LOG(LogSagaGame, Warning, TEXT("Toggle Inventory called"));
-
-	SetInventoryVisibility(!IsInventoryVisible());
-}
-
-void
 ASagaInGamePlayerController::UpdateInputMode()
 {
-	if (IsInventoryVisible())
+	/*if (IsInventoryVisible())
 	{
 		UE_LOG(LogSagaGame, Warning, TEXT("Setting input mode to UI only"));
 
@@ -128,49 +119,49 @@ ASagaInGamePlayerController::UpdateInputMode()
 		bShowMouseCursor = false;
 	}
 
-	UE_LOG(LogSagaGame, Warning, TEXT("Input mode and cursor visibility updated"));
+	UE_LOG(LogSagaGame, Warning, TEXT("Input mode and cursor visibility updated"));*/
 }
 
-void
-ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
-{
-	InventoryWidget->SetVisibility(flag ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+//void
+//ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
+//{
+//	InventoryWidget->SetVisibility(flag ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+//
+//	UE_LOG(LogSagaGame, Log, TEXT("Inventory visibility is set to: %s"), flag ? TEXT("Visible") : TEXT("Collapsed"));
+//
+//	if (flag)
+//	{
+//		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game on UI both"));
+//
+//		SetInputMode(FInputModeGameAndUI());
+//
+//		bShowMouseCursor = true;
+//	}
+//	else
+//	{
+//		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game only"));
+//
+//		SetInputMode(FInputModeGameOnly());
+//
+//		bShowMouseCursor = false;
+//	}
+//
+//
+//	UE_LOG(LogSagaGame, Log, TEXT("Input mode and cursor visibility updated"));
+//}
 
-	UE_LOG(LogSagaGame, Log, TEXT("Inventory visibility is set to: %s"), flag ? TEXT("Visible") : TEXT("Collapsed"));
+//ESlateVisibility
+//ASagaInGamePlayerController::GetInventoryVisibility()
+//const
+//{
+//	return InventoryWidget->GetVisibility();
+//}
 
-	if (flag)
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game on UI both"));
-
-		SetInputMode(FInputModeGameAndUI());
-
-		bShowMouseCursor = true;
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game only"));
-
-		SetInputMode(FInputModeGameOnly());
-
-		bShowMouseCursor = false;
-	}
-
-
-	UE_LOG(LogSagaGame, Log, TEXT("Input mode and cursor visibility updated"));
-}
-
-ESlateVisibility
-ASagaInGamePlayerController::GetInventoryVisibility()
-const
-{
-	return InventoryWidget->GetVisibility();
-}
-
-bool
-ASagaInGamePlayerController::IsInventoryVisible() const
-{
-	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
-}
+//bool
+//ASagaInGamePlayerController::IsInventoryVisible() const
+//{
+//	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+//}
 
 void
 ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)

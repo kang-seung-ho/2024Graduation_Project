@@ -12,7 +12,7 @@ void USagaInventoryListWidget::NativeConstruct()
 
 	mIconImage = Cast<UImage>(GetWidgetFromName(TEXT("Icon")));
 	mSelection = Cast<UImage>(GetWidgetFromName(TEXT("Selection")));
-	mNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("NameText")));
+	//mNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("NameText")));
 	mCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CountText")));
 
 	if (!mSelection)

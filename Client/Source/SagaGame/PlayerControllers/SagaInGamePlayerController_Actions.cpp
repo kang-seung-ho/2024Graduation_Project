@@ -11,6 +11,7 @@
 #include "Saga/Network/SagaVirtualUser.h"
 #include "Saga/Network/SagaRpcProtocol.h"
 #include "Saga/Network/SagaNetworkSubSystem.h"
+#include "UI/SagaInventoryWidget.h"
 
 void
 PrintVector(const FVector& vector)
@@ -382,17 +383,20 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
 	}
 }
 
-void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //Gumball
+void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //EnergyDrink
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 1"));
+	//Get each Item's amount before using the item
+
+	InventoryWidget->UseEnergyDrink();
 }
 
-void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value)
+void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumball
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 2"));
 }
 
-void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value)
+void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value) //SmokeBomb
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Item 3"));
 }

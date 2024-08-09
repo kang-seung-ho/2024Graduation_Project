@@ -31,11 +31,26 @@ public:
 	void OnListItemClick(UObject* Item);
 
 	UFUNCTION()
-	void UseEnergyDrink(class UInventoryItemData* item_entry);
+	void UseEnergyDrink();
 	UFUNCTION()
-	void UseGumball(class UInventoryItemData* item_entry);
+	void UseGumball();
 	UFUNCTION()
-	void UseSmokeBomb(class UInventoryItemData* item_entry);
+	void UseSmokeBomb();
+
+	int32 GetEnergyDrinkItemCount()
+	{
+		return 0;
+	}
+
+	int32 GetSmokeBombItemCount()
+	{
+		return 0;
+	}
+
+	int32 GetGumballItemCount()
+	{
+		return 0;
+	}
 
 protected:
 	virtual void NativeConstruct();

@@ -24,7 +24,6 @@ class SAGAGAME_API USagaInventoryListWidget : public UUserWidget
 protected:
 	UImage* mIconImage;
 	UImage* mSelection;
-	UTextBlock* mNameText;
 	UTextBlock* mCountText;
 	class UInventoryItemData* mData = nullptr;
 	

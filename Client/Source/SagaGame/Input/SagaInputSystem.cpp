@@ -69,13 +69,6 @@ USagaInputSystem::USagaInputSystem()
 	}
 
 	{
-		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Inventory.IA_Inventory'"));
-
-		if (Asset.Succeeded())
-			Inventory = Asset.Object;
-	}
-
-	{
 		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Skill1.IA_Skill1'"));
 
 		if (Asset.Succeeded())

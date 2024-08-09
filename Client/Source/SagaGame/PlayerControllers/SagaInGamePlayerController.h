@@ -17,17 +17,15 @@ public:
 	virtual void Tick(float delta_time) override;
 
 	UFUNCTION()
-	void ToggleInventory();
-	UFUNCTION()
 	void UpdateInputMode();
-	UFUNCTION()
-	void SetInventoryVisibility(bool flag);
+	//UFUNCTION()
+	//void SetInventoryVisibility(bool flag);
 	UFUNCTION()
 	void AddItemToInventory(ESagaItemTypes ItemType);
-	UFUNCTION()
-	ESlateVisibility GetInventoryVisibility() const;
-	UFUNCTION()
-	bool IsInventoryVisible() const;
+	//UFUNCTION()
+	//ESlateVisibility GetInventoryVisibility() const;
+	//UFUNCTION()
+	//bool IsInventoryVisible() const;
 
 	/* Actions */
 #pragma region =========================
