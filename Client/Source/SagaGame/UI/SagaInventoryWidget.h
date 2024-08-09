@@ -37,9 +37,6 @@ public:
 	UFUNCTION()
 	void UseSmokeBomb(class UInventoryItemData* item_entry);
 
-	UFUNCTION()
-	void CloseButtonClick();
-
 protected:
 	virtual void NativeConstruct();
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
