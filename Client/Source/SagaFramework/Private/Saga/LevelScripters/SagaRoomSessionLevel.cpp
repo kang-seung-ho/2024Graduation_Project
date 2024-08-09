@@ -141,6 +141,8 @@ ASagaRoomSessionLevel::BeginPlay()
 
 	if (IsValid(levelUiInstance))
 	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][BeginPlay] Assigning ui callbacks..."));
+
 		levelUiInstance->AddToViewport(1);
 		levelUiInstance->OpenNow();
 
@@ -148,8 +150,16 @@ ASagaRoomSessionLevel::BeginPlay()
 
 		levelUiInstance->myStartButton->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleStartButton);
 
-		levelUiInstance->myRedTeamMemberListView->myJoinButton->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleRedTeamButton);
-		levelUiInstance->myBlueTeamMemberListView->myJoinButton->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleBlueTeamButton);
+		auto& red_join_btn = levelUiInstance->myRedTeamMemberListView->myJoinButton;
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][BeginPlay] Red joining button is '%s'."), *red_join_btn->GetName());
+		//red_join_btn->OpenNow();
+
+		auto& blu_join_btn = levelUiInstance->myBlueTeamMemberListView->myJoinButton;
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][BeginPlay] Blu joining button is '%s'."), *blu_join_btn->GetName());
+		//blu_join_btn->OpenNow();
+
+		red_join_btn->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleRedTeamButton);
+		blu_join_btn->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleBlueTeamButton);
 
 		levelUiInstance->myQuitButton->OnClicked.AddDynamic(this, &ASagaRoomSessionLevel::HandleQuitButton);
 	}

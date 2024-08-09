@@ -45,7 +45,7 @@ USagaRoomSessionLevelUiWidget::NativeConstruct()
 				{
 					myRedTeamMemberListView = viwer;
 				}
-				else if (name == TEXT("BlueTeamListViewerPanel"))
+				else if (name == TEXT("BluTeamListViewerPanel"))
 				{
 					myBlueTeamMemberListView = viwer;
 				}
