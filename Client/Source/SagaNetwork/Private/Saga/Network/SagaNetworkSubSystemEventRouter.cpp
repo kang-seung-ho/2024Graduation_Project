@@ -91,6 +91,15 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 				[this, room_id, team = static_cast<ESagaPlayerTeam>(newbie.team_id)]()
 				{
 					SetCurrentRoomId(room_id);
+					for (auto& room : everyRooms)
+					{
+						if (room.myID == room_id)
+						{
+							SetCurrentRoomTitle(room.myName);
+							break;
+						}
+					}
+
 					SetTeam(GetLocalUserId(), team);
 
 					BroadcastOnJoinedRoom(GetLocalUserId());
