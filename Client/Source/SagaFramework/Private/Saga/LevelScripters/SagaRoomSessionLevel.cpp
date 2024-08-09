@@ -375,6 +375,8 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 	}
 	else
 	{
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
+
 		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to red..."));
@@ -399,8 +401,16 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-	if (not net->IsOfflineMode())
+	if (net->IsOfflineMode())
 	{
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
+
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
+	}
+	else
+	{
+		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
+
 		if (net->IsConnected())
 		{
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to blue..."));
@@ -413,12 +423,6 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 
 			Fallback();
 		}
-	}
-	else
-	{
-		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
-
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
 	}
 
 	UnPauseTimer();

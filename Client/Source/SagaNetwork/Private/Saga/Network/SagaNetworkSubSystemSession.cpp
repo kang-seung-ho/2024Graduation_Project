@@ -3,6 +3,11 @@
 void
 USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 {
+	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	{
+		localUser = client;
+	}
+
 	everyUsers.Add(client);
 	wasUsersUpdated = true;
 }
@@ -10,6 +15,11 @@ USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 void
 USagaNetworkSubSystem::AddUser(FSagaVirtualUser&& client)
 {
+	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	{
+		localUser = client;
+	}
+
 	everyUsers.Add(MoveTemp(client));
 	wasUsersUpdated = true;
 }
@@ -79,6 +89,8 @@ noexcept
 {
 	if (IsOfflineMode() or user_id == GetLocalUserId())
 	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local user '%d's team is set to %d."), user_id, static_cast<int32>(team));
+
 		localUser.myTeam = team;
 	}
 

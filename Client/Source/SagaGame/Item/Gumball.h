@@ -1,6 +1,8 @@
 #pragma once
 #include "SagaGame.h"
+#include <UObject/ObjectPtr.h>
 #include <GameFramework/Actor.h>
+#include <Engine/TimerHandle.h>
 
 #include "Gumball.generated.h"
 
@@ -12,25 +14,24 @@ class SAGAGAME_API AGumball : public AActor
 public:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* MeshComponent;
+	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UBoxComponent* BoxComponent;
+	TObjectPtr<UBoxComponent> BoxComponent;
 
 	AGumball();
 
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	UPROPERTY()
+	TObjectPtr<class ASagaCharacterBase> OverlappingPlayer;
 
 	UPROPERTY()
 	FTimerHandle DestroyTimerHandle;
 
 	UPROPERTY()
 	FTimerHandle SpeedResetTimerHandle;
-
-	UPROPERTY()
-	class ASagaCharacterBase* OverlappingPlayer;
 
 	virtual void BeginPlay() override;
 
