@@ -216,7 +216,7 @@ ASagaInGameMode::StartPlay()
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no item spawner."));
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] There is no item spawner."));
 	}
 #endif
 
