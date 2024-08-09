@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Item/Gumball.h"
-#include "../Character/SagaCharacterBase.h"
+#include <Components/StaticMeshComponent.h>
+#include <Components/BoxComponent.h>
 
-// Sets default values
+#include "Character/SagaCharacterBase.h"
+
 AGumball::AGumball()
 {
     PrimaryActorTick.bCanEverTick = true;
