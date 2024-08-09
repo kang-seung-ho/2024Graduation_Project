@@ -44,7 +44,7 @@ public:
 	int32 GetBlueTeamScore() const noexcept;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
-	FString GetWhoWon() const;
+	FString GetWhoWon();
 
 private:
 	UPROPERTY()
@@ -58,4 +58,6 @@ private:
 	bool RedTeamPinataBroken;
 	UPROPERTY()
 	bool BluTeamPinataBroken;
+	UPROPERTY()
+	ESagaPlayerTeam lastLocalPlayerTeam;
 };

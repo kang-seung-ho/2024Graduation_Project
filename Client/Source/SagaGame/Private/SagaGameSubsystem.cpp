@@ -108,55 +108,75 @@ const noexcept
 
 FString
 USagaGameSubsystem::GetWhoWon()
-const
 {
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
-	const ESagaPlayerTeam team = net->GetLocalUserTeam();
+
+	if (net->IsConnected() and 0 < net->GetCurrentRoomId())
+	{
+		lastLocalPlayerTeam = net->GetLocalUserTeam();
+	}
+
+	const auto player_team = lastLocalPlayerTeam;
 
 	if (RedTeamPinataBroken)
 	{
-		if (team == ESagaPlayerTeam::Red)
+		if (player_team == ESagaPlayerTeam::Red)
 		{
-			return TEXT("Lose"); // I'm Red Team And My team Lose
+			return TEXT("Lose"); // I'm in Red Team And My team Lose
+		}
+		else if (player_team == ESagaPlayerTeam::Blue)
+		{
+			return TEXT("Victory!"); // I'm in Blue Team And My team Win
 		}
 		else
 		{
-			return TEXT("Victory!"); // I'm Blue Team And My team Win
+			return TEXT("- Error -");
 		}
 	}
 	else if (BluTeamPinataBroken)
 	{
-		if (team == ESagaPlayerTeam::Red)
+		if (player_team == ESagaPlayerTeam::Red)
 		{
-			return TEXT("Victory!"); // I'm Red Team And My team Win
+			return TEXT("Victory!"); // I'm in Red Team And My team Win
+		}
+		else if (player_team == ESagaPlayerTeam::Blue)
+		{
+			return TEXT("Lose"); // I'm in Blue Team And My team Lose
 		}
 		else
 		{
-			return TEXT("Lose"); // I'm Blue Team And My team Lose
+			return TEXT("- Error -");
 		}
 	}
-
-	if (RedTeamScore > BluTeamScore)
+	else if (RedTeamScore > BluTeamScore)
 	{
-		if (team == ESagaPlayerTeam::Red)
+		if (player_team == ESagaPlayerTeam::Red)
 		{
-			return TEXT("Victory!"); // I'm Red Team And My team Win
+			return TEXT("Victory!"); // I'm in Red Team And My team Win
+		}
+		else if (player_team == ESagaPlayerTeam::Blue)
+		{
+			return TEXT("Lose"); // I'm Blue in Team And My team Lose
 		}
 		else
 		{
-			return TEXT("Lose"); // I'm Blue Team And My team Lose
+			return TEXT("- Error -");
 		}
 	}
 	else if (RedTeamScore < BluTeamScore)
 	{
-		if (team == ESagaPlayerTeam::Red)
+		if (player_team == ESagaPlayerTeam::Red)
 		{
-			return TEXT("Lose"); // I'm Red Team And My team Lose
+			return TEXT("Lose"); // I'm inE Red Team And My team Lose
+		}
+		else if (player_team == ESagaPlayerTeam::Blue)
+		{
+			return TEXT("Victory!"); // I'm in Blue Team And My team Win
 		}
 		else
 		{
-			return TEXT("Victory!"); // I'm Blue Team And My team Win
+			return TEXT("- Error -");
 		}
 	}
 	else
