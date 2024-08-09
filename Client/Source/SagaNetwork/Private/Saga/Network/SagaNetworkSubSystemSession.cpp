@@ -79,6 +79,8 @@ noexcept
 {
 	if (IsOfflineMode() or user_id == GetLocalUserId())
 	{
+		UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local user '%d's team is set to %d."), user_id, static_cast<int32>(team));
+
 		localUser.myTeam = team;
 	}
 
