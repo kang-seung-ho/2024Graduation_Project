@@ -3,6 +3,11 @@
 void
 USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 {
+	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	{
+		localUser = client;
+	}
+
 	everyUsers.Add(client);
 	wasUsersUpdated = true;
 }
@@ -10,6 +15,11 @@ USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 void
 USagaNetworkSubSystem::AddUser(FSagaVirtualUser&& client)
 {
+	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	{
+		localUser = client;
+	}
+
 	everyUsers.Add(MoveTemp(client));
 	wasUsersUpdated = true;
 }
