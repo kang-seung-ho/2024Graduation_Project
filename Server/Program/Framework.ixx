@@ -82,7 +82,7 @@ private:
 	void EventOnUserList(iconer::app::User& user, const std::byte* data);
 	/* Broadcast the changed team state to members */
 	void EventOnChangeTeam(iconer::app::User& user, const std::byte* data);
-	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
+	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t myTeamId);
 	/* Schdule a room for game */
 	void EventOnGameStartSignal(iconer::app::User& user, const std::byte* data);
 	/* Broadcast game ticket to members */

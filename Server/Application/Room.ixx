@@ -29,7 +29,7 @@ export namespace iconer::app
 		static inline constexpr float maxHp = 100;
 
 		std::atomic<pointer_type> userHandle{};
-		ESagaPlayerTeam team_id{};
+		std::atomic<ESagaPlayerTeam> myTeamId{};
 		std::atomic_uint8_t myWeapon{};
 		std::atomic_bool isReady{};
 		std::atomic<float> myHp{ maxHp };
@@ -117,7 +117,7 @@ export namespace iconer::app
 		static inline constexpr size_t nameLength = 16;
 
 		std::int32_t id{ -1 };
-		char team_id{ 0 }; // 1: red, 2: blue
+		char myTeamId{ 0 }; // 1: red, 2: blue
 		std::array<wchar_t, nameLength + 1> nickname{};
 
 		[[nodiscard]]

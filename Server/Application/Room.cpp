@@ -44,7 +44,7 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 					};
 
 					/// NOTICE: set team here (occupy)
-					first.team_id = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
+					first.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
 					myState.store(RoomState::Idle, std::memory_order_release);
 
 					isDirty = true;
@@ -104,7 +104,7 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 							};
 
 							/// NOTICE: set team here (join)
-							member.team_id = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
+							member.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
 
 							isDirty.store(true, std::memory_order_release);
 							return true;
@@ -219,7 +219,7 @@ noexcept
 
 		for (auto& member : myMembers)
 		{
-			member.team_id = ESagaPlayerTeam::Unknown;
+			member.myTeamId = ESagaPlayerTeam::Unknown;
 			member.myWeapon = 0;
 			member.isReady = false;
 			member.myHp = SagaPlayer::maxHp;
@@ -248,11 +248,11 @@ iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool i
 		{
 			if (is_red_team)
 			{
-				member.team_id = ESagaPlayerTeam::Red;
+				member.myTeamId = ESagaPlayerTeam::Red;
 			}
 			else
 			{
-				member.team_id = ESagaPlayerTeam::Blu;
+				member.myTeamId = ESagaPlayerTeam::Blu;
 			}
 
 			isDirty.store(true, std::memory_order_release);
@@ -283,7 +283,7 @@ iconer::app::Room::MakeMemberListPacket()
 			std::copy(nickname.cbegin(), nickname.cend(), serialized_name);
 
 			seek = iconer::util::Serialize(seek, static_cast<std::int32_t>(user->GetID()));
-			seek = iconer::util::Serialize(seek, member.team_id);
+			seek = iconer::util::Serialize(seek, member.myTeamId.load(std::memory_order_acquire));
 			seek = iconer::util::Serialize(seek, serialized_name);
 
 			++count;
@@ -316,7 +316,7 @@ const
 			const auto nickname = user.GetName().substr(0, len);
 			std::copy(nickname.cbegin(), nickname.cend(), serialized_name);
 
-			return Serialize(PacketProtocol::SC_ROOM_JOINED, static_cast<std::int32_t>(user.GetID()), member.team_id, serialized_name);
+			return Serialize(PacketProtocol::SC_ROOM_JOINED, static_cast<std::int32_t>(user.GetID()), member.myTeamId.load(std::memory_order_acquire), serialized_name);
 		}
 	}
 

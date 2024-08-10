@@ -253,11 +253,14 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 
 						if (mem_id == rider_id_ext)
 						{
-							if (member.team_id == ESagaPlayerTeam::Red)
+							auto& team_id = member.myTeamId;
+							const auto team = team_id.load(std::memory_order_acquire);
+
+							if (team == ESagaPlayerTeam::Red)
 							{
 								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 							}
-							else if (member.team_id == ESagaPlayerTeam::Blu)
+							else if (team == ESagaPlayerTeam::Blu)
 							{
 								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
 							}
@@ -292,11 +295,14 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 					, [&](iconer::app::SagaPlayer& member) noexcept
 					{
 						// NOTICE: 자기 팀의 점수 증가
-						if (member.team_id == ESagaPlayerTeam::Red)
+						auto& team_id = member.myTeamId;
+						const auto team = team_id.load(std::memory_order_acquire);
+
+						if (team == ESagaPlayerTeam::Red)
 						{
 							room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
 						}
-						else if (member.team_id == ESagaPlayerTeam::Blu)
+						else if (team == ESagaPlayerTeam::Blu)
 						{
 							room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
 						}
