@@ -13,7 +13,7 @@ import Iconer.App.PacketSerializer;
 void
 iconer::app::Room::Initialize()
 {
-	isDirty = true;
+	isDirty.store(true, std::memory_order_release);
 
 	(void)SerializeAt(precachedMemberListData, PacketProtocol::SC_RESPOND_USERS, 0ULL);
 }
@@ -47,7 +47,7 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 					first.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
 					myState.store(RoomState::Idle, std::memory_order_release);
 
-					isDirty = true;
+					isDirty.store(true, std::memory_order_release);
 					return true;
 				}
 				else UNLIKELY
