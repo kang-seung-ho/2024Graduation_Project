@@ -66,6 +66,8 @@ public:
 
 	UFUNCTION()
 	void StopMovement();
+	UFUNCTION()
+	void ChangeColliderProfile(const FName& name) const;
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;

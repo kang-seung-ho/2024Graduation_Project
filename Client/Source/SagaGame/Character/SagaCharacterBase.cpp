@@ -15,6 +15,9 @@
 #include <Camera/CameraComponent.h>
 #include <GameFramework/Character.h>
 #include <GameFramework/SpringArmComponent.h>
+#include <NiagaraSystem.h>
+#include <NiagaraComponent.h>
+#include <NiagaraFunctionLibrary.h>
 
 #include "Player/SagaPlayerWeaponTypes.h"
 #include "Character/SagaPlayerAnimInstance.h"
@@ -25,21 +28,7 @@
 #include "UI/SagaHpBarWidget.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
 
-#include <NiagaraSystem.h>
-#include <NiagaraComponent.h>
-#include "NiagaraFunctionLibrary.h"
-
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
-
-void
-ASagaCharacterBase::StopMovement()
-{
-	isRunning = false;
-	TerminateStraightWalk();
-	TerminateStrafeWalk();
-
-	GetCharacterMovement()->StopActiveMovement();
-}
 
 void
 ASagaCharacterBase::SetUserId(const int32& id)
@@ -55,11 +44,11 @@ ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
 
 	if (team == ESagaPlayerTeam::Red)
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+		ChangeColliderProfile(TEXT("Red"));
 	}
 	else
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+		ChangeColliderProfile(TEXT("Blue"));
 	}
 }
 
@@ -551,4 +540,21 @@ ASagaCharacterBase::TakeDamage(float dmg, FDamageEvent const& event, AController
 
 	return ExecuteHurt(Super::TakeDamage(dmg, event, instigator, causer));
 #endif
+}
+
+void
+ASagaCharacterBase::StopMovement()
+{
+	isRunning = false;
+	TerminateStraightWalk();
+	TerminateStrafeWalk();
+
+	GetCharacterMovement()->StopActiveMovement();
+}
+
+void
+ASagaCharacterBase::ChangeColliderProfile(const FName& name)
+const
+{
+	GetCapsuleComponent()->SetCollisionProfileName(name);
 }
