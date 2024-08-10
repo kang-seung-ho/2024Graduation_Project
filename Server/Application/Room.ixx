@@ -182,6 +182,7 @@ export namespace iconer::app
 		~Room() = default;
 
 		void Initialize();
+		void Cleanup();
 
 		[[nodiscard]] bool TryOccupy(reference user);
 		[[nodiscard]] bool TryJoin(reference user);
@@ -293,7 +294,20 @@ export namespace iconer::app
 		[[nodiscard]]
 		auto& MakeWeaponChoiceTimerPacket(const std::int64_t& time) noexcept
 		{
+			while (true)
+			{
+				bool flag = false;
+
+				if (weaponChoiceTimerPacketAcquired.compare_exchange_strong(flag, true, std::memory_order_acquire))
+				{
+					break;
+				}
+			}
+
 			std::memcpy(weaponChoiceTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
+
+			bool rollback = true;
+			weaponChoiceTimerPacketAcquired.compare_exchange_strong(rollback, false, std::memory_order_release);
 
 			return weaponChoiceTimerPacketData;
 		}

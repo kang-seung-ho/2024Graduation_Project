@@ -18,6 +18,45 @@ iconer::app::Room::Initialize()
 	(void)SerializeAt(precachedMemberListData, PacketProtocol::SC_RESPOND_USERS, 0ULL);
 }
 
+void
+iconer::app::Room::Cleanup()
+{
+	for (auto& item : sagaItemList)
+	{
+		item.isAvailable = true;
+		item.isBoxDestroyed = false;
+	}
+
+	sagaItemListSize = 0;
+	sagaItemListLock = false;
+
+	for (auto& score : sagaTeamScores)
+	{
+		score = 0;
+	}
+
+	for (auto& guardian : sagaGuardians)
+	{
+		guardian.myHp = guardian.maxHp;
+		guardian.myStatus = SagaGuardianState::Idle;
+	}
+
+	for (auto& member : myMembers)
+	{
+		member.myTeamId = ESagaPlayerTeam::Unknown;
+		member.myWeapon = 0;
+		member.isReady = false;
+		member.myHp = SagaPlayer::maxHp;
+		member.ridingGuardianId = -1;
+	}
+
+	sagaWinner = 0;
+	weaponChoiceTimerPacketAcquired = false;
+
+	myTitle.clear();
+	myState.store(RoomState::Idle, std::memory_order_release);
+}
+
 bool
 iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 {
@@ -43,15 +82,15 @@ iconer::app::Room::TryOccupy(iconer::app::Room::reference user)
 						onOccupied.Broadcast(this, &user);
 					};
 
-					/// NOTICE: set team here (occupy)
-					first.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
-					myState.store(RoomState::Idle, std::memory_order_release);
+	/// NOTICE: set team here (occupy)
+	first.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
+	myState.store(RoomState::Idle, std::memory_order_release);
 
-					isDirty.store(true, std::memory_order_release);
-					return true;
-				}
-				else UNLIKELY
-				{
+	isDirty.store(true, std::memory_order_release);
+	return true;
+}
+else UNLIKELY
+{
 					// rollback
 					(void)first.ChangedToEmpty(&user);
 					memberCount.compare_exchange_strong(one, 0);
@@ -103,14 +142,14 @@ iconer::app::Room::TryJoin(iconer::app::Room::reference user)
 								onUserJoined.Broadcast(this, &user, ncnt);
 							};
 
-							/// NOTICE: set team here (join)
-							member.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
+				/// NOTICE: set team here (join)
+				member.myTeamId = user.GetID() % 2 == 0 ? ESagaPlayerTeam::Red : ESagaPlayerTeam::Blu;
 
-							isDirty.store(true, std::memory_order_release);
-							return true;
-						}
-						else UNLIKELY // IF (TryJoin)
-						{
+				isDirty.store(true, std::memory_order_release);
+				return true;
+			}
+			else UNLIKELY // IF (TryJoin)
+			{
 							// rollback and continue
 							(void)member.ChangedToEmpty(&user);
 							users_room.compare_exchange_strong(self, nullptr);
@@ -197,40 +236,7 @@ noexcept
 			onDestroyed.Broadcast(this);
 		}
 
-		for (auto& item : sagaItemList)
-		{
-			item.isAvailable = true;
-			item.isBoxDestroyed = false;
-		}
-
-		sagaItemListSize = 0;
-		sagaItemListLock = false;
-
-		for (auto& score : sagaTeamScores)
-		{
-			score = 0;
-		}
-
-		for (auto& guardian : sagaGuardians)
-		{
-			guardian.myHp = guardian.maxHp;
-			guardian.myStatus = SagaGuardianState::Idle;
-		}
-
-		for (auto& member : myMembers)
-		{
-			member.myTeamId = ESagaPlayerTeam::Unknown;
-			member.myWeapon = 0;
-			member.isReady = false;
-			member.myHp = SagaPlayer::maxHp;
-			member.ridingGuardianId = -1;
-		}
-
-		sagaWinner = 0;
-		weaponChoiceTimerPacketAcquired = false;
-
-		myTitle.clear();
-		myState.store(RoomState::Idle, std::memory_order_release);
+		Cleanup();
 
 		isTaken.store(false, std::memory_order_release);
 	};
