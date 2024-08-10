@@ -274,11 +274,11 @@ ASagaRoomSessionLevel::OnTeamChanged(int32 user_id, bool is_red_team)
 
 	if (is_red_team)
 	{
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
+		net->SetTeam(user_id, ESagaPlayerTeam::Red);
 	}
 	else
 	{
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
+		net->SetTeam(user_id, ESagaPlayerTeam::Blue);
 	}
 
 	UpdateRoomSessionUI();
