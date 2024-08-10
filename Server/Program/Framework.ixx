@@ -128,6 +128,15 @@ private:
 	/// <param name="arg0">- destructed part id</param>
 	/// <param name="arg1">- guardian id</param>
 	DECL_RPC_METHOD(RpcEventOnGuardianPartDestructed);
+	/// <summary>일반적인 경우 실행 안됨.<para>오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨.</para></summary>
+	/// <param name="proc">- RPC_RESPAWN</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnRespawn);
+	/// <param name="proc">- RPC_RESPAWN_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingRespawnTime);
 	/// <param name="proc">- RPC_GET_SCORE</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
@@ -136,7 +145,7 @@ private:
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
 	DECL_RPC_METHOD(RpcEventOnGettingGameTime);
-	DECL_RPC_METHOD(RpcEventDefault);
+	void RpcEventDefault(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;

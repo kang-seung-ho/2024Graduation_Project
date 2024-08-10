@@ -188,53 +188,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// 일반적인 경우 실행안됨
-		// 오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨
-		case RPC_RESPAWN:
-		{
-			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
-				{
-					auto& hp = target.myHp;
-					hp = iconer::app::SagaPlayer::maxHp;
-
-					Broadcast(RPC_RESPAWN, user_id, arg0, arg1);
-				}
-			);
-		}
-		break;
-
-		case RPC_RESPAWN_TIMER:
-		{
-			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
-				{
-					const auto now = std::chrono::system_clock::now();
-
-					const auto gap = target.respawnTime - now;
-					const auto cnt = gap.count();
-					PrintLn("User {}'s respawn time: {}.", user_id, cnt);
-
-					if (0 < cnt)
-					{
-						iconer::app::SendContext* const ctx = AcquireSendContext();
-						auto [pk, size] = MakeRpc(RPC_RESPAWN_TIMER, user_id, cnt, arg1);
-
-						ctx->myBuffer = std::move(pk);
-
-						current_user.SendGeneralData(*ctx, size);
-					}
-					else
-					{
-						// RPC_RESPAWN과 같은 처리
-						auto& hp = target.myHp;
-						hp.store(iconer::app::SagaPlayer::maxHp, std::memory_order_release);
-
-						Broadcast(RPC_RESPAWN, user_id, arg0, arg1);
-					}
-				}
-			);
-		}
-		break;
-
 		case RPC_WEAPON_TIMER:
 		{
 			const auto now = std::chrono::system_clock::now();

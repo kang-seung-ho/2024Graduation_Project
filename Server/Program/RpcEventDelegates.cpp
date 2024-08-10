@@ -477,6 +477,62 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnRespawn(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	auto& revive_user_ctx = user.mainContext;
+	auto& revive_user_pk = revive_user_ctx->GetRespawnPacketData();
+
+	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+		{
+			auto& hp = target.myHp;
+			hp = iconer::app::SagaPlayer::maxHp;
+
+			room.Foreach
+			(
+				[&](iconer::app::User& member)
+				{
+					member.SendGeneralData(*AcquireSendContext(), revive_user_pk);
+				}
+			);
+		}
+	);
+}
+
+void
+ServerFramework::RpcEventOnGettingRespawnTime(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+		{
+			const auto now = std::chrono::system_clock::now();
+
+			const auto gap = target.respawnTime - now;
+			const auto cnt = gap.count();
+
+			PrintLn("[RPC_RESPAWN_TIMER] User {}'s respawn time: {}.", user.GetID(), cnt);
+
+			if (0 < cnt)
+			{
+				const auto ctx = AcquireSendContext();
+
+				auto& mem_ctx = user.mainContext;
+
+				user.SendGeneralData(*ctx, mem_ctx->GetRespawnTimePacketData(cnt));
+			}
+			else
+			{
+				RpcEventOnRespawn(room, user, RPC_RESPAWN, arg0, arg1);
+			}
+		}
+	);
+}
+
+void
 ServerFramework::RpcEventOnGettingScores(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
