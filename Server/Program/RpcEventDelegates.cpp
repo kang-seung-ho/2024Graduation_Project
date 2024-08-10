@@ -510,7 +510,7 @@ ServerFramework::RpcEventOnGettingWeaponChoiceTime(iconer::app::Room& room
 	const auto now = std::chrono::system_clock::now();
 	const auto gap = room.selectionPhaseTime - now;
 
-	user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(gap.count()));
+	user.SendGeneralData(*AcquireSendContext(), room.MakeWeaponChoiceTimerPacket(gap.count()));
 }
 
 void
