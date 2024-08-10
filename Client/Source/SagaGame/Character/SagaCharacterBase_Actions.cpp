@@ -193,14 +193,13 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 
 	case ESagaItemTypes::Gum:
 	{
-		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f;
-		SpawnLocation.Z -= 70.0f;
+		const FVector loc = GetActorLocation() + GetActorForwardVector() * 200.0f - FVector{ 0, 0, 70 };
+		const FRotator rot = GetActorRotation();
 
-		FRotator SpawnRotation = GetActorRotation();
-		FActorSpawnParameters SpawnParams{};
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FActorSpawnParameters params{};
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		(void)world->SpawnActor<AGumball>(AGumball::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		(void)world->SpawnActor(AGumball::StaticClass(), &loc, &rot, params);
 	}
 	break;
 
@@ -210,7 +209,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 
 		const auto name = GetName();
 
-		UE_LOG(LogSagaGame, Log, TEXT("Creating a smoke bomb for '%s'."), *name);
+		UE_LOG(LogSagaGame, Log, TEXT("[ExecuteUseItem] Creating a smoke bomb for '%s'."), *name);
 #endif
 
 		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 50.0f;
@@ -230,7 +229,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 			{
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Error, TEXT("No niagara component for '%s'."), *name);
+				UE_LOG(LogSagaGame, Error, TEXT("[ExecuteUseItem] Any smoke effect is not created for '%s'."), *name);
 #endif
 			}
 		}
@@ -238,7 +237,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 		{
 #if WITH_EDITOR
 
-			UE_LOG(LogSagaGame, Error, TEXT("Smoke effect for '%s' not found."), *name);
+			UE_LOG(LogSagaGame, Error, TEXT("[ExecuteUseItem] The smoke effect for '%s' is not found."), *name);
 #endif
 		}
 	}
