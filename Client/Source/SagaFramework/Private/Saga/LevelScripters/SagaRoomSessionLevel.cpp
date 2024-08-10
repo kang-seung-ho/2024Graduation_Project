@@ -68,7 +68,10 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 	{
 		const auto& list = net->GetUserList();
 
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] %d users would be listed."), list.Num());
+#endif
 
 		const auto& red_list = levelUiInstance->myRedTeamMemberListView->myListView;
 		const auto& blu_list = levelUiInstance->myBlueTeamMemberListView->myListView;
@@ -84,7 +87,10 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 			{
 			case ESagaPlayerTeam::Unknown:
 			{
+#if WITH_EDITOR
+
 				UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][UpdateRoomSessionUI] user %d has unkown team."), user_id);
+#endif
 			}
 			break;
 
@@ -92,8 +98,11 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 			{
 				auto& team_list = *red_list;
 
+#if WITH_EDITOR
+
 				const auto name = user.myName.ToString();
 				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user_id, *name, static_cast<int>(user.myTeam));
+#endif
 
 				AddMemberToTeamViewer(&team_list, user);
 			}
@@ -103,8 +112,11 @@ ASagaRoomSessionLevel::UpdateRoomSessionUI()
 			{
 				auto& team_list = *blu_list;
 
+#if WITH_EDITOR
+
 				const auto name = user.myName.ToString();
 				UE_LOG(LogSagaFramework, Log, TEXT("Member(%d) - '%s' | team: %d"), user_id, *name, static_cast<int>(user.myTeam));
+#endif
 
 				AddMemberToTeamViewer(&team_list, user);
 			}
@@ -300,7 +312,11 @@ void
 ASagaRoomSessionLevel::OnGetPreparedGame()
 {
 	PauseTimer();
+
+#if WITH_EDITOR
+
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnGetPreparedGame] Lets prepare for game!"));
+#endif
 
 	GotoNextLevel();
 
@@ -324,20 +340,29 @@ ASagaRoomSessionLevel::HandleStartButton()
 	{
 		if (net->IsConnected())
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleStartButton"));
+#endif
 
 			net->SendGameStartPacket();
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][HandleStartButton] Network subsystem is not ready."));
+#endif
 
 			Fallback();
 		}
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleStartButton (Offline Mode)"));
+#endif
 
 		GotoNextLevel();
 	}
@@ -356,7 +381,10 @@ ASagaRoomSessionLevel::HandleQuitButton()
 	{
 		if (net->IsConnected())
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleQuitButton"));
+#endif
 
 			net->SendLeaveRoomPacket();
 
@@ -364,14 +392,20 @@ ASagaRoomSessionLevel::HandleQuitButton()
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Warning, TEXT("[ASagaRoomSessionLevel][HandleQuitButton] Network subsystem is not ready."));
+#endif
 
 			Fallback();
 		}
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleQuitButton (Offline Mode)"));
+#endif
 
 		levelUiInstance->Close();
 	}
@@ -386,7 +420,10 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 
 	if (net->IsOfflineMode())
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleRedTeamButton (Offline Mode)"));
+#endif
 
 		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
 	}
@@ -396,13 +433,19 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 
 		if (net->IsConnected())
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to red..."));
+#endif
 
 			net->SendChangeTeamPacket(true);
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][HandleRedTeamButton] Network subsystem is not ready."));
+#endif
 
 			Fallback();
 		}
@@ -420,7 +463,10 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 
 	if (net->IsOfflineMode())
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandleBlueTeamButton (Offline Mode)"));
+#endif
 
 		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
 	}
@@ -430,13 +476,19 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 
 		if (net->IsConnected())
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] Changing team to blue..."));
+#endif
 
 			net->SendChangeTeamPacket(false);
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][HandleBlueTeamButton] Network subsystem is not ready."));
+#endif
 
 			Fallback();
 		}
@@ -454,18 +506,27 @@ ASagaRoomSessionLevel::HandlePeriodicUpdate()
 	{
 		if (net->IsConnected())
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandlePeriodicUpdate"));
+#endif
 
 			net->SendRequestMembersPacket();
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaFramework, Error, TEXT("[ASagaRoomSessionLevel][HandlePeriodicUpdate] Network subsystem is not ready."));
+#endif
 		}
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel] HandlePeriodicUpdate (Offline Mode)"));
+#endif
 	}
 }
 
