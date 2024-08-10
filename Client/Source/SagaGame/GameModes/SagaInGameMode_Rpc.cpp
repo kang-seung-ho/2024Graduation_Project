@@ -45,7 +45,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 	case ESagaRpcProtocol::RPC_UNKNOWN:
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[RPC] Cannot execute a rpc script by user %d."), id);
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[RPC] Cannot execute a rpc script for user %d."), id);
+#endif
 	}
 	break;
 
@@ -53,7 +56,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_WALK] by user %d, has no character."), id);
+#endif
 			break;
 		}
 
@@ -84,7 +90,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_END_WALK] by user %d, no character."), id);
+#endif
+
 			break;
 		}
 
@@ -115,7 +125,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_RUN] by user %d, no character."), id);
+#endif
+
 			break;
 		}
 
@@ -127,7 +141,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_END_RUN] by user %d, no character."), id);
+#endif
+
 			break;
 		}
 
@@ -139,7 +157,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_BEG_JUMP] by user %d, no character."), id);
+#endif
+
 			break;
 		}
 
@@ -153,7 +175,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (not IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] by user %d, has no character."), id);
+#endif
+
 			break;
 		}
 
@@ -161,7 +187,11 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (not IsValid(human))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] User %d's character is not a human."), id);
+#endif
+
 			break;
 		}
 
@@ -624,7 +654,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			float dmg{};
 			memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
 
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN] Guardian %d is damaged for %f"), guardian_id, dmg);
+#endif
 
 			guardian->ExecuteHurt(dmg);
 
@@ -670,7 +703,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_BEG_RIDE] There is no guardian with id %d."), guardian_id);
+#endif
 		}
 
 		/// **
@@ -792,11 +828,17 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		if (IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DEAD] User %d is dead."), id);
+#endif
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DEAD] User %d is dead, has no character."), id);
+#endif
 
 			break;
 		}
@@ -815,7 +857,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (IsValid(character))
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN] User %d is respawning..."), id);
+#endif
 
 			character->ExecuteRespawn();
 		}
@@ -827,20 +872,25 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			{
 				if (is_remote)
 				{
+#if WITH_EDITOR
+
 					UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN][Remote] User %d is respawning, no character."), id);
-
-
+#endif
 				}
 				else
 				{
+#if WITH_EDITOR
+
 					UE_LOG(LogSagaGame, Warning, TEXT("[RPC_RESPAWN][Local] User %d is respawning, no character."), id);
-
-
+#endif
 				}
 			}
 			else
 			{
+#if WITH_EDITOR
+
 				UE_LOG(LogSagaGame, Error, TEXT("[RPC_RESPAWN] User %d could not find its team!"), id);
+#endif
 
 				return;
 			}
@@ -852,7 +902,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	case ESagaRpcProtocol::RPC_RESPAWN_TIMER:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_RESPAWN_TIMER] Time: %d"), arg0);
+#endif
 
 		/// **
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
@@ -861,7 +914,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	case ESagaRpcProtocol::RPC_GET_SCORE:
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GET_SCORE] red: %d, blu: %d"), arg0, arg1);
+#endif
 
 		const auto world = GetWorld();
 		const auto sys = USagaGameSubsystem::GetSubSystem(world);
@@ -882,7 +938,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		memcpy(&blu_score, reinterpret_cast<const char*>(&arg0) + 4, 4);
 		winner = arg1;
 
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red score: %d, Blue score: %d, Winner: %d"), red_score, blu_score, winner);
+#endif
 
 		const auto world = GetWorld();
 		const auto sys = USagaGameSubsystem::GetSubSystem(world);
@@ -896,7 +955,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d is in the unknown team!"), id);
+#endif
 		}
 
 		sys->SetScore(ESagaPlayerTeam::Red, red_score);
@@ -904,21 +966,30 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (winner == 1)
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red team has won the game!"));
+#endif
 
 			sys->SetWhoWonByPinata(1);
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
 		}
 		else if (winner == 2)
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Blue team has won the game!"));
+#endif
 
 			sys->SetWhoWonByPinata(0);
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d received unknown winner!"), id);
+#endif
 		}
 	}
 	break;
