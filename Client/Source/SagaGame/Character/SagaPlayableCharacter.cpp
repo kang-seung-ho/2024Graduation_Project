@@ -450,7 +450,7 @@ void ASagaPlayableCharacter::UseSkill(int32 SlotNumber)
 {
 	mAnimInst->UseSkill(SlotNumber); //play animation first
 
-	
+
 
 	UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter] UseSkill: %d"), SlotNumber);
 }
@@ -661,7 +661,7 @@ void ASagaPlayableCharacter::PostInitializeComponents()
 		}
 	}
 
-	HatComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); 
+	HatComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	HatComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 
 	// Head 소켓에 부착
