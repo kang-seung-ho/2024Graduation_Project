@@ -122,6 +122,8 @@ ServerFramework::Initialize()
 	AddRpcProcessor(RPC_DESTROY_ITEM_BOX, &ServerFramework::RpcEventOnItemBoxDestroyed);
 	AddRpcProcessor(RPC_GRAB_ITEM, &ServerFramework::RpcEventOnItemGrabbed);
 	AddRpcProcessor(RPC_USE_ITEM_0, &ServerFramework::RpcEventOnItemUsed);
+	AddRpcProcessor(RPC_BEG_RIDE, &ServerFramework::RpcEventOnTryingtoRideGuardian);
+	AddRpcProcessor(RPC_END_RIDE, &ServerFramework::RpcEventOnUnrideFromGuardian);
 	AddRpcProcessor(RPC_DMG_GUARDIAN, &ServerFramework::RpcEventOnDamageToGuardian);
 	AddRpcProcessor(RPC_DMG_GUARDIANS_PART, &ServerFramework::RpcEventOnGuardianPartDestructed);
 	AddRpcProcessor(RPC_GET_SCORE, &ServerFramework::RpcEventOnGettingScores);

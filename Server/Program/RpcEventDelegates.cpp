@@ -191,6 +191,120 @@ ServerFramework::RpcEventOnItemUsed(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto room_id = room.GetID();
+	const auto user_id = user.GetID();
+
+	PrintLn("[RPC_BEG_RIDE] At room {}.", room_id);
+
+	if (arg1 < 0 or 3 <= arg1)
+	{
+		PrintLn("[RPC_BEG_RIDE] User {} tells wrong Guardian {}.", user_id, arg1);
+
+		return;
+	}
+
+	auto& guardian = room.sagaGuardians[arg1];
+
+	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+		{
+			auto& rider = target.ridingGuardianId;
+
+			const auto rider_id = rider.load(std::memory_order_acquire);
+			const auto hp = target.myHp.load(std::memory_order_acquire);
+
+			if (0 < hp and guardian.IsAlive() and guardian.TryRide(user_id))
+			{
+				std::int32_t pre_guardian_id = -1;
+
+				if (rider.compare_exchange_strong(pre_guardian_id, arg1, std::memory_order_release))
+				{
+					room.Foreach
+					(
+						[&](iconer::app::User& member)
+						{
+							const auto ctx = AcquireSendContext();
+
+							auto& mem_ctx = member.mainContext;
+
+							member.SendGeneralData(*ctx, mem_ctx->GetRideGuardianPacketData(arg1));
+						}
+					);
+
+					PrintLn("User {} would ride the Guardian {}.", user_id, arg1);
+				}
+				else
+				{
+					// rollback
+					PrintLn("User {} cannot ride the Guardian {}.", user_id, arg1);
+
+					guardian.TryUnride(user_id);
+				}
+			}
+			else
+			{
+				PrintLn("User {0} cannot ride the Guardian {1} because guardian {1} is dead.", user_id, arg1);
+
+				std::int32_t pre_guardian_id = arg1;
+
+				// rollback
+				rider.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
+			}
+		}
+	);
+}
+
+void
+ServerFramework::RpcEventOnUnrideFromGuardian(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto room_id = room.GetID();
+	const auto user_id = user.GetID();
+
+	PrintLn("[RPC_END_RIDE] At room {}.", room_id);
+
+	if (arg1 < 0 or 3 <= arg1)
+	{
+		PrintLn("[RPC_END_RIDE] User {} tells wrong guardian {}.", user_id, arg1);
+
+		return;
+	}
+
+	auto& guardian = room.sagaGuardians[arg1];
+
+	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+		{
+			auto& rider = target.ridingGuardianId;
+
+			const auto rider_id = rider.load(std::memory_order_acquire);
+			std::int32_t pre_guardian_id = arg1;
+
+			if (guardian.TryUnride(user_id))
+			{
+				RpcEventDefault(room, user, RPC_END_RIDE, arg0, arg1);
+
+				rider.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
+
+				PrintLn("[RPC_END_RIDE] User {} would unride from guardian {}.", user_id, arg1);
+			}
+			else
+			{
+				std::int32_t pre_guardian_id = arg1;
+				rider.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
+
+				PrintLn("[RPC_END_RIDE] User {} was not riding guardian {}.", user_id, arg1);
+			}
+		}
+	);
+}
+
+void
 ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
@@ -247,7 +361,7 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 					{
 						const auto mem_ptr = member.GetStoredUser();
 						if (nullptr == mem_ptr) return;
-						
+
 						const auto mem_id = mem_ptr->GetID();
 						const auto rider_id_ext = static_cast<std::uint64_t>(rider_id);
 

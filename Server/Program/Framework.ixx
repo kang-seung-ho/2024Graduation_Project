@@ -1,4 +1,6 @@
 module;
+#define DECL_RPC_METHOD(name) \
+void name(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1)
 
 export module Iconer.Framework;
 import Iconer.Net.IFramework;
@@ -97,36 +99,44 @@ private:
 	/// <param name="proc">- RPC_MAIN_WEAPON</param>
 	/// <param name="arg0">- weapon type</param>
 	/// <param name="arg1">- nothing</param>
-	void RpcEventOnWeaponChanged(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnWeaponChanged);
 	/// <param name="proc">- RPC_DESTROY_ITEM_BOX</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- item id</param>
-	void RpcEventOnItemBoxDestroyed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemBoxDestroyed);
 	/// <param name="proc">- RPC_GRAB_ITEM</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- item id</param>
-	void RpcEventOnItemGrabbed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemGrabbed);
 	/// <param name="proc">- RPC_USE_ITEM_0</param>
 	/// <param name="arg0">- effect info</param>
 	/// <param name="arg1">- item type</param>
-	void RpcEventOnItemUsed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemUsed);
+	/// <param name="proc">- RPC_BEG_RIDE</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnTryingtoRideGuardian);
+	/// <param name="proc">- RPC_END_RIDE</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnUnrideFromGuardian);
 	/// <param name="proc">- RPC_DMG_GUARDIAN</param>
 	/// <param name="arg0">- damage to guardian (4 bytes)</param>
 	/// <param name="arg1">- guardian id</param>
-	void RpcEventOnDamageToGuardian(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnDamageToGuardian);
 	/// <param name="proc">- RPC_DMG_GUARDIANS_PART</param>
 	/// <param name="arg0">- destructed part id</param>
 	/// <param name="arg1">- guardian id</param>
-	void RpcEventOnGuardianPartDestructed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnGuardianPartDestructed);
 	/// <param name="proc">- RPC_GET_SCORE</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
-	void RpcEventOnGettingScores(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnGettingScores);
 	/// <param name="proc">- RPC_GAME_TIMER</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
-	void RpcEventOnGettingGameTime(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
-	void RpcEventDefault(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnGettingGameTime);
+	DECL_RPC_METHOD(RpcEventDefault);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;

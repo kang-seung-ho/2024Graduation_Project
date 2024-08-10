@@ -177,7 +177,7 @@ export namespace iconer::app
 		// 137[1] => SC_RPC
 		// 20|0[2] => size
 		// 0[4] => id
-		// 221[1] => RPC_GET_SCORE
+		// 222[1] => RPC_GET_SCORE
 		std::array<std::byte, 20> gameScorePacketData{};
 
 		explicit constexpr Room(id_type id) noexcept
