@@ -127,6 +127,7 @@ ServerFramework::Initialize()
 	AddRpcProcessor(RPC_DMG_GUARDIAN, &ServerFramework::RpcEventOnDamageToGuardian);
 	AddRpcProcessor(RPC_DMG_GUARDIANS_PART, &ServerFramework::RpcEventOnGuardianPartDestructed);
 	AddRpcProcessor(RPC_RESPAWN, &ServerFramework::RpcEventOnRespawn);
+	AddRpcProcessor(RPC_WEAPON_TIMER, &ServerFramework::RpcEventOnGettingWeaponChoiceTime);
 	AddRpcProcessor(RPC_RESPAWN_TIMER, &ServerFramework::RpcEventOnGettingRespawnTime);
 	AddRpcProcessor(RPC_GET_SCORE, &ServerFramework::RpcEventOnGettingScores);
 	AddRpcProcessor(RPC_GAME_TIMER, &ServerFramework::RpcEventOnGettingGameTime);

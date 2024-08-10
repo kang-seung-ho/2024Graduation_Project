@@ -169,24 +169,14 @@ export namespace iconer::app
 		iconer::util::Delegate<void, this_class*, pointer_type, size_type> onUserLeft{};
 		iconer::util::Delegate<void, this_class*, pointer_type> onFailedToJoinUser{};
 
-		// 137[1] => SC_RPC
-		// 20|0[2] => size
-		// 0[4] => id
-		// 225[1] => RPC_GAME_TIMER
-		std::array<std::byte, 20> gameTimerPacketData{};
-		// 137[1] => SC_RPC
-		// 20|0[2] => size
-		// 0[4] => id
-		// 222[1] => RPC_GET_SCORE
-		std::array<std::byte, 20> gameScorePacketData{};
-
 		explicit constexpr Room(id_type id) noexcept
 			: super(id)
 		{
 			myTitle.resize(titleLength * 2);
 
-			iconer::app::SerializeAt(gameTimerPacketData.data(), PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GAME_TIMER, 0LL, 0);
-			iconer::app::SerializeAt(gameScorePacketData.data(), PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GET_SCORE, 0LL, 0);
+			iconer::app::SerializeAt(weaponChoiceTimerPacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_WEAPON_TIMER, 0LL, 0);
+			iconer::app::SerializeAt(gameTimerPacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GAME_TIMER, 0LL, 0);
+			iconer::app::SerializeAt(gameScorePacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GET_SCORE, 0LL, 0);
 		}
 
 		~Room() = default;
@@ -301,13 +291,21 @@ export namespace iconer::app
 		[[nodiscard]] std::pair<std::unique_ptr<std::byte[]>, std::int16_t> MakeMemberJoinedPacket(const_reference user) const;
 
 		[[nodiscard]]
+		auto& MakeWeaponChoiceTimerPacket(const std::int64_t& time) noexcept
+		{
+			std::memcpy(weaponChoiceTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
+
+			return weaponChoiceTimerPacketData;
+		}
+
+		[[nodiscard]]
 		auto& MakeGameTimerPacket(const std::int64_t& time) noexcept
 		{
 			std::memcpy(gameTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
 
 			return gameTimerPacketData;
 		}
-		
+
 		[[nodiscard]]
 		auto& MakeGameScorePacket(const std::int64_t& red_score, const std::int32_t& blu_score) noexcept
 		{
@@ -355,6 +353,25 @@ export namespace iconer::app
 		std::array<std::byte, maxSerializeMemberDataSize> precachedMemberListData{};
 		size_t precachedMemberListDataSize{};
 		std::atomic_bool isDirty{};
+
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 225[1] => RPC_WEAPON_TIMER
+		// [8] => seconds count
+		std::array<std::byte, 20> weaponChoiceTimerPacketData{};
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 225[1] => RPC_GAME_TIMER
+		// [8] => seconds count
+		std::array<std::byte, 20> gameTimerPacketData{};
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 222[1] => RPC_GET_SCORE
+		std::array<std::byte, 20> gameScorePacketData{};
+		std::atomic_bool weaponChoiceTimerPacketAcquired{};
 
 		[[nodiscard]]
 		bool ChangedIsTaken(bool before, bool flag, std::memory_order order = std::memory_order_release) noexcept

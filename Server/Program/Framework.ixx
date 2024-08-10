@@ -133,6 +133,10 @@ private:
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
 	DECL_RPC_METHOD(RpcEventOnRespawn);
+	/// <param name="proc">- RPC_WEAPON_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingWeaponChoiceTime);
 	/// <param name="proc">- RPC_RESPAWN_TIMER</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>

@@ -188,22 +188,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		case RPC_WEAPON_TIMER:
-		{
-			const auto now = std::chrono::system_clock::now();
-
-			const auto gap = room->selectionPhaseTime - now;
-			const size_t cnt = gap.count();
-			//PrintLn(L"\tRoom {}'s weapon phase: {}.", room_id, cnt);
-
-			iconer::app::SendContext* const ctx = AcquireSendContext();
-			auto [pk, size] = MakeRpc(RPC_WEAPON_TIMER, user_id, cnt, 0);
-			ctx->myBuffer = std::move(pk);
-
-			current_user.SendGeneralData(*ctx, size);
-		}
-		break;
-
 		// TODO: 박 체력 동기화
 		// arg0: 박에 준 피해량
 		// arg1: 박의 팀 식별자 (0: 팀 X, 1: 빨강, 2: 파랑)
@@ -215,6 +199,18 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				{
 				}
 			);
+		}
+		break;
+
+		// 테스트 용
+		// arg0: 승리한 팀의 ID (4바이트) | 승리한 팀의 점수(4바이트)
+		// arg1: 승패 결정 수단
+		//		수단:	0 - 피냐타 파괴
+		//					1 - 게임 시간 종료
+		case RPC_GAME_END:
+		{
+			
+
 		}
 		break;
 

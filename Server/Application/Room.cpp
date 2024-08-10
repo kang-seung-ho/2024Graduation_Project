@@ -227,6 +227,7 @@ noexcept
 		}
 
 		sagaWinner = 0;
+		weaponChoiceTimerPacketAcquired = false;
 
 		myTitle.clear();
 		myState.store(RoomState::Idle, std::memory_order_release);

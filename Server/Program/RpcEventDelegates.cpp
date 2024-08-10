@@ -502,6 +502,18 @@ ServerFramework::RpcEventOnRespawn(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnGettingWeaponChoiceTime(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	const auto now = std::chrono::system_clock::now();
+	const auto gap = room.selectionPhaseTime - now;
+
+	user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(gap.count()));
+}
+
+void
 ServerFramework::RpcEventOnGettingRespawnTime(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
@@ -555,15 +567,17 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 	const auto gap = room.gamePhaseTime - now;
 	const auto cnt = gap.count();
 
+	RpcEventOnGettingScores(room, user, proc, 0, 0);
+
 	if (0 < cnt)
 	{
+		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 	}
 	else
 	{
-		RpcEventOnGettingScores(room, user, proc, 0, 0);
+		// TODO: 게임 승패 판정 송신
+		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 	}
-
-	user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 }
 
 void
