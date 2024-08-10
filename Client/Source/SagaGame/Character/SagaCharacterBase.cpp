@@ -405,16 +405,11 @@ void
 ASagaCharacterBase::AddItemToInventory(ESagaItemTypes ItemType)
 const
 {
-	const auto pc = GetController();
+	const auto pc = GetController<ASagaInGamePlayerController>();
 
 	if (IsValid(pc))
 	{
-		ASagaInGamePlayerController* SagaPlayerController = Cast<ASagaInGamePlayerController>(pc);
-
-		if (SagaPlayerController)
-		{
-			SagaPlayerController->AddItemToInventory(ItemType);
-		}
+		pc->AddItemToInventory(ItemType);
 	}
 }
 
@@ -553,8 +548,50 @@ ASagaCharacterBase::StopMovement()
 }
 
 void
+ASagaCharacterBase::SetCollisionEnable(const bool flag)
+{
+	if (flag)
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+	else
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	SetActorEnableCollision(flag);
+}
+
+void
 ASagaCharacterBase::ChangeColliderProfile(const FName& name)
 const
 {
 	GetCapsuleComponent()->SetCollisionProfileName(name);
+}
+
+void
+ASagaCharacterBase::ChangeColliderProfileToRedTeam()
+const
+{
+	static FName team_name{ TEXT("Red") };
+
+	ChangeColliderProfile(team_name);
+}
+
+void
+ASagaCharacterBase::ChangeColliderProfileToBluTeam()
+const
+{
+	static FName team_name{ TEXT("Blue") };
+
+	ChangeColliderProfile(team_name);
+}
+
+void
+ASagaCharacterBase::ChangeColliderProfileToHostile()
+const
+{
+	static FName team_name{ TEXT("Enemy") };
+
+	ChangeColliderProfile(team_name);
 }

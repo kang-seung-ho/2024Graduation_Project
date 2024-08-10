@@ -119,7 +119,7 @@ ASagaCharacterBase::ExecuteDeath()
 	}
 
 	StopMovement();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetCollisionEnable(false);
 
 	if (OnCharacterDeath.IsBound())
 	{
@@ -158,6 +158,9 @@ ASagaCharacterBase::ExecuteRespawn()
 	}
 
 	SetActorLocationAndRotation(spawn_pos, spawn_rot);
+
+	// Retrive collision
+	SetCollisionEnable(true);
 
 #if WITH_EDITOR
 

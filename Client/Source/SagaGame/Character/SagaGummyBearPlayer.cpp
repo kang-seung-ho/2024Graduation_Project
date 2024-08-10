@@ -63,15 +63,15 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 
 	if (target->GetTeam() == ESagaPlayerTeam::Red)
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Red"));
+		ChangeColliderProfileToRedTeam();
 	}
 	else if (target->GetTeam() == ESagaPlayerTeam::Blue)
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Blue"));
+		ChangeColliderProfileToBluTeam();
 	}
 	else
 	{
-		GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
+		ChangeColliderProfileToHostile();
 	}
 
 	ownerData.SetCharacterHandle(target);
@@ -82,7 +82,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 {
 	Super::TerminateGuardianAction();
 
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
+	ChangeColliderProfileToHostile();
 
 	const auto character = ownerData.GetCharacterHandle();
 
@@ -642,9 +642,9 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 
 	GetCapsuleComponent()->SetCapsuleSize(90.0f, 96.0f);
 	SetRootComponent(GetCapsuleComponent());
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ChangeColliderProfileToHostile();
 
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
 	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 

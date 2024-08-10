@@ -62,12 +62,23 @@ public:
 
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
 
-	virtual void TakeItem(ESagaItemTypes ItemType) override;
-
 	UFUNCTION()
 	void StopMovement();
 	UFUNCTION()
+	void SetCollisionEnable(const bool flag);
+	UFUNCTION()
 	void ChangeColliderProfile(const FName& name) const;
+	UFUNCTION()
+	void ChangeColliderProfileToRedTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToBluTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToHostile() const;
+
+	// UFUNCTION()
+	virtual void TakeItem(ESagaItemTypes ItemType) override;
+	UFUNCTION()
+	void AddItemToInventory(ESagaItemTypes ItemType) const;
 
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
@@ -221,7 +232,4 @@ protected:
 	{
 		return isRunning ? 200 : 100;
 	}
-
-	UFUNCTION()
-	void AddItemToInventory(ESagaItemTypes ItemType) const;
 };

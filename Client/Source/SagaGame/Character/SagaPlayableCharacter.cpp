@@ -81,7 +81,7 @@ ASagaPlayableCharacter::ExecuteGuardianAction(ASagaCharacterBase* target)
 	TranslateProperties(target);
 
 	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
+	SetCollisionEnable(false);
 
 	myHealthIndicatorBarWidget->SetHiddenInGame(true);
 }
@@ -92,7 +92,7 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 	Super::TerminateGuardianAction();
 
 	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
+	SetCollisionEnable(true);
 
 	if (IsAlive())
 	{
@@ -404,9 +404,6 @@ ASagaPlayableCharacter::ExecuteRespawn()
 
 	// Animate
 	mAnimInst->Revive();
-
-	// Retrive collision
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 ASagaGummyBearPlayer* ASagaPlayableCharacter::GetNeareastCollidedBear()
