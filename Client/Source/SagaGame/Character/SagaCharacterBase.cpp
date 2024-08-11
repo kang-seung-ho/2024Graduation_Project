@@ -44,11 +44,11 @@ ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
 
 	if (team == ESagaPlayerTeam::Red)
 	{
-		ChangeColliderProfile(TEXT("Red"));
+		ChangeColliderProfileToRedTeam();
 	}
 	else
 	{
-		ChangeColliderProfile(TEXT("Blue"));
+		ChangeColliderProfileToBluTeam();
 	}
 }
 
@@ -319,11 +319,6 @@ void
 ASagaCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (not HasValidOwnerId())
-	{
-		SetTeam(ESagaPlayerTeam::Blue);
-	}
 
 	// 호출되기 전에 SkeletalMeshComponent에 지정된
 	// AnimInstance 클래스를 사용하기 위한 객체 만들어놨음.
