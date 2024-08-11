@@ -356,22 +356,22 @@ ASagaPlayableCharacter::ExecuteDeath()
 		UGameplayStatics::PlaySoundAtLocation(this, DeadSoundEffect, GetActorLocation());
 	}
 
-	if (HasValidOwnerId())
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+	const auto sys = USagaGameSubsystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode())
 	{
-		const auto world = GetWorld();
-		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
-		const auto sys = USagaGameSubsystem::GetSubSystem(world);
+		// 리스폰 함수 실행
+		// ExecuteRespawn 함수 3초 뒤	실행
+		GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
 
-		if (net->IsOfflineMode())
-		{
-			// 리스폰 함수 실행
-			// ExecuteRespawn 함수 3초 뒤	실행
-			GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ASagaPlayableCharacter::ExecuteRespawn, 3.0f, false);
-
-			// 상대 팀 점수 증가
-			sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
-		}
-		else if (GetUserId() == net->GetLocalUserId())
+		// 상대 팀 점수 증가
+		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+	}
+	else if (HasValidOwnerId())
+	{
+		if (GetUserId() == net->GetLocalUserId())
 		{
 			// NOTICE: 서버에서 RPC_DEAD 전송해주므로 하면 안됨
 			//net->SendRpcPacket(ESagaRpcProtocol::RPC_DEAD, 0, GetUserId());
