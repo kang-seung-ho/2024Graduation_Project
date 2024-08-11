@@ -391,6 +391,7 @@ void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //Ener
 	{
 		InventoryWidget->UseEnergyDrink();
 		InventoryWidget->mEnergyDrinkCount--;
+		InventoryWidget->UpdateEnergyDrinkAmount();
 	}	
 }
 
@@ -401,6 +402,7 @@ void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumb
 	{
 		InventoryWidget->UseGumball();
 		InventoryWidget->mGumballCount--;
+		InventoryWidget->UpdateGumballAmount();
 	}
 }
 
@@ -412,5 +414,6 @@ void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value) //Smok
 	{
 		InventoryWidget->UseSmokeBomb();
 		InventoryWidget->mSmokeBombCount--;
+		InventoryWidget->UpdateSmokeBombAmount();
 	}
 }

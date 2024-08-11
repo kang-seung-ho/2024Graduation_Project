@@ -147,12 +147,12 @@ ASagaCharacterBase::ExecuteRespawn()
 
 	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
-		spawn_pos = FVector{ -4420.0, 10490.0, 142.00169 };
+		spawn_pos = FVector{ 40.0, 9200.0, 122.00169 };
 		spawn_rot = FRotator::ZeroRotator;
 	}
 	else // blue team
 	{
-		spawn_pos = FVector{ -4442.0, -8640.0, 141.998502 };
+		spawn_pos = FVector{ -22.0, -9300.0, 141.998502 };
 		//spawn_rot = FRotator{ 0, -129.0, 0 };
 		spawn_rot = FRotator::ZeroRotator;
 	}
@@ -193,7 +193,7 @@ ASagaCharacterBase::ExecuteUseItem(ESagaItemTypes item)
 
 	case ESagaItemTypes::Gum:
 	{
-		const FVector loc = GetActorLocation() + GetActorForwardVector() * 200.0f - FVector{ 0, 0, 70 };
+		const FVector loc = GetActorLocation() + GetActorForwardVector() * 200.0f - FVector{ 0, 0, 80 };
 		const FRotator rot = GetActorRotation();
 
 		FActorSpawnParameters params{};
