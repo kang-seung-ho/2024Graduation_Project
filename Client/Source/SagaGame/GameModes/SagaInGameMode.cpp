@@ -126,6 +126,9 @@ ASagaInGameMode::StartPlay()
 	if (not net->IsOfflineMode())
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
+
+		// NOTICE: 여기서 오프라인 모드에서 팀 설정함
+		net->SetLocalUserTeam(ESagaPlayerTeam::Blue);
 	}
 	else
 	{

@@ -263,7 +263,6 @@ USagaLobbyLevelUiWidget::HandleCreateRoom(FText title)
 
 		net->SetCurrentRoomId(22);
 		net->SetCurrentRoomTitle(title);
-		net->SetLocalUserTeam(ESagaPlayerTeam::Red);
 
 		UGameplayStatics::OpenLevel(this, TEXT("CharacterSelectLevel"));
 		//UGameplayStatics::OpenLevel(this, TEXT("RoomSessionLevel"));
