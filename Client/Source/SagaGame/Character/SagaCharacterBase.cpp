@@ -364,8 +364,7 @@ ASagaCharacterBase::BeginPlay()
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][BeginPlay] '%s' is setting up the hp bar widget..."), *name);
 #endif
 
-			healthbar->SetMaxHp(myGameStat->GetMaxHp());
-			healthbar->UpdateHpBar(myGameStat->GetCurrentHp());
+			healthbar->UpdateHpBar(myGameStat->GetCurrentHp() / myGameStat->GetMaxHp());
 
 			myGameStat->OnHpChanged.AddDynamic(healthbar, &USagaHpBarWidget::UpdateHpBar);
 		}

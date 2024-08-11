@@ -53,7 +53,7 @@ USagaCharacterStatComponent::SetCurrentHp(float hp)
 
 	if (OnHpChanged.IsBound())
 	{
-		OnHpChanged.Broadcast(CurrentHp);
+		OnHpChanged.Broadcast(CurrentHp / MaxHp);
 	}
 }
 
@@ -97,6 +97,6 @@ const
 {
 	if (OnHpChanged.IsBound())
 	{
-		OnHpChanged.Broadcast(CurrentHp);
+		OnHpChanged.Broadcast(CurrentHp / MaxHp);
 	}
 }

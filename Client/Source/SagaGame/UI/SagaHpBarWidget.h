@@ -17,15 +17,9 @@ public:
 	USagaHpBarWidget(const FObjectInitializer& initializer) noexcept;
 
 	UFUNCTION()
-	FORCEINLINE void SetMaxHp(float NewMaxHp) { MaxHp = NewMaxHp; }
-
-	UFUNCTION()
-	void UpdateHpBar(float CurrentHp);
+	void UpdateHpBar(const float percentage);
 	
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
-
-	UPROPERTY()
-	float MaxHp;
 };

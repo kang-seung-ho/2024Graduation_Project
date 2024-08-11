@@ -8,7 +8,6 @@ USagaHpBarWidget::USagaHpBarWidget(const FObjectInitializer& initializer)
 noexcept
 	: Super(initializer)
 	, myProgressBar()
-	, MaxHp(-1)
 {}
 
 void
@@ -34,15 +33,12 @@ USagaHpBarWidget::NativeConstruct()
 }
 
 void
-USagaHpBarWidget::UpdateHpBar(float hp)
+USagaHpBarWidget::UpdateHpBar(const float percentage)
 {
-	ensure(MaxHp > 0.0f);
-
 	if (IsValid(myProgressBar))
 	{
-		const float ratio = hp / MaxHp;
-		myProgressBar->SetPercent(ratio);
+		myProgressBar->SetPercent(percentage);
 
-		UE_LOG(LogSagaGame, Log, TEXT("[USagaHpBarWidget] Health: %f/%f (Percentage: %f)"), hp, MaxHp, ratio);
+		UE_LOG(LogSagaGame, Log, TEXT("[USagaHpBarWidget] Health percentage: %f"), percentage);
 	}
 }
