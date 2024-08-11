@@ -54,6 +54,14 @@ void
 USagaGameSubsystem::SetScore(ESagaPlayerTeam team, int32 score)
 noexcept
 {
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	{
+		lastLocalPlayerTeam = net->GetLocalUserTeam();
+	}
+
 	if (team == ESagaPlayerTeam::Red)
 	{
 		RedTeamScore = score;
@@ -68,6 +76,14 @@ void
 USagaGameSubsystem::AddScore(ESagaPlayerTeam team, int32 score)
 noexcept
 {
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	{
+		lastLocalPlayerTeam = net->GetLocalUserTeam();
+	}
+
 	if (team == ESagaPlayerTeam::Red)
 	{
 		RedTeamScore += score;
@@ -82,6 +98,14 @@ void
 USagaGameSubsystem::SetWhoWonByPinata(int32 TeamPinataColor)
 noexcept
 {
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	{
+		lastLocalPlayerTeam = net->GetLocalUserTeam();
+	}
+
 	if (TeamPinataColor == 0) //redteam's pinata broken
 	{
 		RedTeamPinataBroken = true;
@@ -92,31 +116,9 @@ noexcept
 	}
 }
 
-int32
-USagaGameSubsystem::GetRedTeamScore()
-const noexcept
-{
-	return RedTeamScore;
-}
-
-int32
-USagaGameSubsystem::GetBlueTeamScore()
-const noexcept
-{
-	return BluTeamScore;
-}
-
 FString
 USagaGameSubsystem::GetWhoWon()
 {
-	const auto world = GetWorld();
-	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
-
-	if (net->IsConnected() and 0 < net->GetCurrentRoomId())
-	{
-		lastLocalPlayerTeam = net->GetLocalUserTeam();
-	}
-
 	const auto player_team = lastLocalPlayerTeam;
 
 	if (RedTeamPinataBroken)
@@ -190,4 +192,18 @@ USagaGameSubsystem::GetLocalPlayerSpawner()
 const noexcept
 {
 	return localPlayerSpawner;
+}
+
+int32
+USagaGameSubsystem::GetRedTeamScore()
+const noexcept
+{
+	return RedTeamScore;
+}
+
+int32
+USagaGameSubsystem::GetBlueTeamScore()
+const noexcept
+{
+	return BluTeamScore;
 }
