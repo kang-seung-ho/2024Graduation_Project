@@ -44,11 +44,35 @@ ASagaCharacterBase::SetTeam(const ESagaPlayerTeam& team)
 
 	if (team == ESagaPlayerTeam::Red)
 	{
+#if WITH_EDITOR
+
+		const auto name = GetName();
+
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][SetTeam] '%s''s team is red."), *name);
+#endif
+
 		ChangeColliderProfileToRedTeam();
+	}
+	else if (team == ESagaPlayerTeam::Blue)
+	{
+#if WITH_EDITOR
+
+		const auto name = GetName();
+
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][SetTeam] '%s''s team is blue."), *name);
+#endif
+
+		ChangeColliderProfileToBluTeam();
 	}
 	else
 	{
-		ChangeColliderProfileToBluTeam();
+#if WITH_EDITOR
+
+		const auto name = GetName();
+		const auto team_name = UEnum::GetValueAsString(team);
+
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaCharacterBase][SetTeam] '%s''s team is '%s'."), *name, *team_name);
+#endif
 	}
 }
 
@@ -61,6 +85,7 @@ noexcept
 	if (attach_now)
 	{
 #if WITH_EDITOR
+
 		const auto name = GetName();
 		const auto weapon_name = UEnum::GetValueAsString(weapon);
 
@@ -71,6 +96,7 @@ noexcept
 		if (WeaponMeshes.Contains(weapon))
 		{
 #if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Log, TEXT("[SetWeapon] '%s' has found its weapon mesh (%s)."), *name, *weapon_name);
 #endif
 
