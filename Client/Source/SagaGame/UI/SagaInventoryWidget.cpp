@@ -24,7 +24,7 @@ USagaInventoryWidget::NativeConstruct()
 
 
 	mInventory = Cast<UListView>(GetWidgetFromName(TEXT("InventoryList")));
-	if (mInventory)
+	/*if (mInventory)
 	{
 		mInventory->OnItemIsHoveredChanged().AddUObject(this, &USagaInventoryWidget::OnListItemHover);
 		mInventory->OnItemSelectionChanged().AddUObject(this, &USagaInventoryWidget::OnListItemSelection);
@@ -33,7 +33,17 @@ USagaInventoryWidget::NativeConstruct()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("InventoryList not found!"));
-	}
+	}*/
+
+	// TextBlock 바인딩
+	EnergyDrinkAmount = Cast<UTextBlock>(GetWidgetFromName(TEXT("EnergyDrinkAmount")));
+	UpdateEnergyDrinkAmount();
+
+	GumballAmount = Cast<UTextBlock>(GetWidgetFromName(TEXT("GumballAmount")));
+	UpdateGumballAmount();
+
+	SmokeBombAmount = Cast<UTextBlock>(GetWidgetFromName(TEXT("SmokeBombAmount")));
+	UpdateSmokeBombAmount();
 
 	FString IconPath[3] =
 	{
@@ -268,20 +278,52 @@ USagaInventoryWidget::UseSmokeBomb()
 	//mInventory->RemoveItem(item_entry);
 }
 
+void USagaInventoryWidget::UpdateEnergyDrinkAmount()
+{
+	/*if (EnergyDrinkAmount)
+	{
+		EnergyDrinkAmount->SetText(FText::FromString(FString::FromInt(mEnergyDrinkCount)));
+	}*/
+
+	if (EnergyDrinkAmount)
+	{
+		EnergyDrinkAmount->SetText(FText::AsNumber(mEnergyDrinkCount));
+	}
+}
+
+void USagaInventoryWidget::UpdateGumballAmount()
+{
+	if (GumballAmount)
+	{
+		GumballAmount->SetText(FText::AsNumber(mGumballCount));
+	}
+}
+
+void USagaInventoryWidget::UpdateSmokeBombAmount()
+{
+	if (SmokeBombAmount)
+	{
+		SmokeBombAmount->SetText(FText::AsNumber(mSmokeBombCount));
+	}
+}
+
 void
 USagaInventoryWidget::AddItemToInventory(ESagaItemTypes ItemType)
 {
 	if(ItemType == ESagaItemTypes::Drink)
 	{
 		mEnergyDrinkCount++;
+		UpdateEnergyDrinkAmount();
 	}
 	else if(ItemType == ESagaItemTypes::Gum)
 	{
 		mGumballCount++;
+		UpdateGumballAmount();
 	}
 	else if(ItemType == ESagaItemTypes::SmokeBomb)
 	{
 		mSmokeBombCount++;
+		UpdateSmokeBombAmount();
 	}
 	/*if (mInventory)
 	{

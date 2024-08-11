@@ -22,6 +22,26 @@ public:
 	UPROPERTY()
 	int32 mSmokeBombCount{ 0 };
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* EnergyDrinkAmount;
+
+	UFUNCTION()
+	void UpdateEnergyDrinkAmount();
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* GumballAmount;
+
+	UFUNCTION()
+	void UpdateGumballAmount();
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* SmokeBombAmount;
+
+	UFUNCTION()
+	void UpdateSmokeBombAmount();
+
+
+
 	UPROPERTY()
 	TObjectPtr<class UListView> mInventory;
 	UPROPERTY()
