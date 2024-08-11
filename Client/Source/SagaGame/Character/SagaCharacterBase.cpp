@@ -296,24 +296,23 @@ ASagaCharacterBase::ASagaCharacterBase()
 	if (NiagaraEffect.Succeeded())
 	{
 		HealItemEffect = NiagaraEffect.Object;
-		UE_LOG(LogSagaGame, Warning, TEXT("Heal Niagara Effect Loaded"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase] Heal Niagara effect is loaded."));
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Heal Niagara Effect Not Loaded"));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase] Heal Niagara effect is not loaded."));
 	}
 
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
 	if (SmokeNiagaraEffect.Succeeded())
 	{
 		SmokeItemEffect = SmokeNiagaraEffect.Object;
-		UE_LOG(LogSagaGame, Warning, TEXT("Smoke Niagara Effect Loaded"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase] Smoke Niagara effect is loaded."));
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Smoke Niagara Effect Not Loaded!!"));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase] Smoke Niagara effect is not loaded."));
 	}
-
 }
 
 void
@@ -338,7 +337,9 @@ ASagaCharacterBase::BeginPlay()
 		if (IsValid(healthbar))
 		{
 #if WITH_EDITOR
+
 			const auto name = GetName();
+
 			UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][BeginPlay] '%s' is setting up the hp bar widget..."), *name);
 #endif
 
@@ -350,7 +351,9 @@ ASagaCharacterBase::BeginPlay()
 		else
 		{
 #if WITH_EDITOR
+
 			const auto name = GetName();
+
 			UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar widget."), *name);
 #endif
 		}
@@ -358,7 +361,9 @@ ASagaCharacterBase::BeginPlay()
 	else
 	{
 #if WITH_EDITOR
+
 		const auto name = GetName();
+
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase][BeginPlay] '%s' has an invalid hp bar ui component."), *name);
 #endif
 	}
@@ -375,7 +380,7 @@ ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 		// Add Drink to Player's Inventory
 	case ESagaItemTypes::Drink:
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : Drink"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][TakeItem] Item: Drink"));
 		AddItemToInventory(ItemType);
 	}
 	break;
@@ -383,7 +388,7 @@ ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 	// Add Gum to Player's Inventory
 	case ESagaItemTypes::Gum:
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : Gum"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][TakeItem] Item: Gum"));
 		AddItemToInventory(ItemType);
 	}
 	break;
@@ -391,13 +396,14 @@ ASagaCharacterBase::TakeItem(ESagaItemTypes ItemType)
 	// Add SmokeBomb to Player's Inventory
 	case ESagaItemTypes::SmokeBomb:
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Item Taken : SmokeBomb"));
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaCharacterBase][TakeItem] Item: SmokeBomb"));
 		AddItemToInventory(ItemType);
 	}
 	break;
 
 	default:
-		break;
+	{}
+	break;
 	}
 }
 
