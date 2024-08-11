@@ -209,11 +209,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintPure)
-	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
-	{
-		return is_running ? 700 : 400;
-	}
+	
 
 	UFUNCTION(BlueprintPure)
 	virtual float GetHorizontalMoveAcceleration() const noexcept
@@ -231,5 +227,12 @@ protected:
 	virtual float GetMoveAnimationDirectionDelta() const noexcept
 	{
 		return isRunning ? 200 : 100;
+	}
+
+public:
+	UFUNCTION(BlueprintPure)
+	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
+	{
+		return is_running ? 800 : 500;
 	}
 };

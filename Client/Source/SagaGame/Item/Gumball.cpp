@@ -63,7 +63,7 @@ void AGumball::ResetPlayerSpeed()
 {
     if (OverlappingPlayer)
     {
-        OverlappingPlayer->GetCharacterMovement()->MaxWalkSpeed /= 0.5f;
+        OverlappingPlayer->GetMaxMoveSpeed(false);
 
         // Log reset speed for debugging
         UE_LOG(LogTemp, Warning, TEXT("Player's speed reset to: %f"), OverlappingPlayer->GetCharacterMovement()->MaxWalkSpeed);
