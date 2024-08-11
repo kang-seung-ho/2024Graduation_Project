@@ -280,7 +280,15 @@ ASagaGummyBearPlayer::ExecuteDeath()
 		Super::ExecuteDeath();
 
 		// 상대 팀 점수 증가 실행
-		sys->AddScore(GetTeam() == ESagaPlayerTeam::Red ? ESagaPlayerTeam::Blue : ESagaPlayerTeam::Red, 1);
+		const auto team = GetTeam();
+		if (team == ESagaPlayerTeam::Red)
+		{
+			sys->AddScore(ESagaPlayerTeam::Blue, 1);
+		}
+		else if (team == ESagaPlayerTeam::Blue)
+		{
+			sys->AddScore(ESagaPlayerTeam::Red, 1);
+		}
 	}
 	else
 	{
