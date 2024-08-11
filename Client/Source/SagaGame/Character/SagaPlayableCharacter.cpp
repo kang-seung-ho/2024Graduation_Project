@@ -19,6 +19,7 @@
 #include "Character/SagaGummyBearSmall.h"
 #include "Effect/SagaSwordEffect.h"
 #include "UI/SagaWidgetComponent.h"
+#include "UI/SagaHpBarWidget.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
@@ -97,6 +98,13 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 	if (IsAlive())
 	{
 		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+
+		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+
+		if (IsValid(healthbar))
+		{
+			healthbar->UpdateHpBar(myGameStat->GetCurrentHp() / myGameStat->GetMaxHp());
+		}
 	}
 }
 
