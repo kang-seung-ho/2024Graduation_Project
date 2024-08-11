@@ -334,18 +334,9 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 			{
 				for (auto& member : everyUsers)
 				{
-					if (member.myID == GetLocalUserId())
-					{
-						UE_LOG(LogSagaNetwork, Log, TEXT("[SC_CREATE_PLAYER] Local user `%d`"), member.myID);
+					UE_LOG(LogSagaNetwork, Log, TEXT("[SC_CREATE_PLAYER] User `%d`"), member.myID);
 
-						BroadcastOnCreatingCharacter(member.myID, GetLocalUserTeam(), GetLocalUserWeapon());
-					}
-					else
-					{
-						UE_LOG(LogSagaNetwork, Log, TEXT("[SC_CREATE_PLAYER] User `%d`"), member.myID);
-
-						BroadcastOnCreatingCharacter(member.myID, member.myTeam, member.myWeapon);
-					}
+					BroadcastOnCreatingCharacter(member.myID, member.myTeam, member.myWeapon);
 				}
 			}
 		);
