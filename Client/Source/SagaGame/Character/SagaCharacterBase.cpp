@@ -579,7 +579,7 @@ ASagaCharacterBase::SetCollisionEnable(const bool flag)
 {
 	if (flag)
 	{
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 	else
 	{
