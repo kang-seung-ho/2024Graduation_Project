@@ -429,8 +429,6 @@ ASagaRoomSessionLevel::HandleRedTeamButton()
 	}
 	else
 	{
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Red);
-
 		if (net->IsConnected())
 		{
 #if WITH_EDITOR
@@ -472,8 +470,6 @@ ASagaRoomSessionLevel::HandleBlueTeamButton()
 	}
 	else
 	{
-		net->SetTeam(net->GetLocalUserId(), ESagaPlayerTeam::Blue);
-
 		if (net->IsConnected())
 		{
 #if WITH_EDITOR
