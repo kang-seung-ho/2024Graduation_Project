@@ -60,6 +60,7 @@ void
 ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 {
 	Super::ExecuteGuardianAction(target);
+	SetTeam(target->GetTeam());
 
 	if (target->GetTeam() == ESagaPlayerTeam::Red)
 	{
@@ -81,6 +82,7 @@ void
 ASagaGummyBearPlayer::TerminateGuardianAction()
 {
 	Super::TerminateGuardianAction();
+	SetTeam(ESagaPlayerTeam::Unknown);
 
 	ChangeColliderProfileToHostile();
 
