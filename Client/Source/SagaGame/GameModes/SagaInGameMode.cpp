@@ -405,7 +405,7 @@ ASagaInGameMode::ScanGuardians()
 		//NOTICE: 조건 달면 안됨. 달려면 곰도 수정해야 함
 		//if (bear->bearUniqueId < 0)
 		{
-			bear->bearUniqueId = bear_id++;
+			//bear->bearUniqueId = bear_id++;
 		}
 
 		everyBears.Add(bear);

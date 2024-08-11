@@ -916,7 +916,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 #if WITH_EDITOR
 
-		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GET_SCORE] red: %d, blu: %d"), arg0, arg1);
+		//UE_LOG(LogSagaGame, Log, TEXT("[RPC_GET_SCORE] red: %d, blu: %d"), arg0, arg1);
 #endif
 
 		const auto world = GetWorld();
