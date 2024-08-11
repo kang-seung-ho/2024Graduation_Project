@@ -223,15 +223,16 @@ ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
 
 				if (rider.compare_exchange_strong(pre_guardian_id, arg1, std::memory_order_release))
 				{
+					auto& user_ctx = user.mainContext;
+					auto& pk = user_ctx->GetRideGuardianPacketData(arg1);
+
 					room.Foreach
 					(
 						[&](iconer::app::User& member)
 						{
 							const auto ctx = AcquireSendContext();
 
-							auto& mem_ctx = member.mainContext;
-
-							member.SendGeneralData(*ctx, mem_ctx->GetRideGuardianPacketData(arg1));
+							member.SendGeneralData(*ctx, pk);
 						}
 					);
 

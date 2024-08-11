@@ -142,7 +142,7 @@ export namespace iconer::app
 		[[nodiscard]]
 		constexpr auto& GetRespawnTimePacketData(const std::int64_t& time_count) noexcept
 		{
-			iconer::util::Serialize(respawnTimePacketData.data() + rpcPacketHeaderSize + time_count, 0);
+			iconer::util::Serialize(respawnTimePacketData.data() + rpcPacketHeaderSize, time_count);
 
 			return respawnTimePacketData;
 		}
@@ -157,14 +157,14 @@ export namespace iconer::app
 		std::array<std::byte, roomLeftPacketSize> roomLeftPacketData{};
 
 		/** RPC packet datas
-		* 
+		*
 		* 137[1] => SC_RPC
 		* 20|0[2] => size
 		* 0[4] => id
 		* [8] => arg0
 		* [4] => arg1
 		*/
-		static inline constexpr size_t rpcPacketHeaderSize = 3 + 4;
+		static inline constexpr size_t rpcPacketHeaderSize = 3 + sizeof(std::int32_t) + sizeof(RpcProtocol);
 
 		std::array<std::byte, 20> rideGuardianPacketData{};
 		std::array<std::byte, 20> doRespawnPacketData{};
