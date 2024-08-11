@@ -1,6 +1,7 @@
 #include "AI/AIModule/SagaBTTask_MonsterAttack.h"
 #include "../SagaMonsterAIPawn.h"
 #include "../SagaMonsterAIController.h"
+#include "Character/SagaPlayableCharacter.h"
 
 USagaBTTask_MonsterAttack::USagaBTTask_MonsterAttack()
 {
@@ -38,7 +39,11 @@ EBTNodeResult::Type USagaBTTask_MonsterAttack::ExecuteTask(UBehaviorTreeComponen
     }
 
     // Change the animation to Attack
-    Monster->ChangeAnim(EAIMonsterAnim::Attack);
+    if (IsValid(Target) && Target->IsA(ASagaPlayableCharacter::StaticClass()))
+    {
+        Monster->ChangeAnim(EAIMonsterAnim::Attack);
+    }
+
 
     return EBTNodeResult::InProgress;
 }

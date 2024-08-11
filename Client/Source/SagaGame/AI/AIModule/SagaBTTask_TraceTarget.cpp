@@ -42,7 +42,10 @@ EBTNodeResult::Type USagaBTTask_TraceTarget::ExecuteTask(UBehaviorTreeComponent&
 	}
 	
 	//Make the AI Move
-	UAIBlueprintHelperLibrary::SimpleMoveToActor(Controller, Target);
+	if (IsValid(Target) && Target->IsA(ASagaPlayableCharacter::StaticClass()))
+	{
+		UAIBlueprintHelperLibrary::SimpleMoveToActor(Controller, Target);
+	}
 
 	//Switch the animation to Moving motion
 	Monster->ChangeAnim(EAIMonsterAnim::Run);
