@@ -387,7 +387,13 @@ void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //Ener
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("EnergyDrink Used"));
 	//Get each Item's amount before using the item
-	if(InventoryWidget->GetEnergyDrinkItemCount() > 0)
+
+	if(InventoryWidget->mEnergyDrinkCount <= 0)
+	{
+		InventoryWidget->mEnergyDrinkCount = 0;
+		return;
+	}
+	if(InventoryWidget->mEnergyDrinkCount > 0)
 	{
 		InventoryWidget->UseEnergyDrink();
 		InventoryWidget->mEnergyDrinkCount--;
@@ -398,7 +404,12 @@ void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //Ener
 void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumball
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Gumball Used"));
-	if (InventoryWidget->GetGumballItemCount() > 0)
+	if (InventoryWidget->mGumballCount <= 0)
+	{
+		InventoryWidget->mGumballCount = 0;
+		return;
+	}
+	if (InventoryWidget->mGumballCount > 0)
 	{
 		InventoryWidget->UseGumball();
 		InventoryWidget->mGumballCount--;
@@ -409,8 +420,12 @@ void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumb
 void ASagaInGamePlayerController::OnItem3(const FInputActionValue& Value) //SmokeBomb
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SmokeBomb Used"));
-
-	if (InventoryWidget->GetSmokeBombItemCount() > 0)
+	if (InventoryWidget->mSmokeBombCount <= 0)
+	{
+		InventoryWidget->mSmokeBombCount = 0;
+		return;
+	}
+	if (InventoryWidget->mSmokeBombCount > 0)
 	{
 		InventoryWidget->UseSmokeBomb();
 		InventoryWidget->mSmokeBombCount--;
