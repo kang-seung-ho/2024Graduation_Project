@@ -53,4 +53,6 @@ protected:
 
 	UFUNCTION()
 	void OnEffectFinished(class UParticleSystemComponent* ParticleSystem);
+
+	virtual void PostInitializeComponents() override;
 };

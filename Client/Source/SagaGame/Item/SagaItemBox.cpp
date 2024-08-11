@@ -127,3 +127,9 @@ ASagaItemBox::OnEffectFinished(UParticleSystemComponent* ParticleSystem)
 {
 	//Destroy();
 }
+
+void ASagaItemBox::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+}
