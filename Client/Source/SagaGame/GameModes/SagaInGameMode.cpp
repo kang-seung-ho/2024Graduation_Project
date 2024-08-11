@@ -121,20 +121,23 @@ ASagaInGameMode::StartPlay()
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
+	if (net->IsOfflineMode())
+	{
 #if WITH_EDITOR
 
-	if (not net->IsOfflineMode())
-	{
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
+		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
+#endif
 
 		// NOTICE: 여기서 오프라인 모드에서 팀 설정함
 		net->SetLocalUserTeam(ESagaPlayerTeam::Blue);
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Warning, TEXT("[ASagaInGameMode][StartPlay] (Offline Mode)"));
-	}
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay]"));
 #endif
+	}
 
 	switch (net->GetLocalUserTeam())
 	{
