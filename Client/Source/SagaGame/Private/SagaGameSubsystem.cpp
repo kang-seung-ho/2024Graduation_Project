@@ -19,13 +19,11 @@ USagaGameSubsystem::USagaGameSubsystem()
 void
 USagaGameSubsystem::Initialize(FSubsystemCollectionBase& collection)
 {
-
 }
 
 void
 USagaGameSubsystem::Deinitialize()
 {
-
 }
 
 bool
@@ -127,13 +125,9 @@ USagaGameSubsystem::GetWhoWon()
 		{
 			return TEXT("Lose"); // I'm in Red Team And My team Lose
 		}
-		else if (player_team == ESagaPlayerTeam::Blue)
-		{
-			return TEXT("Victory!"); // I'm in Blue Team And My team Win
-		}
 		else
 		{
-			return TEXT("- Error -");
+			return TEXT("Victory!"); // I'm in Blue Team And My team Win
 		}
 	}
 	else if (BluTeamPinataBroken)
@@ -142,13 +136,9 @@ USagaGameSubsystem::GetWhoWon()
 		{
 			return TEXT("Victory!"); // I'm in Red Team And My team Win
 		}
-		else if (player_team == ESagaPlayerTeam::Blue)
-		{
-			return TEXT("Lose"); // I'm in Blue Team And My team Lose
-		}
 		else
 		{
-			return TEXT("- Error -");
+			return TEXT("Lose"); // I'm in Blue Team And My team Lose
 		}
 	}
 	else if (RedTeamScore > BluTeamScore)
@@ -157,13 +147,9 @@ USagaGameSubsystem::GetWhoWon()
 		{
 			return TEXT("Victory!"); // I'm in Red Team And My team Win
 		}
-		else if (player_team == ESagaPlayerTeam::Blue)
-		{
-			return TEXT("Lose"); // I'm Blue in Team And My team Lose
-		}
 		else
 		{
-			return TEXT("- Error -");
+			return TEXT("Lose"); // I'm Blue in Team And My team Lose
 		}
 	}
 	else if (RedTeamScore < BluTeamScore)
@@ -172,13 +158,9 @@ USagaGameSubsystem::GetWhoWon()
 		{
 			return TEXT("Lose"); // I'm inE Red Team And My team Lose
 		}
-		else if (player_team == ESagaPlayerTeam::Blue)
-		{
-			return TEXT("Victory!"); // I'm in Blue Team And My team Win
-		}
 		else
 		{
-			return TEXT("- Error -");
+			return TEXT("Victory!"); // I'm in Blue Team And My team Win
 		}
 	}
 	else
