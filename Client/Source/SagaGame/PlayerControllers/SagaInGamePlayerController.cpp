@@ -93,10 +93,14 @@ ASagaInGamePlayerController::SetupInputComponent()
 	Input->BindAction(InputSystem->Interact, ETriggerEvent::Started, this, &ASagaInGamePlayerController::BeginGuardianAction);
 
 	Input->BindAction(InputSystem->Skill1, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnSkill1);
+	Input->BindAction(InputSystem->Skill2, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnSkill2);
+	Input->BindAction(InputSystem->Skill3, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnSkill3);
 
 	Input->BindAction(InputSystem->Item1, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnItem1);
 	Input->BindAction(InputSystem->Item2, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnItem2);
 	Input->BindAction(InputSystem->Item3, ETriggerEvent::Started, this, &ASagaInGamePlayerController::OnItem3);
+
+
 }
 
 void

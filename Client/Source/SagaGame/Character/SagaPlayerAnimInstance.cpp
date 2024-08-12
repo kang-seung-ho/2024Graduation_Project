@@ -125,6 +125,18 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
 	}
 }
 
+void USagaPlayerAnimInstance::AnimNotify_Skill_E()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(1);
+	}
+}
+
 ASagaPlayableCharacter*
 USagaPlayerAnimInstance::GetPawnOwner()
 const

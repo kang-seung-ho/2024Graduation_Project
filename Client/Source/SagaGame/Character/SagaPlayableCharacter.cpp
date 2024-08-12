@@ -467,14 +467,12 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	if (net->GetLocalUserId() != GetUserId())
 	{
 	}
-	//if (SlotNumber == 0) {}
+
 	FHitResult hit_result{};
 	float damage{};
 	FCollisionQueryParams query{};
 	query.AddIgnoredActor(this);
-
 	ECollisionChannel channel;
-
 	if (GetTeam() == ESagaPlayerTeam::Red)
 	{
 		channel = ECC_GameTraceChannel4;
@@ -483,50 +481,57 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
+	if (SlotNumber == 0) {
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+		FDamageEvent hit_event{};
+		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
 
-	FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-	FVector End = Start + GetActorForwardVector() * 150.f;
-	FDamageEvent hit_event{};
-	bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
 
+		damage = 45.f;
 
-	damage = 45.f;
-
-	if (collide)
-	{
-		const auto hit_actor = hit_result.GetActor();
-
-		const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
-
-		if (IsValid(bear))
+		if (collide)
 		{
-			if (bear->IsAlive())
+			const auto hit_actor = hit_result.GetActor();
+
+			const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+			if (IsValid(bear))
 			{
-				const auto Hitlocation = hit_result.ImpactPoint;
-				const auto HitNormal = hit_result.Normal;
-
-				const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
-
-				if (-1 != index and not net->IsOfflineMode())
+				if (bear->IsAlive())
 				{
+					const auto Hitlocation = hit_result.ImpactPoint;
+					const auto HitNormal = hit_result.Normal;
+
+					const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+					if (-1 != index and not net->IsOfflineMode())
+					{
 #if WITH_EDITOR
 
-					const auto bear_name = bear->GetName();
+						const auto bear_name = bear->GetName();
 
-					UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+						UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
 #endif
 
-					net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
-				}
+						net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+					}
 
+					hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+				}
+			}
+			else
+			{
 				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 			}
 		}
-		else
-		{
-			hit_actor->TakeDamage(damage, hit_event, GetController(), this);
-		}
 	}
+	else if (SlotNumber == 1)
+	{
+
+	}
+	
+
 }
 
 void ASagaPlayableCharacter::HandleBeginCollision(AActor* self, AActor* other_actor)

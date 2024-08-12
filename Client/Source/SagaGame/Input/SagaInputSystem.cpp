@@ -95,6 +95,20 @@ USagaInputSystem::USagaInputSystem()
 		if (Asset.Succeeded())
 			Item3 = Asset.Object;
 	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Skill2.IA_Skill2'"));
+
+		if (Asset.Succeeded())
+			Skill2 = Asset.Object;
+	}
+
+	{
+		ConstructorHelpers::FObjectFinder<UInputAction>Asset(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Skill3.IA_Skill3'"));
+
+		if (Asset.Succeeded())
+			Skill3 = Asset.Object;
+	}
 }
 
 USagaCharacterSelectInputSystem::USagaCharacterSelectInputSystem()

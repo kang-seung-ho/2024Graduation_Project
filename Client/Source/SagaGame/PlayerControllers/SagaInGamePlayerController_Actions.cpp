@@ -364,7 +364,7 @@ ASagaInGamePlayerController::BeginGuardianAction()
 }
 
 void
-ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
+ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Weapon's 'Q' Key
 {
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
@@ -379,6 +379,44 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value)
 		else
 		{
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+		}
+	}
+}
+
+void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Each Weapon's 'E' Key
+{
+	const auto character = GetPawn<ASagaPlayableCharacter>();
+
+	if (character and character->IsAlive())
+	{
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (net->IsOfflineMode())
+		{
+			character->UseSkill(1);
+		}
+		else
+		{
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+		}
+	}
+}
+
+void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Each Weapon's 'R' Key
+{
+	const auto character = GetPawn<ASagaPlayableCharacter>();
+
+	if (character and character->IsAlive())
+	{
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (net->IsOfflineMode())
+		{
+			character->UseSkill(2);
+		}
+		else
+		{
+			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_2);
 		}
 	}
 }

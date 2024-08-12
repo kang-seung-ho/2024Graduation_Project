@@ -19,11 +19,13 @@ USagaGameSubsystem::USagaGameSubsystem()
 void
 USagaGameSubsystem::Initialize(FSubsystemCollectionBase& collection)
 {
+
 }
 
 void
 USagaGameSubsystem::Deinitialize()
 {
+
 }
 
 bool
@@ -129,6 +131,7 @@ USagaGameSubsystem::GetWhoWon()
 		{
 			return TEXT("Victory!"); // I'm in Blue Team And My team Win
 		}
+
 	}
 	else if (BluTeamPinataBroken)
 	{

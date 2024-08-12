@@ -69,6 +69,12 @@ public:
 	void OnSkill1(const FInputActionValue& Value);
 
 	UFUNCTION()
+	void OnSkill2(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnSkill3(const FInputActionValue& Value);
+
+	UFUNCTION()
 	void OnItem1(const FInputActionValue& Value);
 
 	UFUNCTION()
