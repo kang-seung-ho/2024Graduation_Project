@@ -209,7 +209,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		//					1 - 게임 시간 종료
 		case RPC_GAME_END:
 		{
-			
+
 
 		}
 		break;
