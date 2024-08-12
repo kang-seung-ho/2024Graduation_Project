@@ -325,14 +325,18 @@ void
 USagaNetworkSubSystem::BroadcastOnRpc(ESagaRpcProtocol cat, int32 user_id, int64 arg0, int32 arg1)
 const
 {
-	//UE_LOG(LogSagaNetwork, Log, TEXT("Brodcasting `OnRpc`"));
+	CallFunctionOnGameThread([this, cat, user_id, arg0, arg1]()
+		{
+			if (this == nullptr) return;
 
-	if (OnRpc.IsBound())
-	{
-		OnRpc.Broadcast(cat, user_id, arg0, arg1);
-	}
-	else
-	{
-		UE_LOG(LogSagaNetwork, Warning, TEXT("`OnRpc` was not bound"));
-	}
+			if (OnRpc.IsBound())
+			{
+				OnRpc.Broadcast(cat, user_id, arg0, arg1);
+			}
+			else
+			{
+				UE_LOG(LogSagaNetwork, Warning, TEXT("`OnRpc` was not bound"));
+			}
+		}
+	);
 }

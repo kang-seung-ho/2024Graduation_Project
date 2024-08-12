@@ -395,11 +395,7 @@ USagaNetworkSubSystem::RouteTasks(TUniquePtr<uint8[]>&& packet_buffer, EPacketPr
 
 		//UE_LOG(LogSagaNetwork, Log, TEXT("[SagaGame][RPC] %s(%lld, %d) from client %d"), *name, argument0, argument1, user_id);
 
-		CallFunctionOnGameThread([this, category, user_id, argument0, argument1]()
-			{
-				BroadcastOnRpc(category, user_id, argument0, argument1);
-			}
-		);
+		BroadcastOnRpc(category, user_id, argument0, argument1);
 	}
 	break;
 	}
