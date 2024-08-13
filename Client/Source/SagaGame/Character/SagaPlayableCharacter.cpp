@@ -712,7 +712,49 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	}
 	else if(SlotNumber == 6) //LightSaber's R Skill
 	{
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
+		FDamageEvent hit_event{};
+		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
 
+
+		damage = 30.f;
+
+		if (collide)
+		{
+			const auto hit_actor = hit_result.GetActor();
+
+			const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+			if (IsValid(bear))
+			{
+				if (bear->IsAlive())
+				{
+					const auto Hitlocation = hit_result.ImpactPoint;
+					const auto HitNormal = hit_result.Normal;
+
+					const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+					if (-1 != index and not net->IsOfflineMode())
+					{
+#if WITH_EDITOR
+
+						const auto bear_name = bear->GetName();
+
+						UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+						net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+					}
+
+					hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+				}
+			}
+			else
+			{
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+			}
+		}
 	}
 	else if(SlotNumber == 7) //WaterGun's R Skill
 	{

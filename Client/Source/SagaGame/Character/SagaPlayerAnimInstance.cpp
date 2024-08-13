@@ -186,6 +186,42 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_E3() //Hammer's E Skill
 	}
 }
 
+void USagaPlayerAnimInstance::AnimNotify_Skill_R1()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(6);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_R2()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(7);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_R3()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(8);
+	}
+}
+
 ASagaPlayableCharacter*
 USagaPlayerAnimInstance::GetPawnOwner()
 const

@@ -98,6 +98,15 @@ public:
 	UFUNCTION()
 	void AnimNotify_Skill_E3();
 
+	UFUNCTION()
+	void AnimNotify_Skill_R1();
+
+	UFUNCTION()
+	void AnimNotify_Skill_R2();
+
+	UFUNCTION()
+	void AnimNotify_Skill_R3();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float mMoveSpeed;
