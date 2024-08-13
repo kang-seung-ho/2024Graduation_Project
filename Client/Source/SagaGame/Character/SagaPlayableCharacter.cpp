@@ -103,7 +103,24 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 
 		if (IsValid(healthbar))
 		{
+#if WITH_EDITOR
+
+			const auto ratio = myGameStat->GetCurrentHp() / myGameStat->GetMaxHp();
+			UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][TerminateGuardianAction] Hp percentage: %f."), ratio);
+
+			healthbar->UpdateHpBar(ratio);
+#else
+
 			healthbar->UpdateHpBar(myGameStat->GetCurrentHp() / myGameStat->GetMaxHp());
+
+#endif
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[ASagaPlayableCharacter][TerminateGuardianAction] The hp bar is null."));
+#endif
 		}
 	}
 }
@@ -481,7 +498,8 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
-	if (SlotNumber == 0) {
+	if (SlotNumber == 0)
+	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 150.f;
 		FDamageEvent hit_event{};
@@ -530,7 +548,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 
 	}
-	
+
 
 }
 
