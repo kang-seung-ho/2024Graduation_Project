@@ -3,7 +3,7 @@
 void
 USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 {
-	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	if (client.myID == GetLocalUserId())
 	{
 		localUser = client;
 	}
@@ -15,7 +15,7 @@ USagaNetworkSubSystem::AddUser(const FSagaVirtualUser& client)
 void
 USagaNetworkSubSystem::AddUser(FSagaVirtualUser&& client)
 {
-	if (not IsOfflineMode() and client.myID == GetLocalUserId())
+	if (client.myID == GetLocalUserId())
 	{
 		localUser = client;
 	}
@@ -63,7 +63,7 @@ void
 USagaNetworkSubSystem::SetCharacterHandle(int32 user_id, ASagaCharacterBase* character)
 noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		//UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local user '%d's character is set."), user_id);
 
@@ -87,7 +87,7 @@ void
 USagaNetworkSubSystem::SetTeam(int32 user_id, const ESagaPlayerTeam& team)
 noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		UE_LOG(LogSagaNetwork, Log, TEXT("[USagaNetworkSubSystem] Local user '%d's team is set to %d."), user_id, static_cast<int32>(team));
 
@@ -107,7 +107,7 @@ void
 USagaNetworkSubSystem::SetWeapon(int32 user_id, EPlayerWeapon weapon)
 noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		localUser.myWeapon = weapon;
 	}
@@ -125,7 +125,7 @@ void
 USagaNetworkSubSystem::SetHealth(int32 user_id, const float hp)
 noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		localUser.myHealth = hp;
 	}
@@ -143,7 +143,7 @@ void
 USagaNetworkSubSystem::StorePosition(int32 user_id, const double& x, const double& y, const double& z)
 noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		localUser.myX = x;
 		localUser.myY = y;
@@ -165,7 +165,7 @@ bool
 USagaNetworkSubSystem::FindUser(int32 user_id, FSagaVirtualUser& outpin)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		outpin = localUser;
 
@@ -200,7 +200,7 @@ ASagaCharacterBase*
 USagaNetworkSubSystem::GetCharacterHandle(int32 user_id)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		return localUser.GetCharacterHandle();
 	}
@@ -222,7 +222,7 @@ bool
 USagaNetworkSubSystem::GetTeam(int32 user_id, ESagaPlayerTeam& outpin)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		outpin = localUser.myTeam;
 
@@ -247,7 +247,7 @@ bool
 USagaNetworkSubSystem::GetWeapon(int32 user_id, EPlayerWeapon& outpin)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		outpin = localUser.myWeapon;
 
@@ -272,7 +272,7 @@ float
 USagaNetworkSubSystem::GetHealth(int32 user_id)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		return localUser.myHealth;
 	}
@@ -294,7 +294,7 @@ FVector
 USagaNetworkSubSystem::GetStoredPosition(int32 user_id)
 const noexcept
 {
-	if (IsOfflineMode() or user_id == GetLocalUserId())
+	if (user_id == GetLocalUserId())
 	{
 		return FVector{ localUser.myX, localUser.myY, localUser.myZ };
 	}
