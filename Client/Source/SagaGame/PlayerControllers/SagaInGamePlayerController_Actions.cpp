@@ -368,42 +368,81 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 {
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
+	EPlayerWeapon MyweaponType = character->GetWeapon();
+
 	if (character and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (net->IsOfflineMode())
+		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's Q Skill - Take down Skill
 		{
-			character->UseSkill(0);
+			if (net->IsOfflineMode())
+			{
+				character->UseSkill(0);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+			}
 		}
-		else
+		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's Q Skill - 
 		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+
 		}
+		else // Gun's Q Skill -
+		{
+
+		}
+
+		
 	}
 }
 
 void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Each Weapon's 'E' Key
 {
+	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill2 Used"));*/
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
+	EPlayerWeapon MyweaponType = character->GetWeapon();
+	
+	
 	if (character and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (net->IsOfflineMode())
+		if (MyweaponType == EPlayerWeapon::LightSabor)
 		{
-			character->UseSkill(1);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LightSabor's E Key Used"));
+			if (net->IsOfflineMode())
+			{
+				character->UseSkill(1);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+			}
+		}
+		else if (MyweaponType == EPlayerWeapon::Hammer)
+		{
+
 		}
 		else
 		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
-		}
+			if (net->IsOfflineMode())
+			{
+				character->UseSkill(1);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+			}
+		}		
 	}
 }
 
 void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Each Weapon's 'R' Key
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill3 Used"));
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
 	if (character and character->IsAlive())
