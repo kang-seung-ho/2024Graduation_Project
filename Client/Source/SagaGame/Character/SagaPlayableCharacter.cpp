@@ -112,8 +112,9 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 #else
 
 			healthbar->UpdateHpBar(myGameStat->GetCurrentHp() / myGameStat->GetMaxHp());
-
 #endif
+
+			myGameStat->RetryUpdateHealth();
 		}
 		else
 		{
