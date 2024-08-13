@@ -647,8 +647,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] The guardian with id %d is already dead."), guardian_id);
 #endif
-
-				break;
 			}
 
 			float dmg{};
@@ -659,8 +657,12 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN] Guardian %d is damaged for %f"), guardian_id, dmg);
 #endif
 
-			guardian->ExecuteHurt(dmg);
+			if (guardian->IsAlive())
+			{
+				guardian->ExecuteHurt(dmg);
+			}
 
+			// NOTICE: else문으로 연결하면 안됨
 			if (not guardian->IsAlive())
 			{
 #if WITH_EDITOR
@@ -689,7 +691,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 						UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN][Remote] User %d would unride from the guardian %d"), id, guardian_id);
 #endif
 					}
-					else // IF (is_remote)
+					else // IF NOT (is_remote)
 					{
 #if WITH_EDITOR
 
@@ -709,7 +711,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 #endif
 		}
 
-		/// **
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_GET_SCORE);
 	}
 	break;
