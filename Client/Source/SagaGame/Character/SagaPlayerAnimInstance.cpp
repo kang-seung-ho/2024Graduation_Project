@@ -222,6 +222,42 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_R3()
 	}
 }
 
+void USagaPlayerAnimInstance::AnimNotify_Skill_T1()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(9);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_T2()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(10);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_T3()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(11);
+	}
+}
+
 ASagaPlayableCharacter*
 USagaPlayerAnimInstance::GetPawnOwner()
 const

@@ -470,7 +470,7 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 
 void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Each Weapon's 'R' Key
 {
-	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill2 Used"));*/
+	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill3 Used"));*/
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
 	EPlayerWeapon MyweaponType = character->GetWeapon();
@@ -515,6 +515,59 @@ void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Eac
 			else
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_2);
+			}
+		}
+	}
+}
+
+void ASagaInGamePlayerController::OnSkill4(const FInputActionValue& Value)
+{
+	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill4 Used"));*/
+
+	const auto character = GetPawn<ASagaPlayableCharacter>();
+
+	EPlayerWeapon MyweaponType = character->GetWeapon();
+
+
+	if (character and character->IsAlive())
+	{
+		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's E Skill
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LightSabor's E Key Used"));
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(9);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_3);
+			}
+		}
+		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's E Skill
+		{
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(11);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_3);
+			}
+		}
+		else // Gun's E Skill
+		{
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(10);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_3);
 			}
 		}
 	}

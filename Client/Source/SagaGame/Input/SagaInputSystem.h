@@ -34,6 +34,7 @@ public:
 	UInputAction* Skill1 = nullptr;
 	UInputAction* Skill2 = nullptr;
 	UInputAction* Skill3 = nullptr;
+	UInputAction* Skill4 = nullptr;
 	UInputAction* Item1 = nullptr;
 	UInputAction* Item2 = nullptr;
 	UInputAction* Item3 = nullptr;
