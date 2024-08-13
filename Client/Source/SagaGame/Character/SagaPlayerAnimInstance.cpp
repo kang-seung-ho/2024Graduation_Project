@@ -74,7 +74,6 @@ void USagaPlayerAnimInstance::UseSkill(int32 SlotNumber)
 			if (!Montage_IsPlaying(SkillAnim.Anim))
 			{
 				Montage_SetPosition(SkillAnim.Anim, 0.f);
-
 				Montage_Play(SkillAnim.Anim);
 			}
 		}

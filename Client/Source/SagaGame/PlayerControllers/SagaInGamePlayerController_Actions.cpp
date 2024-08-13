@@ -387,11 +387,18 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 		}
 		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's Q Skill - 
 		{
-
+			
 		}
 		else // Gun's Q Skill -
 		{
-
+			if (net->IsOfflineMode())
+			{
+				character->UseSkill(1);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+			}
 		}
 
 		
@@ -413,14 +420,14 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 		if (MyweaponType == EPlayerWeapon::LightSabor)
 		{
 			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LightSabor's E Key Used"));
-			if (net->IsOfflineMode())
+			/*if (net->IsOfflineMode())
 			{
 				character->UseSkill(1);
 			}
 			else
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
-			}
+			}*/
 		}
 		else if (MyweaponType == EPlayerWeapon::Hammer)
 		{
