@@ -378,26 +378,36 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 		{
 			if (net->IsOfflineMode())
 			{
-				character->UseSkill(0);
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(0); //this '0' numbering is for Skill animation's array index
 			}
 			else
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
 			}
 		}
-		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's Q Skill - 
-		{
-			
-		}
-		else // Gun's Q Skill -
+		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's Q Skill - Kick
 		{
 			if (net->IsOfflineMode())
 			{
-				character->UseSkill(1);
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(2); //this '2' numbering is for Skill animation's array index
 			}
 			else
 			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+			}
+		}
+		else // Gun's Q Skill - HeadSpin
+		{
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(1); //this '1' numbering is for Skill animation's array index
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
 			}
 		}
 
@@ -417,27 +427,38 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (MyweaponType == EPlayerWeapon::LightSabor)
+		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's E Skill
 		{
 			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LightSabor's E Key Used"));
-			/*if (net->IsOfflineMode())
+			if (net->IsOfflineMode())
 			{
-				character->UseSkill(1);
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->ExecuteSkill(3); // This shield skill doesn't have any animation, so it doesn't need to use UseSkill function
+				//or input the animation and use the UseSkill function
 			}
 			else
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
-			}*/
+			}
 		}
-		else if (MyweaponType == EPlayerWeapon::Hammer)
-		{
-
-		}
-		else
+		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's E Skill
 		{
 			if (net->IsOfflineMode())
 			{
-				character->UseSkill(1);
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(5);
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
+			}
+		}
+		else // Gun's E Skill
+		{
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(4);
 			}
 			else
 			{
@@ -456,14 +477,14 @@ void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Eac
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (net->IsOfflineMode())
+		/*if (net->IsOfflineMode())
 		{
 			character->UseSkill(2);
 		}
 		else
 		{
 			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_2);
-		}
+		}*/
 	}
 }
 

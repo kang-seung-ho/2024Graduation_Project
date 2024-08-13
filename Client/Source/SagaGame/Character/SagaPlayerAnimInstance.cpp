@@ -124,7 +124,7 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
 	}
 }
 
-void USagaPlayerAnimInstance::AnimNotify_Skill_Q1()
+void USagaPlayerAnimInstance::AnimNotify_Skill_Q1() //WaterGun's Q Skill
 {
 	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_Q1 Implemented"));
 
@@ -134,6 +134,55 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_Q1()
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AnimNotify_Skill_Q1 Implemented"));
 		PlayerCharacter->ExecuteSkill(1);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_Q2() //Hammer's Q Skill
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_Q2 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AnimNotify_Skill_Q1 Implemented"));
+		PlayerCharacter->ExecuteSkill(2);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_E1() //LightSabor's E Skill
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E1 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(3);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_E2() //WaterGun's E Skill
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E2 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(4);
+	}
+}
+
+void USagaPlayerAnimInstance::AnimNotify_Skill_E3() //Hammer's E Skill
+{
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E3 Implemented"));
+
+	const auto PlayerCharacter = GetPawnOwner();
+
+	if (IsValid(PlayerCharacter))
+	{
+		PlayerCharacter->ExecuteSkill(5);
 	}
 }
 
