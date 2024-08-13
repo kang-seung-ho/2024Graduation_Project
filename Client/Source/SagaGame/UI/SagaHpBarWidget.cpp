@@ -11,15 +11,15 @@ noexcept
 {}
 
 void
-USagaHpBarWidget::NativePreConstruct()
+USagaHpBarWidget::NativeOnInitialized()
 {
-	Super::NativePreConstruct();
+	Super::NativeOnInitialized();
 
 	const auto progressbar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PlayerHpBar")));
 
 	if (IsValid(progressbar))
 	{
-		progressbar->SetPercent(1);
+		progressbar->SetPercent(1.0f);
 	}
 }
 
