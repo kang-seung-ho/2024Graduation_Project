@@ -38,6 +38,7 @@ USagaHpBarWidget::UpdateHpBar(const float percentage)
 	if (IsValid(myProgressBar))
 	{
 		myProgressBar->SetPercent(percentage);
+		myProgressBar->SynchronizeProperties();
 
 		UE_LOG(LogSagaGame, Log, TEXT("[USagaHpBarWidget] Health percentage: %f"), percentage);
 	}
