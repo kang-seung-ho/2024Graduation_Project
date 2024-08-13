@@ -84,7 +84,7 @@ public:
 	void AnimNotify_Skill_Q();
 
 	UFUNCTION()
-	void AnimNotify_Skill_E();
+	void AnimNotify_Skill_Q1();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

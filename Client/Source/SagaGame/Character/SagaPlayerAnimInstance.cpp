@@ -124,14 +124,15 @@ void USagaPlayerAnimInstance::AnimNotify_Skill_Q()
 	}
 }
 
-void USagaPlayerAnimInstance::AnimNotify_Skill_E()
+void USagaPlayerAnimInstance::AnimNotify_Skill_Q1()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_E Implemented"));
+	UE_LOG(LogTemp, Warning, TEXT("AnimNotify_Skill_Q1 Implemented"));
 
 	const auto PlayerCharacter = GetPawnOwner();
 
 	if (IsValid(PlayerCharacter))
 	{
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AnimNotify_Skill_Q1 Implemented"));
 		PlayerCharacter->ExecuteSkill(1);
 	}
 }
