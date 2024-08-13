@@ -49,6 +49,10 @@ USagaNetworkSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	//{
 	//	return false;
 	//}
+	SetLocalUserId(-1);
+	SetLocalUserName(FText::GetEmpty());
+	SetLocalUserTeam(ESagaPlayerTeam::Unknown);
+	SetCurrentRoomId(-1);
 
 	if (nullptr != clientSocket)
 	{
