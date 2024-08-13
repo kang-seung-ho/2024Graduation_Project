@@ -265,6 +265,13 @@ ASagaRoomSessionLevel::OnUpdateUserList(const TArray<struct FSagaVirtualUser>& l
 {
 	PauseTimer();
 
+	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+	for (auto& user : list)
+	{
+		net->SetTeam(user.myID, user.myTeam);
+	}
+
 	UpdateRoomSessionUI();
 
 	UnPauseTimer();
@@ -277,7 +284,7 @@ ASagaRoomSessionLevel::OnTeamChanged(int32 user_id, bool is_red_team)
 
 #if WITH_EDITOR
 
-	const TCHAR* team_name = is_red_team ? TEXT("Red") : TEXT("Blue");
+	const TCHAR* team_name = is_red_team ? TEXT("red") : TEXT("blue");
 
 	UE_LOG(LogSagaFramework, Log, TEXT("[ASagaRoomSessionLevel][OnTeamChanged] User %d changed team to %s team."), user_id, team_name);
 #endif
