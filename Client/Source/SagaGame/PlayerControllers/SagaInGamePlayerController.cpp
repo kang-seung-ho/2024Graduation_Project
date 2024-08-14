@@ -252,3 +252,22 @@ ASagaInGamePlayerController::Tick(float delta_time)
 		pawn->SetActorLocation(pos);
 	}
 }
+
+void
+ASagaInGamePlayerController::OnPossess(APawn* pawn)
+{
+#if WITH_EDITOR
+
+	if (IsValid(pawn))
+	{
+		const auto name = pawn->GetName();
+		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaInGamePlayerController][OnPossess] Possessioning '%s'..."), *name);
+	}
+	else
+	{
+		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaInGamePlayerController][OnPossess] The pawn is null."));
+	}
+#endif
+
+	Super::OnPossess(pawn);
+}
