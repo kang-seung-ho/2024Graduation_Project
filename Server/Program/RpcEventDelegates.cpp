@@ -473,7 +473,7 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	{
 		PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
 
-		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIANS_PART, 9999, arg1);
+		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIAN, 9999, arg1);
 	}
 }
 
