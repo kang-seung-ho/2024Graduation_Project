@@ -591,15 +591,32 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 	const auto gap = room.gamePhaseTime - now;
 	const auto cnt = gap.count();
 
-	RpcEventOnGettingScores(room, user, proc, 0, 0);
-
 	if (0 < cnt)
 	{
 		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 	}
 	else
 	{
-		// TODO: 게임 승패 판정 송신
+		auto& winner = room.sagaWinner;
+
+		room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+			{
+				const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
+				const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
+
+				std::int8_t prev_winner = 0;
+				const std::int8_t next_winner = static_cast<std::int8_t>(target.myTeamId.load(std::memory_order_acquire));
+				
+
+				// TODO: 점수로 승패 판정
+
+				//if (winner.compare_exchange_strong(prev_winner, next_winner))
+				{
+				//	RpcEventDefault(room, user, RPC_GAME_END, 0, next_winner);
+				}
+			}
+		);
+
 		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
 	}
 }
