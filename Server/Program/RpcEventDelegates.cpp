@@ -471,7 +471,13 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	{
 		PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
 
-		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIAN, 9999, arg1);
+		// arg0: damages to the guardian (4 bytes)
+		std::int64_t dmg = 0;
+
+		constexpr float dmg_amount{ 9999.0f };
+		std::memcpy(&dmg, reinterpret_cast<const char*>(&dmg_amount), 4);
+
+		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIAN, dmg, arg1);
 	}
 }
 
