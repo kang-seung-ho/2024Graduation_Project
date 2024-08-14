@@ -47,8 +47,8 @@ export namespace iconer::app
 	{
 		enum Type
 		{
-			Statue = 0,
-			Awakening, Idle, Ridden, Dead
+			Idle = 0,
+			Dead
 		};
 	}
 
@@ -99,7 +99,7 @@ export namespace iconer::app
 
 		void Cleanup() noexcept
 		{
-			myStatus = SagaGuardianState::Statue;
+			myStatus = SagaGuardianState::Idle;
 			myHp = maxHp;
 			riderId = -1;
 
@@ -117,7 +117,7 @@ export namespace iconer::app
 
 		void Cleanup() volatile noexcept
 		{
-			myStatus = SagaGuardianState::Statue;
+			myStatus = SagaGuardianState::Idle;
 			myHp = maxHp;
 			riderId = -1;
 
@@ -164,12 +164,6 @@ export namespace iconer::app
 		std::int32_t GetRiderId() const noexcept
 		{
 			return riderId;
-		}
-
-		[[nodiscard]]
-		bool IsActivated() const noexcept
-		{
-			return myStatus != SagaGuardianState::Statue;
 		}
 
 		[[nodiscard]]

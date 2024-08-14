@@ -358,6 +358,12 @@ export namespace iconer::app
 		{
 			return RoomState::PrepareGame == myState.load(std::memory_order_acquire);
 		}
+		
+		[[nodiscard]]
+		bool IsGameEnded() const noexcept
+		{
+			return 0 != sagaWinner.load(std::memory_order_acquire);
+		}
 
 	private:
 		std::atomic_bool isTaken{};

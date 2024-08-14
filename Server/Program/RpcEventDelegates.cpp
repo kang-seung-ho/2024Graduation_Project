@@ -119,6 +119,11 @@ ServerFramework::RpcEventOnItemUsed(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	const auto room_id = room.GetID();
 	const auto user_id = user.GetID();
 
@@ -196,6 +201,11 @@ ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	const auto room_id = room.GetID();
 	const auto user_id = user.GetID();
 
@@ -265,6 +275,11 @@ ServerFramework::RpcEventOnUnrideFromGuardian(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	const auto room_id = room.GetID();
 	const auto user_id = user.GetID();
 
@@ -311,6 +326,11 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	const auto room_id = room.GetID();
 	const auto user_id = user.GetID();
 
@@ -429,6 +449,11 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	// arg1: index of the guardian
 	if (arg1 < 0 or 3 <= arg1)
 	{
@@ -476,6 +501,11 @@ ServerFramework::RpcEventOnRespawn(iconer::app::Room& room
 	, iconer::app::RpcProtocol proc
 	, const std::int64_t& arg0, const std::int32_t& arg1)
 {
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
 	auto& revive_user_ctx = user.mainContext;
 	auto& revive_user_pk = revive_user_ctx->GetRespawnPacketData();
 
