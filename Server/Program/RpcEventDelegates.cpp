@@ -381,27 +381,13 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 				);
 
 				// 하차 처리
-				if (guardian.TryUnride(rider_id))
-				{
-					room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
-						{
-							auto& rider = target.ridingGuardianId;
+				RpcEventOnUnrideFromGuardian(room, user, RPC_DMG_GUARDIAN, 0, arg1);
 
-							const auto rider_id = rider.load(std::memory_order_acquire);
-							std::int32_t pre_guardian_id = arg1;
-
-							RpcEventOnUnrideFromGuardian(room, user, RPC_END_RIDE, arg0, arg1);
-						}
-					);
-				}
-
+				// 브로드캐스트
 				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
 			else // IF (rider id is -1)
 			{
-				// Send damage first
-				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
-
 				constexpr std::int32_t killIncrement = 1;
 
 				room.ProcessMember(&user
@@ -421,6 +407,9 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 						}
 					}
 				);
+
+				// 브로드캐스트
+				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
 		}
 		else // IF (0 < guardian hp)
