@@ -266,28 +266,48 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
-
-		net->SetCharacterHandle(id, human);
-
-		guardian->TerminateGuardianAction();
-		human->TerminateGuardianAction();
-
-		if (is_remote)
+		if (guardian->HasValidOwnerId())
 		{
+			ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
+
+			if (IsValid(human))
+			{
+				net->SetCharacterHandle(id, human);
+
+				guardian->TerminateGuardianAction();
+				human->TerminateGuardianAction();
+
+				if (is_remote)
+				{
 #if WITH_EDITOR
 
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Remote] User %d unrides from guardian %d"), id, guardian->GetBearId());
+					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] User %d unrides from the guardian %d"), id, guardian->GetBearId());
 #endif
+				}
+				else
+				{
+#if WITH_EDITOR
+
+					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] Local user %d unrides from the guardian %d"), id, guardian->GetBearId());
+#endif
+
+					storedLocalPlayerController->Possess(human);
+				}
+			}
+			else
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] User %d tried to unride from the guardian %d, but the guardian has an invalid character handle."), id, guardian->GetBearId());
+#endif
+			}
 		}
 		else
 		{
 #if WITH_EDITOR
 
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC][Local] User %d unrides from guardian %d"), id, guardian->GetBearId());
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_END_RIDE] User %d tried to unride from the guardian %d, but the guardian has no user data."), id, guardian->GetBearId());
 #endif
-
-			storedLocalPlayerController->Possess(human);
 		}
 	}
 	break;
@@ -681,8 +701,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 				{
 					net->SetCharacterHandle(id, human);
 
-					human->TerminateGuardianAction();
 					guardian->TerminateGuardianAction();
+					human->TerminateGuardianAction();
 
 					if (is_remote)
 					{
