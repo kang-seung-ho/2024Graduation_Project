@@ -353,9 +353,6 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 
 			if (-1 != rider_id)
 			{
-				// 하차 처리
-				guardian.TryUnride(rider_id);
-
 				constexpr std::int32_t killIncrement = 3;
 
 				room.Foreach([&](iconer::app::SagaPlayer& member)
@@ -383,19 +380,20 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 					}
 				);
 
-				auto [pk, size] = MakeSharedRpc(RPC_END_RIDE, rider_id, 0, arg1);
+				// 하차 처리
+				if (guardian.TryUnride(rider_id))
+				{
+					room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+						{
+							auto& rider = target.ridingGuardianId;
 
-				room.Foreach
-				(
-					[&](iconer::app::User& member)
-					{
-						iconer::app::SendContext* const ctx = AcquireSendContext();
+							const auto rider_id = rider.load(std::memory_order_acquire);
+							std::int32_t pre_guardian_id = arg1;
 
-						ctx->mySharedBuffer = pk;
-
-						member.SendGeneralData(*ctx, pk.get(), size);
-					}
-				);
+							RpcEventOnUnrideFromGuardian(room, user, RPC_END_RIDE, arg0, arg1);
+						}
+					);
+				}
 
 				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
@@ -425,7 +423,7 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 				);
 			}
 		}
-		else
+		else // IF (0 < guardian hp)
 		{
 			RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 		}
