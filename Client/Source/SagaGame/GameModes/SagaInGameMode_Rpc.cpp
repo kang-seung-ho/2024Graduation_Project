@@ -948,6 +948,19 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
+	// arg1 : winner id (0 - draw, 1 - red, 2 - blu)
+	case ESagaRpcProtocol::RPC_GAME_END:
+	{
+		int32 winner = arg1;
+
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Winner: %d"), winner);
+#endif
+
+	}
+	break;
+
 	// arg0 : score of red team (4 bytes) | score of blu team (4 bytes)
 	// arg1 : winner id (0 - draw, 1 - red, 2 - blu)
 	case ESagaRpcProtocol::RPC_DESTROY_CORE:
