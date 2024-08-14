@@ -66,6 +66,9 @@ protected:
 	class UParticleSystem* SoftHitCascadeEffect1;
 
 	UPROPERTY()
+	class UParticleSystem* MiddleHitCascadeEffect1;
+
+	UPROPERTY()
 	UStaticMeshComponent* ShieldMeshComponent;
 
 	FTimerHandle ShieldTimerHandle;
