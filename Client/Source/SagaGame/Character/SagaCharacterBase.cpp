@@ -329,7 +329,7 @@ ASagaCharacterBase::ASagaCharacterBase()
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaCharacterBase] Heal Niagara effect is not loaded."));
 	}
 
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/Item/VFX/NS_Smoke.NS_Smoke'"));
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Smoke/NS_Smoke.NS_Smoke'"));
 	if (SmokeNiagaraEffect.Succeeded())
 	{
 		SmokeItemEffect = SmokeNiagaraEffect.Object;

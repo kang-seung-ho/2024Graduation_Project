@@ -501,7 +501,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
-	if (SlotNumber == 0) { // LightSabor's Q Skill
+	if (SlotNumber == 0) { // LightSabor's Q Skill - TakeDown
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 150.f;
 		FDamageEvent hit_event{};
@@ -546,7 +546,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if (SlotNumber == 1) // WaterGun's Q Skill
+	else if (SlotNumber == 1) // WaterGun's Q Skill - HeadSpin
 	{
 		bool collide = false;
 		FDamageEvent hit_event{};
@@ -659,9 +659,31 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 
 	}
-	else if(SlotNumber == 4) //WaterGun's E Skill
+	else if(SlotNumber == 4) //WaterGun's E Skill - Escape (Skill_E2)
 	{
+		FVector Start = GetActorLocation();
+		FVector End = Start + GetActorForwardVector() * 1000.0f;
 
+		bool collide = GetWorld()->LineTraceSingleByChannel(hit_result, Start, End, channel, query);
+
+		FVector TeleportLocation = End;
+
+		if (collide)
+		{
+			// if the line trace hits something, teleport to the hit location
+			FVector ImpactNormal = hit_result.ImpactNormal;
+			TeleportLocation = hit_result.ImpactPoint - ImpactNormal * 1000.0f; // move 10m backward
+		}
+
+		// Teleport the player to the new location
+		SetActorLocation(TeleportLocation);
+
+		/*if (TeleportEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEffect, TeleportLocation);
+		}*/
+
+		//UE_LOG(LogTemp, Log, TEXT("[ASagaPlayableCharacter] Teleported to: %s"), *TeleportLocation.ToString());
 	}
 	else if(SlotNumber == 5) //Hammer's E Skill
 	{
@@ -761,6 +783,60 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 
 	}
 	else if(SlotNumber == 8) //Hammer's R Skill
+	{
+
+	}
+	else if(SlotNumber == 9) //LightSaber's T Skill - Hurricane Kick
+	{
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 200.f;
+		FDamageEvent hit_event{};
+		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
+
+
+		damage = 20.f;
+
+		if (collide)
+		{
+			const auto hit_actor = hit_result.GetActor();
+
+			const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+
+			if (IsValid(bear))
+			{
+				if (bear->IsAlive())
+				{
+					const auto Hitlocation = hit_result.ImpactPoint;
+					const auto HitNormal = hit_result.Normal;
+
+					const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+					if (-1 != index and not net->IsOfflineMode())
+					{
+#if WITH_EDITOR
+
+						const auto bear_name = bear->GetName();
+
+						UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+						net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+					}
+
+					hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+				}
+			}
+			else
+			{
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+			}
+		}
+	}
+	else if(SlotNumber == 10) //WaterGun's T Skill
+	{
+
+	}
+	else if(SlotNumber == 11) //Hammer's T Skill
 	{
 
 	}
