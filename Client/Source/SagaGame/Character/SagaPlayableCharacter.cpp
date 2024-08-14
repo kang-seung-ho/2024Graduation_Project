@@ -693,7 +693,27 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	}
 	else if (SlotNumber == 3) //LightSaber's E Skill
 	{
+		if (ShieldMeshComponent)
+		{
+			ShieldMeshComponent->SetupAttachment(RootComponent); //this is to attach the shield to the player
 
+			ShieldMeshComponent->SetRelativeLocation(FVector::ZeroVector);
+			ShieldMeshComponent->SetRelativeScale3D(FVector(1.0f)); // Adjust scale to make it larger
+
+			ShieldMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			if (GetTeam() == ESagaPlayerTeam::Red)
+			{
+				ShieldMeshComponent->SetCollisionProfileName(TEXT("Red"));
+			}
+			else
+			{
+				ShieldMeshComponent->SetCollisionProfileName(TEXT("Blue"));
+			}
+			ShieldMeshComponent->SetVisibility(true);
+
+			// Activate the shield
+			ShieldMeshComponent->RegisterComponent();
+		}		
 	}
 	else if(SlotNumber == 4) //WaterGun's E Skill - Escape (Skill_E2)
 	{
@@ -1035,6 +1055,13 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		DeadSoundEffect = DeadSoundEffectObject.Object;
 	}
 
+	ShieldMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMeshComponent"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShieldMesh(TEXT("/Script/Engine.StaticMesh'/Game/Item/Shield_Mesh.Shield_Mesh'"));
+	if (ShieldMesh.Succeeded())
+	{
+		ShieldMeshComponent->SetStaticMesh(ShieldMesh.Object);
+	}
+
 	collideBears.Reserve(3);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> RedHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
@@ -1042,6 +1069,15 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 
 
 
+}
+
+void ASagaPlayableCharacter::RemoveShield()
+{
+	if (ShieldMeshComponent)
+	{
+		ShieldMeshComponent->DestroyComponent();
+		ShieldMeshComponent = nullptr;
+	}
 }
 
 void ASagaPlayableCharacter::PostInitializeComponents()

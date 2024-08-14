@@ -65,6 +65,13 @@ protected:
 	UPROPERTY()
 	class UParticleSystem* SoftHitCascadeEffect1;
 
+	UPROPERTY()
+	UStaticMeshComponent* ShieldMeshComponent;
+
+	FTimerHandle ShieldTimerHandle;
+
+	void RemoveShield();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	class USoundBase* HitSoundEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
