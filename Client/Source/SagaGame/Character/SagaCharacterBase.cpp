@@ -388,6 +388,8 @@ ASagaCharacterBase::BeginPlay()
 #endif
 	}
 
+	SetCollisionEnable(true);
+
 	myGameStat->ResetHp(true);
 	myGameStat->OnHpZero.AddUniqueDynamic(this, &ASagaCharacterBase::ExecuteDeath);
 }
