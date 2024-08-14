@@ -261,11 +261,11 @@ ASagaInGamePlayerController::OnPossess(APawn* pawn)
 	if (IsValid(pawn))
 	{
 		const auto name = pawn->GetName();
-		UE_LOG(LogSagaFramework, Log, TEXT("[ASagaInGamePlayerController][OnPossess] Possessioning '%s'..."), *name);
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][OnPossess] Possessioning '%s'..."), *name);
 	}
 	else
 	{
-		UE_LOG(LogSagaFramework, Error, TEXT("[ASagaInGamePlayerController][OnPossess] The pawn is null."));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGamePlayerController][OnPossess] The pawn is null."));
 	}
 #endif
 
