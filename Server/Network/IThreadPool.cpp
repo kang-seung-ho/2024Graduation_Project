@@ -64,9 +64,8 @@ iconer::net::IThreadPool::Worker(std::stop_token&& cancel_token, IThreadPool& se
 		if (cancel_token.stop_requested()) UNLIKELY
 		{
 			break;
-		}
+		};
 
-#if _DEBUG
 		iconer::net::IoEvent task = self.AwaitForTask();
 
 		if (not self.ProcessTask(std::move(task))) UNLIKELY
@@ -74,16 +73,10 @@ iconer::net::IThreadPool::Worker(std::stop_token&& cancel_token, IThreadPool& se
 			if (not cancel_token.stop_requested()) UNLIKELY
 			{
 				std::println("An issue appeared at worker {}.", index);
-			}
+			};
 
 			//break;
-		}
-#else
-			if (not self.ProcessTask(self.AwaitForTask())) UNLIKELY
-			{
-				break;
-			}
-#endif
+		};
 	}
 
 	if (self.eventOnWorkerAnnihilated.IsBound())
