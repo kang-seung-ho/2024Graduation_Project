@@ -145,7 +145,7 @@ ASagaRoomSessionLevel::BeginPlay()
 
 	OnDestroyed.AddDynamic(this, &ASagaRoomSessionLevel::HandleDestroy);
 
-	GetWorldTimerManager().SetTimer(teamUpdateTimer, this, &ASagaRoomSessionLevel::HandlePeriodicUpdate, 8.0f, true, 0.1f);
+	GetWorldTimerManager().SetTimer(teamUpdateTimer, this, &ASagaRoomSessionLevel::HandlePeriodicUpdate, 5.0f, true, 0.1f);
 
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
