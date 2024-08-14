@@ -59,6 +59,12 @@ protected:
 	UPROPERTY()
 	class UParticleSystem* SkillQHitCascadeEffect;
 
+	UPROPERTY()
+	class UParticleSystem* HardHitCascadeEffect1;
+
+	UPROPERTY()
+	class UParticleSystem* SoftHitCascadeEffect1;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	class USoundBase* HitSoundEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")

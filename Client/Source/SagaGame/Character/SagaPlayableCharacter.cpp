@@ -350,6 +350,42 @@ ASagaPlayableCharacter::ExecuteHurt(const float dmg)
 			}
 		}
 	}
+	else if (dmg == 25.f)
+	{
+		if (SoftHitCascadeEffect1)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				SoftHitCascadeEffect1,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				CascadeComponent->bAutoDestroy = true;
+			}
+		}
+	}
+	else if (dmg == 50.f)
+	{
+		if (HardHitCascadeEffect1)
+		{
+			UParticleSystemComponent* CascadeComponent = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				HardHitCascadeEffect1,
+				EffectSpawnLocation,
+				EffectSpawnRotation,
+				true
+			);
+
+			if (CascadeComponent)
+			{
+				CascadeComponent->bAutoDestroy = true;
+			}
+		}
+	}
 
 	if (0 < current_health)
 	{
@@ -957,7 +993,7 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		humanCharacterAnimation = AnimAsset.Class;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> CascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_5.P_Hit_5'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> CascadeEffect(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_1.P_Hit_1'"));
 	if (CascadeEffect.Succeeded())
 	{
 		HitCascadeEffect = CascadeEffect.Object;
@@ -973,6 +1009,18 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	if (SkillCascadeEffectRef.Succeeded())
 	{
 		SkillQHitCascadeEffect = SkillCascadeEffectRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> HardSkillCascadeEffectRef(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Hard_Hit/P_Hit_4.P_Hit_4'"));
+	if (HardSkillCascadeEffectRef.Succeeded())
+	{
+		HardHitCascadeEffect1 = HardSkillCascadeEffectRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> SoftSkillCascadeEffectRef(TEXT("ParticleSystem'/Game/Hit_VFX/VFX/Soft_Hit/P_Hit_Soft_4.P_Hit_Soft_4'"));
+	if (SoftSkillCascadeEffectRef.Succeeded())
+	{
+		SoftHitCascadeEffect1 = SoftSkillCascadeEffectRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<USoundBase> HitSoundEffectObject(TEXT("SoundWave'/Game/PlayerAssets/Sounds/Damage.Damage'"));
