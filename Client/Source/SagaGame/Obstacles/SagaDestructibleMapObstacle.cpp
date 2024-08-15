@@ -44,6 +44,17 @@ ASagaDestructibleMapObstacle::ASagaDestructibleMapObstacle()
 		UE_LOG(LogTemp, Warning, TEXT("Niagara Effect Not Loaded"));
 	}
 
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> PinataNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Hit/NS_Hit.NS_Hit'"));
+	if (PinataNiagaraEffect.Succeeded())
+	{
+		PinataHitEffect = PinataNiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Pinata Hit Effect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Pinata Hit Effect Not Loaded"));
+	}
+
 	// Set up Mesh component as a Root Component
 	RootComponent = MeshComponent;
 
@@ -125,6 +136,15 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 		if (HitAnimation && MeshComponent)
 		{
 			MeshComponent->PlayAnimation(HitAnimation, false);
+			//Play Hit Niagara Effect here
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+			UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PinataHitEffect, SpawnLocation, SpawnRotation);
+			if (NiagaraComponent)
+			{
+				NiagaraComponent->SetAutoDestroy(true);
+			}
+
 		}
 	}
 

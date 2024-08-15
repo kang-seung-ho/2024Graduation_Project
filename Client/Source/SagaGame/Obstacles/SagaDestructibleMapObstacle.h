@@ -36,6 +36,9 @@ public:
 	UPROPERTY()
 	UAnimSequence* HitAnimation;
 
+	UPROPERTY(VisibleAnywhere)
+	class UNiagaraSystem* PinataHitEffect;
+
 	ASagaDestructibleMapObstacle();
 
 	UFUNCTION()
