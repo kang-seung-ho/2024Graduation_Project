@@ -1114,29 +1114,75 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
-	// arg1 : winner id (0 - draw, 1 - red, 2 - blu)
+	// arg0 : score of red team (4 bytes) | score of blu team (4 bytes)
+	// arg1 : winner id (0 - error, 1 - red, 2 - blu, 3 - draw)
 	case ESagaRpcProtocol::RPC_GAME_END:
 	{
-		int32 winner = arg1;
+		// Determine whether who is win
+		int32 red_score{}, blu_score{}, winner{ arg1 };
+
+		memcpy(&red_score, reinterpret_cast<const char*>(&arg0), 4);
+		memcpy(&blu_score, reinterpret_cast<const char*>(&arg0) + 4, 4);
 
 #if WITH_EDITOR
 
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Winner: %d"), winner);
 #endif
 
+		const auto world = GetWorld();
+		const auto sys = USagaGameSubsystem::GetSubSystem(world);
+
+		sys->SetScore(ESagaPlayerTeam::Red, red_score);
+		sys->SetScore(ESagaPlayerTeam::Blue, blu_score);
+
+		if (winner == 1)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red team has won the game!"));
+#endif
+
+			sys->SetWhoWonByPinata(1);
+			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
+		}
+		else if (winner == 2)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Blue team has won the game!"));
+#endif
+
+			sys->SetWhoWonByPinata(0);
+			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
+		}
+		else if (winner == 3)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Both teams has drawn to the game!"));
+#endif
+
+
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d received unknown winner!"), id);
+#endif
+		}
 	}
 	break;
 
 	// arg0 : score of red team (4 bytes) | score of blu team (4 bytes)
-	// arg1 : winner id (0 - draw, 1 - red, 2 - blu)
+	// arg1 : winner id (0 - error, 1 - red, 2 - blu)
 	case ESagaRpcProtocol::RPC_DESTROY_CORE:
 	{
 		// Determine whether who is win
-		int32 red_score{}, blu_score{}, winner{};
+		int32 red_score{}, blu_score{}, winner{ arg1 };
 
 		memcpy(&red_score, reinterpret_cast<const char*>(&arg0), 4);
 		memcpy(&blu_score, reinterpret_cast<const char*>(&arg0) + 4, 4);
-		winner = arg1;
 
 #if WITH_EDITOR
 

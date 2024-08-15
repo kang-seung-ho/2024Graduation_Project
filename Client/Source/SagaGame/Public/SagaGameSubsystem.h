@@ -51,6 +51,8 @@ private:
 	TObjectPtr<class AActor> localPlayerSpawner;
 
 	UPROPERTY()
+	int32 gameWinner = -1;
+	UPROPERTY()
 	int32 RedTeamScore;
 	UPROPERTY()
 	int32 BluTeamScore;

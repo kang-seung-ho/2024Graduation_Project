@@ -389,7 +389,7 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
 				// This '1' numbering is for Skill animation's array index
-				// Hammer's Q Skill - Kick
+				// Gun's Q Skill - HeadSpin
 				character->UseSkill(1);
 			}
 			break;
@@ -398,7 +398,7 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
 				// This '2' numbering is for Skill animation's array index
-				// Gun's Q Skill - HeadSpin
+				// Hammer's Q Skill - Kick
 				character->UseSkill(2);
 			}
 			break;
