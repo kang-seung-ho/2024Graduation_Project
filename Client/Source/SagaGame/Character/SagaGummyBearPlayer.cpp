@@ -97,6 +97,8 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 void
 ASagaGummyBearPlayer::TerminateGuardianAction()
 {
+	myController->Possess(this);
+
 	Super::TerminateGuardianAction();
 	SetTeam(ESagaPlayerTeam::Unknown);
 
