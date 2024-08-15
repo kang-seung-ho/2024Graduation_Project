@@ -521,6 +521,11 @@ ServerFramework::RpcEventOnRespawn(iconer::app::Room& room
 					member.SendGeneralData(*AcquireSendContext(), revive_user_pk);
 				}
 			);
+
+			if (proc == RPC_RESPAWN_TIMER)
+			{
+				PrintLn("[RPC_RESPAWN] User {} is respawned.", user.GetID());
+		}
 		}
 	);
 }
@@ -550,8 +555,6 @@ ServerFramework::RpcEventOnGettingRespawnTime(iconer::app::Room& room
 			const auto gap = target.respawnTime - now;
 			const auto cnt = gap.count();
 
-			PrintLn("[RPC_RESPAWN_TIMER] User {}'s respawn time: {}.", user.GetID(), cnt);
-
 			if (0 < cnt)
 			{
 				const auto ctx = AcquireSendContext();
@@ -559,10 +562,12 @@ ServerFramework::RpcEventOnGettingRespawnTime(iconer::app::Room& room
 				auto& mem_ctx = user.mainContext;
 
 				user.SendGeneralData(*ctx, mem_ctx->GetRespawnTimePacketData(cnt));
+
+				PrintLn("[RPC_RESPAWN_TIMER] User {}'s respawn time: {}.", user.GetID(), cnt);
 			}
 			else
 			{
-				RpcEventOnRespawn(room, user, RPC_RESPAWN, arg0, arg1);
+				RpcEventOnRespawn(room, user, RPC_RESPAWN_TIMER, arg0, arg1);
 			}
 		}
 	);
