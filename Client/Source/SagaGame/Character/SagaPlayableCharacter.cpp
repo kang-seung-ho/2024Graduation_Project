@@ -574,7 +574,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 
 		if (collide)
 		{
-			TSet<AActor*> DamagedActors; // 이미 데미지를 입은 액터를 추적합니다.
+			TSet<AActor*> DamagedActors; // add actors to this set to prevent multiple hits
 
 			for (const FHitResult& hit_result1 : hit_results)
 			{
@@ -582,7 +582,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 
 				if (hit_actor && !DamagedActors.Contains(hit_actor))
 				{
-					DamagedActors.Add(hit_actor); // 액터를 추적 목록에 추가합니다.
+					DamagedActors.Add(hit_actor); // add the actor to the set
 
 					ASagaGummyBearPlayer* bear = Cast<ASagaGummyBearPlayer>(hit_actor);
 
