@@ -57,10 +57,10 @@ noexcept
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	/*if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
 	{
 		lastLocalPlayerTeam = net->GetLocalUserTeam();
-	}*/
+	}
 
 	if (team == ESagaPlayerTeam::Red)
 	{
@@ -79,10 +79,10 @@ noexcept
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	/*if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
 	{
 		lastLocalPlayerTeam = net->GetLocalUserTeam();
-	}*/
+	}
 
 	if (team == ESagaPlayerTeam::Red)
 	{
@@ -101,10 +101,10 @@ noexcept
 	const auto world = GetWorld();
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	//if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
-	//{
-	//	lastLocalPlayerTeam = net->GetLocalUserTeam();
-	//}
+	if (net->IsOfflineMode() or (net->IsConnected() and 0 < net->GetCurrentRoomId()))
+	{
+		lastLocalPlayerTeam = net->GetLocalUserTeam();
+	}
 
 	if (TeamPinataColor == 0) //redteam's pinata broken
 	{
