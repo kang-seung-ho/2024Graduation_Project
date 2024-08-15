@@ -368,50 +368,50 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 {
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
-	if (IsValid(character) and character->IsAlive())
+	EPlayerWeapon MyweaponType = character->GetWeapon();
+
+	if (character and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
-		if (net->IsOfflineMode())
+		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's Q Skill - Take down Skill
 		{
-			switch (character->GetWeapon())
-			{
-			case EPlayerWeapon::LightSabor:
-			{
-				// ★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
-				// This '0' numbering is for Skill animation's array index
-				// LightSaber's Q Skill - Take down Skill
-				character->UseSkill(0);
-			}
-			break;
-
-			case EPlayerWeapon::WaterGun:
+			if (net->IsOfflineMode())
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
-				// This '1' numbering is for Skill animation's array index
-				// Gun's Q Skill - HeadSpin
-				character->UseSkill(1);
+				character->UseSkill(0); //this '0' numbering is for Skill animation's array index
 			}
-			break;
-
-			case EPlayerWeapon::Hammer:
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+			}
+		}
+		else if (MyweaponType == EPlayerWeapon::Hammer) // Hammer's Q Skill - Kick
+		{
+			if (net->IsOfflineMode())
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
-				// This '2' numbering is for Skill animation's array index
-				// Hammer's Q Skill - Kick
-				character->UseSkill(2);
+				character->UseSkill(2); //this '2' numbering is for Skill animation's array index
 			}
-			break;
-
-			default:
-			{}
-			break;
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
 			}
 		}
-		else
+		else // Gun's Q Skill - HeadSpin
 		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+			if (net->IsOfflineMode())
+			{
+				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
+				character->UseSkill(1); //this '1' numbering is for Skill animation's array index
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_0);
+			}
 		}
+
+		
 	}
 }
 
@@ -421,8 +421,8 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
 	EPlayerWeapon MyweaponType = character->GetWeapon();
-
-
+	
+	
 	if (character and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
@@ -433,7 +433,8 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 			if (net->IsOfflineMode())
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
-				character->UseSkill(3);
+				character->ExecuteSkill(3); // This shield skill doesn't have any animation, so it doesn't need to use UseSkill function
+				//or input the animation and use the UseSkill function
 			}
 			else
 			{
@@ -463,7 +464,7 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 			{
 				net->SendRpcPacket(ESagaRpcProtocol::RPC_SKILL_1);
 			}
-		}
+		}		
 	}
 }
 
@@ -577,17 +578,17 @@ void ASagaInGamePlayerController::OnItem1(const FInputActionValue& Value) //Ener
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("EnergyDrink Used"));
 	//Get each Item's amount before using the item
 
-	if (InventoryWidget->mEnergyDrinkCount <= 0)
+	if(InventoryWidget->mEnergyDrinkCount <= 0)
 	{
 		InventoryWidget->mEnergyDrinkCount = 0;
 		return;
 	}
-	if (InventoryWidget->mEnergyDrinkCount > 0)
+	if(InventoryWidget->mEnergyDrinkCount > 0)
 	{
 		InventoryWidget->UseEnergyDrink();
 		InventoryWidget->mEnergyDrinkCount--;
 		InventoryWidget->UpdateEnergyDrinkAmount();
-	}
+	}	
 }
 
 void ASagaInGamePlayerController::OnItem2(const FInputActionValue& Value) //Gumball
