@@ -112,23 +112,19 @@ void
 USagaGameSubsystem::SetWhoWonByPinata(int32 TeamPinataColor)
 noexcept
 {
-	if (gameWinnerId == -1)
+	if (TeamPinataColor == 0)
 	{
-		const auto world = GetWorld();
-		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+		// Red team's pinata is broken
+		TrySetWinner(2);
 
-		if (TeamPinataColor == 0) //redteam's pinata broken
-		{
-			SetWinner(2);
+		RedTeamPinataBroken = true;
+	}
+	else
+	{
+		// Blue team's pinata is broken
+		TrySetWinner(1);
 
-			RedTeamPinataBroken = true;
-		}
-		else
-		{
-			SetWinner(1);
-
-			BluTeamPinataBroken = true;
-		}
+		BluTeamPinataBroken = true;
 	}
 }
 
@@ -184,31 +180,31 @@ USagaGameSubsystem::GetWhoWon()
 	}
 	else
 	{
-		if (gameWinnerId == 3)
+		if (gameWinnerId == 1)
+		{
+			if (localPlayerTeam == ESagaPlayerTeam::Red)
+			{
+				return TEXT("Victory");
+			}
+			else
+			{
+				return TEXT("Lose");
+			}
+		}
+		else if (gameWinnerId == 2)
+		{
+			if (localPlayerTeam == ESagaPlayerTeam::Blue)
+			{
+				return TEXT("Victory");
+			}
+			else
+			{
+				return TEXT("Lose");
+			}
+		}
+		else if (gameWinnerId == 3)
 		{
 			return TEXT("Draw");
-		}
-		else if (localPlayerTeam == ESagaPlayerTeam::Red)
-		{
-			if (gameWinnerId == 1)
-			{
-				return TEXT("Victory");
-			}
-			else
-			{
-				return TEXT("Lose");
-			}
-		}
-		else if (localPlayerTeam == ESagaPlayerTeam::Blue)
-		{
-			if (gameWinnerId == 2)
-			{
-				return TEXT("Victory");
-			}
-			else
-			{
-				return TEXT("Lose");
-			}
 		}
 		else
 		{

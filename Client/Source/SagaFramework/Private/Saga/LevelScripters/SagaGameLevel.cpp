@@ -127,9 +127,9 @@ ASagaGameLevel::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 				levelUiInstance->SetMinutes(min);
 				levelUiInstance->SetSeconds(sec);
 			}
-
-			GetWorldTimerManager().UnPauseTimer(countdownTimerHandle);
 		}
+
+		GetWorldTimerManager().UnPauseTimer(countdownTimerHandle);
 	}
 }
 
