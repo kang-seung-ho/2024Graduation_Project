@@ -156,17 +156,20 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							// 탑승했던 곰 사망
 							if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 							{
+								auto& team_id = target.myTeamId;
+								const auto team = team_id.load(std::memory_order_acquire);
+
 								// 하차 처리
 								guardian.TryUnride(user_id);
 								guardian.myStatus = iconer::app::SagaGuardianState::Dead;
 								target.ridingGuardianId.store(-1, std::memory_order_release);
 
 								// 점수 증가
-								if (target.myTeamId == ESagaPlayerTeam::Red)
+								if (team == ESagaPlayerTeam::Red)
 								{
 									room->sagaTeamScores[1].fetch_add(1, std::memory_order_acq_rel);
 								}
-								else if (target.myTeamId == ESagaPlayerTeam::Blu)
+								else if (team == ESagaPlayerTeam::Blu)
 								{
 									room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 								}
@@ -229,9 +232,12 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 
 			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
 				{
+					auto& team_id = target.myTeamId;
+					const auto team = team_id.load(std::memory_order_acquire);
+
 					std::int8_t prev_winner = 0;
 
-					if (target.myTeamId == ESagaPlayerTeam::Red)
+					if (team == ESagaPlayerTeam::Red)
 					{
 						if (winner.compare_exchange_strong(prev_winner, 1))
 						{
@@ -240,7 +246,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							PrintLn("[RPC_DESTROY_CORE] Red team wins at room {} - through user {}.", room_id, user_id);
 						}
 					}
-					else if (target.myTeamId == ESagaPlayerTeam::Blu)
+					else if (team == ESagaPlayerTeam::Blu)
 					{
 						if (winner.compare_exchange_strong(prev_winner, 2))
 						{
