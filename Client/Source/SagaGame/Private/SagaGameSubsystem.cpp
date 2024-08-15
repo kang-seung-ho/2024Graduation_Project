@@ -208,6 +208,7 @@ USagaGameSubsystem::GetWhoWon()
 		}
 		else
 		{
+			// TODO: 대체 메시지 출력
 			return TEXT("Error");
 		}
 	}
