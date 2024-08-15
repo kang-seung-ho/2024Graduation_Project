@@ -1219,7 +1219,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 			sys->SetWhoWonByPinata(1);
 			auto& timer = GetWorldTimerManager();
-			timer.SetTimer(LevelChangeTimerHandle, this, ChangeToEndLevel, 4.0f, false);
+			timer.SetTimer(LevelChangeTimerHandle, this, &ASagaInGameMode::ChangeToEndLevel, 4.0f, false);
 		}
 		else if (winner == 2)
 		{
@@ -1229,7 +1229,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 #endif
 
 			sys->SetWhoWonByPinata(0);
-			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
+			auto& timer = GetWorldTimerManager();
+			timer.SetTimer(LevelChangeTimerHandle, this, &ASagaInGameMode::ChangeToEndLevel, 4.0f, false);
 		}
 		else
 		{
