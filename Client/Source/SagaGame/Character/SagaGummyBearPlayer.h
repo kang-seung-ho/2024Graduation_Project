@@ -21,7 +21,7 @@ public:
 	ASagaGummyBearPlayer();
 
 	UFUNCTION()
-	void StoreController(class AController* const controller) noexcept;
+	void StoreController(class AController* const bear_controller) noexcept;
 
 	/* 데미지 처리
 
