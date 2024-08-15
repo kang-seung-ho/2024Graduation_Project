@@ -21,7 +21,7 @@ public:
 	ASagaGummyBearPlayer();
 
 	UFUNCTION()
-	void StoreController(class AController* const bear_controller) noexcept;
+	void StoreController(class ASagaGummyBearController* const bear_controller) noexcept;
 
 	/* 데미지 처리
 
@@ -63,7 +63,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class AController> myController;
+	TObjectPtr<class ASagaGummyBearController> myController;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
 

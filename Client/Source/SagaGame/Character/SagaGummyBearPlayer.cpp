@@ -12,6 +12,7 @@
 #include <NiagaraFunctionLibrary.h>
 
 #include "SagaGameSubsystem.h"
+#include "PlayerControllers/SagaGummyBearController.h"
 #include "Player/SagaPlayerTeam.h"
 #include "Character/SagaPlayableCharacter.h"
 #include "Character/SagaGummyBearAnimInstance.h"
@@ -23,7 +24,7 @@
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
 void
-ASagaGummyBearPlayer::StoreController(AController* const controller)
+ASagaGummyBearPlayer::StoreController(ASagaGummyBearController* const controller)
 noexcept
 {
 	myController = controller;

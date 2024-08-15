@@ -13,6 +13,7 @@
 
 #include "SagaGameSubsystem.h"
 #include "PlayerControllers/SagaInGamePlayerController.h"
+#include "PlayerControllers/SagaGummyBearController.h"
 #include "Player/SagaPlayerTeam.h"
 #include "Character/SagaCharacterSpawner.h"
 #include "Character/SagaCharacterBase.h"
@@ -204,7 +205,7 @@ ASagaInGameMode::StartPlay()
 
 		everyItemSpawnEntities.Add(entity);
 	}
-	
+
 	// Seek and store every item box
 	for (TActorIterator<ASagaItemBox> it{ world }; it; ++it)
 	{
@@ -416,12 +417,21 @@ ASagaInGameMode::ScanGuardians()
 		}
 
 		// 곰 컨트롤러 생성
-		const auto bear_controller = world->SpawnActor<AController>();
+		const auto guardian_controller = world->SpawnActor<ASagaGummyBearController>(ASagaGummyBearController::StaticClass());
 
-		bear_controller->SetRole(ENetRole::ROLE_AutonomousProxy);
-		bear_controller->Possess(bear);
+		if (IsValid(guardian_controller))
+		{
+			guardian_controller->Possess(bear);
 
-		bear->StoreController(bear_controller);
+			bear->StoreController(guardian_controller);
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][ScanGuardians] Cannot created a controller for guardian."));
+#endif
+		}
 
 		everyBears.Add(bear);
 	}
@@ -431,11 +441,11 @@ ASagaInGameMode::ScanGuardians()
 	const auto bear_num = everyBears.Num();
 	if (0 < bear_num)
 	{
-		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d bears are detected."), bear_num);
+		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGameMode][StartPlay] %d guardian(s) are detected."), bear_num);
 	}
 	else
 	{
-		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no bear."));
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGameMode][StartPlay] There is no guardian."));
 	}
 #endif
 }
