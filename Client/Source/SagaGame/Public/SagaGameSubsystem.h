@@ -41,6 +41,9 @@ public:
 	void SetWhoWonByPinata(int32 TeamPinataColor) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void CacheLocalPlayerTeam(ESagaPlayerTeam team) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
 	void ClearWinner() noexcept;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
@@ -73,5 +76,5 @@ private:
 	UPROPERTY()
 	bool BluTeamPinataBroken;
 	UPROPERTY()
-	ESagaPlayerTeam lastLocalPlayerTeam;
+	ESagaPlayerTeam localPlayerTeam;
 };

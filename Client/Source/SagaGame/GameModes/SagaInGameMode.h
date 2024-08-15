@@ -60,6 +60,8 @@ private:
 	FTimerHandle transformUpdateTimer;
 	UPROPERTY()
 	FTimerHandle guardianScannerTimer;
+	UPROPERTY()
+	FTimerHandle LevelChangeTimerHandle;
 
 	UFUNCTION()
 	void OnLeftRoom(int32 user_id);
@@ -74,9 +76,6 @@ private:
 	void HandleUpdateTransform();
 	UFUNCTION()
 	void ScanGuardians();
-
-	UPROPERTY()
-	FTimerHandle LevelChangeTimerHandle;
 
 	UFUNCTION()
 	void ChangeToEndLevel();

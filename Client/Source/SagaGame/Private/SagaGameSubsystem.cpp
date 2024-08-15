@@ -133,6 +133,13 @@ noexcept
 }
 
 void
+USagaGameSubsystem::CacheLocalPlayerTeam(ESagaPlayerTeam team)
+noexcept
+{
+	localPlayerTeam = team;
+}
+
+void
 USagaGameSubsystem::ClearWinner()
 noexcept
 {
@@ -177,13 +184,11 @@ USagaGameSubsystem::GetWhoWon()
 	}
 	else
 	{
-		const auto player_team = lastLocalPlayerTeam;
-
 		if (gameWinnerId == 3)
 		{
 			return TEXT("Draw");
 		}
-		else if (player_team == ESagaPlayerTeam::Red)
+		else if (localPlayerTeam == ESagaPlayerTeam::Red)
 		{
 			if (gameWinnerId == 1)
 			{
@@ -194,7 +199,7 @@ USagaGameSubsystem::GetWhoWon()
 				return TEXT("Lose");
 			}
 		}
-		else if (player_team == ESagaPlayerTeam::Blue)
+		else if (localPlayerTeam == ESagaPlayerTeam::Blue)
 		{
 			if (gameWinnerId == 2)
 			{

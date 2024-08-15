@@ -141,7 +141,10 @@ ASagaInGameMode::StartPlay()
 #endif
 	}
 
-	switch (net->GetLocalUserTeam())
+	const auto player_team = net->GetLocalUserTeam();
+	sys->CacheLocalPlayerTeam(player_team);
+
+	switch (player_team)
 	{
 	case ESagaPlayerTeam::Red:
 	{
@@ -427,7 +430,8 @@ ASagaInGameMode::ScanGuardians()
 #endif
 }
 
-void ASagaInGameMode::ChangeToEndLevel()
+void
+ASagaInGameMode::ChangeToEndLevel()
 {
 	UGameplayStatics::OpenLevel(this, FName("GameEndLevel"));
 }
