@@ -568,33 +568,37 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 		float CapsuleHalfHeight = 100.f;
 
 		FVector CapsuleCenter = (Start + End) * 0.5f;
-		//DrawDebugCapsule(GetWorld(), CapsuleCenter, CapsuleHalfHeight, CapsuleRadius, FQuat(GetActorRotation()), FColor::Red, false, 2.0f);
+		// DrawDebugCapsule(GetWorld(), CapsuleCenter, CapsuleHalfHeight, CapsuleRadius, FQuat(GetActorRotation()), FColor::Red, false, 2.0f);
 
 		damage = 50.f;
 
 		if (collide)
 		{
+			TSet<AActor*> DamagedActors; // 이미 데미지를 입은 액터를 추적합니다.
+
 			for (const FHitResult& hit_result1 : hit_results)
 			{
-				const auto hit_actor = hit_result1.GetActor();
+				AActor* hit_actor = hit_result1.GetActor();
 
-				if (hit_actor)
+				if (hit_actor && !DamagedActors.Contains(hit_actor))
 				{
-					const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
+					DamagedActors.Add(hit_actor); // 액터를 추적 목록에 추가합니다.
+
+					ASagaGummyBearPlayer* bear = Cast<ASagaGummyBearPlayer>(hit_actor);
 
 					if (IsValid(bear))
 					{
 						if (bear->IsAlive())
 						{
-							const auto Hitlocation = hit_result1.ImpactPoint;
-							const auto HitNormal = hit_result1.Normal;
+							const FVector Hitlocation = hit_result1.ImpactPoint;
+							const FVector HitNormal = hit_result1.Normal;
 
-							const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+							const int32 index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
 
-							if (-1 != index && !net->IsOfflineMode())
+							if (index != -1 && !net->IsOfflineMode())
 							{
 #if WITH_EDITOR
-								const auto bear_name = bear->GetName();
+								const FString bear_name = bear->GetName();
 								UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
 #endif
 								net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
@@ -611,6 +615,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
+
 	else if (SlotNumber == 1) // WaterGun's Q Skill - HeadSpin
 	{
 		bool collide = false;
