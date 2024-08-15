@@ -205,18 +205,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// 테스트 용
-		// arg0: 승리한 팀의 ID (4바이트) | 승리한 팀의 점수(4바이트)
-		// arg1: 승패 결정 수단
-		//		수단:	0 - 피냐타 파괴
-		//					1 - 게임 시간 종료
-		case RPC_GAME_END:
-		{
-
-
-		}
-		break;
-
 		// arg0 : 점수
 		// arg1 : 박을 부순 팀의 식별자
 		case RPC_DESTROY_CORE:
