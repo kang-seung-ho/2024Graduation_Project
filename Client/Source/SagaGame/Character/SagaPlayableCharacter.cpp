@@ -555,48 +555,59 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
-	if (SlotNumber == 0) { // LightSabor's Q Skill - TakeDown
-		FVector Start = GetActorLocation() + GetActorForwardVector() * 80.f;
-		FVector End = Start + GetActorForwardVector() * 300.f;
+	if (SlotNumber == 0) { // LightSaber's Q Skill - TakeDown
+		FVector Start = GetActorLocation();
+		FVector End = Start + GetActorForwardVector() * 200.f;
 		FDamageEvent hit_event{};
-		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
-		//DrawDebugCapsule(GetWorld(), Start, 50.f, 300.f, FQuat::Identity, FColor::Red, false, 2.0f);
+		TArray<FHitResult> hit_results;
+
+		// Use SweepMultiByChannel to detect all actors within a sphere along the forward vector
+		bool collide = GetWorld()->SweepMultiByChannel(hit_results, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(500.f), query);
+
+		float CapsuleRadius = 500.f;
+		float CapsuleHalfHeight = 100.f;
+
+		FVector CapsuleCenter = (Start + End) * 0.5f;
+		//DrawDebugCapsule(GetWorld(), CapsuleCenter, CapsuleHalfHeight, CapsuleRadius, FQuat(GetActorRotation()), FColor::Red, false, 2.0f);
 
 		damage = 50.f;
 
 		if (collide)
 		{
-			const auto hit_actor = hit_result.GetActor();
-
-			const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
-
-			if (IsValid(bear))
+			for (const FHitResult& hit_result1 : hit_results)
 			{
-				if (bear->IsAlive())
+				const auto hit_actor = hit_result1.GetActor();
+
+				if (hit_actor)
 				{
-					const auto Hitlocation = hit_result.ImpactPoint;
-					const auto HitNormal = hit_result.Normal;
+					const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
 
-					const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
-
-					if (-1 != index and not net->IsOfflineMode())
+					if (IsValid(bear))
 					{
+						if (bear->IsAlive())
+						{
+							const auto Hitlocation = hit_result1.ImpactPoint;
+							const auto HitNormal = hit_result1.Normal;
+
+							const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+							if (-1 != index && !net->IsOfflineMode())
+							{
 #if WITH_EDITOR
-
-						const auto bear_name = bear->GetName();
-
-						UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+								const auto bear_name = bear->GetName();
+								UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
 #endif
+								net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+							}
 
-						net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+							hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+						}
 					}
-
-					hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+					else
+					{
+						hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+					}
 				}
-			}
-			else
-			{
-				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 			}
 		}
 	}
