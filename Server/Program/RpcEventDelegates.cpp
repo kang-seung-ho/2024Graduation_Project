@@ -525,7 +525,7 @@ ServerFramework::RpcEventOnRespawn(iconer::app::Room& room
 			if (proc == RPC_RESPAWN_TIMER)
 			{
 				PrintLn("[RPC_RESPAWN] User {} is respawned.", user.GetID());
-		}
+			}
 		}
 	);
 }
@@ -604,25 +604,61 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 	{
 		auto& winner = room.sagaWinner;
 
-		room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
+		const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
+		const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
+
+		if (room.ProcessMember(&user
+			, [&](iconer::app::SagaPlayer& target)
 			{
-				const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
-				const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
+				std::int8_t prev_winner{};
+				std::int8_t next_winner{};
 
-				std::int8_t prev_winner = 0;
-				const std::int8_t next_winner = static_cast<std::int8_t>(target.myTeamId.load(std::memory_order_acquire));
-				
-
-				// TODO: 점수로 승패 판정
-
-				//if (winner.compare_exchange_strong(prev_winner, next_winner))
+				if (bluscore < redscore)
 				{
-				//	RpcEventDefault(room, user, RPC_GAME_END, 0, next_winner);
+					// The red team won
+					next_winner = 1;
+				}
+				else if (redscore < bluscore)
+				{
+					// The blue team won
+					next_winner = 2;
+				}
+				else
+				{
+					// Both draws
+					next_winner = 3;
+				}
+
+				if (winner.compare_exchange_strong(prev_winner, next_winner))
+				{
+					std::int64_t scores = 0;
+					std::memcpy(reinterpret_cast<char*>(&scores), &redscore, 4);
+					std::memcpy(reinterpret_cast<char*>(&scores) + 4, &bluscore, 4);
+
+					RpcEventDefault(room, user, RPC_GAME_END, scores, next_winner);
 				}
 			}
-		);
+		))
+		{
+			PrintLn("[RPC_GAME_TIMER][RPC_GAME_END] Red team: {} | Blue team: {}.", redscore, bluscore);
 
-		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
+			if (redscore < bluscore)
+			{
+				PrintLn("[RPC_GAME_TIMER] Red team wins at room {} - through user {}.", room.GetID(), user.GetID());
+			}
+			else if (bluscore < redscore)
+			{
+				PrintLn("[RPC_GAME_TIMER] Blue team wins at room {} - through user {}.", room.GetID(), user.GetID());
+			}
+			else
+			{
+				PrintLn("[RPC_GAME_TIMER] Two teams draws at room {} - through user {}.", room.GetID(), user.GetID());
+			}
+		}
+		else
+		{
+			throw std::exception{ "Error!" };
+		}
 	}
 }
 
