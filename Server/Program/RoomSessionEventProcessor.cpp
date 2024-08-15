@@ -10,7 +10,7 @@ import Iconer.App.PacketSerializer;
 namespace
 {
 	inline constexpr std::chrono::seconds weaponPhasePeriod{ 31 };
-	inline constexpr std::chrono::seconds gamePhasePeriod{ 301 };
+	inline constexpr std::chrono::seconds gamePhasePeriod{ 61 };
 }
 
 void

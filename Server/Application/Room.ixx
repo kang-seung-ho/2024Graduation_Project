@@ -156,7 +156,7 @@ export namespace iconer::app
 		std::chrono::system_clock::time_point gamePhaseTime;
 
 		// equals to team id
-		std::atomic_int8_t sagaWinner{};
+		std::atomic_int8_t sagaWinner{ 0 };
 		std::atomic_int32_t sagaTeamScores[2]{};
 		SagaGuardian sagaGuardians[3]{};
 		std::atomic_bool sagaItemListLock{};

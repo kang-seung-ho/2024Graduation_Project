@@ -602,62 +602,54 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 	}
 	else
 	{
+		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
+
 		auto& winner = room.sagaWinner;
 
 		const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
 		const auto bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
 
-		if (room.ProcessMember(&user
-			, [&](iconer::app::SagaPlayer& target)
-			{
-				std::int8_t prev_winner{};
-				std::int8_t next_winner{};
-
-				if (bluscore < redscore)
-				{
-					// The red team won
-					next_winner = 1;
-				}
-				else if (redscore < bluscore)
-				{
-					// The blue team won
-					next_winner = 2;
-				}
-				else
-				{
-					// Both draws
-					next_winner = 3;
-				}
-
-				if (winner.compare_exchange_strong(prev_winner, next_winner))
-				{
-					std::int64_t scores = 0;
-					std::memcpy(reinterpret_cast<char*>(&scores), &redscore, 4);
-					std::memcpy(reinterpret_cast<char*>(&scores) + 4, &bluscore, 4);
-
-					RpcEventDefault(room, user, RPC_GAME_END, scores, next_winner);
-				}
-			}
-		))
+		if (const auto curr_winner = winner.load(std::memory_order_acquire); 0 == curr_winner)
 		{
+			std::int8_t prev_winner{ 0 };
+			std::int8_t next_winner{};
+
 			PrintLn("[RPC_GAME_TIMER][RPC_GAME_END] Red team: {} | Blue team: {}.", redscore, bluscore);
 
-			if (redscore < bluscore)
+			if (bluscore < redscore)
 			{
+				// The red team won
+				next_winner = 1;
+
 				PrintLn("[RPC_GAME_TIMER] Red team wins at room {} - through user {}.", room.GetID(), user.GetID());
 			}
-			else if (bluscore < redscore)
+			else if (redscore < bluscore)
 			{
+				// The blue team won
+				next_winner = 2;
+
 				PrintLn("[RPC_GAME_TIMER] Blue team wins at room {} - through user {}.", room.GetID(), user.GetID());
 			}
 			else
 			{
+				// Both draws
+				next_winner = 3;
+
 				PrintLn("[RPC_GAME_TIMER] Two teams draws at room {} - through user {}.", room.GetID(), user.GetID());
+			}
+
+			if (winner.compare_exchange_strong(prev_winner, next_winner))
+			{
+				std::int64_t scores = 0;
+				std::memcpy(reinterpret_cast<char*>(&scores), &redscore, 4);
+				std::memcpy(reinterpret_cast<char*>(&scores) + 4, &bluscore, 4);
+
+				RpcEventDefault(room, user, RPC_GAME_END, scores, next_winner);
 			}
 		}
 		else
 		{
-			throw std::exception{ "Error!" };
+			PrintLn("[RPC_GAME_TIMER] The game is done. The winner is {}.", curr_winner);
 		}
 	}
 }
