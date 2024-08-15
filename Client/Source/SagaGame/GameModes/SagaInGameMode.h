@@ -74,6 +74,12 @@ private:
 	void HandleUpdateTransform();
 	UFUNCTION()
 	void ScanGuardians();
+
+	UPROPERTY()
+	FTimerHandle LevelChangeTimerHandle;
+
+	UFUNCTION()
+	void ChangeToEndLevel();
 };
 
 extern const FString SagaRedTeamName;

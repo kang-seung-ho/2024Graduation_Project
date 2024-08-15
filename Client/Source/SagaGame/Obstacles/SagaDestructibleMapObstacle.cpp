@@ -111,7 +111,7 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 		// Set a timer to destroy the obstacle after 3 seconds
 		timer.SetTimer(TimerHandle, this, &ASagaDestructibleMapObstacle::DestroyObstacle, 4.0f, false);
 
-		timer.SetTimer(LevelChangeTimerHandle, this, &ASagaDestructibleMapObstacle::ChangeLevel, 3.0f, false);
+		timer.SetTimer(LevelChangeTimerHandle, this, &ASagaDestructibleMapObstacle::ChangeLevel, 5.0f, false);
 
 		if (net->IsOfflineMode())
 		{

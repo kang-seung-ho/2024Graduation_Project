@@ -425,6 +425,11 @@ ASagaInGameMode::ScanGuardians()
 #endif
 }
 
+void ASagaInGameMode::ChangeToEndLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName("GameEndLevel"));
+}
+
 void
 SerializePosition(const FVector& vector, int64& arg0, int32& arg1)
 {
