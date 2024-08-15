@@ -30,6 +30,9 @@ public:
 
 	AMapObstacle1();
 
+	UPROPERTY()
+	class UNiagaraSystem* ObstacleHitEffect;
+
 	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
 
 	UFUNCTION(Category = "CandyLandSaga|Game|Item")
