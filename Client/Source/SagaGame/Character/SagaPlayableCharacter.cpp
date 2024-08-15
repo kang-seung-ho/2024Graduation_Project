@@ -562,7 +562,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
 
 
-		damage = 45.f;
+		damage = 50.f;
 
 		if (collide)
 		{
