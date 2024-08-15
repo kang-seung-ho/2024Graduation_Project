@@ -556,11 +556,11 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 		channel = ECC_GameTraceChannel7;
 	}
 	if (SlotNumber == 0) { // LightSabor's Q Skill - TakeDown
-		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		FVector End = Start + GetActorForwardVector() * 150.f;
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 80.f;
+		FVector End = Start + GetActorForwardVector() * 300.f;
 		FDamageEvent hit_event{};
 		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
-
+		DrawDebugCapsule(GetWorld(), Start, 50.f, 300.f, FQuat::Identity, FColor::Red, false, 2.0f);
 
 		damage = 50.f;
 
