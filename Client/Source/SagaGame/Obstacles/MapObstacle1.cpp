@@ -9,6 +9,9 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+#include <NiagaraFunctionLibrary.h>
+#include <NiagaraComponent.h>
+
 AMapObstacle1::AMapObstacle1()
 	: Super()
 {
@@ -20,6 +23,17 @@ AMapObstacle1::AMapObstacle1()
 	HPComponent = CreateDefaultSubobject<UObstacleHPComponent>(TEXT("HPComponent"));
 
 	HPComponent->SetObjectHealth(50.0f);
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ObstacleNiagaraEffect(TEXT("/Script/Niagara.NiagaraSystem'/Game/VFX/VFX_Hit/NS_Hit.NS_Hit'"));
+	if (ObstacleNiagaraEffect.Succeeded())
+	{
+		ObstacleHitEffect = ObstacleNiagaraEffect.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Obstacle HitEffect Loaded"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Obstacle HitEffect Not Loaded"));
+	}
 }
 
 float
@@ -30,6 +44,14 @@ AMapObstacle1::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	if (HPComponent)
 	{
 		HPComponent->TakeDamage(DamageApplied);
+	}
+
+	FVector SpawnLocation = GetActorLocation();
+	FRotator SpawnRotation = GetActorRotation();
+	UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ObstacleHitEffect, SpawnLocation, SpawnRotation);
+	if (NiagaraComponent)
+	{
+		NiagaraComponent->SetAutoDestroy(true);
 	}
 
 	return DamageApplied;
