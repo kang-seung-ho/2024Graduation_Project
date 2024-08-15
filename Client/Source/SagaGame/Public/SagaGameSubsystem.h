@@ -32,7 +32,19 @@ public:
 	void AddScore(ESagaPlayerTeam team, int32 score) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void SetWinner(const int32 winner_team_id) noexcept;
+	
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	bool TrySetWinner(const int32 winner_team_id) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
 	void SetWhoWonByPinata(int32 TeamPinataColor) noexcept;
+
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game")
+	void ClearWinner() noexcept;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
+	int32 GetWinnerId() const noexcept;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CandyLandSaga|Game")
 	const AActor* GetLocalPlayerSpawner() const noexcept;
@@ -51,7 +63,7 @@ private:
 	TObjectPtr<class AActor> localPlayerSpawner;
 
 	UPROPERTY()
-	int32 gameWinner = -1;
+	int32 gameWinnerId;
 	UPROPERTY()
 	int32 RedTeamScore;
 	UPROPERTY()

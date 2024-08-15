@@ -12,6 +12,7 @@
 USagaGameSubsystem::USagaGameSubsystem()
 	: Super()
 	, localPlayerSpawner()
+	, gameWinnerId(-1)
 	, RedTeamScore(), BluTeamScore()
 	, RedTeamPinataBroken(), BluTeamPinataBroken()
 {}
@@ -85,46 +86,129 @@ noexcept
 }
 
 void
-USagaGameSubsystem::SetWhoWonByPinata(int32 TeamPinataColor)
+USagaGameSubsystem::SetWinner(const int32 winner_team_id)
 noexcept
 {
-	const auto world = GetWorld();
-	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+	gameWinnerId = winner_team_id;
+}
 
-	if (TeamPinataColor == 0) //redteam's pinata broken
+bool
+USagaGameSubsystem::TrySetWinner(const int32 winner_team_id)
+noexcept
+{
+	if (gameWinnerId == -1)
 	{
-		RedTeamPinataBroken = true;
+		gameWinnerId = winner_team_id;
+
+		return true;
 	}
 	else
 	{
-		BluTeamPinataBroken = true;
+		return false;
 	}
+}
+
+void
+USagaGameSubsystem::SetWhoWonByPinata(int32 TeamPinataColor)
+noexcept
+{
+	if (gameWinnerId == -1)
+	{
+		const auto world = GetWorld();
+		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+		if (TeamPinataColor == 0) //redteam's pinata broken
+		{
+			SetWinner(2);
+
+			RedTeamPinataBroken = true;
+		}
+		else
+		{
+			SetWinner(1);
+
+			BluTeamPinataBroken = true;
+		}
+	}
+}
+
+void
+USagaGameSubsystem::ClearWinner()
+noexcept
+{
+	gameWinnerId = -1;
+}
+
+int32
+USagaGameSubsystem::GetWinnerId()
+const noexcept
+{
+	return gameWinnerId;
 }
 
 FString
 USagaGameSubsystem::GetWhoWon()
 {
-	const auto player_team = lastLocalPlayerTeam;
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 
-	if (RedTeamPinataBroken)
-	{		
-		return TEXT("Blue Win!"); // I'm in Blue Team And My team Win
-	}
-	else if (BluTeamPinataBroken)
+	if (net->IsOfflineMode())
 	{
-		return TEXT("Red Win!");
-	}
-	else if (RedTeamScore > BluTeamScore)
-	{		
-		return TEXT("Red Win!");
-	}
-	else if (RedTeamScore < BluTeamScore)
-	{
-		return TEXT("Blue Win!");
+		if (RedTeamPinataBroken)
+		{
+			return TEXT("Blue Win!"); // I'm in Blue Team And My team Win
+		}
+		else if (BluTeamPinataBroken)
+		{
+			return TEXT("Red Win!");
+		}
+		else if (RedTeamScore > BluTeamScore)
+		{
+			return TEXT("Red Win!");
+		}
+		else if (RedTeamScore < BluTeamScore)
+		{
+			return TEXT("Blue Win!");
+		}
+		else
+		{
+			return TEXT("Draw"); // Draw
+		}
 	}
 	else
 	{
-		return TEXT("Draw"); // Draw
+		const auto player_team = lastLocalPlayerTeam;
+
+		if (gameWinnerId == 3)
+		{
+			return TEXT("Draw");
+		}
+		else if (player_team == ESagaPlayerTeam::Red)
+		{
+			if (gameWinnerId == 1)
+			{
+				return TEXT("Victory");
+			}
+			else
+			{
+				return TEXT("Lose");
+			}
+		}
+		else if (player_team == ESagaPlayerTeam::Blue)
+		{
+			if (gameWinnerId == 2)
+			{
+				return TEXT("Victory");
+			}
+			else
+			{
+				return TEXT("Lose");
+			}
+		}
+		else
+		{
+			return TEXT("Error");
+		}
 	}
 }
 

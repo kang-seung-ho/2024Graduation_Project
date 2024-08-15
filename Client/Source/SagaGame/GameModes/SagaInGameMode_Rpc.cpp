@@ -1129,47 +1129,48 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Winner: %d"), winner);
 #endif
 
+		if (winner == 1)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Red team has won the game!"));
+#endif
+		}
+		else if (winner == 2)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Blue team has won the game!"));
+#endif
+		}
+		else if (winner == 3)
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Log, TEXT("[RPC_GAME_END] Both teams has drawn to the game!"));
+#endif
+		}
+		else
+		{
+#if WITH_EDITOR
+
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_GAME_END] User %d received unknown winner!"), id);
+#endif
+		}
+
 		const auto world = GetWorld();
 		const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
 		sys->SetScore(ESagaPlayerTeam::Red, red_score);
 		sys->SetScore(ESagaPlayerTeam::Blue, blu_score);
 
-		if (winner == 1)
+		if (sys->TrySetWinner(winner))
 		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Red team has won the game!"));
-#endif
-
-			sys->SetWhoWonByPinata(1);
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
-		}
-		else if (winner == 2)
-		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Blue team has won the game!"));
-#endif
-
-			sys->SetWhoWonByPinata(0);
-			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
-		}
-		else if (winner == 3)
-		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DESTROY_CORE] Both teams has drawn to the game!"));
-#endif
-
-
 		}
 		else
 		{
-#if WITH_EDITOR
-
-			UE_LOG(LogSagaGame, Error, TEXT("[RPC_DESTROY_CORE] User %d received unknown winner!"), id);
-#endif
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_GAME_END] User %d already have set the winner!"), id);
 		}
 	}
 	break;

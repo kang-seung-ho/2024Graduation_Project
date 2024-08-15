@@ -121,6 +121,8 @@ ASagaInGameMode::StartPlay()
 	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
 	const auto sys = USagaGameSubsystem::GetSubSystem(world);
 
+	sys->ClearWinner();
+
 	if (net->IsOfflineMode())
 	{
 #if WITH_EDITOR
