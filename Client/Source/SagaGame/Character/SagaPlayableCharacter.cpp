@@ -711,27 +711,49 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	}
 	else if (SlotNumber == 3) //LightSaber's E Skill
 	{
-		if (ShieldMeshComponent)
+		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
+		FVector End = Start + GetActorForwardVector() * 200.f;
+		FDamageEvent hit_event{};
+		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
+
+
+		damage = 35.f;
+
+		if (collide)
 		{
-			ShieldMeshComponent->SetupAttachment(RootComponent); //this is to attach the shield to the player
+			const auto hit_actor = hit_result.GetActor();
 
-			ShieldMeshComponent->SetRelativeLocation(FVector::ZeroVector);
-			ShieldMeshComponent->SetRelativeScale3D(FVector(1.0f)); // Adjust scale to make it larger
+			const auto bear = Cast<ASagaGummyBearPlayer>(hit_actor);
 
-			ShieldMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			if (GetTeam() == ESagaPlayerTeam::Red)
+			if (IsValid(bear))
 			{
-				ShieldMeshComponent->SetCollisionProfileName(TEXT("Red"));
+				if (bear->IsAlive())
+				{
+					const auto Hitlocation = hit_result.ImpactPoint;
+					const auto HitNormal = hit_result.Normal;
+
+					const auto index = bear->OnBodyPartGetDamaged(Hitlocation, HitNormal);
+
+					if (-1 != index and not net->IsOfflineMode())
+					{
+#if WITH_EDITOR
+
+						const auto bear_name = bear->GetName();
+
+						UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] A part %d of '%s' would be destructed."), index, *bear_name);
+#endif
+
+						net->SendRpcPacket(ESagaRpcProtocol::RPC_DMG_GUARDIANS_PART, 1 + index, bear->GetBearId());
+					}
+
+					hit_actor->TakeDamage(damage, hit_event, GetController(), this);
+				}
 			}
 			else
 			{
-				ShieldMeshComponent->SetCollisionProfileName(TEXT("Blue"));
+				hit_actor->TakeDamage(damage, hit_event, GetController(), this);
 			}
-			ShieldMeshComponent->SetVisibility(true);
-
-			// Activate the shield
-			ShieldMeshComponent->RegisterComponent();
-		}		
+		}
 	}
 	else if(SlotNumber == 4) //WaterGun's E Skill - Escape (Skill_E2)
 	{
@@ -1121,13 +1143,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 		DeadSoundEffect = DeadSoundEffectObject.Object;
 	}
 
-	ShieldMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMeshComponent"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ShieldMesh(TEXT("/Script/Engine.StaticMesh'/Game/Item/Shield_Mesh.Shield_Mesh'"));
-	if (ShieldMesh.Succeeded())
-	{
-		ShieldMeshComponent->SetStaticMesh(ShieldMesh.Object);
-	}
-
 	collideBears.Reserve(3);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> RedHatMesh(TEXT("/Script/Engine.StaticMesh'/Game/PlayerAssets/RedHat.RedHat'"));
@@ -1135,15 +1150,6 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 
 
 
-}
-
-void ASagaPlayableCharacter::RemoveShield()
-{
-	if (ShieldMeshComponent)
-	{
-		ShieldMeshComponent->DestroyComponent();
-		ShieldMeshComponent = nullptr;
-	}
 }
 
 void ASagaPlayableCharacter::PostInitializeComponents()
