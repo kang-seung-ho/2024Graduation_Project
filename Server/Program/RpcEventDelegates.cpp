@@ -602,8 +602,6 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 	}
 	else
 	{
-		user.SendGeneralData(*AcquireSendContext(), room.MakeGameTimerPacket(cnt));
-
 		auto& winner = room.sagaWinner;
 
 		const auto redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
