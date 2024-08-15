@@ -117,8 +117,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							// 사망
 							if (hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 							{
-								Broadcast(RPC_DEAD, user_id, arg0, arg1);
-
 								// 점수 증가
 								if (arg1 != -2)
 								{
@@ -134,6 +132,8 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 										room->sagaTeamScores[0].fetch_add(1, std::memory_order_acq_rel);
 									}
 								}
+
+								Broadcast(RPC_DEAD, user_id, arg0, arg1);
 
 								rider.store(-1, std::memory_order_release);
 							}
