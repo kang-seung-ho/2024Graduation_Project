@@ -20,6 +20,9 @@ public:
 
 	ASagaGummyBearPlayer();
 
+	UFUNCTION()
+	void StoreController(class AController* const controller) noexcept;
+
 	/* 데미지 처리
 
 	* 온라인 / 오프라인 모드에 따라 분기
@@ -59,6 +62,8 @@ public:
 	int32 GetBearId() const noexcept;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
+	TObjectPtr<class AController> myController;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
 

@@ -22,6 +22,13 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
+void
+ASagaGummyBearPlayer::StoreController(AController* const controller)
+noexcept
+{
+	myController = controller;
+}
+
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
@@ -648,6 +655,7 @@ const noexcept
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 	, bearUniqueId(0)
+	, myController(nullptr)
 	, playerUnridePosition()
 	, myInteractionBox()
 {

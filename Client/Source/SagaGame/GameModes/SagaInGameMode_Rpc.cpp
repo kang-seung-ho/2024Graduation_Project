@@ -248,6 +248,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	break;
 
 	// 수호자 하차
+	// arg0: 수호자 정보
+	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_END_RIDE:
 	{
 		if (not IsValid(character))

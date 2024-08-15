@@ -400,10 +400,12 @@ ASagaInGameMode::HandleUpdateTransform()
 void
 ASagaInGameMode::ScanGuardians()
 {
+	const auto world = GetWorld();
+
 	int32 bear_id = 0;
 
 	// Seek and store every gummy bear
-	for (TActorIterator<ASagaGummyBearPlayer> it{ GetWorld() }; it; ++it)
+	for (TActorIterator<ASagaGummyBearPlayer> it{ world }; it; ++it)
 	{
 		const auto bear = *it;
 
@@ -412,6 +414,14 @@ ASagaInGameMode::ScanGuardians()
 		{
 			//bear->bearUniqueId = bear_id++;
 		}
+
+		// 곰 컨트롤러 생성
+		const auto bear_controller = world->SpawnActor<AController>();
+
+		bear_controller->SetRole(ENetRole::ROLE_AutonomousProxy);
+		bear_controller->Possess(bear);
+
+		bear->StoreController(bear_controller);
 
 		everyBears.Add(bear);
 	}
