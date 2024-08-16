@@ -80,6 +80,20 @@ ASagaGummyBearSmall::Tick(float DeltaTime)
 
 }
 
+void
+ASagaGummyBearSmall::SetParentBearId(const int32 id)
+noexcept
+{
+	myParentBearUniqueId = id;
+}
+
+void
+ASagaGummyBearSmall::SetMiniBearId(const int32 id)
+noexcept
+{
+	miniBearUniqueId = id;
+}
+
 int32
 ASagaGummyBearSmall::GetParentBearId()
 const noexcept
