@@ -6,7 +6,6 @@ module;
 
 module Iconer.Framework;
 import iconer.Utility.Serializer;
-import Iconer.Utility.StringConverter;
 import Iconer.Net;
 import Iconer.Net.Socket;
 import Iconer.App.User;
