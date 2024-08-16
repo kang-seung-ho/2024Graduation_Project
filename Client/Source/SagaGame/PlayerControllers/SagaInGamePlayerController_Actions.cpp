@@ -433,7 +433,7 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 			if (net->IsOfflineMode())
 			{
 				//★★★DON'T CHANGE THE SKILL INDEX NUMBERING★★★
-				character->ExecuteSkill(3); // This shield skill doesn't have any animation, so it doesn't need to use UseSkill function
+				character->UseSkill(3); // This shield skill doesn't have any animation, so it doesn't need to use UseSkill function
 				//or input the animation and use the UseSkill function
 			}
 			else
