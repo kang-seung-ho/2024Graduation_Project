@@ -772,6 +772,8 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 		GeometryCollections[i]->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	}
 
+	partedSmallBears.Reserve(4);
+
 	InitTargetMeshes();
 
 	//*/
