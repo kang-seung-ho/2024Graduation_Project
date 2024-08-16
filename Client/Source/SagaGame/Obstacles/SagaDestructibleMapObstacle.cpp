@@ -128,9 +128,19 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 		}
 		else
 		{
-			if (TeamPinataColor == 0 or TeamPinataColor == 1)
+			// NOTICE: RPC_DESTROY_CORE
+			// arg0: nothing
+			// arg1: winning team's id
+			// (0 - nothing, 1 - red, 2 - blue)
+			if (TeamPinataColor == 0)
 			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE, 0, TeamPinataColor + 1);
+				// blue team won
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE, 0, 2);
+			}
+			else if (TeamPinataColor == 1)
+			{
+				// red team won
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE, 0, 1);
 			}
 			else
 			{
