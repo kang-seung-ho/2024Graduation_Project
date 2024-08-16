@@ -943,7 +943,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	else if(SlotNumber == 9) //LightSaber's T Skill - Hurricane Kick
 	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
-		FVector End = Start + GetActorForwardVector() * 200.f;
+		FVector End = Start + GetActorForwardVector() * 150.f;
 		FDamageEvent hit_event{};
 		bool collide = GetWorld()->SweepSingleByChannel(hit_result, Start, End, FQuat::Identity, channel, FCollisionShape::MakeSphere(50.f), query);
 
