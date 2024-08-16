@@ -128,7 +128,18 @@ ASagaDestructibleMapObstacle::TakeDamage(float dmg, FDamageEvent const& event, A
 		}
 		else
 		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE);
+			if (TeamPinataColor == 0 or TeamPinataColor == 1)
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_DESTROY_CORE, 0, TeamPinataColor + 1);
+			}
+			else
+			{
+#if WITH_EDITOR
+
+				const auto name = GetName();
+				UE_LOG(LogSagaGame, Error, TEXT("[ASagaDestructibleMapObstacle][TakeDamage] '%s' has an invalid team id '%d'"), *name, TeamPinataColor);
+#endif
+			}
 		}
 	}
 	else
