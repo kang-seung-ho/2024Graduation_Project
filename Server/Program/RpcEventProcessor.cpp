@@ -205,8 +205,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0 : 점수
-		// arg1 : 박을 부순 팀의 식별자
+		// arg0: 점수
+		// arg1: 박을 부순 팀의 식별자
+		// 0 - nothing, 1 - red, 2 - blue
 		case RPC_DESTROY_CORE:
 		{
 			auto& winner = room->sagaWinner;
@@ -218,37 +219,39 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			std::memcpy(reinterpret_cast<char*>(&arg0), &redscore, 4);
 			std::memcpy(reinterpret_cast<char*>(&arg0) + 4, &bluscore, 4);
 
-			room->ProcessMember(&current_user, [&](iconer::app::SagaPlayer& target)
+			if (0 < arg1)
+			{
+				std::int8_t prev_winner = 0;
+				std::int8_t next_winner = static_cast<std::int8_t>(arg1);
+
+				if (winner.compare_exchange_strong(prev_winner, next_winner))
 				{
-					auto& team_id = target.myTeamId;
-					const auto team = team_id.load(std::memory_order_acquire);
+					Broadcast(RPC_DESTROY_CORE, user_id, arg0, next_winner);
 
-					std::int8_t prev_winner = 0;
-
-					if (team == ESagaPlayerTeam::Red)
+					if (1 == arg1)
 					{
-						if (winner.compare_exchange_strong(prev_winner, 1))
+						if (1 == winner.load(std::memory_order_relaxed))
 						{
-							Broadcast(RPC_DESTROY_CORE, user_id, arg0, 1);
-
 							PrintLn("[RPC_DESTROY_CORE] Red team wins at room {} - through user {}.", room_id, user_id);
 						}
 					}
-					else if (team == ESagaPlayerTeam::Blu)
+					else if (2 == arg1)
 					{
-						if (winner.compare_exchange_strong(prev_winner, 2))
+						if (2 == winner.load(std::memory_order_relaxed))
 						{
-							Broadcast(RPC_DESTROY_CORE, user_id, arg0, 2);
-
 							PrintLn("[RPC_DESTROY_CORE] Blue team wins at room {} - through user {}.", room_id, user_id);
 						}
 					}
 					else
 					{
-						PrintLn("[RPC_DESTROY_CORE] User {} has an invalid team id in room {}.", room_id, user_id);
+						PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user_id, arg1, room_id);
 					}
 				}
-			);
+			}
+			else
+			{
+				PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user_id, arg1, room_id);
+			}
 		}
 		break;
 
