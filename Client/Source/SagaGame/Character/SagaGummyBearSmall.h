@@ -12,13 +12,27 @@ class SAGAGAME_API ASagaGummyBearSmall : public ASagaMonsterAIPawn
 public:
 	ASagaGummyBearSmall();
 
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	int32 GetParentBearId() const noexcept;
+	
+	UFUNCTION()
+	int32 GetMiniBearId() const noexcept;
+
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-
 private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
+	int32 myParentBearUniqueId;
+	/* 작은 곰의 고유 번호
+
+	*  서버, 클라 모두 같게 동기화됨
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
+	int32 miniBearUniqueId;
+
 	UPROPERTY(VisibleAnywhere, Category = "Collision")
 	class UBoxComponent* CollisionBox;
 

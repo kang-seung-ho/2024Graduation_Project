@@ -1,17 +1,17 @@
 #include "Character/SagaGummyBearSmall.h"
-#include "SagaGummyBearAnimInstance.h"
+#include <Kismet/GameplayStatics.h>
 
+#include "Character/SagaPlayableCharacter.h"
+#include "Character/SagaGummyBearAnimInstance.h"
 #include "AI/SagaMonsterAIController.h"
+#include "AI/SagaSmallBearAIController.h"
+#include "AI/AIMonsterAnimInstance.h"
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-#include "AI/SagaSmallBearAIController.h"
-#include "AI/AIMonsterAnimInstance.h"
-#include "Kismet/GameplayStatics.h"
-#include "Character/SagaPlayableCharacter.h"
-
-// Sets default values
 ASagaGummyBearSmall::ASagaGummyBearSmall()
+	: Super()
+	, myParentBearUniqueId(-1), miniBearUniqueId(-2)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -38,7 +38,8 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 		mMesh->SetAnimInstanceClass(AnimAsset.Class);
 	}
 
-	
+	// TODO: 생성 좌표 동기화
+	// Disabled
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
@@ -77,6 +78,20 @@ ASagaGummyBearSmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+int32
+ASagaGummyBearSmall::GetParentBearId()
+const noexcept
+{
+	return myParentBearUniqueId;
+}
+
+int32
+ASagaGummyBearSmall::GetMiniBearId()
+const noexcept
+{
+	return miniBearUniqueId;
 }
 
 void

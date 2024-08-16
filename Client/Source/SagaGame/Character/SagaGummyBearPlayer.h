@@ -15,7 +15,7 @@ public:
 
 	*  서버, 클라 모두 같게 동기화됨
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear", meta = (ClampMin = "0", ClampMax = "10"))
 	int32 bearUniqueId;
 
 	ASagaGummyBearPlayer();
