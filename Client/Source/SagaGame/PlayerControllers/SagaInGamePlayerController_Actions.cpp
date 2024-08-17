@@ -229,41 +229,28 @@ ASagaInGamePlayerController::BeginRotate(const FInputActionValue& input)
 void
 ASagaInGamePlayerController::BeginAttack(const FInputActionValue& input)
 {
-	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] Begin Attack"));
-
 	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 	const auto pawn = GetPawn<ASagaCharacterBase>();
 
-	if (pawn->IsAlive())
+	if (IsValid(pawn))
 	{
-		if (net->IsOfflineMode())
+		if (pawn->IsAlive())
 		{
-			pawn->ExecuteAttackAnimation();
-		}
-		else
-		{
-			net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			if (net->IsOfflineMode())
+			{
+				pawn->ExecuteAttackAnimation();
+			}
+			else
+			{
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_BEG_ATTACK_0);
+			}
 		}
 	}
 }
 
 void
 ASagaInGamePlayerController::EndAttack()
-{
-	//UE_LOG(LogSagaGame, Log, TEXT("[Local][Controller] End Attack"));
-
-	auto character = GetPawn<ASagaCharacterBase>();
-
-	const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
-
-	if (net->IsOfflineMode())
-	{
-	}
-	else
-	{
-		net->SendRpcPacket(ESagaRpcProtocol::RPC_END_ATTACK_0);
-	}
-}
+{}
 
 void
 ASagaInGamePlayerController::BeginGuardianAction()
