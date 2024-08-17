@@ -50,7 +50,7 @@ ASagaInGameMode::OnLeftRoom(int32 user_id)
 						backup->Destroy();
 					}
 
-					guardian->ownerData = {};
+					guardian->ResetOwnerData();
 					guardian->StopMovement();
 				}
 			}

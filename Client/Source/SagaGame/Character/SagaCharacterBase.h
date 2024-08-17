@@ -81,6 +81,8 @@ public:
 	void AddItemToInventory(ESagaItemTypes ItemType) const;
 
 	UFUNCTION()
+	virtual void ResetOwnerData() noexcept;
+	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	/* SetTeamColorAndCollision과 통합 */
 	UFUNCTION()

@@ -19,16 +19,26 @@
 #include <NiagaraComponent.h>
 #include <NiagaraFunctionLibrary.h>
 
-#include "Player/SagaPlayerWeaponTypes.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Character/SagaGummyBearAnimInstance.h"
+#include "Player/SagaPlayerWeaponTypes.h"
 #include "Item/SagaItemTypes.h"
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
-#include "PlayerControllers/SagaInGamePlayerController.h"
+
+#include "Saga/Network/SagaVirtualUser.h"
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
+
+void
+ASagaCharacterBase::ResetOwnerData()
+noexcept
+{
+	ownerData = FSagaVirtualUser{};
+	ownerData.myID = -1;
+}
 
 void
 ASagaCharacterBase::SetUserId(const int32& id)

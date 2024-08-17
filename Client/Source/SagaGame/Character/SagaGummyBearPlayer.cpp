@@ -113,7 +113,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 		const auto rot = playerUnridePosition->GetComponentRotation();
 		character->SetActorLocationAndRotation(loc, rot, false, nullptr, ETeleportType::ResetPhysics);
 
-		ownerData = {};
+		ResetOwnerData();
 	}
 	else
 	{
