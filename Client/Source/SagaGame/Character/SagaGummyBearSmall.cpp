@@ -65,12 +65,19 @@ ASagaGummyBearSmall::ASagaGummyBearSmall()
 	DamageType = UDamageType::StaticClass();
 }
 
-// Called when the game starts or when spawned
 void ASagaGummyBearSmall::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//mAnimInst = Cast<UAIMonsterAnimInstance>(mMesh->GetAnimInstance());
+
+	const auto world = GetWorld();
+	const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
+	if (net->IsConnected())
+	{
+
+	}
 }
 
 void

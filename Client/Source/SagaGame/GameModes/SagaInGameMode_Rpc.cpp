@@ -1004,6 +1004,12 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
+	case ESagaRpcProtocol::RPC_ACTIVE_GUARDIANS_PART:
+	{
+
+	}
+	break;
+
 	case ESagaRpcProtocol::RPC_DMG_BASE:
 	{
 		if (is_remote)
