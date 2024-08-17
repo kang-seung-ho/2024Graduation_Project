@@ -344,9 +344,6 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 	// arg0: damages to the guardian (4 bytes)
 	float dmg{};
 	std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-	// arg0: destructed body parts (4 bytes, 1 byte per part)
-	std::int32_t parts{};
-	std::memcpy(&parts, reinterpret_cast<const char*>(&arg0) + 4, 4);
 
 	auto& guardian = room.sagaGuardians[arg1];
 	auto& guardian_hp = guardian.myHp;
@@ -375,13 +372,12 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 			{
 				constexpr std::int32_t killIncrement = 3;
 
-				room.Foreach([&](iconer::app::SagaPlayer& member)
+				room.Foreach([&, rider_id_ext = static_cast<std::uint64_t>(rider_id)](iconer::app::SagaPlayer& member)
 					{
 						const auto mem_ptr = member.GetStoredUser();
 						if (nullptr == mem_ptr) return;
 
 						const auto mem_id = mem_ptr->GetID();
-						const auto rider_id_ext = static_cast<std::uint64_t>(rider_id);
 
 						if (mem_id == rider_id_ext)
 						{
@@ -432,7 +428,7 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
 		}
-		else // IF (0 < guardian hp)
+		else // IF (damage < guardian hp)
 		{
 			RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 		}
@@ -468,7 +464,7 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room_id);
 
 	auto& guardian = room.sagaGuardians[arg1];
-	auto& guardian_hp = guardian.myHp;
+
 	auto& guardian_pt = guardian.myPartHealthPoints;
 	auto rider_id = guardian.GetRiderId();
 
@@ -479,19 +475,84 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 	// 3(2): 왼쪽 팔
 	// 4(3): 왼쪽 다리
 	guardian_pt[arg0 - 1] = 0;
-	RpcEventDefault(room, user, RPC_DMG_GUARDIANS_PART, arg0 - 1, arg1);
 
 	if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
 	{
 		PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room_id);
 
-		// arg0: damages to the guardian (4 bytes)
-		std::int64_t dmg = 0;
+		auto& guardian = room.sagaGuardians[arg1];
+		auto& guardian_hp = guardian.myHp;
 
-		constexpr float dmg_amount{ 9999.0f };
-		std::memcpy(&dmg, reinterpret_cast<const char*>(&dmg_amount), 4);
+		auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire);
 
-		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIAN, dmg, arg1);
+		if (0 < guardian_hp_value)
+		{
+			guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+
+			guardian_hp.store(0, std::memory_order_release);
+
+			auto rider_id = guardian.GetRiderId();
+
+			if (-1 != rider_id)
+			{
+				constexpr std::int32_t killIncrement = 3;
+
+				room.Foreach([&, rider_id_ext = static_cast<std::uint64_t>(rider_id)](iconer::app::SagaPlayer& member)
+					{
+						const auto mem_ptr = member.GetStoredUser();
+						if (nullptr == mem_ptr) return;
+
+						const auto mem_id = mem_ptr->GetID();
+
+						if (mem_id == rider_id_ext)
+						{
+							auto& team_id = member.myTeamId;
+							const auto team = team_id.load(std::memory_order_acquire);
+
+							if (team == ESagaPlayerTeam::Red)
+							{
+								room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+							else if (team == ESagaPlayerTeam::Blu)
+							{
+								room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+							}
+						}
+					}
+				);
+
+				// 하차 처리
+				RpcEventOnUnrideFromGuardian(room, user, RPC_DMG_GUARDIANS_PART, 0, arg1);
+
+				// 브로드캐스트
+				RpcEventDefault(room, user, RPC_DMG_GUARDIANS_PART, arg0 - 1, arg1);
+			}
+			else // IF (rider id is -1)
+			{
+				constexpr std::int32_t killIncrement = 1;
+
+				room.ProcessMember(&user
+					, [&](iconer::app::SagaPlayer& member) noexcept
+					{
+						// NOTICE: 자기 팀의 점수 증가
+						auto& team_id = member.myTeamId;
+						const auto team = team_id.load(std::memory_order_acquire);
+
+						if (team == ESagaPlayerTeam::Red)
+						{
+							room.sagaTeamScores[0].fetch_add(killIncrement, std::memory_order_acq_rel);
+						}
+						else if (team == ESagaPlayerTeam::Blu)
+						{
+							room.sagaTeamScores[1].fetch_add(killIncrement, std::memory_order_acq_rel);
+						}
+					}
+				);
+
+				// 브로드캐스트
+				RpcEventDefault(room, user, RPC_DMG_GUARDIANS_PART, arg0 - 1, arg1);
+			}
+		}
 	}
 }
 
