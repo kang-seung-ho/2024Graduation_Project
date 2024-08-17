@@ -352,39 +352,20 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 
 	if (0 < guardian_hp_value)
 	{
-		PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
-
 		// 탑승했던 곰 사망
 		if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 		{
-			PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
-
 			guardian.myStatus = iconer::app::SagaGuardianState::Dead;
 
-			//std::int64_t hp_arg0{};
-			//float curr_hp = guardian_hp.load(std::memory_order_acquire);
-			//std::memcpy(&dmg, reinterpret_cast<const char*>(&curr_hp), 4);
-			//auto [pk2, size2] = MakeSharedRpc(RPC_DMG_GUARDIAN, user_id, hp_arg0, arg1);
-
-			auto rider_id = guardian.GetRiderId();
-
-			if (-1 != rider_id)
+			if (auto rider_id = guardian.GetRiderId(); -1 != rider_id)
 			{
 				constexpr std::int32_t kill_increment = 3;
 
-				room.Foreach([&, rider_id_ext = static_cast<std::uint64_t>(rider_id)](iconer::app::SagaPlayer& member)
+				room.ProcessMember(rider_id, [&](iconer::app::SagaPlayer& member)
 					{
-						const auto mem_ptr = member.GetStoredUser();
-						if (nullptr == mem_ptr) return;
+						auto& team_id = member.myTeamId;
 
-						const auto mem_id = mem_ptr->GetID();
-
-						if (mem_id == rider_id_ext)
-						{
-							auto& team_id = member.myTeamId;
-
-							room.AddOppositeTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
-						}
+						room.AddOppositeTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
 					}
 				);
 
@@ -398,10 +379,8 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 			{
 				constexpr std::int32_t kill_increment = 1;
 
-				room.ProcessMember(&user
-					, [&](iconer::app::SagaPlayer& member) noexcept
+				room.ProcessMember(&user, [&](iconer::app::SagaPlayer& member) noexcept
 					{
-						// NOTICE: 자기 팀의 점수 증가
 						auto& team_id = member.myTeamId;
 
 						room.AddTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
@@ -411,10 +390,15 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 				// 브로드캐스트
 				RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
 			}
+
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
 		}
 		else // IF (damage < guardian hp)
 		{
+			// 브로드캐스트
 			RpcEventDefault(room, user, RPC_DMG_GUARDIAN, arg0, arg1);
+
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
 		}
 	}
 	else // IF (guardian hp <= 0)
@@ -473,25 +457,15 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 		{
 			guardian.myStatus = iconer::app::SagaGuardianState::Dead;
 
-			auto rider_id = guardian.GetRiderId();
-
-			if (-1 != rider_id)
+			if (auto rider_id = guardian.GetRiderId(); -1 != rider_id)
 			{
 				constexpr std::int32_t kill_increment = 3;
 
-				room.Foreach([&, rider_id_ext = static_cast<std::uint64_t>(rider_id)](iconer::app::SagaPlayer& member)
+				room.ProcessMember(rider_id, [&](iconer::app::SagaPlayer& member)
 					{
-						const auto mem_ptr = member.GetStoredUser();
-						if (nullptr == mem_ptr) return;
+						auto& team_id = member.myTeamId;
 
-						const auto mem_id = mem_ptr->GetID();
-
-						if (mem_id == rider_id_ext)
-						{
-							auto& team_id = member.myTeamId;
-
-							room.AddOppositeTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
-						}
+						room.AddOppositeTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
 					}
 				);
 
@@ -508,7 +482,6 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 				room.ProcessMember(&user
 					, [&](iconer::app::SagaPlayer& member) noexcept
 					{
-						// NOTICE: 자기 팀의 점수 증가
 						auto& team_id = member.myTeamId;
 
 						room.AddTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
