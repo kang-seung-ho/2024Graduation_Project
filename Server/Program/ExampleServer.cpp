@@ -1,9 +1,5 @@
 module Iconer.Framework;
-import Iconer.Net;
-import Iconer.Net.EndPoint;
-import Iconer.Net.Socket;
-import Iconer.Net.IoCompletionPort;
-import <print>;
+import <string>;
 
 ServerFramework serverSystem{};
 
