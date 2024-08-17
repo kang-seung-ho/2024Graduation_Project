@@ -189,6 +189,13 @@ const
 	//other->ownerData.myID = ownerData.myID;
 }
 
+void
+ASagaCharacterBase::StoreController(ASagaBaseCharacterController* const pc)
+noexcept
+{
+	myController = pc;
+}
+
 int32
 ASagaCharacterBase::GetUserId()
 const noexcept

@@ -23,13 +23,6 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-void
-ASagaGummyBearPlayer::StoreController(ASagaGummyBearController* const controller)
-noexcept
-{
-	myController = controller;
-}
-
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {

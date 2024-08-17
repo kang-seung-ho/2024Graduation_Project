@@ -55,28 +55,16 @@ public:
 
 	ASagaCharacterBase();
 
-	virtual void Tick(float delta_time) override;
-
-	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
-
-	UFUNCTION()
-	void StopMovement();
-	UFUNCTION()
-	void SetCollisionEnable(const bool flag);
-	UFUNCTION()
-	void ChangeColliderProfile(const FName& name) const;
-	UFUNCTION()
-	void ChangeColliderProfileToRedTeam() const;
-	UFUNCTION()
-	void ChangeColliderProfileToBluTeam() const;
-	UFUNCTION()
-	void ChangeColliderProfileToHostile() const;
-
 	// UFUNCTION()
 	virtual void TakeItem(ESagaItemTypes ItemType) override;
 	UFUNCTION()
 	void AddItemToInventory(ESagaItemTypes ItemType) const;
 
+	virtual void Tick(float delta_time) override;
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	UFUNCTION()
+	void StoreController(class ASagaBaseCharacterController* const pc) noexcept;
 	UFUNCTION()
 	virtual void ResetOwnerData() noexcept;
 	UFUNCTION()
@@ -92,6 +80,20 @@ public:
 	/* 다른 사가 캐릭터에게 속성 전달 */
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterBase* other) const;
+
+	UFUNCTION()
+	void StopMovement();
+
+	UFUNCTION()
+	void SetCollisionEnable(const bool flag);
+	UFUNCTION()
+	void ChangeColliderProfile(const FName& name) const;
+	UFUNCTION()
+	void ChangeColliderProfileToRedTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToBluTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToHostile() const;
 
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;

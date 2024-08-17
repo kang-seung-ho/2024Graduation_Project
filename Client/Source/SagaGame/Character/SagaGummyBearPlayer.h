@@ -20,9 +20,6 @@ public:
 
 	ASagaGummyBearPlayer();
 
-	UFUNCTION()
-	void StoreController(class ASagaGummyBearController* const bear_controller) noexcept;
-
 	/* 데미지 처리
 
 	* 온라인 / 오프라인 모드에 따라 분기
