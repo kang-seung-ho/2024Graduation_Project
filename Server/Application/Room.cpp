@@ -293,6 +293,13 @@ noexcept
 	}
 }
 
+bool
+iconer::app::Room::HasEqualId(iconer::app::Room::const_reference user, const id_type& id)
+noexcept
+{
+	return user.GetID() == id;
+}
+
 void
 iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool is_red_team)
 {

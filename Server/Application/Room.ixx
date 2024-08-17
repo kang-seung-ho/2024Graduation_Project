@@ -204,6 +204,9 @@ export namespace iconer::app
 			return myState.compare_exchange_strong(state, RoomState::Idle, std::memory_order_acq_rel);
 		}
 
+		[[nodiscard]]
+		static bool HasEqualId(const_reference user, const id_type& id) noexcept;
+
 		template<invocable<session_type&> Callable>
 		bool ProcessMember(pointer_type user, Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
 		{
@@ -222,6 +225,24 @@ export namespace iconer::app
 			return false;
 		}
 
+		template<invocable<session_type&> Callable>
+		bool ProcessMember(id_type id, Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and id == HasEqualId(*ptr, id))
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		template<invocable<const session_type&> Callable>
 		bool ProcessMember(pointer_type user, Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
 		{
@@ -230,6 +251,24 @@ export namespace iconer::app
 				const pointer_type ptr = member.GetStoredUser();
 
 				if (nullptr != ptr and user == ptr)
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		template<invocable<const session_type&> Callable>
+		bool ProcessMember(id_type id, Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (const session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and id == HasEqualId(*ptr, id))
 				{
 					std::forward<Callable>(fun)(member);
 
@@ -361,7 +400,7 @@ export namespace iconer::app
 		{
 			return RoomState::PrepareGame == myState.load(std::memory_order_acquire);
 		}
-		
+
 		[[nodiscard]]
 		bool IsGameEnded() const noexcept
 		{
