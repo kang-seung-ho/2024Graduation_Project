@@ -159,11 +159,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								auto& team_id = target.myTeamId;
 								const auto team = team_id.load(std::memory_order_acquire);
 
-								// 하차 처리
-								guardian.TryUnride(user_id);
-								guardian.myStatus = iconer::app::SagaGuardianState::Dead;
-								target.ridingGuardianId.store(-1, std::memory_order_release);
-
 								// 점수 증가
 								if (team == ESagaPlayerTeam::Red)
 								{
@@ -175,6 +170,10 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								}
 
 								// 하차 처리
+								guardian.TryUnride(user_id);
+								guardian.myStatus = iconer::app::SagaGuardianState::Dead;
+								target.ridingGuardianId.store(-1, std::memory_order_release);
+
 								Broadcast(RPC_END_RIDE, user_id, arg0, rider_id);
 
 								// 사망 피해량 브로드캐스트
