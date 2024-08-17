@@ -204,7 +204,25 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		//RPC_MORPH_GUARDIANS_PART
+		// arg0: part id
+		// arg1: guardian id
+		case RPC_MORPH_GUARDIANS_PART:
+		{
+			auto& guardian = room->sagaGuardians[arg1];
+			auto& part = guardian.myPartEntity[arg0];
+
+			if (part.TryMorph())
+			{
+				Broadcast(RPC_MORPH_GUARDIANS_PART, user_id, arg0, arg1);
+
+				PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} is morphing.", arg1, arg0);
+			}
+			else
+			{
+				PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} has already started morphing.", arg1, arg0);
+			}
+		}
+		break;
 
 		default:
 		{
