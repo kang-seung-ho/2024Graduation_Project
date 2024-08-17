@@ -292,8 +292,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] Local user %d unrides from the guardian %d"), id, guardian->GetBearId());
 #endif
-
-					storedLocalPlayerController->Possess(human);
 				}
 			}
 			else
@@ -316,10 +314,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	case ESagaRpcProtocol::RPC_POSITION:
 	{
-		if (not IsValid(character))
-		{
-			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_POSITION] Cannot find a character of user %d'."), id);
-
 			float x{};
 			float y{};
 			float z{};
@@ -327,20 +321,15 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			std::memcpy(&x, &arg0, 4);
 			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
 			std::memcpy(&z, &arg1, 4);
+
+		if (not IsValid(character))
+		{
+			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_POSITION] Cannot find a character of user %d'."), id);
 
 			net->StorePosition(id, x, y, z);
 		}
 		else if (is_remote)
 		{
-			float x{};
-			float y{};
-			float z{};
-
-			std::memcpy(&x, &arg0, 4);
-			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
-			std::memcpy(&z, &arg1, 4);
-
-			//UE_LOG(LogSagaGame, Log, TEXT("[RPC] Positioning remote player %d to (%f,%f,%f)."), id, x, y, z);
 			character->SetActorLocation(FVector{ x, y, z });
 		}
 	}
