@@ -1,6 +1,7 @@
 module;
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
+#include <cmath>
 #include <chrono>
 #include <atomic>
 
@@ -209,9 +210,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		case RPC_MORPH_GUARDIANS_PART:
 		{
 			auto& guardian = room->sagaGuardians[arg1];
-			auto& part = guardian.myPartEntity[arg0];
+			auto& part = guardian.myPartEntities[arg0];
 
-			if (part.TryMorph())
+			if (part.TryMorph()) LIKELY
 			{
 				Broadcast(RPC_MORPH_GUARDIANS_PART, user_id, arg0, arg1);
 
@@ -220,7 +221,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 			else
 			{
 				PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} has already started morphing.", arg1, arg0);
-			}
+			};
 		}
 		break;
 

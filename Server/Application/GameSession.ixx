@@ -99,12 +99,12 @@ export namespace iconer::app
 		std::atomic<float> myHp{ maxHp };
 		std::atomic_int32_t riderId{ -1 };
 
-		SagaSmallGummyBear myPartEntity[4]{};
+		SagaSmallGummyBear myPartEntities[4]{};
 		std::int32_t myPartHealthPoints[4]{ 1, 1, 1, 1 };
 
 		SagaSmallGummyBear& GetPartedEntity(int index)
 		{
-			return myPartEntity[index];
+			return myPartEntities[index];
 		}
 
 		void Update()
@@ -118,7 +118,7 @@ export namespace iconer::app
 			myHp = maxHp;
 			riderId = -1;
 
-			for (auto& entity : myPartEntity)
+			for (auto& entity : myPartEntities)
 			{
 				entity.isMorphed = false;
 				entity.isActivated = false;
@@ -137,7 +137,7 @@ export namespace iconer::app
 			myHp = maxHp;
 			riderId = -1;
 
-			for (auto& entity : myPartEntity)
+			for (auto& entity : myPartEntities)
 			{
 				entity.isActivated = false;
 				entity.myHp = entity.maxHp;
