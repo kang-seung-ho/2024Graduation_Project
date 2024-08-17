@@ -252,23 +252,16 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_END_RIDE:
 	{
-		if (not IsValid(character))
-		{
-			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] by user %d, no character."), id);
-
-			break;
-		}
-
-		const auto guardian = Cast<ASagaGummyBearPlayer>(character);
+		const auto guardian = FindBear(arg1);
 
 		if (not IsValid(guardian))
 		{
-			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] User %d's character is not a guardian."), id);
+			UE_LOG(LogSagaGame, Error, TEXT("[RPC_END_RIDE] There is no guardian with id '%d'."), arg1);
 
 			break;
 		}
 
-		if (guardian->HasValidOwnerId() and guardian->GetBearId() == arg1)
+		if (guardian->HasValidOwnerId())
 		{
 			ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
 
@@ -279,19 +272,22 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 				human->TerminateGuardianAction();
 				guardian->TerminateGuardianAction();
 
+				const auto user_id = human->GetUserId();
 
-				if (is_remote)
+				if (user_id == net->GetLocalUserId())
 				{
 #if WITH_EDITOR
 
-					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] User %d unrides from the guardian %d"), id, guardian->GetBearId());
+					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] Local user %d unrides from the guardian %d"), user_id, guardian->GetBearId());
 #endif
+
+					storedLocalPlayerController->Possess(human);
 				}
 				else
 				{
 #if WITH_EDITOR
 
-					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] Local user %d unrides from the guardian %d"), id, guardian->GetBearId());
+					UE_LOG(LogSagaGame, Log, TEXT("[RPC_END_RIDE] User %d unrides from the guardian %d"), user_id, guardian->GetBearId());
 #endif
 				}
 			}
@@ -315,13 +311,13 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 	case ESagaRpcProtocol::RPC_POSITION:
 	{
-			float x{};
-			float y{};
-			float z{};
+		float x{};
+		float y{};
+		float z{};
 
-			std::memcpy(&x, &arg0, 4);
-			std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
-			std::memcpy(&z, &arg1, 4);
+		std::memcpy(&x, &arg0, 4);
+		std::memcpy(&y, reinterpret_cast<char*>(&arg0) + 4, 4);
+		std::memcpy(&z, &arg1, 4);
 
 		if (not IsValid(character))
 		{
