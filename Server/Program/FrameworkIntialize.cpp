@@ -132,6 +132,7 @@ ServerFramework::Initialize()
 	AddRpcProcessor(RPC_DESTROY_CORE, &ServerFramework::RpcEventOnPinataDestroyed);
 	AddRpcProcessor(RPC_GET_SCORE, &ServerFramework::RpcEventOnGettingScores);
 	AddRpcProcessor(RPC_GAME_TIMER, &ServerFramework::RpcEventOnGettingGameTime);
+	AddRpcProcessor(RPC_ACTIVE_GUARDIANS_PART, &ServerFramework::RpcEventOnMiniBearActivated);
 
 	PrintLn("Generating {} users...", iconer::app::UserManager::maxUserCount);
 

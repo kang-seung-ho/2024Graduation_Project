@@ -153,6 +153,10 @@ private:
 	/// <param name="arg0">- score</param>
 	/// <param name="arg1">- destroyed pinata's id</param>
 	DECL_RPC_METHOD(RpcEventOnPinataDestroyed);
+	/// <param name="proc">- RPC_ACTIVE_GUARDIANS_PART</param>
+	/// <param name="arg0">- x (4 bytes) | y (4 bytes)</param>
+	/// <param name="arg1">- guardian id (1 byte) | guardian part id (1 byte) | z (2 bytes) - compressed float</param>
+	DECL_RPC_METHOD(RpcEventOnMiniBearActivated);
 	void RpcEventDefault(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);

@@ -712,6 +712,100 @@ ServerFramework::RpcEventOnGettingGameTime(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnMiniBearActivated(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
+	std::int8_t guardian_id{}; // 0 ~ 3
+	std::int8_t guardian_part_id{}; // 0 ~ 3
+	std::int16_t compressed_z{};
+	std::int32_t casted_compressed_z{};
+	float x{}, y{}, z{};
+
+	std::memcpy(&x, reinterpret_cast<const char*>(&arg0), 4);
+	std::memcpy(&y, reinterpret_cast<const char*>(&arg0) + 4, 4);
+
+	std::memcpy(&guardian_id, reinterpret_cast<const char*>(&arg1), 1);
+	std::memcpy(&guardian_part_id, reinterpret_cast<const char*>(&arg1) + 1, 1);
+	std::memcpy(&compressed_z, reinterpret_cast<const char*>(&arg1) + 2, 2);
+	casted_compressed_z = static_cast<std::int32_t>(compressed_z);
+	std::memcpy(&z, reinterpret_cast<const char*>(&casted_compressed_z), 4);
+
+	if (guardian_id < 0 or 4 <= guardian_id) UNLIKELY
+	{
+		PrintLn("[RPC_ACTIVE_GUARDIANS_PART] Invalid guardian '{}' has detected.", guardian_id);
+
+		return;
+	};
+
+	if (guardian_part_id < 0 or 4 <= guardian_part_id) UNLIKELY
+	{
+		PrintLn("[RPC_ACTIVE_GUARDIANS_PART] Invalid part '{}' of guardian '{}' has detected.", guardian_part_id, guardian_id);
+
+		return;
+	};
+
+	if (std::isnan(x) or std::isnan(y) or std::isnan(z)) UNLIKELY
+	{
+		PrintLn("[RPC_ACTIVE_GUARDIANS_PART] The part '{}' of guardian's position is invalid. ({}, {}, {})", guardian_part_id, guardian_id, x, y, z);
+
+		return;
+	};
+
+	// arg0: x, y
+	// arg1: guardian id (1 byte) | guardian part id (1 byte) | z (2 bytes) - compressed float
+	//PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg from {}.", room_id, dmg, arg1);
+
+	auto& guardian = room.sagaGuardians[guardian_id];
+	auto& part = guardian.myPartEntities[guardian_part_id];
+
+	if (part.TryActivate())
+	{
+		part.x = x;
+		part.y = y;
+		part.z = z;
+
+		/*
+		auto [pk, size] = MakeRpc(RPC_ACTIVE_GUARDIANS_PART, user.GetID(), arg0, arg1);
+		iconer::app::SendContext* const ctx = AcquireSendContext();
+		ctx->myBuffer = std::move(pk);
+		user.SendGeneralData(*ctx, pk.get(), size);
+		*/
+
+		PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} is just activated on pos ({}, {}, {}).", guardian_id, guardian_part_id, x, y, z);
+	}
+	else
+	{
+		std::int64_t xy{};
+		std::int32_t idz{};
+
+		std::memcpy(&xy, &part.x, 4);
+		std::memcpy(reinterpret_cast<char*>(&xy) + 4, &part.y, 4);
+		std::memcpy(reinterpret_cast<char*>(&idz), &arg1, 2);
+
+		std::memcpy(&casted_compressed_z, &part.z, 4);
+		compressed_z = static_cast<std::int16_t>(casted_compressed_z);
+
+		std::memcpy(reinterpret_cast<char*>(&idz) + 2, &compressed_z, 2);
+
+		auto [pk, size] = MakeRpc(RPC_ACTIVE_GUARDIANS_PART, user.GetID(), xy, idz);
+
+		iconer::app::SendContext* const ctx = AcquireSendContext();
+		ctx->myBuffer = std::move(pk);
+
+		user.SendGeneralData(*ctx, pk.get(), size);
+
+		PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} has already activated.", guardian_id, guardian_part_id);
+	}
+}
+
+void
 ServerFramework::RpcEventDefault(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc
