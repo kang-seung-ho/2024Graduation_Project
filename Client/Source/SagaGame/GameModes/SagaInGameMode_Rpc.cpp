@@ -1172,7 +1172,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		sys->SetScore(ESagaPlayerTeam::Red, red_score);
 		sys->SetScore(ESagaPlayerTeam::Blue, blu_score);
 
-		if (sys->TrySetWinner(winner))
+		if (sys->TrySetWinner(FMath::Clamp(winner, 1, 3)))
 		{
 			UGameplayStatics::OpenLevel(this, TEXT("GameEndLevel"));
 		}
