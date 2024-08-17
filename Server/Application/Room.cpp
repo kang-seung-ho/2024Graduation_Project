@@ -246,6 +246,54 @@ noexcept
 }
 
 void
+iconer::app::Room::AddTeamScore(iconer::app::ESagaPlayerTeam team, std::int32_t score)
+noexcept
+{
+	switch (team)
+	{
+	case ESagaPlayerTeam::Red:
+	{
+		sagaTeamScores[0].fetch_add(score, std::memory_order_acq_rel);
+	}
+	break;
+
+	case ESagaPlayerTeam::Blu:
+	{
+		sagaTeamScores[1].fetch_add(score, std::memory_order_acq_rel);
+	}
+	break;
+
+	default:
+	{}
+	break;
+	}
+}
+
+void
+iconer::app::Room::AddOppositeTeamScore(iconer::app::ESagaPlayerTeam team, std::int32_t score)
+noexcept
+{
+	switch (team)
+	{
+	case ESagaPlayerTeam::Red:
+	{
+		sagaTeamScores[1].fetch_add(score, std::memory_order_acq_rel);
+	}
+	break;
+
+	case ESagaPlayerTeam::Blu:
+	{
+		sagaTeamScores[0].fetch_add(score, std::memory_order_acq_rel);
+	}
+	break;
+
+	default:
+	{}
+	break;
+	}
+}
+
+void
 iconer::app::Room::SetMemberTeam(iconer::app::Room::const_reference user, bool is_red_team)
 {
 	for (auto& member : myMembers)

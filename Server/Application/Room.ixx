@@ -188,6 +188,9 @@ export namespace iconer::app
 		[[nodiscard]] bool TryJoin(reference user);
 		bool Leave(reference user, bool notify = true) noexcept;
 
+		void AddTeamScore(ESagaPlayerTeam team, std::int32_t score) noexcept;
+		void AddOppositeTeamScore(ESagaPlayerTeam team, std::int32_t score) noexcept;
+
 		[[nodiscard]]
 		bool TryStartGame() noexcept
 		{
