@@ -360,9 +360,14 @@ ASagaInGameMode::HandleUpdateTransform()
 	if (net->IsConnected())
 	{
 		const auto controller = world->GetFirstPlayerController<ASagaInGamePlayerController>();
+		if (not IsValid(controller))
+		{
+			return;
+		}
+
 		const auto pawn = controller->GetPawn<ASagaCharacterBase>();
 
-		if (pawn->IsAlive())
+		if (IsValid(pawn) and pawn->IsAlive())
 		{
 			const auto loc = pawn->GetActorLocation();
 			if (lastCharacterPosition != loc)
