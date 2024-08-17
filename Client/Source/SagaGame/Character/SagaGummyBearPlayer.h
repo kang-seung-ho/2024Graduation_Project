@@ -51,6 +51,8 @@ public:
 	UFUNCTION()
 	void ExecuteMorphingPartAt(const int32 index);
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	void RegisterMiniBear(const int32 index, ASagaGummyBearSmall* const minibear);
 	UFUNCTION()
 	int32 OnBodyPartGetDamaged(FVector Location, FVector Normal);
 	UFUNCTION()
@@ -70,7 +72,7 @@ protected:
 	class UBoxComponent* myInteractionBox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class ASagaGummyBearSmall*> partedSmallBears;
+	TArray<TObjectPtr<class ASagaGummyBearSmall>> partedSmallBears;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UStaticMesh*> TargetMeshes;

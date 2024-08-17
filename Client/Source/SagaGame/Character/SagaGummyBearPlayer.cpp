@@ -422,6 +422,12 @@ ASagaGummyBearPlayer::ExecuteMorphingPartAt(const int32 index)
 	ExecuteMorphingPart(gc, index);
 }
 
+void
+ASagaGummyBearPlayer::RegisterMiniBear(const int32 index, ASagaGummyBearSmall* const minibear)
+{
+	partedSmallBears[index] = minibear;
+}
+
 int32
 ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {
