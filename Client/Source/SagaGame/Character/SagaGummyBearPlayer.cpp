@@ -597,6 +597,13 @@ ASagaGummyBearPlayer::InitTargetMeshes()
 	//UE_LOG(LogSagaGame, Warning, TEXT("targetmesheslen: %d"), TargetMeshes.Num());
 }
 
+ASagaCharacterBase*
+ASagaGummyBearPlayer::GetStoredCharacterHandle()
+const noexcept
+{
+	return ownerData.GetCharacterHandle();
+}
+
 int32
 ASagaGummyBearPlayer::GetBearId()
 const noexcept

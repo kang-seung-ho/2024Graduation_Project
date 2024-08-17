@@ -58,8 +58,11 @@ public:
 	bool IsPartDestructed(const int32 index) const;
 
 	UFUNCTION()
-	int32 GetBearId() const noexcept;
+	ASagaCharacterBase* GetStoredCharacterHandle() const noexcept;
 
+	UFUNCTION()
+	int32 GetBearId() const noexcept;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
