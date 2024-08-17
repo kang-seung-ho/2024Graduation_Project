@@ -443,7 +443,7 @@ ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 						return i;
 					}
 				}
-				else
+				else if (not IsPartDestructed(i))
 				{
 					// RPC 송신
 					return i;
