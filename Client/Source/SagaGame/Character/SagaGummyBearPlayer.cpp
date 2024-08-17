@@ -771,6 +771,10 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	}
 
 	partedSmallBears.Reserve(4);
+	for (int32 i = 0; i < 4; ++i)
+	{
+		partedSmallBears.AddDefaulted();
+	}
 
 	InitTargetMeshes();
 
