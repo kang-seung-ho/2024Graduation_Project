@@ -276,8 +276,9 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			{
 				net->SetCharacterHandle(id, human);
 
-				guardian->TerminateGuardianAction();
 				human->TerminateGuardianAction();
+				guardian->TerminateGuardianAction();
+
 
 				if (is_remote)
 				{
@@ -838,8 +839,8 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 				{
 					net->SetCharacterHandle(id, human);
 
-					guardian->TerminateGuardianAction();
 					human->TerminateGuardianAction();
+					guardian->TerminateGuardianAction();
 
 					if (is_remote)
 					{
