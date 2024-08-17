@@ -574,6 +574,65 @@ ServerFramework::RpcEventOnGettingRespawnTime(iconer::app::Room& room
 }
 
 void
+ServerFramework::RpcEventOnPinataDestroyed(iconer::app::Room& room
+	, iconer::app::User& user
+	, iconer::app::RpcProtocol proc
+	, const std::int64_t& arg0, const std::int32_t& arg1)
+{
+	if (room.IsGameEnded())
+	{
+		return;
+	}
+
+	auto& winner = room.sagaWinner;
+
+	const std::int32_t redscore = room.sagaTeamScores[0].load(std::memory_order_acquire);
+	const std::int32_t bluscore = room.sagaTeamScores[1].load(std::memory_order_acquire);
+	PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
+
+	std::int64_t scores{};
+	std::memcpy(reinterpret_cast<char*>(&scores), &redscore, 4);
+	std::memcpy(reinterpret_cast<char*>(&scores) + 4, &bluscore, 4);
+
+	// arg0: 점수
+	// arg1: 박을 부순 팀의 식별자
+	// 0 - nothing, 1 - red, 2 - blue
+	if (0 < arg1)
+	{
+		std::int8_t prev_winner = 0;
+		std::int8_t next_winner = static_cast<std::int8_t>(arg1);
+
+		if (winner.compare_exchange_strong(prev_winner, next_winner))
+		{
+			RpcEventDefault(room, user, RPC_DESTROY_CORE, scores, next_winner);
+
+			if (1 == arg1)
+			{
+				if (1 == winner.load(std::memory_order_relaxed))
+				{
+					PrintLn("[RPC_DESTROY_CORE] Red team wins at room {} - through user {}.", room.GetID(), user.GetID());
+				}
+			}
+			else if (2 == arg1)
+			{
+				if (2 == winner.load(std::memory_order_relaxed))
+				{
+					PrintLn("[RPC_DESTROY_CORE] Blue team wins at room {} - through user {}.", room.GetID(), user.GetID());
+				}
+			}
+			else
+			{
+				PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user.GetID(), arg1, room.GetID());
+			}
+		}
+	}
+	else
+	{
+		PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user.GetID(), arg1, room.GetID());
+	}
+}
+
+void
 ServerFramework::RpcEventOnGettingScores(iconer::app::Room& room
 	, iconer::app::User& user
 	, iconer::app::RpcProtocol proc

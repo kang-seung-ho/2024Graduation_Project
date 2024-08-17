@@ -149,6 +149,10 @@ private:
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- nothing</param>
 	DECL_RPC_METHOD(RpcEventOnGettingGameTime);
+	/// <param name="proc">- RPC_DESTROY_CORE</param>
+	/// <param name="arg0">- score</param>
+	/// <param name="arg1">- destroyed pinata's id</param>
+	DECL_RPC_METHOD(RpcEventOnPinataDestroyed);
 	void RpcEventDefault(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);

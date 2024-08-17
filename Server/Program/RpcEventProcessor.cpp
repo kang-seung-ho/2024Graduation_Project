@@ -205,55 +205,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 		}
 		break;
 
-		// arg0: 점수
-		// arg1: 박을 부순 팀의 식별자
-		// 0 - nothing, 1 - red, 2 - blue
-		case RPC_DESTROY_CORE:
-		{
-			auto& winner = room->sagaWinner;
-
-			const std::int32_t redscore = room->sagaTeamScores[0].load(std::memory_order_acquire);
-			const std::int32_t bluscore = room->sagaTeamScores[1].load(std::memory_order_acquire);
-			PrintLn("[RPC_DESTROY_CORE] Red team: {} | Blue team: {}.", redscore, bluscore);
-
-			std::memcpy(reinterpret_cast<char*>(&arg0), &redscore, 4);
-			std::memcpy(reinterpret_cast<char*>(&arg0) + 4, &bluscore, 4);
-
-			if (0 < arg1)
-			{
-				std::int8_t prev_winner = 0;
-				std::int8_t next_winner = static_cast<std::int8_t>(arg1);
-
-				if (winner.compare_exchange_strong(prev_winner, next_winner))
-				{
-					Broadcast(RPC_DESTROY_CORE, user_id, arg0, next_winner);
-
-					if (1 == arg1)
-					{
-						if (1 == winner.load(std::memory_order_relaxed))
-						{
-							PrintLn("[RPC_DESTROY_CORE] Red team wins at room {} - through user {}.", room_id, user_id);
-						}
-					}
-					else if (2 == arg1)
-					{
-						if (2 == winner.load(std::memory_order_relaxed))
-						{
-							PrintLn("[RPC_DESTROY_CORE] Blue team wins at room {} - through user {}.", room_id, user_id);
-						}
-					}
-					else
-					{
-						PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user_id, arg1, room_id);
-					}
-				}
-			}
-			else
-			{
-				PrintLn("[RPC_DESTROY_CORE] User {} has received an invalid team id '{}' in room {}.", user_id, arg1, room_id);
-			}
-		}
-		break;
+		//RPC_MORPH_GUARDIANS_PART
 
 		default:
 		{
