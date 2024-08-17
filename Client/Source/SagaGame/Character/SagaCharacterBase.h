@@ -47,9 +47,6 @@ public:
 	float animationMoveAngle;
 #pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TObjectPtr<class USagaWidgetComponent> myHealthIndicatorBarWidget;
-
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
 	FSagaEventOnCharacterDeath OnCharacterDeath;
 
@@ -170,18 +167,43 @@ public:
 	void ExecuteUseItem(ESagaItemTypes item);
 #pragma endregion
 
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetHorizontalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 100 : 50;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetVerticalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 300 : 200;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
+	{
+		return is_running ? 800 : 500;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationSpeed() const noexcept
 	{
 		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
 	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
+	virtual float GetMoveAnimationDirectionDelta() const noexcept
+	{
+		return isRunning ? 200 : 100;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationAngle() const noexcept
 	{
 		return animationMoveAngle;
 	}
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
 	bool IsAlive() const noexcept;
 
 protected:
@@ -202,6 +224,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TSubclassOf<UUserWidget> healthbarWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class USagaWidgetComponent> healthIndicatorBarWidget;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	UAIPerceptionStimuliSourceComponent* mAISource;
@@ -213,28 +237,4 @@ protected:
 	TObjectPtr<class UNiagaraSystem> SmokeItemEffect;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetHorizontalMoveAcceleration() const noexcept
-	{
-		return isRunning ? 100 : 50;
-	}
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetVerticalMoveAcceleration() const noexcept
-	{
-		return isRunning ? 300 : 200;
-	}
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetMoveAnimationDirectionDelta() const noexcept
-	{
-		return isRunning ? 200 : 100;
-	}
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
-	{
-		return is_running ? 800 : 500;
-	}
 };

@@ -14,19 +14,8 @@ class SAGAGAME_API ASagaInGamePlayerController : public ASagaBaseCharacterContro
 public:
 	ASagaInGamePlayerController(const FObjectInitializer& initializer) noexcept;
 
-	virtual void Tick(float delta_time) override;
-	virtual void OnPossess(class APawn* pawn) override;
-
-	UFUNCTION()
-	void UpdateInputMode();
-	//UFUNCTION()
-	//void SetInventoryVisibility(bool flag);
 	UFUNCTION()
 	void AddItemToInventory(ESagaItemTypes ItemType);
-	//UFUNCTION()
-	//ESlateVisibility GetInventoryVisibility() const;
-	//UFUNCTION()
-	//bool IsInventoryVisible() const;
 
 	/* Actions */
 #pragma region =========================
@@ -93,10 +82,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+#if WITH_EDITOR
+
+	virtual void OnPossess(class APawn* pawn) override;
+#endif
+
 private:
 	UPROPERTY()
-	FVector walkDirection;
-	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> InventoryWidgetClass;
 	UPROPERTY()
 	TObjectPtr<class USagaInventoryWidget> InventoryWidget;

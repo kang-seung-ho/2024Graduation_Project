@@ -18,13 +18,19 @@
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
 	: Super(initializer)
-	, walkDirection()
 	, InventoryWidgetClass(), InventoryWidget(nullptr)
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetRef{ TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_Inventory.UI_Inventory_C'") };
 	if (InventoryWidgetRef.Succeeded())
 	{
 		InventoryWidgetClass = InventoryWidgetRef.Class;
+	}
+	else
+	{
+#if WITH_EDITOR
+
+		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGamePlayerController][Ctor] Could not find a class of the inventory ui."));
+#endif
 	}
 }
 
@@ -35,7 +41,10 @@ ASagaInGamePlayerController::BeginPlay()
 
 	if (IsValid(InventoryWidgetClass))
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController][BeginPlay] Creating Inventory Widget..."));
+#endif
 
 		InventoryWidget = CreateWidget<USagaInventoryWidget>(this, InventoryWidgetClass);
 
@@ -47,7 +56,10 @@ ASagaInGamePlayerController::BeginPlay()
 	}
 	else
 	{
+#if WITH_EDITOR
+
 		UE_LOG(LogSagaGame, Fatal, TEXT("[ASagaInGamePlayerController][BeginPlay] Could not create the UI of inventory."));
+#endif
 	}
 
 	FInputModeGameOnly mode{};
@@ -105,70 +117,6 @@ ASagaInGamePlayerController::SetupInputComponent()
 }
 
 void
-ASagaInGamePlayerController::UpdateInputMode()
-{
-	/*if (IsInventoryVisible())
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Setting input mode to UI only"));
-
-		SetInputMode(FInputModeUIOnly());
-
-		bShowMouseCursor = true;
-	}
-	else
-	{
-		UE_LOG(LogSagaGame, Warning, TEXT("Setting input mode to Game only"));
-
-		SetInputMode(FInputModeGameOnly());
-
-		bShowMouseCursor = false;
-	}
-
-	UE_LOG(LogSagaGame, Warning, TEXT("Input mode and cursor visibility updated"));*/
-}
-
-//void
-//ASagaInGamePlayerController::SetInventoryVisibility(bool flag)
-//{
-//	InventoryWidget->SetVisibility(flag ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-//
-//	UE_LOG(LogSagaGame, Log, TEXT("Inventory visibility is set to: %s"), flag ? TEXT("Visible") : TEXT("Collapsed"));
-//
-//	if (flag)
-//	{
-//		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game on UI both"));
-//
-//		SetInputMode(FInputModeGameAndUI());
-//
-//		bShowMouseCursor = true;
-//	}
-//	else
-//	{
-//		UE_LOG(LogSagaGame, Log, TEXT("[ASagaInGamePlayerController] Setting input mode to Game only"));
-//
-//		SetInputMode(FInputModeGameOnly());
-//
-//		bShowMouseCursor = false;
-//	}
-//
-//
-//	UE_LOG(LogSagaGame, Log, TEXT("Input mode and cursor visibility updated"));
-//}
-
-//ESlateVisibility
-//ASagaInGamePlayerController::GetInventoryVisibility()
-//const
-//{
-//	return InventoryWidget->GetVisibility();
-//}
-
-//bool
-//ASagaInGamePlayerController::IsInventoryVisible() const
-//{
-//	return InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
-//}
-
-void
 ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)
 {
 	if (InventoryWidget)
@@ -211,53 +159,11 @@ ASagaInGamePlayerController::AddItemToInventory(ESagaItemTypes ItemType)
 	}
 }
 
-void
-ASagaInGamePlayerController::Tick(float delta_time)
-{
-	Super::Tick(delta_time);
-
-	const auto pawn = GetPawn();
-	if (!IsValid(pawn))
-	{
-		return;
-	}
-
-	auto pos = pawn->GetActorLocation();
-
-	bool out_of_boundary = false;
-	/*if (pos.X < -4500)
-	{
-		pos.X = -4500;
-		out_of_boundary = true;
-	}
-	else if (4500 < pos.X)
-	{
-		pos.X = 4500;
-		out_of_boundary = true;
-	}
-
-	if (pos.Y < -4500)
-	{
-		pos.Y = -4500;
-		out_of_boundary = true;
-	}
-	else if (4500 < pos.Y)
-	{
-		pos.Y = 4500;
-		out_of_boundary = true;
-	}*/
-
-	if (out_of_boundary)
-	{
-		pawn->SetActorLocation(pos);
-	}
-}
+#if WITH_EDITOR
 
 void
 ASagaInGamePlayerController::OnPossess(APawn* pawn)
 {
-#if WITH_EDITOR
-
 	if (IsValid(pawn))
 	{
 		const auto name = pawn->GetName();
@@ -267,7 +173,7 @@ ASagaInGamePlayerController::OnPossess(APawn* pawn)
 	{
 		UE_LOG(LogSagaGame, Error, TEXT("[ASagaInGamePlayerController][OnPossess] The pawn is null."));
 	}
-#endif
 
 	Super::OnPossess(pawn);
 }
+#endif

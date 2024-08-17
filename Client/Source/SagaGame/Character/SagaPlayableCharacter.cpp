@@ -1,4 +1,4 @@
-#include "SagaPlayableCharacter.h"
+#include "Character/SagaPlayableCharacter.h"
 #include <DrawDebugHelpers.h>
 #include <Containers/Array.h>
 #include <Misc/OutputDeviceNull.h>
@@ -84,7 +84,7 @@ ASagaPlayableCharacter::ExecuteGuardianAction(ASagaCharacterBase* target)
 	SetActorHiddenInGame(true);
 	SetCollisionEnable(false);
 
-	myHealthIndicatorBarWidget->SetHiddenInGame(true);
+	healthIndicatorBarWidget->SetHiddenInGame(true);
 }
 
 void
@@ -97,9 +97,9 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 
 	if (IsAlive())
 	{
-		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+		healthIndicatorBarWidget->SetHiddenInGame(false);
 
-		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+		const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 		if (IsValid(healthbar))
 		{
@@ -555,7 +555,8 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		channel = ECC_GameTraceChannel7;
 	}
-	if (SlotNumber == 0) { // LightSaber's Q Skill - TakeDown
+	if (SlotNumber == 0)
+	{ // LightSaber's Q Skill - TakeDown
 		FVector Start = GetActorLocation();
 		FVector End = Start + GetActorForwardVector() * 200.f;
 		FDamageEvent hit_event{};
@@ -771,7 +772,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if(SlotNumber == 4) //WaterGun's E Skill - Escape (Skill_E2)
+	else if (SlotNumber == 4) //WaterGun's E Skill - Escape (Skill_E2)
 	{
 		FVector Start = GetActorLocation();
 		FVector End = Start + GetActorForwardVector() * 1000.0f;
@@ -797,7 +798,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 
 		//UE_LOG(LogTemp, Log, TEXT("[ASagaPlayableCharacter] Teleported to: %s"), *TeleportLocation.ToString());
 	}
-	else if(SlotNumber == 5) //Hammer's E Skill
+	else if (SlotNumber == 5) //Hammer's E Skill
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hammer's E Skill"));
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -844,7 +845,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if(SlotNumber == 6) //LightSaber's R Skill
+	else if (SlotNumber == 6) //LightSaber's R Skill
 	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 150.f;
@@ -890,7 +891,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if(SlotNumber == 7) //WaterGun's R Skill
+	else if (SlotNumber == 7) //WaterGun's R Skill
 	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 150.f;
@@ -936,11 +937,11 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if(SlotNumber == 8) //Hammer's R Skill
+	else if (SlotNumber == 8) //Hammer's R Skill
 	{
 
 	}
-	else if(SlotNumber == 9) //LightSaber's T Skill - Hurricane Kick
+	else if (SlotNumber == 9) //LightSaber's T Skill - Hurricane Kick
 	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 150.f;
@@ -986,11 +987,11 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 			}
 		}
 	}
-	else if(SlotNumber == 10) //WaterGun's T Skill
+	else if (SlotNumber == 10) //WaterGun's T Skill
 	{
 
 	}
-	else if(SlotNumber == 11) //Hammer's T Skill
+	else if (SlotNumber == 11) //Hammer's T Skill
 	{
 		FVector Start = GetActorLocation() + GetActorForwardVector() * 50.f;
 		FVector End = Start + GetActorForwardVector() * 200.f;
@@ -1040,7 +1041,7 @@ void ASagaPlayableCharacter::ExecuteSkill(int32 SlotNumber)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[ASagaPlayableCharacter] ExecuteSkill: Invalid SlotNumber"));
 	}
-	
+
 
 }
 
@@ -1207,7 +1208,6 @@ void ASagaPlayableCharacter::PostInitializeComponents()
 
 	HatComponent->RegisterComponent();
 }
-
 
 void
 ASagaPlayableCharacter::BeginPlay()

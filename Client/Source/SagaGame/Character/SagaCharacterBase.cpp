@@ -238,13 +238,14 @@ ASagaCharacterBase::ASagaCharacterBase()
 	, myWeapon()
 	, myAnimationInst(), mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
-	, myHealthIndicatorBarWidget()
 	, OnCharacterDeath(), OnCharacterRespawned()
-	, healthbarWidgetClass()
 	, myController(nullptr)
 	, myCameraComponent(nullptr), myCameraSpringArmComponent(nullptr)
 	, straightMoveDirection(), strafeMoveDirection()
 	, isRunning(false)
+	, healthbarWidgetClass(), healthIndicatorBarWidget()
+	, mAISource(nullptr)
+	, HealItemEffect(), SmokeItemEffect()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -280,19 +281,19 @@ ASagaCharacterBase::ASagaCharacterBase()
 	myGameStat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
 	myGameStat->SetMaxHp(100.0f);
 
-	myHealthIndicatorBarWidget = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
-	myHealthIndicatorBarWidget->SetupAttachment(GetMesh());
-	myHealthIndicatorBarWidget->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	healthIndicatorBarWidget = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
+	healthIndicatorBarWidget->SetupAttachment(GetMesh());
+	healthIndicatorBarWidget->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
 	if (HpBarWidgetRef.Succeeded())
 	{
 		healthbarWidgetClass = HpBarWidgetRef.Class;
 
-		myHealthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
-		myHealthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
-		myHealthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
-		myHealthIndicatorBarWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		healthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
+		healthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+		healthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
+		healthIndicatorBarWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	// Weapon
@@ -362,9 +363,9 @@ ASagaCharacterBase::BeginPlay()
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
 
-	if (IsValid(myHealthIndicatorBarWidget))
+	if (IsValid(healthIndicatorBarWidget))
 	{
-		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+		const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 		if (IsValid(healthbar))
 		{

@@ -85,7 +85,7 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 		ChangeColliderProfileToHostile();
 	}
 
-	const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+	const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 	if (IsValid(healthbar))
 	{
