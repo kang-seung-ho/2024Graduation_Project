@@ -268,7 +268,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		if (guardian->HasValidOwnerId())
+		if (guardian->HasValidOwnerId() and guardian->GetBearId() == arg1)
 		{
 			ASagaCharacterBase* human = guardian->ownerData.GetCharacterHandle();
 
