@@ -1,13 +1,13 @@
 #pragma once
 #include "SagaGame.h"
-#include <GameFramework/PlayerController.h>
+#include "PlayerControllers/SagaBaseCharacterController.h"
 #include <InputActionValue.h>
 
-#include "Item/SagaWeaponData.h"
+#include "Item/SagaItemTypes.h"
 #include "SagaInGamePlayerController.generated.h"
 
 UCLASS(BlueprintType, Category = "CandyLandSaga|Game|System")
-class SAGAGAME_API ASagaInGamePlayerController : public APlayerController
+class SAGAGAME_API ASagaInGamePlayerController : public ASagaBaseCharacterController
 {
 	GENERATED_BODY()
 

@@ -658,7 +658,6 @@ const noexcept
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 	, bearUniqueId(0)
-	, myController(nullptr)
 	, playerUnridePosition()
 	, myInteractionBox()
 {

@@ -230,10 +230,11 @@ ASagaCharacterBase::ASagaCharacterBase()
 	, animationMoveSpeed(), animationMoveAngle()
 	, myHealthIndicatorBarWidget()
 	, OnCharacterDeath(), OnCharacterRespawned()
-	, myCameraComponent(), myCameraSpringArmComponent()
-	, straightMoveDirection(), strafeMoveDirection()
-	, isRunning()
 	, healthbarWidgetClass()
+	, myController(nullptr)
+	, myCameraComponent(nullptr), myCameraSpringArmComponent(nullptr)
+	, straightMoveDirection(), strafeMoveDirection()
+	, isRunning(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

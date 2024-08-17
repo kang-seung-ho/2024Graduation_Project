@@ -184,9 +184,12 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	UCameraComponent* myCameraComponent;
+	TObjectPtr<class ASagaBaseCharacterController> myController;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	USpringArmComponent* myCameraSpringArmComponent;
+	TObjectPtr<class UCameraComponent> myCameraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class USpringArmComponent> myCameraSpringArmComponent;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
@@ -209,8 +212,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	
-
 	UFUNCTION(BlueprintPure)
 	virtual float GetHorizontalMoveAcceleration() const noexcept
 	{
@@ -229,7 +230,6 @@ protected:
 		return isRunning ? 200 : 100;
 	}
 
-public:
 	UFUNCTION(BlueprintPure)
 	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
 	{

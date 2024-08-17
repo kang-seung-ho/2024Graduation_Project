@@ -17,7 +17,7 @@
 
 ASagaInGamePlayerController::ASagaInGamePlayerController(const FObjectInitializer& initializer)
 noexcept
-	: APlayerController(initializer)
+	: Super(initializer)
 	, walkDirection()
 	, InventoryWidgetClass(), InventoryWidget(nullptr)
 {

@@ -63,8 +63,6 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class ASagaGummyBearController> myController;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
 
 	/* 오버랩 박스 */
