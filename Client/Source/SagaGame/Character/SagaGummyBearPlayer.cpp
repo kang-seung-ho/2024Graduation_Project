@@ -65,19 +65,6 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 	Super::ExecuteGuardianAction(target);
 	SetTeam(target->GetTeam());
 
-	if (target->GetTeam() == ESagaPlayerTeam::Red)
-	{
-		ChangeColliderProfileToRedTeam();
-	}
-	else if (target->GetTeam() == ESagaPlayerTeam::Blue)
-	{
-		ChangeColliderProfileToBluTeam();
-	}
-	else
-	{
-		ChangeColliderProfileToHostile();
-	}
-
 	const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 	if (IsValid(healthbar))
@@ -91,8 +78,6 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 void
 ASagaGummyBearPlayer::TerminateGuardianAction()
 {
-	myController->Possess(this);
-
 	Super::TerminateGuardianAction();
 	SetTeam(ESagaPlayerTeam::Unknown);
 
@@ -115,6 +100,8 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 		UE_LOG(LogSagaGame, Error, TEXT("[TerminateGuardianAction] Has no character handle!"));
 #endif
 	}
+
+	myController->Possess(this);
 }
 
 void

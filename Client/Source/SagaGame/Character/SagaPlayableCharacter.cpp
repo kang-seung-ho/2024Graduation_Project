@@ -93,6 +93,7 @@ ASagaPlayableCharacter::TerminateGuardianAction()
 	Super::TerminateGuardianAction();
 
 	SetActorHiddenInGame(false);
+	SetTeam(GetTeam());
 	SetCollisionEnable(true);
 
 	if (IsAlive())
