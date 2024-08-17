@@ -56,10 +56,25 @@ export namespace iconer::app
 	{
 		static inline constexpr float maxHp = 100;
 
+		std::atomic_bool isMorphed{};
 		std::atomic_bool isActivated{};
 		std::atomic<float> myHp{ maxHp };
 		float x{}, y{}, z{}, yaw{};
 		std::chrono::system_clock::time_point activeTime;
+
+		bool TryMorph() noexcept
+		{
+			bool active = false;
+
+			return isMorphed.compare_exchange_strong(active, true);
+		}
+
+		bool TryCancelMorph() noexcept
+		{
+			bool active = true;
+
+			return isMorphed.compare_exchange_strong(active, false);
+		}
 
 		bool TryActivate() noexcept
 		{
@@ -105,6 +120,7 @@ export namespace iconer::app
 
 			for (auto& entity : myPartEntity)
 			{
+				entity.isMorphed = false;
 				entity.isActivated = false;
 				entity.myHp = entity.maxHp;
 			}
