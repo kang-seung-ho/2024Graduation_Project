@@ -508,7 +508,7 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 		}
 		else
 		{
-			PrintLn("[RPC_DMG_GUARDIANS_PART] At room {} - The guardian {} is already dead.", room.GetID(), arg1);
+			//PrintLn("[RPC_DMG_GUARDIANS_PART] At room {} - The guardian {} is already dead.", room.GetID(), arg1);
 		}
 	}
 	else
