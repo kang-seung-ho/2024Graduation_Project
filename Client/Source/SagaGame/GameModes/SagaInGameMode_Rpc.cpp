@@ -725,26 +725,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
-	case ESagaRpcProtocol::RPC_USE_ITEM_1:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_2:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_3:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_USE_ITEM_4:
-	{}
-	break;
-
-	case ESagaRpcProtocol::RPC_CHANGE_HAND_ITEM:
-	{}
-	break;
-
 	case ESagaRpcProtocol::RPC_MAIN_WEAPON:
 	{
 		const auto new_weapon = static_cast<EPlayerWeapon>(arg0);
@@ -807,7 +787,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	}
 	break;
 
-	// arg0: 수호자에 준 피해량 (4 바이트) | 파괴된 부위 (4 바이트)
+	// arg0: 수호자에 준 피해량 (4 바이트)
 	// arg1: 수호자 식별자
 	case ESagaRpcProtocol::RPC_DMG_GUARDIAN:
 	{
@@ -1178,7 +1158,10 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 		}
 		else
 		{
+#if WITH_EDITOR
+
 			UE_LOG(LogSagaGame, Warning, TEXT("[RPC_GAME_END] User %d already have set the winner!"), id);
+#endif
 		}
 	}
 	break;
