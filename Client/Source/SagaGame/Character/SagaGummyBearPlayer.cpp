@@ -493,43 +493,6 @@ const
 	return ActiveIndex[index] <= 0;
 }
 
-void
-ASagaGummyBearPlayer::ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index)
-{
-	USkinnedMeshComponent* SkinnedMesh = FindComponentByClass<USkinnedMeshComponent>();
-	SkinnedMesh->HideBoneByName(BoneName, PBO_None);
-
-	UGeometryCollectionComponent* TargetGC = GeometryCollections[Index];
-
-	TargetGC->SetVisibility(true);
-	TargetGC->SetSimulatePhysics(true);
-	TargetGC->CrumbleActiveClusters();
-
-
-	TargetGC->AddRadialImpulse(TargetGC->GetComponentLocation(), 100, 150, RIF_Constant, true);
-	TargetGC->AddImpulse(Impulse, NAME_None, true);
-
-	//DismCollisionBox[Index]->DestroyComponent();
-	//SpawnMorphSystem(TargetGC, Index);
-	//*/
-
-	if (UFunction* Function = FindFunction(TEXT("TriggerMorphEvent")))
-	{
-		struct Params
-		{
-			UGeometryCollectionComponent* Target;
-			int32 Ind;
-		};
-
-		Params Param;
-		Param.Target = TargetGC;
-		Param.Ind = Index;
-
-		ProcessEvent(Function, &Param);
-	}
-
-}
-
 FTransform
 ASagaGummyBearPlayer::SpawnMorphSystem(UGeometryCollectionComponent* TargetGC, int32 Index)
 {

@@ -110,8 +110,6 @@ protected:
 	class UNiagaraSystem* HitEffect;
 
 	void InitTargetMeshes();
-	void CheckValidBone(const FVector& Impulse, int32 Index) {};
-	void ExplodeBodyParts(FName BoneName, const FVector& Impulse, int32 Index);
 
 	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
 	FTransform SpawnMorphSystem(class UGeometryCollectionComponent* TargetGC, int32 Index);
