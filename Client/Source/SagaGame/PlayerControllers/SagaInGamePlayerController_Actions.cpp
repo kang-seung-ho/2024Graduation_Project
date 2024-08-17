@@ -368,11 +368,12 @@ ASagaInGamePlayerController::OnSkill1(const FInputActionValue& Value) //Each Wea
 {
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
-	EPlayerWeapon MyweaponType = character->GetWeapon();
+	
 
-	if (character and character->IsAlive())
+	if (IsValid(character) and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		EPlayerWeapon MyweaponType = character->GetWeapon();
 
 		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's Q Skill - Take down Skill
 		{
@@ -419,13 +420,13 @@ void ASagaInGamePlayerController::OnSkill2(const FInputActionValue& Value) //Eac
 {
 	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill2 Used"));*/
 	const auto character = GetPawn<ASagaPlayableCharacter>();
-
-	EPlayerWeapon MyweaponType = character->GetWeapon();
 	
 	
-	if (character and character->IsAlive())
+	if (IsValid(character) and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+
+		EPlayerWeapon MyweaponType = character->GetWeapon();
 
 		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's E Skill
 		{
@@ -473,11 +474,9 @@ void ASagaInGamePlayerController::OnSkill3(const FInputActionValue& Value) //Eac
 	/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Skill3 Used"));*/
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
-	EPlayerWeapon MyweaponType = character->GetWeapon();
-
-
-	if (character and character->IsAlive())
+	if (IsValid(character) and character->IsAlive())
 	{
+		EPlayerWeapon MyweaponType = character->GetWeapon();
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
 
 		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's E Skill
@@ -526,12 +525,10 @@ void ASagaInGamePlayerController::OnSkill4(const FInputActionValue& Value)
 
 	const auto character = GetPawn<ASagaPlayableCharacter>();
 
-	EPlayerWeapon MyweaponType = character->GetWeapon();
-
-
-	if (character and character->IsAlive())
+	if (IsValid(character) and character->IsAlive())
 	{
 		const auto net = USagaNetworkSubSystem::GetSubSystem(GetWorld());
+		EPlayerWeapon MyweaponType = character->GetWeapon();
 
 		if (MyweaponType == EPlayerWeapon::LightSabor) // LightSaber's E Skill
 		{
