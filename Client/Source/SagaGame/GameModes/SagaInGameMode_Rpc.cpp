@@ -355,7 +355,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			break;
 		}
 
-		if (is_remote)
+		if (is_remote and character->IsAlive())
 		{
 			float p{};
 			float y{};
