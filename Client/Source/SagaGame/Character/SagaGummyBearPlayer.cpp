@@ -396,13 +396,13 @@ ASagaGummyBearPlayer::ExecuteMorphingPart(UGeometryCollectionComponent* const& g
 	{
 		struct Params
 		{
-			UGeometryCollectionComponent* Target;
-			int32 Ind;
+			UGeometryCollectionComponent* TargetGC;
+			int32 Index;
 		};
 
 		Params parameters{};
-		parameters.Target = gc;
-		parameters.Ind = index;
+		parameters.TargetGC = gc;
+		parameters.Index = index;
 		ProcessEvent(morph_fun, &parameters);
 	}
 }
