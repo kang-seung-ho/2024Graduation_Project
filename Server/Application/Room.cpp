@@ -37,8 +37,7 @@ iconer::app::Room::Cleanup()
 
 	for (auto& guardian : sagaGuardians)
 	{
-		guardian.myHp = guardian.maxHp;
-		guardian.myStatus = SagaGuardianState::Idle;
+		guardian.Cleanup();
 	}
 
 	for (auto& member : myMembers)
