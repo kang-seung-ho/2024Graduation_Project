@@ -47,6 +47,8 @@ public:
 	void Startup() override;
 	void Cleanup() override;
 
+	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
+
 private:
 	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool{};
 	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
@@ -171,7 +173,6 @@ private:
 
 	void AddPacketContext(iconer::app::PacketContext* context) noexcept;
 	void AddSendContext(iconer::app::SendContext* context) noexcept;
-	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;
