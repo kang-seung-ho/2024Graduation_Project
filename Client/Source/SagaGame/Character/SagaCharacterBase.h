@@ -47,9 +47,6 @@ public:
 	float animationMoveAngle;
 #pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	TObjectPtr<class USagaWidgetComponent> myHealthIndicatorBarWidget;
-
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "CandyLandSaga|Game|Character")
 	FSagaEventOnCharacterDeath OnCharacterDeath;
 
@@ -58,28 +55,18 @@ public:
 
 	ASagaCharacterBase();
 
-	virtual void Tick(float delta_time) override;
-
-	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
-
-	UFUNCTION()
-	void StopMovement();
-	UFUNCTION()
-	void SetCollisionEnable(const bool flag);
-	UFUNCTION()
-	void ChangeColliderProfile(const FName& name) const;
-	UFUNCTION()
-	void ChangeColliderProfileToRedTeam() const;
-	UFUNCTION()
-	void ChangeColliderProfileToBluTeam() const;
-	UFUNCTION()
-	void ChangeColliderProfileToHostile() const;
-
 	// UFUNCTION()
 	virtual void TakeItem(ESagaItemTypes ItemType) override;
 	UFUNCTION()
 	void AddItemToInventory(ESagaItemTypes ItemType) const;
 
+	virtual void Tick(float delta_time) override;
+	virtual float TakeDamage(float dmg, struct FDamageEvent const& event, AController* instigator, AActor* causer) override;
+
+	UFUNCTION()
+	void StoreController(class ASagaBaseCharacterController* const pc) noexcept;
+	UFUNCTION()
+	virtual void ResetOwnerData() noexcept;
 	UFUNCTION()
 	void SetUserId(const int32& id) noexcept;
 	/* SetTeamColorAndCollision과 통합 */
@@ -93,6 +80,20 @@ public:
 	/* 다른 사가 캐릭터에게 속성 전달 */
 	UFUNCTION()
 	virtual void TranslateProperties(ASagaCharacterBase* other) const;
+
+	UFUNCTION()
+	void StopMovement();
+
+	UFUNCTION()
+	void SetCollisionEnable(const bool flag);
+	UFUNCTION()
+	void ChangeColliderProfile(const FName& name) const;
+	UFUNCTION()
+	void ChangeColliderProfileToRedTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToBluTeam() const;
+	UFUNCTION()
+	void ChangeColliderProfileToHostile() const;
 
 	UFUNCTION(BlueprintPure)
 	int32 GetUserId() const noexcept;
@@ -168,25 +169,53 @@ public:
 	void ExecuteUseItem(ESagaItemTypes item);
 #pragma endregion
 
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetHorizontalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 100 : 50;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetVerticalMoveAcceleration() const noexcept
+	{
+		return isRunning ? 300 : 200;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
+	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
+	{
+		return is_running ? 800 : 500;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationSpeed() const noexcept
 	{
 		return std::min(1.0f, animationMoveSpeed / GetMaxMoveSpeed(true)) * 2;
 	}
+
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
+	virtual float GetMoveAnimationDirectionDelta() const noexcept
+	{
+		return isRunning ? 200 : 100;
+	}
+
 	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character|Animation")
 	float GetMoveAnimationAngle() const noexcept
 	{
 		return animationMoveAngle;
 	}
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "CandyLandSaga|Game|Character")
 	bool IsAlive() const noexcept;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	UCameraComponent* myCameraComponent;
+	TObjectPtr<class ASagaBaseCharacterController> myController;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
-	USpringArmComponent* myCameraSpringArmComponent;
+	TObjectPtr<class UCameraComponent> myCameraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class USpringArmComponent> myCameraSpringArmComponent;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	int straightMoveDirection;
@@ -197,6 +226,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
 	TSubclassOf<UUserWidget> healthbarWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character")
+	TObjectPtr<class USagaWidgetComponent> healthIndicatorBarWidget;
 
 	UPROPERTY(VisibleAnywhere, Category = "CandyLandSaga|Game|Character")
 	UAIPerceptionStimuliSourceComponent* mAISource;
@@ -208,31 +239,4 @@ protected:
 	TObjectPtr<class UNiagaraSystem> SmokeItemEffect;
 
 	virtual void BeginPlay() override;
-
-	
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetHorizontalMoveAcceleration() const noexcept
-	{
-		return isRunning ? 100 : 50;
-	}
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetVerticalMoveAcceleration() const noexcept
-	{
-		return isRunning ? 300 : 200;
-	}
-
-	UFUNCTION(BlueprintPure)
-	virtual float GetMoveAnimationDirectionDelta() const noexcept
-	{
-		return isRunning ? 200 : 100;
-	}
-
-public:
-	UFUNCTION(BlueprintPure)
-	virtual float GetMaxMoveSpeed(const bool is_running) const noexcept
-	{
-		return is_running ? 800 : 500;
-	}
 };

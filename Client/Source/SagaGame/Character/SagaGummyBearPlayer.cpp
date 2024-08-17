@@ -23,13 +23,6 @@
 
 #include "Saga/Network/SagaNetworkSubSystem.h"
 
-void
-ASagaGummyBearPlayer::StoreController(ASagaGummyBearController* const controller)
-noexcept
-{
-	myController = controller;
-}
-
 float
 ASagaGummyBearPlayer::TakeDamage(float dmg, FDamageEvent const& event, AController* instigator, AActor* causer)
 {
@@ -85,7 +78,7 @@ ASagaGummyBearPlayer::ExecuteGuardianAction(ASagaCharacterBase* target)
 		ChangeColliderProfileToHostile();
 	}
 
-	const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+	const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 	if (IsValid(healthbar))
 	{
@@ -113,7 +106,7 @@ ASagaGummyBearPlayer::TerminateGuardianAction()
 		const auto rot = playerUnridePosition->GetComponentRotation();
 		character->SetActorLocationAndRotation(loc, rot, false, nullptr, ETeleportType::ResetPhysics);
 
-		ownerData = {};
+		ResetOwnerData();
 	}
 	else
 	{
@@ -422,6 +415,12 @@ ASagaGummyBearPlayer::ExecuteMorphingPartAt(const int32 index)
 	ExecuteMorphingPart(gc, index);
 }
 
+void
+ASagaGummyBearPlayer::RegisterMiniBear(const int32 index, ASagaGummyBearSmall* const minibear)
+{
+	partedSmallBears[index] = minibear;
+}
+
 int32
 ASagaGummyBearPlayer::OnBodyPartGetDamaged(FVector Location, FVector Normal)
 {
@@ -658,7 +657,6 @@ const noexcept
 ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	: Super()
 	, bearUniqueId(0)
-	, myController(nullptr)
 	, playerUnridePosition()
 	, myInteractionBox()
 {
@@ -773,6 +771,10 @@ ASagaGummyBearPlayer::ASagaGummyBearPlayer()
 	}
 
 	partedSmallBears.Reserve(4);
+	for (int32 i = 0; i < 4; ++i)
+	{
+		partedSmallBears.AddDefaulted();
+	}
 
 	InitTargetMeshes();
 

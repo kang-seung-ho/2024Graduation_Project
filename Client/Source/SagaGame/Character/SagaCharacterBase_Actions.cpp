@@ -113,9 +113,9 @@ ASagaCharacterBase::ExecuteDeath()
 #endif
 
 	// Hide the hp bar
-	if (IsValid(myHealthIndicatorBarWidget))
+	if (IsValid(healthIndicatorBarWidget))
 	{
-		myHealthIndicatorBarWidget->SetHiddenInGame(true);
+		healthIndicatorBarWidget->SetHiddenInGame(true);
 	}
 
 	StopMovement();
@@ -134,9 +134,9 @@ ASagaCharacterBase::ExecuteRespawn()
 	myGameStat->ResetHp();
 
 	// Unhide the hp bar
-	if (IsValid(myHealthIndicatorBarWidget))
+	if (IsValid(healthIndicatorBarWidget))
 	{
-		myHealthIndicatorBarWidget->SetHiddenInGame(false);
+		healthIndicatorBarWidget->SetHiddenInGame(false);
 	}
 
 	myGameStat->RetryUpdateHealth();

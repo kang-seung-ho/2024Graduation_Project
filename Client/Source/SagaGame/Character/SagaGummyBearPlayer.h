@@ -20,9 +20,6 @@ public:
 
 	ASagaGummyBearPlayer();
 
-	UFUNCTION()
-	void StoreController(class ASagaGummyBearController* const bear_controller) noexcept;
-
 	/* 데미지 처리
 
 	* 온라인 / 오프라인 모드에 따라 분기
@@ -51,6 +48,8 @@ public:
 	UFUNCTION()
 	void ExecuteMorphingPartAt(const int32 index);
 
+	UFUNCTION(BlueprintCallable, Category = "CandyLandSaga|Game|Character|Bear")
+	void RegisterMiniBear(const int32 index, ASagaGummyBearSmall* const minibear);
 	UFUNCTION()
 	int32 OnBodyPartGetDamaged(FVector Location, FVector Normal);
 	UFUNCTION()
@@ -63,8 +62,6 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TObjectPtr<class ASagaGummyBearController> myController;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
 	TObjectPtr<class UArrowComponent> playerUnridePosition;
 
 	/* 오버랩 박스 */
@@ -72,7 +69,7 @@ protected:
 	class UBoxComponent* myInteractionBox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CandyLandSaga|Game|Character|Bear")
-	TArray<class ASagaGummyBearSmall*> partedSmallBears;
+	TArray<TObjectPtr<class ASagaGummyBearSmall>> partedSmallBears;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CandyLandSaga|Game|Character|Bear")
 	TArray<class UStaticMesh*> TargetMeshes;

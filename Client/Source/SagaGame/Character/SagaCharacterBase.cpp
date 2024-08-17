@@ -19,16 +19,26 @@
 #include <NiagaraComponent.h>
 #include <NiagaraFunctionLibrary.h>
 
-#include "Player/SagaPlayerWeaponTypes.h"
+#include "PlayerControllers/SagaInGamePlayerController.h"
 #include "Character/SagaPlayerAnimInstance.h"
 #include "Character/SagaGummyBearAnimInstance.h"
+#include "Player/SagaPlayerWeaponTypes.h"
 #include "Item/SagaItemTypes.h"
 #include "Item/SagaWeaponData.h"
 #include "UI/SagaWidgetComponent.h"
 #include "UI/SagaHpBarWidget.h"
-#include "PlayerControllers/SagaInGamePlayerController.h"
+
+#include "Saga/Network/SagaVirtualUser.h"
 
 TMap<EPlayerWeapon, TObjectPtr<class UStaticMesh>> ASagaCharacterBase::WeaponMeshes{};
+
+void
+ASagaCharacterBase::ResetOwnerData()
+noexcept
+{
+	ownerData = FSagaVirtualUser{};
+	ownerData.myID = -1;
+}
 
 void
 ASagaCharacterBase::SetUserId(const int32& id)
@@ -179,6 +189,13 @@ const
 	//other->ownerData.myID = ownerData.myID;
 }
 
+void
+ASagaCharacterBase::StoreController(ASagaBaseCharacterController* const pc)
+noexcept
+{
+	myController = pc;
+}
+
 int32
 ASagaCharacterBase::GetUserId()
 const noexcept
@@ -228,12 +245,14 @@ ASagaCharacterBase::ASagaCharacterBase()
 	, myWeapon()
 	, myAnimationInst(), mAnimInst(nullptr), mBearAnimInst(nullptr)
 	, animationMoveSpeed(), animationMoveAngle()
-	, myHealthIndicatorBarWidget()
 	, OnCharacterDeath(), OnCharacterRespawned()
-	, myCameraComponent(), myCameraSpringArmComponent()
+	, myController(nullptr)
+	, myCameraComponent(nullptr), myCameraSpringArmComponent(nullptr)
 	, straightMoveDirection(), strafeMoveDirection()
-	, isRunning()
-	, healthbarWidgetClass()
+	, isRunning(false)
+	, healthbarWidgetClass(), healthIndicatorBarWidget()
+	, mAISource(nullptr)
+	, HealItemEffect(), SmokeItemEffect()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -269,19 +288,19 @@ ASagaCharacterBase::ASagaCharacterBase()
 	myGameStat = CreateDefaultSubobject<USagaCharacterStatComponent>(TEXT("Stat"));
 	myGameStat->SetMaxHp(100.0f);
 
-	myHealthIndicatorBarWidget = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
-	myHealthIndicatorBarWidget->SetupAttachment(GetMesh());
-	myHealthIndicatorBarWidget->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
+	healthIndicatorBarWidget = CreateDefaultSubobject<USagaWidgetComponent>(TEXT("HpBar"));
+	healthIndicatorBarWidget->SetupAttachment(GetMesh());
+	healthIndicatorBarWidget->SetRelativeLocation(FVector(0.0, 0.0, 150.0));
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/UI_HpBar.UI_HpBar_C'"));
 	if (HpBarWidgetRef.Succeeded())
 	{
 		healthbarWidgetClass = HpBarWidgetRef.Class;
 
-		myHealthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
-		myHealthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
-		myHealthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
-		myHealthIndicatorBarWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		healthIndicatorBarWidget->SetWidgetClass(HpBarWidgetRef.Class);
+		healthIndicatorBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+		healthIndicatorBarWidget->SetDrawSize(FVector2D(150, 20));
+		healthIndicatorBarWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	// Weapon
@@ -351,9 +370,9 @@ ASagaCharacterBase::BeginPlay()
 	mAnimInst = Cast<USagaPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	mBearAnimInst = Cast<USagaGummyBearAnimInstance>(GetMesh()->GetAnimInstance());
 
-	if (IsValid(myHealthIndicatorBarWidget))
+	if (IsValid(healthIndicatorBarWidget))
 	{
-		const auto healthbar = Cast<USagaHpBarWidget>(myHealthIndicatorBarWidget->GetWidget());
+		const auto healthbar = Cast<USagaHpBarWidget>(healthIndicatorBarWidget->GetWidget());
 
 		if (IsValid(healthbar))
 		{

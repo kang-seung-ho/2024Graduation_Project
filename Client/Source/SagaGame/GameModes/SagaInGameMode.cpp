@@ -181,6 +181,7 @@ ASagaInGameMode::StartPlay()
 	break;
 	}
 
+	// TODO: 모든 플레이어에 컨트롤러 할당
 	// Find the local controller
 	// At first, there is only an ASagaInGamePlayerController
 	for (TActorIterator<ASagaInGamePlayerController> it{ world }; it; ++it)
@@ -248,7 +249,7 @@ ASagaInGameMode::StartPlay()
 		net->SendRpcPacket(ESagaRpcProtocol::RPC_ASSIGN_ITEM_ID, 0, everyItemSpawnEntities.Num());
 	}
 
-	// First find the local controller and enumerate actors' BeginPlay
+	// Enumerate actors' BeginPlay
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(guardianScannerTimer, this, &ASagaInGameMode::ScanGuardians, 1.0f, false);
