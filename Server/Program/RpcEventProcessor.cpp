@@ -113,9 +113,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 					{
 						if (0 < hp.load(std::memory_order_acquire))
 						{
-							// 피해량 브로드캐스트
-							Broadcast(RPC_DMG_PLYER, user_id, arg0, arg1);
-
 							// 사망
 							// 최초로 체력이 0 이하일 때만 실행
 							if (hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
@@ -129,6 +126,11 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								}
 
 								Broadcast(RPC_DEAD, user_id, arg0, arg1);
+							}
+							else
+							{
+								// 피해량 브로드캐스트
+								Broadcast(RPC_DMG_PLYER, user_id, arg0, arg1);
 							}
 						} // IF (0 < hp)
 					}
@@ -156,7 +158,7 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 							}
 
 							// 피해량 브로드캐스트
-							Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, arg1);
+							Broadcast(RPC_DMG_GUARDIAN, user_id, arg0, guardian_id);
 						} // IF (0 < guardian hp)
 					} // IF NOT (rider_id is -1)
 				} // ProcessMember
