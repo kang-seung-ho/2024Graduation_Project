@@ -232,7 +232,7 @@ export namespace iconer::app
 			{
 				const pointer_type ptr = member.GetStoredUser();
 
-				if (nullptr != ptr and id == HasEqualId(*ptr, id))
+				if (nullptr != ptr and HasEqualId(*ptr, id))
 				{
 					std::forward<Callable>(fun)(member);
 
@@ -268,7 +268,7 @@ export namespace iconer::app
 			{
 				const pointer_type ptr = member.GetStoredUser();
 
-				if (nullptr != ptr and id == HasEqualId(*ptr, id))
+				if (nullptr != ptr and HasEqualId(*ptr, id))
 				{
 					std::forward<Callable>(fun)(member);
 
