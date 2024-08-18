@@ -43,7 +43,10 @@ ASagaInGameMode::OnLeftRoom(int32 user_id)
 
 				if (IsValid(guardian))
 				{
-					const auto backup = Cast<ASagaPlayableCharacter>(character);
+					net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, net->GetLocalUserId(), guardian->GetBearId());
+
+					const auto backup_handle = guardian->GetStoredCharacterHandle();
+					const auto backup = Cast<ASagaPlayableCharacter>(backup_handle);
 
 					if (IsValid(backup))
 					{
