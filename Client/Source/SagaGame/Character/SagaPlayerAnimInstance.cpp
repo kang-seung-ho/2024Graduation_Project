@@ -67,6 +67,8 @@ void USagaPlayerAnimInstance::Revive()
 
 void USagaPlayerAnimInstance::UseSkill(int32 SlotNumber)
 {
+	mAttackEnable = true;
+
 	for (auto SkillAnim : mSkillAnimArray)
 	{
 		if (SkillAnim.SlotNumber == SlotNumber)
