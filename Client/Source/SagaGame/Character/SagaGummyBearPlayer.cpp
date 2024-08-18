@@ -376,10 +376,8 @@ ASagaGummyBearPlayer::ExecuteMorphingPart(UGeometryCollectionComponent* const& g
 {
 	//DismCollisionBox[Index]->DestroyComponent();
 	//SpawnMorphSystem(TargetGC, Index);
-	//*/
-	static UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent"));
 
-	if (IsValid(morph_fun))
+	if (UFunction* morph_fun = FindFunction(TEXT("TriggerMorphEvent")))
 	{
 		struct Params
 		{
