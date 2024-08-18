@@ -1144,6 +1144,13 @@ ASagaPlayableCharacter::ASagaPlayableCharacter()
 	if (MeshAsset.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
+		humanCharacterMesh1 = MeshAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BlueMeshAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/PlayerAssets/Player1.Player1'"));
+	if (BlueMeshAsset.Succeeded())
+	{
+		humanCharacterMesh2 = BlueMeshAsset.Object;
 	}
 
 	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -88.0));
@@ -1250,6 +1257,16 @@ void ASagaPlayableCharacter::PostInitializeComponents()
 	HatComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("head_x_PartyHat_Socket"));
 
 	HatComponent->RegisterComponent();
+
+	auto myTeamInfo = GetTeam();
+	if (myTeamInfo == ESagaPlayerTeam::Red)
+	{
+		GetMesh()->SetSkeletalMesh(humanCharacterMesh1);
+	}
+	else
+	{
+		GetMesh()->SetSkeletalMesh(humanCharacterMesh2);
+	}
 }
 
 void

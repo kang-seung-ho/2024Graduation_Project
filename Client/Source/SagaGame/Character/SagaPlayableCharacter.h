@@ -74,6 +74,12 @@ protected:
 	class USoundBase* DeadSoundEffect;
 
 	UPROPERTY()
+	class USkeletalMesh* humanCharacterMesh1;
+	
+	UPROPERTY()
+	class USkeletalMesh* humanCharacterMesh2;
+
+	UPROPERTY()
 	FTimerHandle respawnTimerHandle;
 
 	virtual void PostInitializeComponents() override;
