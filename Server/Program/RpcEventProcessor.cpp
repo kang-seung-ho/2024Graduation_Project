@@ -101,7 +101,6 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 				{
 					float dmg{};
 					std::memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
-					PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg from {} to {}.", room_id, dmg, arg1, current_user.GetID());
 
 					auto& hp = session.myHp;
 					auto& team_id = session.myTeamId;
@@ -126,12 +125,16 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								}
 
 								Broadcast(RPC_DEAD, user_id, arg0, arg1);
+
+								PrintLn("[RPC_DMG_PLYER] At room {0}, user {3} is dead. ({1} dmg from {2} to {3})", room_id, dmg, arg1, current_user.GetID());
 							}
 							else
 							{
-								// 피해량 브로드캐스트
-								Broadcast(RPC_DMG_PLYER, user_id, arg0, arg1);
+								PrintLn("[RPC_DMG_PLYER] At room {} - {} dmg from {} to {}.", room_id, dmg, arg1, current_user.GetID());
 							}
+
+							// 피해량 브로드캐스트
+							Broadcast(RPC_DMG_PLYER, user_id, arg0, arg1);
 						} // IF (0 < hp)
 					}
 					else // IF NOT (guardian_id is -1)
@@ -154,7 +157,9 @@ ServerFramework::EventOnRpc(iconer::app::User& current_user, const std::byte* da
 								guardian.TryUnride(user_id);
 								session.ridingGuardianId.store(-1, std::memory_order_release);
 
-								Broadcast(RPC_END_RIDE, user_id, arg0, guardian_id);
+								Broadcast(RPC_END_RIDE, user_id, user_id, guardian_id);
+
+								PrintLn("[RPC_DMG_PLYER] At room {0}, guardian {3} is dead. ({1} dmg from {2} to guardian {3})", room_id, dmg, arg1, guardian_id);
 							}
 
 							// 피해량 브로드캐스트

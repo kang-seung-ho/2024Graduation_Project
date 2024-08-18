@@ -119,7 +119,7 @@ private:
 	/// <param name="arg1">- guardian id</param>
 	DECL_RPC_METHOD(RpcEventOnTryingtoRideGuardian);
 	/// <param name="proc">- RPC_END_RIDE</param>
-	/// <param name="arg0">- nothing</param>
+	/// <param name="arg0">- user id</param>
 	/// <param name="arg1">- guardian id</param>
 	DECL_RPC_METHOD(RpcEventOnUnrideFromGuardian);
 	/// <param name="proc">- RPC_DMG_GUARDIAN</param>

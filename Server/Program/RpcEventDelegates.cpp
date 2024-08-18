@@ -227,32 +227,26 @@ ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
 		return;
 	}
 
-	const auto room_id = room.GetID();
-	const auto user_id = user.GetID();
-
-	PrintLn("[RPC_BEG_RIDE] At room {}.", room_id);
-
 	if (arg1 < 0 or 3 <= arg1)
 	{
-		PrintLn("[RPC_BEG_RIDE] User {} tells wrong Guardian {}.", user_id, arg1);
+		PrintLn("[RPC_BEG_RIDE] User {} tells wrong Guardian {}.", user.GetID(), arg1);
 
 		return;
 	}
+
+	const auto user_id = static_cast<std::int32_t>(user.GetID());
 
 	auto& guardian = room.sagaGuardians[arg1];
 
 	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& target)
 		{
-			auto& rider = target.ridingGuardianId;
+			auto& ridden_guardian_id = target.ridingGuardianId;
 
-			const auto rider_id = rider.load(std::memory_order_acquire);
-			const auto hp = target.myHp.load(std::memory_order_acquire);
-
-			if (0 < hp and guardian.IsAlive() and guardian.TryRide(user_id))
+			if (0 < target.myHp.load(std::memory_order_acquire) and guardian.IsAlive() and guardian.TryRide(user_id))
 			{
 				std::int32_t pre_guardian_id = -1;
 
-				if (rider.compare_exchange_strong(pre_guardian_id, arg1, std::memory_order_release))
+				if (ridden_guardian_id.compare_exchange_strong(pre_guardian_id, arg1, std::memory_order_release))
 				{
 					auto& user_ctx = user.mainContext;
 					auto& pk = user_ctx->GetRideGuardianPacketData(arg1);
@@ -272,9 +266,9 @@ ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
 				else
 				{
 					// rollback
-					PrintLn("User {} cannot ride the Guardian {}.", user_id, arg1);
-
 					guardian.TryUnride(user_id);
+
+					PrintLn("User {} cannot ride the Guardian {}.", user_id, arg1);
 				}
 			}
 			else
@@ -284,7 +278,7 @@ ServerFramework::RpcEventOnTryingtoRideGuardian(iconer::app::Room& room
 				std::int32_t pre_guardian_id = arg1;
 
 				// rollback
-				rider.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
+				ridden_guardian_id.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_release);
 			}
 		}
 	);
@@ -301,35 +295,34 @@ ServerFramework::RpcEventOnUnrideFromGuardian(iconer::app::Room& room
 		return;
 	}
 
-	const auto user_id = static_cast<std::int32_t>(user.GetID());
-
 	if (arg1 < 0 or 3 <= arg1)
 	{
-		PrintLn("[RPC_END_RIDE] User {} tells wrong guardian {}.", user_id, arg1);
+		PrintLn("[RPC_END_RIDE] User {} tells wrong guardian {}.", arg0, arg1);
 
 		return;
 	}
 
 	auto& guardian = room.sagaGuardians[arg1];
+	const auto rider_id = static_cast<std::int32_t>(arg0);
 
-	room.ProcessMember(&user, [&](iconer::app::SagaPlayer& session)
+	room.ProcessMember(rider_id, [&](iconer::app::SagaPlayer& rider_session)
 		{
-			auto& ridden_guardian_id = session.ridingGuardianId;
+			auto& ridden_guardian_id = rider_session.ridingGuardianId;
 
 			std::int32_t pre_guardian_id = arg1;
 			ridden_guardian_id.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_acq_rel);
 		}
 	);
 
-	if (guardian.TryUnride(user_id))
+	if (guardian.TryUnride(rider_id))
 	{
-		Broadcast(*this, room, RPC_END_RIDE, user_id, arg0, arg1);
+		Broadcast(*this, room, RPC_END_RIDE, rider_id, rider_id, arg1);
 
-		PrintLn("[RPC_END_RIDE] User {} would unride from guardian {}.", user_id, arg1);
+		PrintLn("[RPC_END_RIDE] User {} would unride from guardian {}.", rider_id, arg1);
 	}
 	else
 	{
-		PrintLn("[RPC_END_RIDE] User {} was not riding guardian {}.", user_id, arg1);
+		PrintLn("[RPC_END_RIDE] User {} was not riding guardian {}.", rider_id, arg1);
 	}
 }
 
@@ -344,13 +337,10 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 		return;
 	}
 
-	const auto room_id = room.GetID();
-	const auto user_id = user.GetID();
-
 	// arg1: index of the guardian
 	if (arg1 < 0 or 3 <= arg1)
 	{
-		PrintLn("User {} tells wrong damaged guardian {}.", user_id, arg1);
+		PrintLn("[RPC_DMG_GUARDIAN] User {} tells wrong damaged guardian {}.", user.GetID(), arg1);
 		return;
 	}
 
@@ -361,23 +351,16 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 	auto& guardian = room.sagaGuardians[arg1];
 	auto& guardian_hp = guardian.myHp;
 
-	auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire);
-
-	if (0 < guardian_hp_value)
+	if (auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire); 0 < guardian_hp_value)
 	{
-		// 탑승했던 곰 사망
+		// 곰 사망
 		if (guardian_hp.fetch_sub(dmg, std::memory_order_acq_rel) - dmg <= 0)
 		{
-			// 하차 처리
 			if (auto rider_id = guardian.GetRiderId(); -1 != rider_id)
 			{
 				room.ProcessMember(rider_id, [&](iconer::app::SagaPlayer& rider_session)
 					{
-						auto& ridden_guardian_id = rider_session.ridingGuardianId;
 						auto& team_id = rider_session.myTeamId;
-
-						std::int32_t pre_guardian_id = arg1;
-						ridden_guardian_id.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_acq_rel);
 
 						// 탑승자의 상대 팀의 점수 증가
 						constexpr std::int32_t kill_increment = 3;
@@ -385,11 +368,10 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 					}
 				);
 
-				// 여기서는 검사 안함
-				guardian.TryUnride(rider_id);
+				// 하차 처리
+				RpcEventOnUnrideFromGuardian(room, user, RPC_END_RIDE, rider_id, arg1);
 
-				// 브로드캐스트
-				Broadcast(*this, room, RPC_END_RIDE, rider_id, arg0, arg1);
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} guardian {} with rider {} is dead.", room.GetID(), arg1, rider_id);
 			}
 			else // IF (rider id is -1)
 			{
@@ -402,13 +384,13 @@ ServerFramework::RpcEventOnDamageToGuardian(iconer::app::Room& room
 						room.AddTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
 					}
 				);
-			}
 
-			PrintLn("[RPC_DMG_GUARDIAN] At room {} - The guardian {} is dead.", room_id, arg1);
+				PrintLn("[RPC_DMG_GUARDIAN] At room {} guardian {} is dead.", room.GetID(), arg1);
+			}
 		}
 		else // IF (damage < guardian hp)
 		{
-			PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room_id, dmg, arg1);
+			PrintLn("[RPC_DMG_GUARDIAN] At room {} - {} dmg to guardian {}.", room.GetID(), dmg, arg1);
 		}
 
 		// 브로드캐스트
@@ -459,61 +441,17 @@ ServerFramework::RpcEventOnGuardianPartDestructed(iconer::app::Room& room
 
 	if (guardian_pt[1] == 0 and guardian_pt[3] == 0)
 	{
-		const auto user_id = user.GetID();
+		constexpr float dmg_amount{ 9999.0f };
+		std::int64_t dmg{};
+		std::memcpy(&dmg, reinterpret_cast<const char*>(&dmg_amount), 4);
 
-		auto& guardian = room.sagaGuardians[arg1];
-		auto& guardian_hp = guardian.myHp;
+		RpcEventOnDamageToGuardian(room, user, RPC_DMG_GUARDIAN, dmg, arg1);
 
-		if (auto guardian_hp_value = guardian_hp.load(std::memory_order_acquire); 0 < guardian_hp_value)
-		{
-			PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room.GetID());
-
-			// 하차 처리
-			if (auto rider_id = guardian.GetRiderId(); -1 != rider_id)
-			{
-				room.ProcessMember(rider_id, [&](iconer::app::SagaPlayer& rider_session)
-					{
-						auto& ridden_guardian_id = rider_session.ridingGuardianId;
-						auto& team_id = rider_session.myTeamId;
-
-						std::int32_t pre_guardian_id = arg1;
-						ridden_guardian_id.compare_exchange_strong(pre_guardian_id, -1, std::memory_order_acq_rel);
-
-						// 탑승자의 상대 팀의 점수 증가
-						constexpr std::int32_t kill_increment = 3;
-						room.AddOppositeTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
-					}
-				);
-
-				// 여기서는 검사 안함
-				guardian.TryUnride(rider_id);
-
-				// 브로드캐스트
-				Broadcast(*this, room, RPC_END_RIDE, rider_id, arg0, arg1);
-			}
-			else // IF (rider id is -1)
-			{
-				room.ProcessMember(&user, [&](iconer::app::SagaPlayer& session) noexcept
-					{
-						auto& team_id = session.myTeamId;
-
-						// 공격자의 팀의 점수 증가
-						constexpr std::int32_t kill_increment = 1;
-						room.AddTeamScore(team_id.load(std::memory_order_acquire), kill_increment);
-					}
-				);
-			}
-
-			guardian_hp.store(0, std::memory_order_release);
-		}
-		else
-		{
-			//PrintLn("[RPC_DMG_GUARDIANS_PART] At room {} - The guardian {} is already dead.", room.GetID(), arg1);
-		}
+		PrintLn("[RPC_DMG_GUARDIANS_PART] Guardian {} at room {} is dead.", arg1, room.GetID());
 	}
 	else
 	{
-		PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room.GetID());
+		//PrintLn("[RPC_DMG_GUARDIANS_PART] {}(th) part of {} at room {}.", arg0, arg1, room.GetID());
 	}
 }
 
@@ -800,7 +738,7 @@ ServerFramework::RpcEventOnMiniBearActivated(iconer::app::Room& room
 		user.SendGeneralData(*ctx, pk.get(), size);
 		*/
 
-		PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} is just activated on pos ({}, {}, {}).", guardian_id, guardian_part_id, x, y, z);
+		PrintLn("[RPC_ACTIVE_GUARDIANS_PART] Guardian {}'s part {} is just activated on pos ({}, {}, {}).", guardian_id, guardian_part_id, x, y, z);
 	}
 	else
 	{
@@ -823,7 +761,7 @@ ServerFramework::RpcEventOnMiniBearActivated(iconer::app::Room& room
 
 		user.SendGeneralData(*ctx, pk.get(), size);
 
-		PrintLn("[RPC_MORPH_GUARDIANS_PART] Guardian {}'s part {} has already activated.", guardian_id, guardian_part_id);
+		PrintLn("[RPC_ACTIVE_GUARDIANS_PART] Guardian {}'s part {} has already activated.", guardian_id, guardian_part_id);
 	}
 }
 
