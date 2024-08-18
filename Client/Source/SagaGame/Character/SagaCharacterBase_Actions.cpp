@@ -160,6 +160,7 @@ ASagaCharacterBase::ExecuteRespawn()
 	SetActorLocationAndRotation(spawn_pos, spawn_rot);
 
 	// Retrive collision
+	SetTeam(GetTeam());
 	SetCollisionEnable(true);
 
 #if WITH_EDITOR
