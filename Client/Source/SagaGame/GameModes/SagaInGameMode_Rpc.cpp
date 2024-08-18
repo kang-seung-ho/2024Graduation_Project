@@ -795,14 +795,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (IsValid(guardian))
 		{
-			if (not guardian->IsAlive())
-			{
-#if WITH_EDITOR
-
-				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] The guardian with id %d is already dead."), guardian_id);
-#endif
-			}
-
 			float dmg{};
 			memcpy(&dmg, reinterpret_cast<const char*>(&arg0), 4);
 
@@ -811,7 +803,14 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIAN] Guardian %d is damaged for %f"), guardian_id, dmg);
 #endif
 
-			if (guardian->IsAlive())
+			if (not guardian->IsAlive())
+			{
+#if WITH_EDITOR
+
+				UE_LOG(LogSagaGame, Warning, TEXT("[RPC_DMG_GUARDIAN] The guardian with id %d is already dead."), guardian_id);
+#endif
+			}
+			else
 			{
 				guardian->ExecuteHurt(dmg);
 			}
@@ -890,7 +889,7 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			{
 #if WITH_EDITOR
 
-				UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] The guardian with id %d is already dead."), guardian_id);
+				//UE_LOG(LogSagaGame, Log, TEXT("[RPC_DMG_GUARDIANS_PART] The guardian with id %d is already dead."), guardian_id);
 #endif
 			}
 
