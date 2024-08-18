@@ -667,15 +667,6 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 	{
 		UE_LOG(LogSagaGame, Log, TEXT("[RPC_USE_ITEM_0] item id: %d"), arg1);
 
-		if (is_remote)
-		{
-			//storedLocalPlayerController->inventory
-		}
-		else
-		{
-
-		}
-
 		switch (arg1)
 		{
 		case 0:
@@ -938,14 +929,14 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 
 		if (IsValid(guardian))
 		{
-#if WITH_EDITOR
-
-			const auto guardian_name = guardian->GetName();
-			UE_LOG(LogSagaGame, Log, TEXT("[RPC_MORPH_GUARDIANS_PART] Guardian '%s'(%d)'s part %d is morphing."), *guardian_name, guardian_id, guardian_part_id);
-#endif
-
 			if (not guardian->IsPartDestructed(guardian_part_id))
 			{
+#if WITH_EDITOR
+
+				const auto guardian_name = guardian->GetName();
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_MORPH_GUARDIANS_PART] Guardian '%s'(%d)'s part %d is just destroyed and morphing."), *guardian_name, guardian_id, guardian_part_id);
+#endif
+
 				guardian->GiveDamageToPart(guardian_part_id);
 				const auto part_actor = guardian->ExecutePartDestruction(guardian_part_id);
 
@@ -956,6 +947,12 @@ ASagaInGameMode::OnRpc(ESagaRpcProtocol cat, int32 id, int64 arg0, int32 arg1)
 			}
 			else
 			{
+#if WITH_EDITOR
+
+				const auto guardian_name = guardian->GetName();
+				UE_LOG(LogSagaGame, Log, TEXT("[RPC_MORPH_GUARDIANS_PART] Guardian '%s'(%d)'s part %d is morphing."), *guardian_name, guardian_id, guardian_part_id);
+#endif
+
 				guardian->ExecuteMorphingPartAt(guardian_part_id);
 			}
 		}
