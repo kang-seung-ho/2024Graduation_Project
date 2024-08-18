@@ -344,7 +344,7 @@ ASagaInGamePlayerController::BeginGuardianAction()
 			// 하차
 			if (IsValid(guardian))
 			{
-				net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, 0, guardian->GetBearId());
+				net->SendRpcPacket(ESagaRpcProtocol::RPC_END_RIDE, net->GetLocalUserId(), guardian->GetBearId());
 			}
 		}
 	} // IF NOT (Offline Mode)
