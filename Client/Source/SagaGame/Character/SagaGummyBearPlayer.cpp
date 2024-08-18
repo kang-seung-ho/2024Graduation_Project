@@ -343,8 +343,11 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 		gc->AddRadialImpulse(gc->GetComponentLocation(), 100, 150, RIF_Constant, true);
 		gc->AddImpulse(Impulse, NAME_None, true);
 
+		const auto world = GetWorld();
+		const auto net = USagaNetworkSubSystem::GetSubSystem(world);
+
 		// 사망 처리
-		//if (net->IsOfflineMode())
+		if (net->IsOfflineMode())
 		{
 			const auto& right_leg_hp = ActiveIndex[1];
 			const auto& left_leg_hp = ActiveIndex[3];
@@ -355,8 +358,8 @@ ASagaGummyBearPlayer::ExecutePartDestruction(const int32 index)
 
 				const auto name = GetName();
 
-				//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
-				UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
+				UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed. (Offline Mode)"), *name);
+				//UE_LOG(LogSagaGame, Log, TEXT("[ASagaPlayableCharacter][Attack] '%s' is dead because all legs are destructed."), *name);
 #endif
 
 				ExecuteHurt(GetHealth());
