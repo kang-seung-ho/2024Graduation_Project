@@ -1,7 +1,7 @@
 #pragma once
 #include "SagaGame.h"
 #include "Character/SagaCharacterBase.h"
-
+#include "Player/SagaPlayerTeam.h"
 #include "SagaPlayableCharacter.generated.h"
 
 UCLASS(BlueprintType, Blueprintable, Category = "CandyLandSaga|Game|Character")
@@ -37,6 +37,9 @@ public:
 	virtual void ExecuteRespawn() override;
 	UFUNCTION()
 	void ExecuteRespawnViaRpc();
+
+	UFUNCTION()
+	void SetHumanCharacterMesh(ESagaPlayerTeam myTeam);
 
 	UFUNCTION()
 	class ASagaGummyBearPlayer* GetNeareastCollidedBear() const;

@@ -476,6 +476,18 @@ ASagaPlayableCharacter::ExecuteRespawnViaRpc()
 	}
 }
 
+void ASagaPlayableCharacter::SetHumanCharacterMesh(ESagaPlayerTeam myTeam)
+{
+	if (myTeam == ESagaPlayerTeam::Red)
+	{
+		GetMesh()->SetSkeletalMesh(humanCharacterMesh1);
+	}
+	else if (myTeam == ESagaPlayerTeam::Blue)
+	{
+		GetMesh()->SetSkeletalMesh(humanCharacterMesh2);
+	}
+}
+
 void
 ASagaPlayableCharacter::ExecuteRespawn()
 {
@@ -1257,16 +1269,6 @@ void ASagaPlayableCharacter::PostInitializeComponents()
 	HatComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("head_x_PartyHat_Socket"));
 
 	HatComponent->RegisterComponent();
-
-	auto myTeamInfo = GetTeam();
-	if (myTeamInfo == ESagaPlayerTeam::Red)
-	{
-		GetMesh()->SetSkeletalMesh(humanCharacterMesh1);
-	}
-	else
-	{
-		GetMesh()->SetSkeletalMesh(humanCharacterMesh2);
-	}
 }
 
 void

@@ -147,6 +147,9 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			character->SetUserId(user_id);
 			// The team was stored on RoomSessionLevel
 			character->SetTeam(team);
+
+			character->SetHumanCharacterMesh(team);
+
 			// The weapon was stored on CharacterSelectLevel
 			character->SetWeapon(weapon);
 
@@ -197,6 +200,8 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 				character->SetUserId(user_id);
 				// The team was stored on RoomSessionLevel
 				character->SetTeam(team);
+
+				character->SetHumanCharacterMesh(team);
 				// The weapon was stored on CharacterSelectLevel
 				character->SetWeapon(weapon);
 
