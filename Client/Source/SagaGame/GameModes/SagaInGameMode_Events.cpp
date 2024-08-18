@@ -135,12 +135,12 @@ void ASagaInGameMode::OnCreatingCharacter(int32 user_id, ESagaPlayerTeam team, E
 			return;
 		}
 
-		ASagaCharacterBase* character;
+		ASagaPlayableCharacter* character;
 
 		if (local_id == user_id)
 		{
 			// NOTICE: 여기서 로컬 캐릭터 할당
-			character = controller->GetPawn<ASagaCharacterBase>();
+			character = controller->GetPawn<ASagaPlayableCharacter>();
 			net->SetCharacterHandle(local_id, character);
 
 			// The id was stored on LobbyLevel
