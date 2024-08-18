@@ -62,28 +62,28 @@ export namespace iconer::app
 		float x{}, y{}, z{}, yaw{};
 		std::chrono::system_clock::time_point activeTime;
 
-		bool TryMorph() noexcept
+		bool TryMorph() volatile noexcept
 		{
 			bool active = false;
 
 			return isMorphed.compare_exchange_strong(active, true);
 		}
 
-		bool TryCancelMorph() noexcept
+		bool TryCancelMorph() volatile noexcept
 		{
 			bool active = true;
 
 			return isMorphed.compare_exchange_strong(active, false);
 		}
 
-		bool TryActivate() noexcept
+		bool TryActivate() volatile noexcept
 		{
 			bool active = false;
 
 			return isActivated.compare_exchange_strong(active, true);
 		}
 
-		bool TryDeactivate() noexcept
+		bool TryDeactivate() volatile noexcept
 		{
 			bool active = true;
 
@@ -105,11 +105,6 @@ export namespace iconer::app
 		SagaSmallGummyBear& GetPartedEntity(int index)
 		{
 			return myPartEntities[index];
-		}
-
-		void Update()
-		{
-
 		}
 
 		void Cleanup() noexcept
@@ -151,7 +146,7 @@ export namespace iconer::app
 
 		// Trying to Ride
 		[[nodiscard]]
-		bool TryRide(std::int32_t user_id) noexcept
+		bool TryRide(std::int32_t user_id) volatile noexcept
 		{
 			std::int32_t expected{ -1 };
 			if (riderId.compare_exchange_strong(expected, user_id, std::memory_order_acq_rel))
@@ -164,7 +159,7 @@ export namespace iconer::app
 			}
 		}
 
-		bool TryUnride(std::int32_t user_id) noexcept
+		bool TryUnride(std::int32_t user_id) volatile noexcept
 		{
 			if (riderId.compare_exchange_strong(user_id, -1, std::memory_order_acq_rel))
 			{
@@ -177,28 +172,28 @@ export namespace iconer::app
 		}
 
 		[[nodiscard]]
-		std::int32_t GetRiderId() const noexcept
+		std::int32_t GetRiderId() const volatile noexcept
 		{
-			return riderId;
+			return riderId.load(std::memory_order_acquire);
 		}
 
 		[[nodiscard]]
-		bool IsAlive() const noexcept
+		bool IsAlive() const volatile noexcept
 		{
 			//return 0 < myHp and myStatus != SagaGuardianState::Dead;
-			return 0 < myHp;
+			return 0 < myHp.load(std::memory_order_acquire);
 		}
 
 		[[nodiscard]]
-		bool IsDead() const noexcept
+		bool IsDead() const volatile noexcept
 		{
 			return !IsAlive();
 		}
 
 		[[nodiscard]]
-		bool IsRidden() const noexcept
+		bool IsRidden() const volatile noexcept
 		{
-			return riderId.load() != -1;
+			return riderId.load(std::memory_order_acquire) != -1;
 		}
 	};
 }
