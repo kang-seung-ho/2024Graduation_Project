@@ -1,12 +1,12 @@
 module;
 #define LIKELY   [[likely]]
 #define UNLIKELY [[unlikely]]
+//#include <print>
 
 module Iconer.Net.IThreadPool;
 import Iconer.Net.Socket;
 import Iconer.Net.IoContext;
 import <type_traits>;
-import <print>;
 
 iconer::net::IoResult
 iconer::net::IThreadPool::Initialize()
@@ -64,26 +64,19 @@ iconer::net::IThreadPool::Worker(std::stop_token&& cancel_token, IThreadPool& se
 		if (cancel_token.stop_requested()) UNLIKELY
 		{
 			break;
-		}
+		};
 
-#if _DEBUG
 		iconer::net::IoEvent task = self.AwaitForTask();
 
 		if (not self.ProcessTask(std::move(task))) UNLIKELY
 		{
 			if (not cancel_token.stop_requested()) UNLIKELY
 			{
-				std::println("An issue appeared at worker {}.", index);
-			}
+				//std::println("An issue appeared at worker {}.", index);
+			};
 
 			//break;
-		}
-#else
-			if (not ProcessTask(AwaitForTask())) UNLIKELY
-			{
-				break;
-			}
-#endif
+		};
 	}
 
 	if (self.eventOnWorkerAnnihilated.IsBound())

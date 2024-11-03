@@ -6,7 +6,6 @@ module;
 
 module Iconer.Framework;
 import iconer.Utility.Serializer;
-import Iconer.Utility.StringConverter;
 import Iconer.Net;
 import Iconer.Net.Socket;
 import Iconer.App.User;
@@ -549,8 +548,13 @@ ServerFramework::OnTaskFailure(iconer::net::IoContext* context, std::uint64_t id
 	case OpSend:
 	{
 		//delete task_ctx;
+		const auto send_ctx = static_cast<iconer::app::SendContext*>(task_ctx);
+		//send_ctx->mySharedBuffer.owner_before();
 
-		AddSendContext(static_cast<iconer::app::SendContext*>(task_ctx));
+		auto& shared_buffer = send_ctx->mySharedBuffer;
+		shared_buffer.reset();
+
+		AddSendContext(send_ctx);
 	}
 	break;
 

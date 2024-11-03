@@ -6,6 +6,7 @@ import Iconer.App.ISession;
 import Iconer.App.PacketSerializer;
 import Iconer.App.ConnectionContract;
 import Iconer.App.RoomContract;
+import Iconer.App.RpcProtocols;
 import <cstddef>;
 import <span>;
 import <array>;
@@ -50,6 +51,10 @@ export namespace iconer::app
 			(void)SerializeAt(roomJoinFailedPacketData, PacketProtocol::SC_ROOM_JOIN_FAILED, iconer::app::RoomContract::Success);
 
 			(void)SerializeAt(roomLeftPacketData, PacketProtocol::SC_ROOM_LEFT, static_cast<std::int32_t>(static_cast<std::int64_t>(id)));
+
+			iconer::app::SerializeAt(rideGuardianPacketData, PacketProtocol::SC_RPC, small_id, RpcProtocol::RPC_BEG_RIDE, 0LL, 0);
+			iconer::app::SerializeAt(doRespawnPacketData, PacketProtocol::SC_RPC, small_id, RpcProtocol::RPC_RESPAWN, 0LL, 0);
+			iconer::app::SerializeAt(respawnTimePacketData, PacketProtocol::SC_RPC, small_id, RpcProtocol::RPC_RESPAWN_TIMER, 0LL, 0);
 		}
 
 		[[nodiscard]]
@@ -120,6 +125,28 @@ export namespace iconer::app
 			return createCharactersPacketData;
 		}
 
+		[[nodiscard]]
+		constexpr auto& GetRideGuardianPacketData(const std::int32_t& guardian_id) noexcept
+		{
+			iconer::util::Serialize(rideGuardianPacketData.data() + rpcPacketHeaderSize + sizeof(std::int64_t), guardian_id);
+
+			return rideGuardianPacketData;
+		}
+
+		[[nodiscard]]
+		constexpr auto& GetRespawnPacketData() noexcept
+		{
+			return doRespawnPacketData;
+		}
+
+		[[nodiscard]]
+		constexpr auto& GetRespawnTimePacketData(const std::int64_t& time_count) noexcept
+		{
+			iconer::util::Serialize(respawnTimePacketData.data() + rpcPacketHeaderSize, time_count);
+
+			return respawnTimePacketData;
+		}
+
 	private:
 		std::array<std::byte, signInPacketSize> signInPacketData{};
 		std::array<std::byte, signInFailedPacketSize> signInFailedPacketData{};
@@ -128,6 +155,20 @@ export namespace iconer::app
 		std::array<std::byte, roomJoinedPacketSize> roomJoinedPacketData{};
 		std::array<std::byte, roomJoinFailedPacketSize> roomJoinFailedPacketData{};
 		std::array<std::byte, roomLeftPacketSize> roomLeftPacketData{};
+
+		/** RPC packet datas
+		*
+		* 137[1] => SC_RPC
+		* 20|0[2] => size
+		* 0[4] => id
+		* [8] => arg0
+		* [4] => arg1
+		*/
+		static inline constexpr size_t rpcPacketHeaderSize = 3 + sizeof(std::int32_t) + sizeof(RpcProtocol);
+
+		std::array<std::byte, 20> rideGuardianPacketData{};
+		std::array<std::byte, 20> doRespawnPacketData{};
+		std::array<std::byte, 20> respawnTimePacketData{};
 
 		// 139 => SC_GAME_GETTING_READY
 		// 3 => size

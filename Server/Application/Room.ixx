@@ -7,6 +7,8 @@ import Iconer.Net.ErrorCode;
 import Iconer.App.ISession;
 import Iconer.App.TaskContext;
 import Iconer.App.GameSession;
+import Iconer.App.PacketSerializer;
+import Iconer.App.RpcProtocols;
 import Iconer.App.Settings;
 import <chrono>;
 import <span>;
@@ -27,7 +29,7 @@ export namespace iconer::app
 		static inline constexpr float maxHp = 100;
 
 		std::atomic<pointer_type> userHandle{};
-		ESagaPlayerTeam team_id{};
+		std::atomic<ESagaPlayerTeam> myTeamId{};
 		std::atomic_uint8_t myWeapon{};
 		std::atomic_bool isReady{};
 		std::atomic<float> myHp{ maxHp };
@@ -115,7 +117,7 @@ export namespace iconer::app
 		static inline constexpr size_t nameLength = 16;
 
 		std::int32_t id{ -1 };
-		char team_id{ 0 }; // 1: red, 2: blue
+		char myTeamId{ 0 }; // 1: red, 2: blue
 		std::array<wchar_t, nameLength + 1> nickname{};
 
 		[[nodiscard]]
@@ -154,7 +156,7 @@ export namespace iconer::app
 		std::chrono::system_clock::time_point gamePhaseTime;
 
 		// equals to team id
-		std::atomic_int8_t sagaWinner{};
+		std::atomic_int8_t sagaWinner{ 0 };
 		std::atomic_int32_t sagaTeamScores[2]{};
 		SagaGuardian sagaGuardians[3]{};
 		std::atomic_bool sagaItemListLock{};
@@ -171,15 +173,23 @@ export namespace iconer::app
 			: super(id)
 		{
 			myTitle.resize(titleLength * 2);
+
+			iconer::app::SerializeAt(weaponChoiceTimerPacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_WEAPON_TIMER, 0LL, 0);
+			iconer::app::SerializeAt(gameTimerPacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GAME_TIMER, 0LL, 0);
+			iconer::app::SerializeAt(gameScorePacketData, PacketProtocol::SC_RPC, 0, RpcProtocol::RPC_GET_SCORE, 0LL, 0);
 		}
 
 		~Room() = default;
 
 		void Initialize();
+		void Cleanup();
 
 		[[nodiscard]] bool TryOccupy(reference user);
 		[[nodiscard]] bool TryJoin(reference user);
 		bool Leave(reference user, bool notify = true) noexcept;
+
+		void AddTeamScore(ESagaPlayerTeam team, std::int32_t score) noexcept;
+		void AddOppositeTeamScore(ESagaPlayerTeam team, std::int32_t score) noexcept;
 
 		[[nodiscard]]
 		bool TryStartGame() noexcept
@@ -193,6 +203,9 @@ export namespace iconer::app
 			RoomState state{ RoomState::PrepareGame };
 			return myState.compare_exchange_strong(state, RoomState::Idle, std::memory_order_acq_rel);
 		}
+
+		[[nodiscard]]
+		static bool HasEqualId(const_reference user, const id_type& id) noexcept;
 
 		template<invocable<session_type&> Callable>
 		bool ProcessMember(pointer_type user, Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
@@ -212,6 +225,24 @@ export namespace iconer::app
 			return false;
 		}
 
+		template<invocable<session_type&> Callable>
+		bool ProcessMember(id_type id, Callable&& fun) noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and HasEqualId(*ptr, id))
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		template<invocable<const session_type&> Callable>
 		bool ProcessMember(pointer_type user, Callable&& fun) const noexcept(nothrow_invocable<Callable, const session_type&>)
 		{
@@ -220,6 +251,24 @@ export namespace iconer::app
 				const pointer_type ptr = member.GetStoredUser();
 
 				if (nullptr != ptr and user == ptr)
+				{
+					std::forward<Callable>(fun)(member);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		template<invocable<const session_type&> Callable>
+		bool ProcessMember(id_type id, Callable&& fun) const noexcept(nothrow_invocable<Callable, session_type&>)
+		{
+			for (const session_type& member : myMembers)
+			{
+				const pointer_type ptr = member.GetStoredUser();
+
+				if (nullptr != ptr and HasEqualId(*ptr, id))
 				{
 					std::forward<Callable>(fun)(member);
 
@@ -276,16 +325,51 @@ export namespace iconer::app
 
 		void SetMemberTeam(const_reference user, bool is_red_team);
 
-		constexpr void SetTitle(std::wstring_view title) noexcept
+		constexpr void SetTitle(std::wstring_view title)
 		{
-			if (0 < title.length())
-			{
-				myTitle = title;
-			}
+			myTitle = title;
 		}
 
 		[[nodiscard]] std::span<const std::byte> MakeMemberListPacket();
 		[[nodiscard]] std::pair<std::unique_ptr<std::byte[]>, std::int16_t> MakeMemberJoinedPacket(const_reference user) const;
+
+		[[nodiscard]]
+		auto& MakeWeaponChoiceTimerPacket(const std::int64_t& time) noexcept
+		{
+			while (true)
+			{
+				bool flag = false;
+
+				if (weaponChoiceTimerPacketAcquired.compare_exchange_strong(flag, true, std::memory_order_acquire))
+				{
+					break;
+				}
+			}
+
+			std::memcpy(weaponChoiceTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
+
+			bool rollback = true;
+			weaponChoiceTimerPacketAcquired.compare_exchange_strong(rollback, false, std::memory_order_release);
+
+			return weaponChoiceTimerPacketData;
+		}
+
+		[[nodiscard]]
+		auto& MakeGameTimerPacket(const std::int64_t& time) noexcept
+		{
+			std::memcpy(gameTimerPacketData.data() + 8, &time, sizeof(std::int64_t));
+
+			return gameTimerPacketData;
+		}
+
+		[[nodiscard]]
+		auto& MakeGameScorePacket(const std::int64_t& red_score, const std::int32_t& blu_score) noexcept
+		{
+			std::memcpy(gameScorePacketData.data() + 8, &red_score, sizeof(std::int64_t));
+			std::memcpy(gameScorePacketData.data() + 16, &blu_score, sizeof(std::int32_t));
+
+			return gameScorePacketData;
+		}
 
 		[[nodiscard]]
 		constexpr std::wstring_view GetTitle() const noexcept
@@ -317,6 +401,12 @@ export namespace iconer::app
 			return RoomState::PrepareGame == myState.load(std::memory_order_acquire);
 		}
 
+		[[nodiscard]]
+		bool IsGameEnded() const noexcept
+		{
+			return 0 != sagaWinner.load(std::memory_order_acquire);
+		}
+
 	private:
 		std::atomic_bool isTaken{};
 		std::wstring myTitle{};
@@ -325,6 +415,25 @@ export namespace iconer::app
 		std::array<std::byte, maxSerializeMemberDataSize> precachedMemberListData{};
 		size_t precachedMemberListDataSize{};
 		std::atomic_bool isDirty{};
+
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 225[1] => RPC_WEAPON_TIMER
+		// [8] => seconds count
+		std::array<std::byte, 20> weaponChoiceTimerPacketData{};
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 225[1] => RPC_GAME_TIMER
+		// [8] => seconds count
+		std::array<std::byte, 20> gameTimerPacketData{};
+		// 137[1] => SC_RPC
+		// 20|0[2] => size
+		// 0[4] => id (nothing)
+		// 222[1] => RPC_GET_SCORE
+		std::array<std::byte, 20> gameScorePacketData{};
+		std::atomic_bool weaponChoiceTimerPacketAcquired{};
 
 		[[nodiscard]]
 		bool ChangedIsTaken(bool before, bool flag, std::memory_order order = std::memory_order_release) noexcept

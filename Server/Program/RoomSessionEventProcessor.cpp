@@ -35,15 +35,15 @@ ServerFramework::EventOnChangeTeam(iconer::app::User& user, const std::byte* dat
 	{
 		auto & ctx = user.roomContext;
 
-		const auto team_id = static_cast<std::uint8_t>(*data);
+		const auto team = static_cast<std::uint8_t>(*data);
 
 		if (user.IsConnected() and ctx->TryChangeOperation(None, OpNotifyTeam)) LIKELY
 		{
-			if (team_id == 0) // red team
+			if (team == 0) // red team
 			{
 				room->SetMemberTeam(user, true);
 			}
-			else if (team_id == 1) // blue team
+			else if (team == 1) // blue team
 			{
 				room->SetMemberTeam(user, false);
 			}
@@ -53,7 +53,7 @@ ServerFramework::EventOnChangeTeam(iconer::app::User& user, const std::byte* dat
 				return;
 			};
 
-			if (not myTaskPool.Schedule(ctx, user.GetID(), team_id)) UNLIKELY
+			if (not myTaskPool.Schedule(ctx, user.GetID(), team)) UNLIKELY
 			{
 				ctx->TryChangeOperation(OpNotifyTeam, None);
 			};

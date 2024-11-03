@@ -1,4 +1,6 @@
 module;
+#define DECL_RPC_METHOD(name) \
+void name(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1)
 
 export module Iconer.Framework;
 import Iconer.Net.IFramework;
@@ -45,6 +47,8 @@ public:
 	void Startup() override;
 	void Cleanup() override;
 
+	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
+
 private:
 	alignas(std::hardware_constructive_interference_size) ServerThreadPool myTaskPool{};
 	alignas(std::hardware_constructive_interference_size) iconer::app::UserManager userManager{};
@@ -82,7 +86,7 @@ private:
 	void EventOnUserList(iconer::app::User& user, const std::byte* data);
 	/* Broadcast the changed team state to members */
 	void EventOnChangeTeam(iconer::app::User& user, const std::byte* data);
-	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t team_id);
+	void EventOnNotifyTeamChanged(iconer::app::User& user, std::uint32_t myTeamId);
 	/* Schdule a room for game */
 	void EventOnGameStartSignal(iconer::app::User& user, const std::byte* data);
 	/* Broadcast game ticket to members */
@@ -97,20 +101,65 @@ private:
 	/// <param name="proc">- RPC_MAIN_WEAPON</param>
 	/// <param name="arg0">- weapon type</param>
 	/// <param name="arg1">- nothing</param>
-	void RpcEventOnWeaponChanged(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnWeaponChanged);
 	/// <param name="proc">- RPC_DESTROY_ITEM_BOX</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- item id</param>
-	void RpcEventOnItemBoxDestroyed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemBoxDestroyed);
 	/// <param name="proc">- RPC_GRAB_ITEM</param>
 	/// <param name="arg0">- nothing</param>
 	/// <param name="arg1">- item id</param>
-	void RpcEventOnItemGrabbed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemGrabbed);
 	/// <param name="proc">- RPC_USE_ITEM_0</param>
 	/// <param name="arg0">- effect info</param>
 	/// <param name="arg1">- item type</param>
-	void RpcEventOnItemUsed(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
-	void RpcEventDefault(iconer::app::Room& room, iconer::app::User& user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
+	DECL_RPC_METHOD(RpcEventOnItemUsed);
+	/// <param name="proc">- RPC_BEG_RIDE</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnTryingtoRideGuardian);
+	/// <param name="proc">- RPC_END_RIDE</param>
+	/// <param name="arg0">- user id</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnUnrideFromGuardian);
+	/// <param name="proc">- RPC_DMG_GUARDIAN</param>
+	/// <param name="arg0">- damage to guardian (4 bytes)</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnDamageToGuardian);
+	/// <param name="proc">- RPC_DMG_GUARDIANS_PART</param>
+	/// <param name="arg0">- destructed part id</param>
+	/// <param name="arg1">- guardian id</param>
+	DECL_RPC_METHOD(RpcEventOnGuardianPartDestructed);
+	/// <summary>일반적인 경우 실행 안됨.<para>오직 ExecuteRespawnViaRpc 메서드로부터만 수신됨.</para></summary>
+	/// <param name="proc">- RPC_RESPAWN</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnRespawn);
+	/// <param name="proc">- RPC_WEAPON_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingWeaponChoiceTime);
+	/// <param name="proc">- RPC_RESPAWN_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingRespawnTime);
+	/// <param name="proc">- RPC_GET_SCORE</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingScores);
+	/// <param name="proc">- RPC_GAME_TIMER</param>
+	/// <param name="arg0">- nothing</param>
+	/// <param name="arg1">- nothing</param>
+	DECL_RPC_METHOD(RpcEventOnGettingGameTime);
+	/// <param name="proc">- RPC_DESTROY_CORE</param>
+	/// <param name="arg0">- score</param>
+	/// <param name="arg1">- destroyed pinata's id</param>
+	DECL_RPC_METHOD(RpcEventOnPinataDestroyed);
+	/// <param name="proc">- RPC_ACTIVE_GUARDIANS_PART</param>
+	/// <param name="arg0">- x (4 bytes) | y (4 bytes)</param>
+	/// <param name="arg1">- guardian id (1 byte) | guardian part id (1 byte) | z (2 bytes) - compressed float</param>
+	DECL_RPC_METHOD(RpcEventOnMiniBearActivated);
+	void RpcEventDefault(iconer::app::Room& current_room, iconer::app::User& current_user, iconer::app::RpcProtocol proc, const std::int64_t& arg0, const std::int32_t& arg1);
 
 	iconer::net::IoResult AcceptUser(iconer::app::User& user);
 	void ReserveUser(iconer::app::User& user) const noexcept;
@@ -124,7 +173,6 @@ private:
 
 	void AddPacketContext(iconer::app::PacketContext* context) noexcept;
 	void AddSendContext(iconer::app::SendContext* context) noexcept;
-	[[nodiscard]] iconer::app::SendContext* AcquireSendContext() noexcept;
 
 	ServerFramework(const ServerFramework&) = delete;
 	ServerFramework& operator=(const ServerFramework&) = delete;

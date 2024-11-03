@@ -7,6 +7,7 @@ module;
 
 export module iconer.Utility.Serializer;
 import Iconer.Utility.TypeTraits;
+import <atomic>;
 import <string_view>;
 import <string>;
 import <vector>;
@@ -18,6 +19,13 @@ export namespace iconer::util
 	template<typename T>
 	constexpr std::int16_t GetByteSize(const T&) noexcept;
 
+	template<trivials T>
+	[[nodiscard]]
+	constexpr std::int16_t GetByteSize(const std::atomic<T>&) noexcept
+	{
+		return sizeof(T);
+	}
+	
 	template<trivials T>
 	[[nodiscard]]
 	constexpr std::int16_t GetByteSize(const T&) noexcept
